@@ -127,7 +127,7 @@ const computed = {
 		return this.fileInfo === null || this.fileInfo.name === ''
 	},
 
-	uploadToLarge() {
+	uploadTooLarge() {
 		return this.fileInfo !== null && this.fileInfo.size > MAXUPLOADSIZE
 	},
 

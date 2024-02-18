@@ -840,7 +840,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Item(s) from sprint removal is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -922,7 +922,7 @@ const actions = {
 					// show children nodes
 					expandNode(rootState.helpersRef.getNodeById(payload.parentId))
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
+						commit('addToEventList', { txt: `The sprint assignment to ${payload.itemIds.length} items is removed`, severity: SEV.INFO })
 						// create an entry for undoing the remove-from-sprint in a last-in first-out sequence
 						const entry = {
 							type: 'undoRemoveSprintIds',
@@ -933,7 +933,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: `The sprint assignment to ${payload.itemIds.length} items is undone`, severity: SEV.INFO })
+						commit('addToEventList', { txt: `The sprint assignment to ${payload.itemIds.length} items is undone`, severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {

@@ -48,7 +48,7 @@ const actions = {
 					commit('updateColorMapper', { id, newColor: payload.newColor })
 					commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -57,7 +57,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of requirement area color indication is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -119,7 +119,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of requirement area assignment is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of requirement area assignment is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -229,7 +229,7 @@ const actions = {
 		const node = rootState.helpersRef.getNodeById(parentId)
 		if (node) {
 			commit('updateNodesAndCurrentDoc', { node, reqarea: newReqAreaId, lastChange: timestamp, newHist: hist })
-			commit('showLastEvent', { txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`, severity: SEV.INFO })
+			commit('addToEventList', { txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`, severity: SEV.INFO })
 			const descendants = rootState.helpersRef.getDescendantsInfo(node).descendants
 			for (const d of descendants) {
 				const currentReqArea = d.data.reqarea

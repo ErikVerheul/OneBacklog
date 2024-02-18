@@ -75,7 +75,7 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <div class="square" :style="{ 'background-color': squareColor }">{{ squareText }}</div>
-        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages()" :style="{ 'background-color': getLastEventColor }">
+        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages" :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
 
         <div class="tree-container">
@@ -283,10 +283,10 @@
       <BFormInput v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></BFormInput>
     </BModal>
 
-    <BModal size="lg" ref="uploadRef" :ok-disabled="uploadToLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
+    <BModal size="lg" ref="uploadRef" :ok-disabled="uploadTooLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
       <BFormFile v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></BFormFile>
       <div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
-      <div v-if="uploadToLarge" class="mt-3 colorRed">Cannot upload files this size</div>
+      <div v-if="uploadTooLarge" class="mt-3 colorRed">Cannot upload files this size</div>
     </BModal>
 
     <BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">

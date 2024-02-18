@@ -46,7 +46,7 @@ const actions = {
 				rootState.authentication.cookieAuthenticated = true
 				if (wasOffline) {
 					dispatch('doLog', { event: `The application is online again.`, level: SEV.INFO })
-					commit('showLastEvent', { txt: 'You are online again', severity: SEV.INFO })
+					commit('addToEventList', { txt: 'You are online again', severity: SEV.INFO })
 				}
 				// start listenForChanges if needed
 				if (!rootState.listenForChangesRunning) {
@@ -61,7 +61,7 @@ const actions = {
 					rootState.authentication.cookieAuthenticated = false
 					// if error status 401 is returned we are online again despite the error condition (no authentication)
 					rootState.online = true
-					commit('showLastEvent', { txt: 'You are online again. The cookie authorization refresh loop is started', severity: SEV.INFO })
+					commit('addToEventList', { txt: 'You are online again. The cookie authorization refresh loop is started', severity: SEV.INFO })
 					// restart the cookie authorization refresh loop and wait for the next watchdog cycle to restart listenForChanges
 					clearInterval(rootState.authentication.runningCookieRefreshId)
 					dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
@@ -69,7 +69,7 @@ const actions = {
 					rootState.online = false
           // no idea if still authenticated
           rootState.authentication.cookieAuthenticated = undefined
-					if (!wasOffline) commit('showLastEvent', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
+					if (!wasOffline) commit('addToEventList', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
 				}
 				consoleDebugStatus()
 			})

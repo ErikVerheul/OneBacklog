@@ -222,7 +222,7 @@ const utilities = {
 		},
 
 		showLastEvent(txt, severity) {
-			store.commit('showLastEvent', { txt, severity })
+			store.commit('addToEventList', { txt, severity })
 		},
 
 		showSelectionEvent(selNodes) {

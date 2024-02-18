@@ -186,7 +186,7 @@ const actions = {
 			rootState.helpersRef.dependencyViolationsFound()
 			commit('createColorMapper')
 			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
-			commit('showLastEvent', { txt: createLoadEventText(state), severity })
+			commit('addToEventList', { txt: createLoadEventText(state), severity })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {

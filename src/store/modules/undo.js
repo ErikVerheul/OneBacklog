@@ -220,7 +220,7 @@ const actions = {
 
 			// quit the undo if the branch parent is missing
 			if (removedBranchRootDoc.delmark) {
-				commit('showLastEvent', { txt: 'Cannot undo the removal. The document representing the item to restore under was removed.', severity: SEV.WARNING })
+				commit('addToEventList', { txt: 'Cannot undo the removal. The document representing the item to restore under was removed.', severity: SEV.WARNING })
 				return
 			}
 			dispatch('updateDoc', {
@@ -277,7 +277,7 @@ const actions = {
 						if (node !== null) node.conditionalFor.push(c.conditionalFor)
 					}
 					commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
-					commit('showLastEvent', { txt: `The ${rootState.helpersRef.getLevelText(globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
+					commit('addToEventList', { txt: `The ${rootState.helpersRef.getLevelText(globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`, severity: SEV.INFO })
 					rootState.busyWithLastUndo = false
 				}, onFailureCallback: () => {
 					rootState.busyWithLastUndo = false

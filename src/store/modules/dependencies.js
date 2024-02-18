@@ -38,7 +38,7 @@ const actions = {
 			const toDispatch = [{ alsoSetCondition: payload }]
 			dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, toDispatch, caller: 'setDepAndCond' })
 		}).catch(error => {
-			commit('showLastEvent', { txt: 'Failed to set the dependency', severity: SEV.ERROR })
+			commit('addToEventList', { txt: 'Failed to set the dependency', severity: SEV.ERROR })
 			const msg = 'setDepAndCond: Could not read document with _id ' + id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -93,12 +93,12 @@ const actions = {
 					}
 					rootState.changeHistory.unshift(entry)
 					rootState.selectNodeOngoing = false
-					commit('showLastEvent', { txt: 'The dependency is set', severity: SEV.INFO })
+					commit('addToEventList', { txt: 'The dependency is set', severity: SEV.INFO })
 				}
 			})
 		}).catch(error => {
 			rootState.selectNodeOngoing = false
-			commit('showLastEvent', { txt: 'Failed to se the dependency', severity: SEV.ERROR })
+			commit('addToEventList', { txt: 'Failed to se the dependency', severity: SEV.ERROR })
 			const msg = 'alsoSetCondition: Could not read document with _id ' + id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -145,7 +145,7 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
+			commit('addToEventList', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
 			const msg = 'undoSetDependencyAsync: Could not read document with _id ' + id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -184,7 +184,7 @@ const actions = {
 					onSuccessCallback: () => {
 						commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, removeLastDependencyOn: null, lastChange: payload.dependentOnPrevLastChange, newHist: payload.hist })
 						commit('updateNodesAndCurrentDoc', { node: payload.conditionalForNode, removeLastConditionalFor: null, lastChange: payload.conditionalForprevLastChange, newHist })
-						commit('showLastEvent', { txt: 'Dependency set is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Dependency set is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}, onFailureCallback: () => {
 						rootState.busyWithLastUndo = false
@@ -193,7 +193,7 @@ const actions = {
 			}
 		}).catch(error => {
 			rootState.busyWithLastUndo = false
-			commit('showLastEvent', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
+			commit('addToEventList', { txt: 'Dependency set undo failed', severity: SEV.ERROR })
 			const msg = 'alsoUndoSetConditionAsync: Could not read document with _id ' + id + ', ' + error
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -274,8 +274,8 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 					if (payload.removedIds > 1) {
-						commit('showLastEvent', { txt: 'The dependencies are removed', severity: SEV.INFO })
-					} else commit('showLastEvent', { txt: 'The dependency is removed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The dependencies are removed', severity: SEV.INFO })
+					} else commit('addToEventList', { txt: 'The dependency is removed', severity: SEV.INFO })
 				}
 			}
 			dispatch('updateBulk', {
@@ -385,8 +385,8 @@ const actions = {
 					doc.history.unshift(newHist)
 					docs.push(doc)
 					if (payload.removedIds > 1) {
-						commit('showLastEvent', { txt: 'The conditions are removed', severity: SEV.INFO })
-					} else commit('showLastEvent', { txt: 'The condition is removed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The conditions are removed', severity: SEV.INFO })
+					} else commit('addToEventList', { txt: 'The condition is removed', severity: SEV.INFO })
 				}
 			}
 			dispatch('updateBulk', {

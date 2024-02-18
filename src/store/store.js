@@ -1,6 +1,5 @@
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
-import router from '../router'
 import { atou, expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -66,6 +65,7 @@ function createEventToDisplay(payload) {
 		eventKey: payload.eventKey,
 		time: `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`,
 		txt: payload.txt,
+		sevKey: payload.severity,
 		severity: severityStr,
 		color
 	}
@@ -599,7 +599,12 @@ const store = createStore({
 	},
 
 	mutations: {
+		/*
+		* Show a message in the message bar in the Product details or Products overview
+		* Stops showing running progress indicator upto the next process indicator call
+		*/
 		addToEventList(state, payload) {
+			state.showProgress = false
 			state.eventKey++
 			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
@@ -1118,18 +1123,6 @@ const store = createStore({
 			state.userData.myTeam = newTeam
 		},
 
-		/*
-		* Show a message in the message bar in the Product details or Products overview
-		* Stops showing running progress indicator upto the next process indicator call
-		*/
-		showLastEvent(state, payload) {
-			state.showProgress = false
-			state.eventKey++
-			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
-			state.eventList.unshift(newEvent)
-			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
-		},
-
 		startOrContinueShowProgress(state, msg) {
 			state.showProgress = true
 			state.progressMessage = msg
@@ -1160,35 +1153,35 @@ const store = createStore({
 			window.location.reload()
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log('endSession, signedOut = ' + state.signedOut + ', caller = ' + caller)
-	}
-},
+		}
+	},
 
 	modules: {
-	attachments,
-	authentication,
-	calendars,
-	clone,
-	helpers,
-	dependencies,
-	help,
-	initdb,
-	loadoverview,
-	loadproducts,
-	logging,
-	move,
-	planningboard,
-	removebranch,
-	restorebranches,
-	startup,
-	sync,
-	teams,
-	undo,
-	update_reqarea,
-	update,
-	useracc,
-	utils,
-	watchdog
-}
+		attachments,
+		authentication,
+		calendars,
+		clone,
+		helpers,
+		dependencies,
+		help,
+		initdb,
+		loadoverview,
+		loadproducts,
+		logging,
+		move,
+		planningboard,
+		removebranch,
+		restorebranches,
+		startup,
+		sync,
+		teams,
+		undo,
+		update_reqarea,
+		update,
+		useracc,
+		utils,
+		watchdog
+	}
 })
 
 export default store

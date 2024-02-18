@@ -39,7 +39,7 @@ const actions = {
 		function reportOddTimestamp(event, docId) {
 			if (Date.now() - event.timestamp > 60000) {
 				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 minute`
-				commit('showLastEvent', { txt: msg, severity: SEV.WARNING })
+				commit('addToEventList', { txt: msg, severity: SEV.WARNING })
 				dispatch('doLog', { event: msg + ` The document id is ${docId}.`, level: SEV.WARNING })
 			}
 		}
@@ -51,13 +51,13 @@ const actions = {
 		function showSyncMessage(text, severity, specialText = false) {
 			if (specialText) {
 				if (isSameUserInDifferentSession) {
-					commit('showLastEvent', { txt: `You ${text} in another session`, severity })
-				} else commit('showLastEvent', { txt: `Another user ${text}`, severity })
+					commit('addToEventList', { txt: `You ${text} in another session`, severity })
+				} else commit('addToEventList', { txt: `Another user ${text}`, severity })
 			} else {
 				const standardTxt = `${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}' in product '${getProductTitle(doc.productId)}'`
 				if (isSameUserInDifferentSession) {
-					commit('showLastEvent', { txt: `You ${text} ${standardTxt} in another session`, severity })
-				} else commit('showLastEvent', { txt: `Another user ${text} ${standardTxt}`, severity })
+					commit('addToEventList', { txt: `You ${text} ${standardTxt} in another session`, severity })
+				} else commit('addToEventList', { txt: `Another user ${text} ${standardTxt}`, severity })
 			}
 		}
 

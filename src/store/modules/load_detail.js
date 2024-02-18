@@ -233,7 +233,7 @@ const actions = {
 			rootState.productTitlesMap = {}
 			commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
 			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
-			commit('showLastEvent', { txt: createLoadEventText(state), severity })
+			commit('addToEventList', { txt: createLoadEventText(state), severity })
 			// log any detected orphans, if present
 			if (state.orphansCount > 0) {
 				for (const o of orphansFound) {

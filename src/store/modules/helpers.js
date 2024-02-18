@@ -268,7 +268,7 @@ const actions = {
 				const violations = rootState.helpersRef.findDependencyViolations(rootGetters.isOverviewSelected)
 				if (violations.length > 0) {
 					violationsWereFound = true
-					commit('showLastEvent', { txt: 'This product has priority inconsistencies. Undo the change or remove the dependency.', severity: SEV.WARNING })
+					commit('addToEventList', { txt: 'This product has priority inconsistencies. Undo the change or remove the dependency.', severity: SEV.WARNING })
 					rootState.helpersRef.showDependencyViolations(violations, rootGetters.isOverviewSelected)
 				} else {
 					// reset the tree view

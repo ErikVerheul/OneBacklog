@@ -32,10 +32,10 @@ const actions = {
 						tmpFollowers.splice(i, 1)
 					}
 				}
-				commit('showLastEvent', { txt: `Sending change notices for this item is stopped`, severity: SEV.INFO })
+				commit('addToEventList', { txt: `Sending change notices for this item is stopped`, severity: SEV.INFO })
 			} else {
 				tmpFollowers.push({ email: rootState.userData.email })
-				commit('showLastEvent', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: SEV.INFO })
+				commit('addToEventList', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: SEV.INFO })
 			}
 			const newHist = {
 				subscribeEvent: [wasFollower],
@@ -94,7 +94,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -104,7 +104,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of item T-shirt size is undone', severity: SEV.INFO })
 						if (payload.isUndoAction) rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -156,7 +156,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -166,7 +166,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of spike person hours is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -219,7 +219,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -229,7 +229,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of item story points is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of item story points is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -321,9 +321,9 @@ const actions = {
 					}
 					// show warnings or infos
 					if (warnMsg) {
-						commit('showLastEvent', { txt: warnMsg, severity: SEV.WARNING })
+						commit('addToEventList', { txt: warnMsg, severity: SEV.WARNING })
 					} else {
-						if (infoMsg) commit('showLastEvent', { txt: infoMsg, severity: SEV.INFO })
+						if (infoMsg) commit('addToEventList', { txt: infoMsg, severity: SEV.INFO })
 					}
 				}, onFailureCallback: () => {
 					if (payload.isUndoAction) rootState.busyWithLastUndo = false
@@ -396,8 +396,8 @@ const actions = {
 
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							if (descendantsInfo.count === 0) {
-								commit('showLastEvent', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
-							} else commit('showLastEvent', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
+								commit('addToEventList', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
+							} else commit('addToEventList', { txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
 								type: 'undoChangeTeam',
@@ -408,7 +408,7 @@ const actions = {
 							rootState.changeHistory.unshift(entry)
 						} else {
 							rootState.busyWithLastUndo = false
-							commit('showLastEvent', { txt: 'Change of owning team is undone', severity: SEV.INFO })
+							commit('addToEventList', { txt: 'Change of owning team is undone', severity: SEV.INFO })
 						}
 					}, onFailureCallback: () => {
 						if (payload.isUndoAction) rootState.busyWithLastUndo = false
@@ -508,7 +508,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The item title is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The item title is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -518,7 +518,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of item title is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of item title is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -570,7 +570,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The item type is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The item type is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							type: 'undoSelectedPbiType',
@@ -580,7 +580,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of item type is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of item type is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				}, onFailureCallback: () => {
@@ -631,7 +631,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The item description is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The item description is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -641,7 +641,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of the item description is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of the item description is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				},
@@ -694,7 +694,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('showLastEvent', { txt: 'The item acceptance criteria are changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'The item acceptance criteria are changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -704,7 +704,7 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(entry)
 					} else {
-						commit('showLastEvent', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
+						commit('addToEventList', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
 						rootState.busyWithLastUndo = false
 					}
 				},
@@ -800,7 +800,7 @@ const actions = {
 				onSuccessCallback: () => {
 					rootState.busyWithLastUndo = false
 					commit('updateNodesAndCurrentDoc', { node, replaceComments: comments })
-					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
+					commit('addToEventList', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
 				}
 			})
 
@@ -890,7 +890,7 @@ const actions = {
 				onSuccessCallback: () => {
 					rootState.busyWithLastUndo = false
 					commit('updateNodesAndCurrentDoc', { node, replaceHistory: history })
-					commit('showLastEvent', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
+					commit('addToEventList', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
 				}
 			})
 
@@ -956,7 +956,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onFailureCallback) {
 					payload.onFailureCallback()
-				} else commit('showLastEvent', { txt: 'The update failed due to conflicts or errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
+				} else commit('addToEventList', { txt: 'The update failed due to conflicts or errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
 			} else {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
@@ -992,7 +992,7 @@ const actions = {
 				if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
 					if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
 						if (rows.length > 1) {
-							commit('showLastEvent', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: SEV.INFO })
+							commit('addToEventList', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: SEV.INFO })
 							let ids = ''
 							for (let i = 0; i < rows.length; i++) {
 								ids += rows[i].doc._id + ', '
@@ -1002,14 +1002,14 @@ const actions = {
 						}
 						commit('updateNodesAndCurrentDoc', { newDoc: doc })
 					} else {
-						commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`, severity: SEV.INFO })
+						commit('addToEventList', { txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`, severity: SEV.INFO })
 					}
 				} else {
-					commit('showLastEvent', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: SEV.WARNING })
+					commit('addToEventList', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: SEV.WARNING })
 				}
-			} else commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
+			} else commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
 		}).catch(() => {
-			commit('showLastEvent', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
+			commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
 		})
 	},
 
@@ -1051,7 +1051,7 @@ const actions = {
 							rootState.changeHistory.unshift(entry)
 							// select and show the new node
 							commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
-							commit('showLastEvent', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
+							commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 						} else {
 							// the priority has changed after the preflihgt insert; revert the change in the tree and database
 							const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.

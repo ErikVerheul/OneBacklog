@@ -87,7 +87,7 @@ const actions = {
 							dispatch('addToMyProducts', { newRoles, productId: doc._id, productTitle: doc.title, isSameUserInDifferentSession: payload.isSameUserInDifferentSession })
 						}
 					}
-					commit('showLastEvent', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
+					commit('addToEventList', { txt: `The items removed in another session are restored`, severity: SEV.INFO })
 				} else {
 					const msg = `syncRestoreBranch: Cannot restore item ${doc._id} and its ${histArray[1]} descendants from database ${rootState.userData.currentDb}. The parent node is missing`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })

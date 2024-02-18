@@ -280,7 +280,7 @@ const actions = {
 						// check if the teamcalendar needs to be extended
 						const lastTeamSprint = newTeamDoc.teamCalendar.slice(-1)[0]
 						if (lastTeamSprint.startTimestamp - lastTeamSprint.sprintLength < Date.now()) {
-							commit('showLastEvent', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your Admin creates new sprints`, severity: SEV.WARNING })
+							commit('addToEventList', { txt: `Team '${newTeamDoc.teamName}' ran out of sprints. You cannot join this team until your Admin creates new sprints`, severity: SEV.WARNING })
 							return
 						}
 					}
@@ -335,8 +335,8 @@ const actions = {
 					}]
 					dispatch('updateDoc', { dbName, updatedDoc: oldTeamDoc, toDispatch, caller: 'updateTeamsInDb' })
 				} else {
-					if (!oldTeamDoc) commit('showLastEvent', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: SEV.WARNING })
-					if (!newTeamDoc) commit('showLastEvent', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: SEV.WARNING })
+					if (!oldTeamDoc) commit('addToEventList', { txt: `Team '${payload.oldTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: SEV.WARNING })
+					if (!newTeamDoc) commit('addToEventList', { txt: `Team '${payload.newTeam}' is missing in the database. You cannot join this team until fixed by your Admin`, severity: SEV.WARNING })
 				}
 			}).catch(error => {
 				const msg = `updateTeamInDb: Could not read the teams in database '${dbName}'. ${error}`

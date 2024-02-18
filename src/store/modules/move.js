@@ -182,7 +182,7 @@ const actions = {
 				const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 				// ToDo: make this an alert with the only option to restart the application
-				commit('showLastEvent', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
+				commit('addToEventList', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
 				if (payload.isUndoAction) rootState.busyWithLastUndo = false
 			} else {
 				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
@@ -229,9 +229,9 @@ const actions = {
 						items
 					}
 					rootState.changeHistory.unshift(entry)
-					commit('showLastEvent', { txt: `${docs.length} items have been moved with ${movedCount} descendants`, severity: SEV.INFO })
+					commit('addToEventList', { txt: `${docs.length} items have been moved with ${movedCount} descendants`, severity: SEV.INFO })
 				} else {
-					commit('showLastEvent', { txt: `${docs.length} items have been moved back with ${movedCount} descendants`, severity: SEV.INFO })
+					commit('addToEventList', { txt: `${docs.length} items have been moved back with ${movedCount} descendants`, severity: SEV.INFO })
 					rootState.busyWithLastUndo = false
 				}
 			}, onFailureCallback: () => {

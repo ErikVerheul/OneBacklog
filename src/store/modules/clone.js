@@ -47,7 +47,7 @@ const actions = {
 		commit
 	}, originalNode) {
 		if (busyCloning) {
-			commit('showLastEvent', { txt: `Cannot start a clone while another clone is busy. Please try later`, severity: SEV.WARNING })
+			commit('addToEventList', { txt: `Cannot start a clone while another clone is busy. Please try later`, severity: SEV.WARNING })
 			return
 		}
 		busyCloning = true
@@ -247,7 +247,7 @@ const actions = {
 			productWasCloned: payload.cloneProductId !== undefined
 		}
 		rootState.changeHistory.unshift(entry)
-		commit('showLastEvent', { txt: `The ${rootState.helpersRef.getLevelText(payload.originalNode.level)} '${payload.originalNode.title}' and ${clonedDocsCount - 1} descendants are cloned`, severity: SEV.INFO })
+		commit('addToEventList', { txt: `The ${rootState.helpersRef.getLevelText(payload.originalNode.level)} '${payload.originalNode.title}' and ${clonedDocsCount - 1} descendants are cloned`, severity: SEV.INFO })
 		busyCloning = false
 	}
 }

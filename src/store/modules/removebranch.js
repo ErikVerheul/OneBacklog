@@ -438,13 +438,13 @@ const actions = {
 											entry.removedProductRoles = rootGetters.getMyProductsRoles[removedNode._id]
 										}
 										rootState.changeHistory.unshift(entry)
-										commit('showLastEvent', { txt: `The ${rootState.helpersRef.getLevelText(removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
+										commit('addToEventList', { txt: `The ${rootState.helpersRef.getLevelText(removedNode.level)} '${removedNode.title}' and ${removedDocsCount - 1} descendants are removed`, severity: SEV.INFO })
 									} else {
 										if (payload.undoOnError) {
-											commit('showLastEvent', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
-										} else commit('showLastEvent', { txt: 'Item creation is undone', severity: SEV.INFO })
+											commit('addToEventList', { txt: `The tree structure has changed while the new document was created. The insertion is undone`, severity: SEV.ERROR })
+										} else commit('addToEventList', { txt: 'Item creation is undone', severity: SEV.INFO })
 									}
-								} else commit('showLastEvent', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
+								} else commit('addToEventList', { txt: `Cannot remove remove node with title ${removedNode.title}`, severity: SEV.ERROR })
 								// removeBranch is done
 								reset(rootState, payload)
 							}, onFailureCallback: () => {
