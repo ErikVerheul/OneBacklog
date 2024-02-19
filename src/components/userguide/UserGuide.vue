@@ -306,7 +306,9 @@
 					<p>This bar displays the user name, the database name and the number of products assigned to this user.</p>
 					<h4>The event bar</h4>
 					<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an
-						error.<br>On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted.
+						error. When a warning or error is displayed the event bar is froozen. New events cannot overwrite the warning or error. 
+						A click on the event bar shows a list of all event messages of your session and releases a freeze if set.
+						<br>On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted.
 						It lights when another user changes a title or the position of one or more items in your tree view below. Your
 						tree is updated instantly.</p>
 					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this

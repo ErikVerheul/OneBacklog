@@ -6,6 +6,20 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.1.0 - 19 Februari 2024 new features</h3>
+          <p>Features:</p>
+          <ul>
+            <li>When dragging an item to another location the potential items to drag into are bordered</li>
+          </ul>
+          <ul>
+            <li>Temporary freeze of severe, error or warning event messages so that these are not overwritten by new messages</li>
+          </ul>
+          <ul>
+            <li>The Filter button now changes title to 'Reset filter' when active</li>
+          </ul>
+          <ul>
+            <li>The 'Products overview' view is only available for users with the role of APO</li>
+          </ul>
           <h3>v.2.0.2 - 15 Februari 2024 bug fix, refactoring and upgrade</h3>
           <p>Bug fix:</p>
           <ul>
