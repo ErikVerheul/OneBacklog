@@ -9,6 +9,15 @@
     "serve": "vite preview",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
   },
+  "keywords": [
+    "Scrum",
+    "large Scrum",
+    "Less framework",
+    "backlog maintenance",
+    "tree view",
+    "multiuser",
+    "synchronization"
+  ],
   "dependencies": {
     "@coreui/vue": "^4.10.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
