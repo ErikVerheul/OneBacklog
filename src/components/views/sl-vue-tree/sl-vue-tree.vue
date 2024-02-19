@@ -6,16 +6,23 @@
       'sl-vue-tree-selected': node.isSelected,
       'sl-vue-tree-highlighted-1': !node.isSelected && node.tmp.isHighlighted_1,
       'sl-vue-tree-highlighted-2': !node.isSelected && node.tmp.isHighlighted_2,
-      'sl-vue-tree-warnlighted': !node.isSelected && node.tmp.isWarnLighted}" :key="node.pathStr">
+      'sl-vue-tree-warnlighted': !node.isSelected && node.tmp.isWarnLighted
+    }" :key="node.pathStr">
       <div class="sl-vue-tree-cursor" :style="{
         visibility:
           cursorPosition &&
-          cursorPosition.nodeModel.pathStr === node.pathStr &&
-          cursorPosition.placement === 'before' ? 'visible' : 'hidden' }">
+            cursorPosition.nodeModel.pathStr === node.pathStr &&
+            cursorPosition.placement === 'before' ? 'visible' : 'hidden'
+      }">
       </div>
 
       <template class="sl-vue-tree-node-item" @mousedown="onNodeMousedownHandler($event, node)" @mouseup="onNodeMouseupHandler($event)" @contextmenu="emitNodeContextMenu(node)" :path="node.pathStr">
-        <div>
+        <div :class="{
+          'sl-vue-tree-cursor-inside':
+            cursorPosition &&
+            cursorPosition.placement === 'inside' &&
+            cursorPosition.nodeModel.pathStr === node.pathStr
+        }">
           <template v-for="gapVal in gaps" :key="gapVal">
             <span class="sl-vue-tree-gap" />
           </template>
@@ -98,7 +105,8 @@
   line-height: 28px;
   border: 1px solid transparent;
   user-select: none;
-  -webkit-user-select: none; /* Safari */
+  -webkit-user-select: none;
+  /* Safari */
 }
 
 .sl-vue-tree-gap {
@@ -111,6 +119,10 @@
   display: inline-block;
   text-align: left;
   width: 20px;
+}
+
+.sl-vue-tree-cursor-inside {
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .sl-vue-tree-dependencyviolation {
