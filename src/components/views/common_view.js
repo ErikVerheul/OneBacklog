@@ -800,6 +800,7 @@ const methods = {
 	},
 
 	showMoreMessages() {
+		store.commit('resetfroozenEventDisplay')
 		this.$refs.historyEventRef.show()
 	}
 }

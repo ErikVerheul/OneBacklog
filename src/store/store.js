@@ -92,6 +92,13 @@ function cleanHistory(doc) {
 	return doc
 }
 
+function getCurrentEvt(eventsArray, key) {
+	for (const evt of eventsArray) {
+		if (evt.eventKey === key) return evt
+	}
+	return null
+}
+
 const store = createStore({
 	state() {
 		return {
@@ -129,14 +136,16 @@ const store = createStore({
 			busyWithLastUndo: false,
 			currentDoc: null,
 			changeHistory: [],
-			eventKey: 0,
+			currentEventKey: 0,
 			eventList: [],
 			filterForComment: '',
 			filterForHistory: '',
+			freezeEvent: false,
 			itemId: '',
 			keyword: '',
 			lastTreeView: undefined,
 			moveOngoing: false,
+			newEventKey: 0,
 			progressMessage: '',
 			searchOn: false,
 			selectedForView: 'comments',
@@ -255,13 +264,11 @@ const store = createStore({
 
 		getLastEventTxt(state) {
 			if (state.showProgress) return state.progressMessage
-			if (state.eventList[0]) return state.eventList[0].txt
+			if (getCurrentEvt(state.eventList, state.currentEventKey)) return getCurrentEvt(state.eventList, state.currentEventKey).txt
 		},
 
 		getLastEventColor(state) {
-			if (state.eventList[0]) {
-				return state.eventList[0].color
-			}
+			if (getCurrentEvt(state.eventList, state.currentEventKey)) return getCurrentEvt(state.eventList, state.currentEventKey).color
 		},
 
 		/* Return the last selected node or undefined when no node is selected */
@@ -599,16 +606,42 @@ const store = createStore({
 	},
 
 	mutations: {
-		/*
-		* Show a message in the message bar in the Product details or Products overview
+		/*		
 		* Stops showing running progress indicator upto the next process indicator call
+		* Show a message in the message bar in the Product details or Products overview
+		* Stops showing new events is a CRITICAL, ERROR or WARNING event message is displayed.
+		* Resume showing new events after the events list is displayed (click on event bar)
 		*/
 		addToEventList(state, payload) {
 			state.showProgress = false
-			state.eventKey++
-			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.eventKey, eventList: state.eventList })
+			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.newEventKey, eventList: state.eventList })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
+			state.newEventKey++
+			if (state.eventList.length > 0) {
+				if (payload.severity > SEV.INFO) {
+					// find the last critical error or normal error or warning
+					for (let severity = SEV.CRITICAL; severity > SEV.INFO; severity--) {
+						for (const evt of state.eventList) {
+							if (evt.eventKey > state.currentEventKey) {
+								if (evt.sevKey === severity) {
+									state.currentEventKey = evt.eventKey
+									state.freezeEvent = true
+									return
+								}
+							}
+						}
+					}
+				} else {
+					// severity DEBUG or INFO
+					if (!state.freezeEvent) state.currentEventKey = state.eventList[0].eventKey
+				}
+			}
+		},
+
+		resetfroozenEventDisplay(state) {
+			state.freezeEvent = false
+			state.currentEventKey = state.eventList[0].eventKey
 		},
 
 		/* Store my user data in memory */
