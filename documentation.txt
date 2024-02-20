@@ -271,7 +271,9 @@ Example:
 	...
 }
 
-Thee events and their usage:      
+Thee events and their usage:
+
+The first 3 keys of every event object are: event name, 'by' and 'timestamp' 
 
 distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------

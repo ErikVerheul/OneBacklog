@@ -1,13 +1,13 @@
 <template >
   <div>
-    <ul v-if="store.state.selectedForView==='comments'">
+    <ul v-if="store.state.selectedForView === 'comments'">
       <li v-for="comment in getFilteredComments" :key="comment.timestamp">
         <div v-for="(value, key) in comment" :key="key">
           <div v-html="prepCommentsText(key, value)"></div>
         </div>
       </li>
     </ul>
-    <ul v-if="store.state.selectedForView==='attachments'">
+    <ul v-if="store.state.selectedForView === 'attachments'">
       <div v-if="!isUploadDone">loading...</div>
       <div v-for="(attach, index) in getAttachments()" :key="attach.title + attach.data.digest">
         <span>
@@ -19,7 +19,7 @@
         </span>
       </div>
     </ul>
-    <ul v-if="store.state.selectedForView==='history'">
+    <ul v-if="store.state.selectedForView === 'history'">
       <li v-for="hist in getFilteredHistory" :key="hist.timestamp">
         <div v-for="(value, key) in hist" :key="key">
           <div v-html="prepHistoryText(key, value)"></div>
@@ -29,10 +29,15 @@
   </div>
 </template>
 
-<script src="./d_listings.js"></script>
+<script>
+import commonListings from '../common_listings.js'
+
+export default {
+  extends: commonListings
+}
+</script>
 
 <style scoped>
-
 .space3px {
   margin: 3px;
 }

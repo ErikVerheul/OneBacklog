@@ -585,7 +585,7 @@ const methods = {
 	},
 
 	filterComments() {
-		store.state.filterForComment = this.filterForCommentPrep
+		store.state.filterForCommentSearchString = this.filterForCommentPrep
 	},
 
 	uploadAttachment() {
@@ -598,7 +598,7 @@ const methods = {
 	},
 
 	filterHistory() {
-		store.state.filterForHistory = this.filterForHistoryPrep
+		store.state.filterForHistorySearchString = this.filterForHistoryPrep
 	},
 
 	insertComment() {

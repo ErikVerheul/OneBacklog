@@ -1,11 +1,6 @@
 <template>
   <div>
-    <BModal
-      size="lg"
-      ref="myFiltersRef"
-      @ok="onApplyMyFilters"
-      title="View, set and/or save your filters"
-    >
+    <BModal size="lg" ref="myFiltersRef" @ok="onApplyMyFilters" title="View, set and/or save your filters">
       <BContainer align-v="true">
         <BContainer fluid>
           <BRow class="my-1">
@@ -13,13 +8,7 @@
               <BFormCheckbox v-model="filterOnReqAreas">Filter on requirement area(s)</BFormCheckbox>
               <div v-if="filterOnReqAreas" class="indent20">
                 <BFormGroup>
-                  <BFormCheckboxGroup
-                    v-model="selectedReqAreas"
-                    :options="this.store.state.reqAreaOptions"
-                    value-field="id"
-                    text-field="title"
-                    stacked
-                  ></BFormCheckboxGroup>
+                  <BFormCheckboxGroup v-model="selectedReqAreas" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormCheckboxGroup>
                 </BFormGroup>
               </div>
               <hr />

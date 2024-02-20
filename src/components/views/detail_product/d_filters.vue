@@ -12,8 +12,7 @@
             <BFormCheckbox v-model="filterOnReqAreas">Filter on requirement area(s)</BFormCheckbox>
             <div v-if="filterOnReqAreas" class="indent20">
               <BFormGroup>
-                <BFormCheckboxGroup v-model="selectedReqAreas" :options="store.state.reqAreaOptions"
-                  value-field="id" text-field="title" stacked></BFormCheckboxGroup>
+                <BFormCheckboxGroup v-model="selectedReqAreas" :options="store.state.reqAreaOptions" value-field="id" text-field="title" stacked></BFormCheckboxGroup>
               </BFormGroup>
             </div>
             <hr />
