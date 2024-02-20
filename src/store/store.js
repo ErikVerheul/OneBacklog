@@ -609,7 +609,7 @@ const store = createStore({
 		/*		
 		* Stops showing running progress indicator upto the next process indicator call
 		* Show a message in the message bar in the Product details or Products overview
-		* Stops showing new events is a CRITICAL, ERROR or WARNING event message is displayed.
+		* Stops showing new events if a CRITICAL, ERROR or WARNING event message is displayed.
 		* Resume showing new events after the events list is displayed (click on event bar)
 		*/
 		addToEventList(state, payload) {
@@ -618,24 +618,18 @@ const store = createStore({
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 			state.newEventKey++
-			if (state.eventList.length > 0) {
-				if (payload.severity > SEV.INFO) {
-					// find the last critical error or normal error or warning
-					for (let severity = SEV.CRITICAL; severity > SEV.INFO; severity--) {
-						for (const evt of state.eventList) {
-							if (evt.eventKey > state.currentEventKey) {
-								if (evt.sevKey === severity) {
-									state.currentEventKey = evt.eventKey
-									state.freezeEvent = true
-									return
-								}
-							}
-						}
+			if (payload.severity > SEV.INFO) {
+				for (const evt of state.eventList) {
+					if (evt.eventKey > state.currentEventKey) {
+						// must be a new event
+						state.currentEventKey = evt.eventKey
+						state.freezeEvent = true
+						return
 					}
-				} else {
-					// severity DEBUG or INFO
-					if (!state.freezeEvent) state.currentEventKey = state.eventList[0].eventKey
 				}
+			} else {
+				// severity DEBUG or INFO
+				if (!state.freezeEvent) state.currentEventKey = state.eventList[0].eventKey
 			}
 		},
 
