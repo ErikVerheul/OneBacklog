@@ -102,11 +102,9 @@
   flex-direction: row;
   padding-left: 10px;
   padding-right: 10px;
-  line-height: 28px;
-  border: 1px solid transparent;
+  line-height: 27px;
   user-select: none;
-  -webkit-user-select: none;
-  /* Safari */
+  -webkit-user-select: none; /* Safari */
 }
 
 .sl-vue-tree-gap {
@@ -123,6 +121,7 @@
 
 .sl-vue-tree-cursor-inside {
   border: 1px solid rgba(255, 255, 255, 0.5);
+  padding-right: 10px;
 }
 
 .sl-vue-tree-dependencyviolation {

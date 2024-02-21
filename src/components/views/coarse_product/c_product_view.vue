@@ -157,9 +157,9 @@
               </template>
               <p v-else-if="store.state.colorMapper && node.level > LEVEL.PRODUCT">
                 <BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
-                  :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" squared size="sm">Change
+                  :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" size="sm">Change
                 </BButton>
-                <BButton v-else @click="setReqArea(node)" squared variant="seablueLight" size="sm">Set</BButton>
+                <BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
               </p>
             </template>
           </sl-vue-tree>
@@ -464,7 +464,7 @@ h3 {
 
 .rectangle {
   width: 71px;
-  height: 25px;
+  height: 22px;
 }
 
 .violation-column {
