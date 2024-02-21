@@ -20,8 +20,8 @@
       </div>
     </ul>
     <ul v-if="store.state.selectedForView === 'history'">
-      <li v-for="hist in getFilteredHistory" :key="hist.timestamp">
-        <div v-for="(value, key) in hist" :key="key">
+      <li v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
+        <div v-for="(value, key) in histItem" :key="key">
           <div v-html="prepHistoryText(key, value)"></div>
         </div>
       </li>
