@@ -449,7 +449,7 @@ const store = createStore({
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
 			if (!state.resetSearchOnId || !state.resetSearchOnId.nodeFound) {
-				// the search did not find a node
+				// there is no pending search or the search did not find a node
 				return
 			}
 			// load and select the previous selected document
@@ -474,7 +474,7 @@ const store = createStore({
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
 			if (!state.resetSearchOnTitle || !state.resetSearchOnTitle.savedSelectedNode) {
-				// the search did not find a node
+				// there is no pending search on titles or the search did not find a node
 				return
 			}
 			const prevSelectedNode = state.resetSearchOnTitle.savedSelectedNode
