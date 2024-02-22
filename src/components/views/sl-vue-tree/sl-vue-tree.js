@@ -77,10 +77,6 @@ const computed = {
 
 	isRoot() {
 		return this.nodeLevel === 0
-	},
-
-	searchOngoing() {
-		return store.state.resetSearchOnId !== null || store.state.resetSearchOnTitle !== null
 	}
 }
 
@@ -104,7 +100,7 @@ const methods = {
 
 	// trigger the context component via the eventbus if the node is selectable and no search is pending
 	emitNodeContextMenu(node) {
-		if (node.isSelectable && !this.searchOngoing) this.eventBus.emit('context-menu', node)
+		if (node.isSelectable) this.eventBus.emit('context-menu', node)
 	},
 
 	emitSelect(fromContextMenu) {
@@ -201,7 +197,7 @@ const methods = {
 			this.getRootComponent().onNodeMousedownHandler(event, node)
 			return
 		}
-		if (!this.isDragging && !this.searchOngoing) {
+		if (!this.isDragging) {
 			// cursorPosition not available, so get it
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 			if (cPos !== null) this.select(cPos, event)
@@ -215,7 +211,7 @@ const methods = {
 
 	onNodeMouseupHandler(event) {
 		// drag only with left mouse button down and no search is pending
-		if (event.button !== 0 || this.searchOngoing) return
+		if (event.button !== 0) return
 
 		if (!this.isRoot) {
 			this.getRootComponent().onNodeMouseupHandler(event)
