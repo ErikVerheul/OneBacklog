@@ -3,7 +3,7 @@
     <ul v-if="store.state.selectedForView === 'comments'">
       <li v-for="comment in getFilteredComments" :key="comment.timestamp">
         <div v-for="(value, key) in comment" :key="key">
-          <div v-html="prepCommentsText(key, value)"></div>
+          <div class="p1" v-html="prepCommentsText(key, value)"></div>
         </div>
       </li>
     </ul>
@@ -22,7 +22,7 @@
     <ul v-if="store.state.selectedForView === 'history'">
       <li v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
         <div v-for="(value, key) in histItem" :key="key">
-          <div v-html="prepHistoryText(key, value)"></div>
+          <div class="p1" v-html="prepHistoryText(key, value)"></div>
         </div>
       </li>
     </ul>
@@ -40,5 +40,9 @@ export default {
 <style scoped>
 .space3px {
   margin: 3px;
+}
+
+.p1 {
+  font-size: 12px;
 }
 </style>
