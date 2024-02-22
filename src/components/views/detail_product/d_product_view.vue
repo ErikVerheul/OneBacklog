@@ -16,7 +16,7 @@
             <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
-              <BButton @click="resetFindId" variant="primary" type="reset" :disabled="store.state.resetSearchOnTitle !== null">x</BButton>
+              <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
           <div class="divider" />
@@ -24,7 +24,7 @@
             <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSeachOnTitle" placeholder="Search in titles"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
-              <BButton @click="resetSearchTitles" variant="primary" type="reset" :disabled="store.state.resetSearchOnId !== null">x</BButton>
+              <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
         </BNavForm>
