@@ -27,6 +27,11 @@ function removeImages(html) {
   }
 }
 
+function replaceEmpty(text) {
+  if (text === "" || text === "<p></p>" || text === "<p><br></p>") return "EMPTY TEXT"
+  return text
+}
+
 const computed = {
   isUploadDone() {
     return store.state.uploadDone
@@ -77,7 +82,7 @@ const computed = {
       if (event === 'commentToHistoryEvent') allText += removeImages(this.mkCommentToHistoryEvent(histItem[event]))
       if (event === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[event])
       if (event === 'createEvent') allText += this.mkCreateEvent(histItem[event])
-      if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])     
+      if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])
       if (event === 'createRootEvent') allText += this.mkCreateRootEvent(histItem[event])
       if (event === 'dependencyRemovedEvent') allText += this.mkDependencyRemovedEvent(histItem[event])
       if (event === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[event]))
@@ -153,7 +158,7 @@ const methods = {
     if (key === 'cloneEvent') return this.mkCloneEvent(value)
     if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
-    if (key === 'createEvent') return this.mkCreateEvent(value)    
+    if (key === 'createEvent') return this.mkCreateEvent(value)
     if (key === 'createRootEvent') return this.mkCreateRootEvent(value)
     if (key === 'createTaskEvent') return this.mkCreateTaskEvent(value)
     if (key === 'dependencyRemovedEvent') return this.mkDependencyRemovedEvent(value)
@@ -161,7 +166,7 @@ const methods = {
     if (key === 'importToSprintEvent') return this.mkImportToSprintEvent(value)
     if (key === 'itemRestoredEvent') return this.mkItemRestoredEvent(value)
     if (key === 'newChildEvent') return this.mkNewChildEvent(value)
-    if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)    
+    if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)
     if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
     if (key === 'removeCommentFromHistoryEvent') return this.mkRemoveCommentFromHistoryEvent(value)
     if (key === 'removeSprintIdsEvent') return this.mkRemoveSprintIdsEvent(value)
@@ -182,7 +187,7 @@ const methods = {
     if (key === 'undoBranchRemovalEvent') return this.mkUndoBranchRemovalEvent(value)
     if (key === 'updateTaskOwnerEvent') return this.mkUpdateTaskOwnerEvent(value)
     if (key === 'uploadAttachmentEvent') return this.mkUploadAttachmentEvent(value)
-       
+
     if (key === 'by') return this.mkBy(value)
     if (key === 'timestamp') return this.mkTimestamp(value)
   },
@@ -198,7 +203,7 @@ const methods = {
 
   /* Presentation methods */
   mkAcceptanceEvent(value) {
-    return '<h5>The acceptance criteria of the item have changed:<hr></h5>' + atou(value[0]) + '<hr>' + atou(value[1]) + '<hr>'
+    return '<h5>The acceptance criteria of the item have changed:(from/to)<hr></h5>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
   },
 
   mkAddSprintIdsEvent(value) {
@@ -210,13 +215,13 @@ const methods = {
   mkClonedBranchEvent(value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h5>`
   },
-    
+
   mkCloneEvent(value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h5>`
   },
 
   mkCommentToHistoryEvent(value) {
-    return atou(value[0])
+    return replaceEmpty(atou(value[0]))
   },
 
   mkConditionRemovedEvent(value) {
@@ -228,11 +233,11 @@ const methods = {
   mkCreateEvent(value) {
     return `<h5>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h5>`
   },
-  
+
   mkCreateRootEvent(value) {
     return '<h5>The root document was created for database ' + value[0] + '.</h5>'
   },
-  
+
   mkCreateTaskEvent(value) {
     return `<h5>This task was created under parent '${value[0]}'.</h5>`
   },
@@ -242,15 +247,15 @@ const methods = {
     if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` } else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` } else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
     return `<h5>${s}</h5>`
   },
-  
+
   mkDescriptionEvent(value) {
-    return '<h5>The description of the item has changed:<hr></h5>' + atou(value[0]) + '<hr>' + atou(value[1]) + '<hr>'
+    return '<h5>The description of the item has changed:(from/to)<hr></h5>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
   },
-  
+
   mkImportToSprintEvent(value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} was imported from sprint '${value[2]}' to sprint '${value[3]}'.</h5>`
   },
- 
+
   mkItemRestoredEvent(value) {
     return `<h5>This ${this.getLevelText(value[0], value[1])} is restored from removal including its descendants.</h5>`
   },
@@ -278,7 +283,7 @@ const methods = {
   mkRemoveAttachmentEvent(value) {
     return "<h5>Attachment with title '" + value[0] + "' is removed.</h5>"
   },
- 
+
   mkRemoveCommentFromHistoryEvent() {
     return `<h5>Your last comment on the history of this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h5>`
   },
@@ -305,7 +310,7 @@ const methods = {
     if (value[2]) return `<h5>The previous dependency set on item '${value[1]} is undone'.</h5>`
     return `<h5>This item is set to be dependent on item '${value[1]}'.</h5>`
   },
-  
+
   mkSetHrsEvent(value) {
     return '<h5>Spike estimate hours changed from ' + value[0] + ' to ' + value[1] + '.</h5>'
   },
@@ -317,16 +322,16 @@ const methods = {
   mkSetSizeEvent(value) {
     return '<h5>T-Shirt estimate changed from </h5>' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
   },
-  
+
   mkSetStateEvent(value) {
     return `<h5>The item state changed from '${this.getItemStateText(value[0])}' to '${this.getItemStateText(value[1])}'</h5>` +
       `<p>This backlog item is realized by team '${value[2]}'</p>`
   },
-  
+
   mkSetSubTypeEvent(value) {
     return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
   },
-  
+
   mkSetTeamEventDescendant(value) {
     return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'.</h5>"
   },
@@ -364,7 +369,7 @@ const methods = {
   },
 
   mkComment(value) {
-    return atou(value[0])
+    return replaceEmpty(atou(value[0]))
   },
 
   mkRemoveCommentEvent() {
