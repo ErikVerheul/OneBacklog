@@ -56,7 +56,7 @@ const actions = {
 		}).then(res => {
 			const allUserData = res.data
 			if (res.data.delmark) {
-				alert(`FATAL ERROR - your account '${rootState.userData.user}' has been removed. Contact your adminstrator.`)
+				alert(`FATAL ERROR - your account '${rootState.userData.user}' has been removed. Contact your administrator.`)
 				return
 			}
 			// check if the default user database exists
