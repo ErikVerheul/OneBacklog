@@ -231,7 +231,9 @@ const utilities = {
 				if (roles.length === 1) return `role for this product is ${roles[0]}.`
 				if (roles.length === 2) return `roles for this product are ${roles[0]} and ${roles[1]}.`
 				if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}.`
-				return `Product roles cannot have more than 3 values!`
+				if (roles.length === 4) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]} and ${roles[3]}.`
+				if (roles.length === 5) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]}, ${roles[3]} and ${roles[4]}.`
+				return `roles cannot have more than 3 values!`
 			}
 			// update the event message bar
 			let evt = ''
