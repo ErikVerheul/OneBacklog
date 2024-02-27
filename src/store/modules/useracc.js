@@ -161,16 +161,27 @@ const actions = {
 
 	changeMyPasswordAction({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, newPassword) {
 		globalAxios({
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
-			const tmpUserData = res.data
-			tmpUserData.password = newPassword
-			const toDispatch = [{ signout: null }]
-			dispatch('updateUserAction', { data: tmpUserData, toDispatch })
+			const userData = res.data
+			userData.password = newPassword
+			globalAxios({
+				method: 'PUT',
+				url: '/_users/org.couchdb.user:' + userData.name,
+				data: userData
+			}).then(() => {
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `changeMyPasswordAction: The profile of user '${userData.name}' is updated successfully` })
+				commit('endSession', 'useracc: changeMyPasswordAction')
+			}).catch(error => {
+				const msg = `changeMyPasswordAction: Could not update the profile of user '${userData.name}', ${error}`
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
 		}).catch(error => {
 			const msg = `changeMyPasswordAction: Could not change password for user '${rootState.userData.user}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
