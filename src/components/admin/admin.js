@@ -1,11 +1,7 @@
-import { STATE, LEVEL, MISC } from '../../constants.js'
+import { STATE, LEVEL } from '../../constants.js'
 import { createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 import store from '../../store/store.js'
-
-function mounted() {
-	store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-}
 
 const methods = {
 	/* For all options the available databases are fetched once at mount */
@@ -22,6 +18,7 @@ const methods = {
 		store.state.useracc.userIsAPO = false
 		store.state.isUserRemoved = false
 		store.state.isUserCreated = false
+		store.state.selectedDatabaseName = undefined
 	},
 
 	maintainUsers() {
@@ -36,6 +33,7 @@ const methods = {
 		store.state.areDatabasesFound = false
 		store.state.areProductsFound = false
 		store.state.isUserUpdated = false
+		store.state.selectedDatabaseName = undefined
 		// get the users to select from
 		store.dispatch('getAllUsers')
 	},
@@ -103,6 +101,5 @@ const methods = {
 
 export default {
 	extends: common_admin,
-	mounted,
 	methods
 }
