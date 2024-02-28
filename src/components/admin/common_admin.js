@@ -1,3 +1,4 @@
+import { MISC } from '../../constants.js'
 import { addToArray, removeFromArray, createId } from '../../common_functions.js'
 import AppHeader from '../header/header.vue'
 import router from '../../router'
@@ -6,6 +7,10 @@ import store from '../../store/store.js'
 
 const HOUR_MILIS = 60 * 60000
 const DAY_MILIS = 24 * HOUR_MILIS
+
+function mounted() {
+	store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+}
 
 function data() {
 	return {
@@ -294,12 +299,10 @@ const methods = {
 		}
 	},
 
-	/*
-	* Get all my assigned product ids, titles and assigned roles of the selected database in store.state.useracc.dbProducts
-	* If onlyMyProducts is true, only select the the products assigned to me (assistAdmin)
-	*/
-	callGetDbProducts(onlyMyProducts) {
-		store.dispatch('getProductsRolesAction', { dbName: store.state.selectedDatabaseName, onlyMyProducts })
+	/* Get all my assigned product ids, titles and assigned roles of the selected database in store.state.useracc.dbProducts */
+	callGetDbProducts() {
+		this.isUserDbSelected = true
+		store.dispatch('getProductsRolesAction', { dbName: store.state.selectedDatabaseName })
 	},
 
 	doCreateUser() {
@@ -354,12 +357,8 @@ const methods = {
 
 	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
 	doFetchUser(userName, justCheck) {
+		store.state.selectedDatabaseName = undefined
 		store.dispatch('getUserAction', { userName, justCheck })
-	},
-
-	doSelectUserDb(dbName) {
-		store.state.selectedDatabaseName = dbName
-		this.isUserDbSelected = true
 	},
 
 	/*
@@ -585,6 +584,7 @@ const components = {
 
 export default {
 	mixins: [utilities],
+	mounted,
 	computed,
 	data,
 	methods,

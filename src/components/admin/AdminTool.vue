@@ -112,20 +112,20 @@
                       <BFormCheckbox v-model="store.state.useracc.userIsAdmin">Add or remove the 'admin' role</BFormCheckbox>
                       <BFormCheckbox v-model="store.state.useracc.userIsAPO">Add or remove the 'APO' role</BFormCheckbox>
                     </BFormGroup>
-                    <p>The assistant admin role is a generic role with access to the databases and products assigned to
-                      this user in any role by the 'admin'</p>
+                    <p>The assistant admin role is a generic role with access to all user profiles and all product definitions in this database.
+                      However, the assistant admin can only create users for databases/products he/she is assigned to by an admin.
+                    </p>
                     <BFormCheckbox v-model="store.state.useracc.userIsAssistAdmin">Add or remove the 'assistAdmin' role</BFormCheckbox>
                   </BCol>
 
                   <BCol v-if="!store.state.areProductsFound" sm="12">
                     <hr>
-                    <BButton class="m-3" @click="callGetDbProducts(false)" variant="primary">Continue detail role assignment</BButton>
+                    <BButton class="m-3" @click="callGetDbProducts()" variant="primary">Continue detail role assignment</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
                   </BCol>
                   <BCol sm="12">
                     <div v-if="store.state.areProductsFound">
-                      <h5>Change the roles of this user to each product in database '{{ store.state.selectedDatabaseName
-                      }}':</h5>
+                      <h5>Change the roles of this user to each product in database '{{ store.state.selectedDatabaseName }}':</h5>
                       <div v-for="prod of store.state.useracc.dbProducts" :key="prod.id">
                         {{ prod.value }}:
                         <BFormGroup>

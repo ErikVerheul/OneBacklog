@@ -5,7 +5,7 @@
       <h2 class="text-center">Assistance Admin view: {{ optionSelected }}</h2>
       <template v-if="optionSelected === 'Select a task'">
         <p class="text-center">Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked to select one</p>
-        <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">         
+        <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">
           <BButton block @click="createUser">Create a user and assign product(s)</BButton>
           <BButton block @click="maintainUsers">Maintain user permissions to products </BButton>
           <br />
@@ -63,18 +63,13 @@
                   <BCol sm="12">
                     <BFormGroup>
                       <h5>Select a datatabase holding the products</h5>
-                      <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked />
+                      <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked />
                     </BFormGroup>
-                    <BButton class="m-1" @click="isUserDbSelected = true" variant="primary">Continue</BButton>
+                    <BButton class="m-1" @click="callGetDbProducts()" variant="primary">Continue</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
                   </BCol>
                 </div>
                 <div v-else>
-                  <BCol v-if="!store.state.areProductsFound" sm="12">
-                    <hr>
-                    <BButton class="m-1" @click="callGetDbProducts(true)" variant="primary">Continue detail role assignment</BButton>
-                    <BButton class="m-1" @click="cancel()">Cancel</BButton>
-                  </BCol>
                   <BCol sm="12">
                     <div v-if="store.state.areProductsFound">
                       <h5>Change the roles of this user to each product in database '{{ store.state.selectedDatabaseName }}':</h5>
@@ -105,7 +100,7 @@
               <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.myAssignedDatabases" stacked />
             </BFormGroup>
             <hr>
-            <BButton class="m-1" @click="doAfterDbIsSelected()" variant="primary">Continue</BButton>
+            <BButton class="m-1" @click="doAfterDbIsSelected()" :disabled="!store.state.selectedDatabaseName" variant="primary">Continue</BButton>
             <BButton class="m-1" @click="cancel()">Cancel</BButton>
           </div>
           <div v-else>
@@ -142,12 +137,6 @@
                 <div v-if="store.state.areProductsFound">
                   <h4>Creating user '{{ userName }}' with assigned products in database '{{ store.state.selectedDatabaseName }}'</h4>
                   <h5 v-if="store.state.isUserRemoved">[Note that user '{{ userName }}' existed, but was removed. The old assignments are loaded]</h5>
-                  <h5>Make this user an 'admin'?</h5>
-                  <BFormCheckbox v-model="store.state.useracc.userIsAdmin">Tick to add this role
-                  </BFormCheckbox>
-                  <h5>Make this user an 'APO'?</h5>
-                  <BFormCheckbox v-model="store.state.useracc.userIsAPO">Tick to add this role
-                  </BFormCheckbox>
                   <hr>
                   <h5>Assign (additional) roles to each product in database '{{ store.state.selectedDatabaseName }}'</h5>
                   <div v-for="prod of store.state.useracc.dbProducts" :key="prod.id">

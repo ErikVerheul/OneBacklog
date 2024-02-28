@@ -14,6 +14,7 @@ const methods = {
 		this.localMessage = ''
 		store.state.isUserRemoved = false
 		store.state.isUserCreated = false
+		store.state.selectedDatabaseName = undefined
 	},
 
 	maintainUsers() {
@@ -28,6 +29,7 @@ const methods = {
 		store.state.areDatabasesFound = false
 		store.state.areProductsFound = false
 		store.state.isUserUpdated = false
+		store.state.selectedDatabaseName = undefined
 		// get the users to select from
 		store.dispatch('getAllUsers')
 	}
