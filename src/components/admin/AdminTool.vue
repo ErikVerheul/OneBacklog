@@ -52,8 +52,7 @@
           </BRow>
           <template v-if="!store.state.isUserFound">
             <hr>
-            <BButton v-if="selectedUser && !store.state.isUserFound" class="m-1"
-              @click="doFetchUser(selectedUser, false)" variant="primary">Continue</BButton>
+            <BButton v-if="selectedUser && !store.state.isUserFound" class="m-1" @click="doFetchUser(selectedUser, false)" variant="primary">Continue</BButton>
             <BButton v-if="!store.state.isUserFound" class="m-1" @click="cancel">Cancel</BButton>
           </template>
           <div v-if="optionSelected === 'Remove a user'">
@@ -98,8 +97,7 @@
                       <h5>Select a datatabase holding the products</h5>
                       <p>The databases {{ getUserAssignedDatabases() }} are assigned to this user. Assigning roles to
                         products in another database will also assign that database.</p>
-                      <BFormRadioGroup v-model="store.state.selectedDatabaseName"
-                        :options="store.state.databaseOptions" stacked />
+                      <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked />
                     </BFormGroup>
                     <BButton class="m-1" @click="isUserDbSelected = true" variant="primary">Continue</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
@@ -108,25 +106,20 @@
                 <div v-else>
                   <BCol sm="12">
                     <h5>(Un)Assign the user's generic roles first</h5>
-                    <p>The admin role is a generic role with access to all user profiles and all product definitions in
-                      this database<br />
+                    <p>The admin role is a generic role with access to all user profiles and all product definitions in this database<br />
                       The APO role manages requirement areas and can prioritize features</p>
                     <BFormGroup>
-                      <BFormCheckbox v-model="store.state.useracc.userIsAdmin">Add or remove the 'admin'
-                        role</BFormCheckbox>
-                      <BFormCheckbox v-model="store.state.useracc.userIsAPO">Add or remove the 'APO'
-                        role</BFormCheckbox>
+                      <BFormCheckbox v-model="store.state.useracc.userIsAdmin">Add or remove the 'admin' role</BFormCheckbox>
+                      <BFormCheckbox v-model="store.state.useracc.userIsAPO">Add or remove the 'APO' role</BFormCheckbox>
                     </BFormGroup>
                     <p>The assistant admin role is a generic role with access to the databases and products assigned to
                       this user in any role by the 'admin'</p>
-                    <BFormCheckbox v-model="store.state.useracc.userIsAssistAdmin">Add or remove the 'assistAdmin'
-                      role</BFormCheckbox>
+                    <BFormCheckbox v-model="store.state.useracc.userIsAssistAdmin">Add or remove the 'assistAdmin' role</BFormCheckbox>
                   </BCol>
 
                   <BCol v-if="!store.state.areProductsFound" sm="12">
                     <hr>
-                    <BButton class="m-3" @click="callGetDbProducts(false)" variant="primary">Continue detail role
-                      assignment</BButton>
+                    <BButton class="m-3" @click="callGetDbProducts(false)" variant="primary">Continue detail role assignment</BButton>
                     <BButton class="m-1" @click="cancel()">Cancel</BButton>
                   </BCol>
                   <BCol sm="12">
@@ -144,9 +137,7 @@
                         only database of this user. Consider the option to remove this user.</p>
                       <p v-if="!canRemoveDatabase">You cannot remove the last database from the profile of this user.
                         Consider the option to remove this user.</p>
-                      <BButton
-                        v-if="canRemoveLastProduct && canRemoveDatabase && store.state.areProductsFound && !store.state.isUserUpdated"
-                        class="m-1" @click="doUpdateUser" variant="primary">
+                      <BButton v-if="canRemoveLastProduct && canRemoveDatabase && store.state.areProductsFound && !store.state.isUserUpdated" class="m-1" @click="doUpdateUser" variant="primary">
                         Update this user</BButton>
                       <BButton v-if="!store.state.isUserUpdated" class="m-1" @click="cancel()">Cancel</BButton>
                       <BButton v-else class="m-1" @click="cancel()">Return</BButton>
@@ -164,8 +155,7 @@
               <p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use
                 'Maintain user permissions to products' as a next step to assign the
                 product to other users.</p>
-              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions"
-                stacked />
+              <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked />
             </BFormGroup>
             <hr>
             <BButton class="m-1" @click="doAfterDbIsSelected()" variant="primary">Continue</BButton>
@@ -186,8 +176,7 @@
                     Initial password:
                   </BCol>
                   <BCol sm="10">
-                    <BFormInput v-model="password" type="password"
-                      placeholder="Enter the initial password. The user must change it."></BFormInput>
+                    <BFormInput v-model="password" type="password" placeholder="Enter the initial password. The user must change it."></BFormInput>
                   </BCol>
                   <BCol sm="2">
                     Users e-mail:
@@ -275,8 +264,7 @@
             <template v-else-if="optionSelected === 'Remove teams without members'">
               <h4>Remove teams without members in database '{{ store.state.selectedDatabaseName }}'</h4>
               <BFormGroup label="Select one or more teams to remove">
-                <BFormCheckboxGroup v-model="teamNamesToRemove"
-                  :options="teamsToRemoveOptions"></BFormCheckboxGroup>
+                <BFormCheckboxGroup v-model="teamNamesToRemove" :options="teamsToRemoveOptions"></BFormCheckboxGroup>
               </BFormGroup>
 
               <template v-if="!store.state.areTeamsRemoved">
@@ -286,8 +274,7 @@
               <BButton v-else class="m-1" @click="cancel">Return</BButton>
             </template>
 
-            <template
-              v-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
+            <template v-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
 
               <template v-if="optionSelected === 'Maintain the default sprint calendar'">
                 <h4>Maintain the default sprint calendar of database '{{ store.state.selectedDatabaseName }}'</h4>
@@ -314,8 +301,7 @@
                       <h5>The calendar is not found, create a team calendar from the default calendar</h5>
                       <p class="colorRed">This is a one way change. When the team calendar is created the team has to
                         maintain it.</p>
-                      <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar"
-                        variant="primary">Create team sprint calendar</BButton>
+                      <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar" variant="primary">Create team sprint calendar</BButton>
                       <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="cancel">Cancel</BButton>
                       <BButton v-if="store.state.isCalendarSaved" class="m-1" @click="cancel">Return</BButton>
                     </div>
@@ -332,21 +318,17 @@
                     all its successors in time</BListGroupItem>
                 </BListGroup>
                 <BButton class="m-3" @click="cancel()">Return</BButton>
-                <BModal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton"
-                  title="Extend the number of sprints">
-                  <BFormInput v-model="extendNumberStr" type="number"
-                    placeholder="Enter the number of extensions"></BFormInput>
+                <BModal @ok="extendCalendar" id="modal-extend" :ok-disabled="extendDisableOkButton" title="Extend the number of sprints">
+                  <BFormInput v-model="extendNumberStr" type="number" placeholder="Enter the number of extensions"></BFormInput>
                 </BModal>
-                <BModal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton"
-                  title="Change a sprint duration" size="lg">
+                <BModal @ok="changeSprintInCalendar" id="modal-change" :ok-disabled="changeDisableOkButton" title="Change a sprint duration" size="lg">
                   <BContainer>
                     <BRow class="mb-1">
                       <BCol cols="3">
                         Sprint number
                       </BCol>
                       <BCol cols="9">
-                        <BFormInput v-model="changedNumberStr" type="number"
-                          placeholder="Enter the sprint number"></BFormInput>
+                        <BFormInput v-model="changedNumberStr" type="number" placeholder="Enter the sprint number"></BFormInput>
                       </BCol>
                     </BRow>
                     {{ acceptSprintNrMsg }}
@@ -380,15 +362,13 @@
                           New duration
                         </BCol>
                         <BCol cols="9">
-                          <BFormInput v-model="changedDurationStr" type="number"
-                            placeholder="Enter a new duration in days (1-28)"></BFormInput>
+                          <BFormInput v-model="changedDurationStr" type="number" placeholder="Enter a new duration in days (1-28)"></BFormInput>
                         </BCol>
                         <BCol cols="3">
                           Hours shift
                         </BCol>
                         <BCol cols="9">
-                          <BFormInput v-model="changedHourStr" type="number"
-                            placeholder="Shift the sprint ending time (-12,+12) hours"></BFormInput>
+                          <BFormInput v-model="changedHourStr" type="number" placeholder="Shift the sprint ending time (-12,+12) hours"></BFormInput>
                         </BCol>
                       </BRow>
                     </div>
@@ -427,38 +407,40 @@
               <div v-else>
                 <h4>List of teams and members working on products in database '{{ store.state.selectedDatabaseName }}'
                 </h4>
-              <div v-for="team in store.state.fetchedTeams" :key="team.teamName">
-                <hr>
-                <template v-if="team.hasTeamCalendar">
-                  <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
-                </template>
-                <template v-else>
-                  <b>Team '{{ team.teamName }}'</b> (uses the default sprint calendar)
-                </template>
-                <div v-for="m of team.members" :key="m">
-                  <i>'{{ m }}' is member of this team</i>
+                <div v-for="team in store.state.fetchedTeams" :key="team.teamName">
+                  <hr>
+                  <template v-if="team.hasTeamCalendar">
+                    <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
+                  </template>
+                  <template v-else>
+                    <b>Team '{{ team.teamName }}'</b> (uses the default sprint calendar)
+                  </template>
+                  <div v-for="m of team.members" :key="m">
+                    <i>'{{ m }}' is member of this team</i>
+                  </div>
                 </div>
               </div>
-            </div>
-            <hr>
-            <BButton class="m-1" @click="cancel">Return</BButton>
-          </template>
+              <hr>
+              <BButton class="m-1" @click="cancel">Return</BButton>
+            </template>
+          </div>
+        </template>
+        <p>{{ localMessage }}</p>
+        <div v-if="store.state.backendMessages.length > 0">
+          <hr>
+          <div v-for="item in store.state.backendMessages" :key="item.seqKey">
+            <p>{{ item.msg }}</p>
+          </div>
         </div>
       </template>
-      <p>{{ localMessage }}</p>
-      <div v-if="store.state.backendMessages.length > 0">
-        <hr>
-        <div v-for="item in store.state.backendMessages" :key="item.seqKey">
-          <p>{{ item.msg }}</p>
-        </div>
-      </div>
-    </template>
-  </BContainer>
-</div></template>
+    </BContainer>
+  </div>
+</template>
 
 <script src="./admin.js"></script>
 
-<style scoped>h4,
+<style scoped>
+h4,
 h5 {
   margin-top: 20px;
 }
@@ -466,4 +448,5 @@ h5 {
 .margin-colorRed {
   margin-top: 20px;
   color: red;
-}</style>
+}
+</style>
