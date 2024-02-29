@@ -6,6 +6,32 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.0 - 29 Februari 2024 changed features, bug fixes, improve docs, dependency upgrade</h3>
+          <p>Changed features:</p>
+          <ul>
+            <li>Disallow role assistAdmin to give users equal or more privelages than it self</li>
+          </ul>
+          <ul>
+            <li>More rows on screen in the tree view</li>
+          </ul>
+          <ul>
+            <li>Prevent initiation of CouchDb instance if allready done before</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix regression in password change</li>
+          </ul>
+          <ul>
+            <li>User interaction blocked after search on Id or in title, fixed</li>
+          </ul>
+          <p>Improve docs</p>
+          <ul>
+            <li>Explain the difference between admin and CouchDb Server admin permissions</li>
+          </ul>
+          <p>Dependency upgrade</p>
+          <ul>
+            <li>Fix warning when upgrading to BootstrapVueNext 16.x.x</li>
+          </ul>
           <h3>v.2.1.0 - 19 Februari 2024 new features</h3>
           <p>Features:</p>
           <ul>
