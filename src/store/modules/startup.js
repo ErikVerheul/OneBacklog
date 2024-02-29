@@ -23,7 +23,10 @@ const actions = {
 	* 8. getRoot and route to products view
 	*/
 
-	/* Get all non-backup and non system database names */
+	/* 
+	* Get all non-backup and non system database names
+	* For non-server admins the option 'admin_only_all_dbs' in [chttpd] must be set to 'false' in the CouchDb config for this call to succeed
+	*/
 	getDatabases({
 		rootState,
 		dispatch
@@ -48,7 +51,8 @@ const actions = {
 	/* Get the current DB name etc for this user. Note that the user global roles are already fetched */
 	getOtherUserData({
 		rootState,
-		dispatch
+		dispatch,
+		commit
 	}, foundDbNames) {
 		globalAxios({
 			method: 'GET',
@@ -97,11 +101,15 @@ const actions = {
 			// start the watchdog
 			dispatch('watchdog')
 			const msg = `getOtherUserData: '${allUserData.name}' has signed-in`
-			// now that the database is known, the log file is available
+			// now that the database is known, the log document is available
 			dispatch('doLog', { event: msg, level: SEV.INFO })
 			dispatch('getAllProducts', { allUserData })
 		}).catch(error => {
 			if (error.response && error.response.status === 404) {
+				if (foundDbNames.length > 0) {
+					alert(`This CouchDb is already initiated. Cannot overwrite. The program will exit.`)
+					commit('endSession', 'startup: cannot initiate this CouchDB instance again.')
+				}
 				// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
 				if (rootState.online && rootState.iAmServerAdmin) {
 					// eslint-disable-next-line no-console
