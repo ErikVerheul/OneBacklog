@@ -5,21 +5,79 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+/* Must be CouchDb Server admin to be able to change the a _security object */
 const actions = {
 	/*
 	* Order of execution:
-	* 0. initUserDb - one time initialization of the user database when the Couchdb instance is created
-	* 1. createDatabases - also calls setDatabasePermissions and createUserIfNotExistentAction and set isDatabaseInitiated to false
-	* 2. createLog
-	* 3. createConfig
-	* 4. installDesignViews
-	* 5. installDesignFilters
-	* 6. createRootDoc & createReqAreasParent
-	* 7. createDefaultTeam
-	* 8. createFirstProduct
-	* 9. assignProductToUserAction in useracc.js and set isDatabaseInitiated to true when successful
-	* 10. createMessenger
+	* 0. initCouchDb - set three CouchDb config options first
+	* 1. initUserDb - one time initialization of the user database when the Couchdb instance is created
+	* 2. createDatabase - also calls setDatabasePermissions and createUserIfNotExistentAction and set isDatabaseInitiated to false
+	* 3. createLog
+	* 4. createConfig
+	* 5. installDesignViews
+	* 6. installDesignFilters
+	* 7. createRootDoc & createReqAreasParent
+	* 8. createDefaultTeam
+	* 9. createFirstProduct
+	* 10. assignProductToUserAction in useracc.js and set isDatabaseInitiated to true when successful
+	* 11. createMessenger
 	*/
+
+	/* Allow all users to list the database names */
+	setConfigAllDbs({
+		rootState
+	}) {
+		globalAxios({
+			method: 'PUT',
+			url: '/_node/_local/_config/chttpd/admin_only_all_dbs',
+			data: '"false"'
+		}).then(res => {
+			console.log(res.data)
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setConfigAllDbs: Could not update the config. Error = ' + error })
+		})
+	},
+
+	/* Be conservative considering cross-site requests */
+	setConfigSameSite({
+		rootState
+	}) {
+		globalAxios({
+			method: 'PUT',
+			url: '/_node/_local/_config/chttpd_auth/same_site',
+			data: '"strict"'
+		}).then(res => {
+			console.log(res.data)
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setConfigSameSite: Could not update the config. Error = ' + error })
+		})
+	},
+
+	/* Allow to modify the _users database security object. Note: deprecated, not available in CouchDb 4.0! */
+	setConfigUsersDbSecurityEditable({
+		rootState
+	}) {
+		globalAxios({
+			method: 'PUT',
+			url: '/_node/_local/_config/couchdb/users_db_security_editable',
+			data: '"true"'
+		}).then(res => {
+			console.log(res.data)
+		}).catch(error => {
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'setConfigUsersDbSecurityEditable: Could not update the config. Error = ' + error })
+		})
+	},
+
+	initCouchDb({
+		dispatch
+	}) {
+		// set three CouchDb config options
+		dispatch('setConfigAllDbs')
+		dispatch('setConfigSameSite')
+		dispatch('setConfigUsersDbSecurityEditable')
+
+		dispatch('initUserDb')
+	},
 
 	initUserDb({
 		rootState
@@ -45,7 +103,7 @@ const actions = {
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Failure, could not set permissions on the _users database, ' + error })
 		})
 
-		// install a view on the _users database
+		// install two views on the _users database
 		globalAxios({
 			method: 'PUT',
 			url: '_users/_design/Users',
@@ -75,6 +133,7 @@ const actions = {
 		})
 	},
 
+	/* Create a database with a given name and initialize the log, the config data, the design views and filters etc. */
 	createDatabase({
 		rootState,
 		dispatch
@@ -103,6 +162,7 @@ const actions = {
 						}
 					}
 				}
+				// create a user account for the CouchDb server administrator
 				dispatch('createUserAction', userData)
 			}
 		}).catch(error => {
@@ -118,11 +178,11 @@ const actions = {
 		const dbPermissions = {
 			admins: {
 				names: [],
-				roles: ['admin']
+				roles: ['assistAdmin', 'admin', '_admin']
 			},
 			members: {
 				names: [],
-				roles: ['assistAdmin', 'PO', 'APO', 'developer', 'guest']
+				roles: ['PO', 'APO', 'developer', 'guest']
 			}
 		}
 		globalAxios({

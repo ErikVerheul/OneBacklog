@@ -90,7 +90,7 @@ export default {
         email: this.email,
         createUser: true
       }
-      store.dispatch('initUserDb')
+      store.dispatch('initCouchDb')
       store.dispatch('createDatabase', payload)
     },
 
