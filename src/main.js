@@ -37,7 +37,7 @@ const globalOptions = {
 const app = createApp(OneBacklog)
 app.use(router)
 app.use(store)
-app.use(BootstrapVueNext)
+app.use( BootstrapVueNext({ plugins: { modalController: true } }) )
 app.component("font-awesome-icon", FontAwesomeIcon)
 QuillEditor.props.globalOptions.default = () => globalOptions
 app.component('QuillEditor', QuillEditor)
