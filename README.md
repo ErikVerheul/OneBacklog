@@ -72,14 +72,14 @@ Teams
 
 By default the application uses two databases. The _users database owned by the admin/assistAdmin roles and a database holding the products. More databases can be created but the _users database is shared. What a user can see or do is determined by the roles assigned to that user.<br />
 The roles are:
-- '_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.
+- '_admin': Users with this role are CouchDb server administrators. The credentials are stored in the local.ini file. Use the the Fauxton tool te add/delete these users. Can setup and delete databases. See the CouchDB documentation. The scope is per CouchDb instance including all databases.
 
 The next two roles are set for all databases in a CouchDb instance and include all products defined in these databases:
 - 'admin': The overall admin can create products, teams and maintain users and calendars. Can (un)assign databases and products to users. Can (un)assign global 'admin' and 'APO' roles to users. Can (un)assign user roles per product. Need not be a member of a team.
 - 'APO': The Area Product Owners create and maintain the requirement areas. Can change priorities at the epic and feature level. Need not be a member of a team.
 
-The next role is limited to the databases and products assigned to this user by the overall admin:
-- 'assistAdmin': Can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Need not be a member of a team.
+The next role is a light version of the admin role:
+- 'assistAdmin': Can create teams and users. Can (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global roles or create products or remove users. Can only create users for databases/products he/she is assigned to by an admin. Need not be a member of a team.
 
 These three roles are set per product in a database:
 - 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.
@@ -92,7 +92,7 @@ When a PO or developer creates an item, that item is assigned to the team of tha
 The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for prioritization.<br />
 Epics and their underlying features have (business) value. Delivering the high priority items first is the aim of all participants.<br />
 Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the PO who selects the most important epics and the features within.<br />
-The owning team is an attribute of the feature and pbi and used for filtering. A user can be member of one team only, but can switch to another team at will. The _admin, admin and the guests are not member of a team.<br />
+The owning team is an attribute of the feature and pbi and used for filtering. A user can be member of one team only, but can switch to another team at will. The users with the _admin or admin role and the guests are not member of a team.<br />
 When multiple databases are created, products defined in different databases are considered completely independent. However the user database with the authorizations is shared over all products.<br />
 
 <b>Product and epic size estimate:</b><br />
@@ -210,34 +210,16 @@ enable cors = true
 origins = *
 credentials = true
 ```
-### install CouchDB locally
-Use the certificate you created for the https connection also for the connection with CouchDB.
-Edit the local.ini file in `< couchdb install directory >/couchdb/etc/`:
-```
-[couchdb]
-users_db_security_editable = true
-[chttpd]
-admin_only_all_dbs = false
-[ssl]
-enable = true
-port = 6984 ; the default
-cert_file = < local ssl install directory >/localhost.crt
-key_file = < local ssl install directory >/localhost.key
-; no cacert_file needed
-```
-
+### install CouchDB v.3.3.3 locally
+The http connection needs no certificates.
+All CouchDb customization config settings are automatically set when initializing the application.
 When starting the app the first time use the server admin credentials you created to install CouchDb.
 
-### install CouchDB in the cloud
+### install CouchDB v.3.3.3 in the cloud
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
-Edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
+Use the Config screen in Fauxton or edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
 ```
-[couchdb]
-users_db_security_editable = true
-[chttpd]
-admin_only_all_dbs = false
-[couch_httpd_auth]
-same_site = none ; a must have when you connect with Chrome to a couchdb instance on another domain than the domain where the app is hosted (localhost when developing)
+
 [ssl]
 enable = true
 port = 6984 ; the default
@@ -269,8 +251,8 @@ See the [pm2 docs](https://pm2.io/docs/runtime/reference/ecosystem-file/) to ena
 The application uses an subscription on [mailgun](https://www.mailgun.com/).
 The .env file for the application looks like this:
 ```
-COUCH_USER= < _admin user name >
-COUCH_PW= < _admin password >
+COUCH_USER= < server admin user name >
+COUCH_PW= < server admin password >
 DOMAIN= mg.< your domain name >
 API_KEY=< the API key you received from mailgun >
 ```
@@ -299,16 +281,16 @@ npm install
 
 ### adapt two files with environment settings for development and production
 Note: both files have lines you MUST change for your instance.</br>
-cd to the root directory of this app and use your favorate editor to create a file named `.env.development` and enter:
+cd to the root directory of this app and use your favorite editor to create a file named `.env.development` and enter:
 ```
 VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
 VITE_DEBUG=false // set to true to see console log messages on most critical events
 VITE_DEBUG_CONNECTION=false // set to true to see console log messages regarding the CouchDb cookie authentication renewal
-VITE_SITE_URL=https://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
-VITE_API_URL=https://localhost:6984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
+VITE_SITE_URL=http://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
+VITE_API_URL=http://localhost:5984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
 ```
 
-cd to the root directory of this app and use your favorate editor to create a file named `.env.production` and enter:
+cd to the root directory of this app and use your favorite editor to create a file named `.env.production` and enter:
 ```
 VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
 VITE_SITE_URL=https://< your domain name >  // MUST CHANGE

@@ -5,9 +5,7 @@
 			<BRow>
 				<BCol cols="12" class="left-column">
 					<h1>USER GUIDE</h1>
-					<p v-if=store.state.demo>Note: This is a demo version of the application.</p>
-					<p>When you, as CouchDB super admin, have installed CouchDB and the web application you have to <a
-							href="#start_using">initialize the first database</a>.</p>
+					<p>When you, as CouchDB Server admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
 					<h4>The header</h4>
 					<p>Always mention the version number located after the app name when reporting issues. When you click on the
 						release number the <b>release notes </b> will be displayed.</p>
@@ -83,12 +81,11 @@
 							Three roles are set per database:
 						</p>
 						<ul>
-							<li>'_admin': Is the database administrator. Is set the OneBacklog instance is created. Can setup and delete
-								databases. Can create comments and see and upload attachments. See the CouchDB documentation.</li>
-							<li>'admin': Can create, maintain and assign users to products. Can create comments and see and upload
-								attachments.</li>
-							<li class="pro-user">'APO': The APO maintains the requirement areas backlog. Can create comments and see and
-								upload attachments.</li>
+							<li>'_admin': One user with this role is CouchDb Server administrator. This user must be created when the CouchDb instance is created. Can setup and delete
+								databases. See the CouchDB documentation.</li>
+							<li>'admin': Can create, maintain and assign users to products. The CouchDb Server administrator acquires this role during the initialization procedure and can assign this role to
+								other users.</li>
+							<li class="pro-user">'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
 						</ul>
 						Three roles are set per product (a product lives in a database):
 						<ul>
@@ -229,14 +226,14 @@
 								filter as pre-selection before the Id selection and search in titles, as outlined below.</p>
 							<h5>Select an item on (short) Id</h5>
 							<p>You can also use the full, 18+ positions long, id. More convenient is the use of the short Id. This Id is
-								5 characters long. It is displayed in the product view right from the item title. When you enter an Id and press 
+								5 characters long. It is displayed in the product view right from the item title. When you enter an Id and press
 								Enter or click outside this field:</p>
 							<ul>
 								<li>The item is found in the currently selected and opened or expanded product. The item will be selected and
 									highlighted in the tree view.</li>
 								<li>The item is found in the currently selected product but that product is not opened. The product will
 									be opened and the item will be selected and highlighted in the tree view</li>
-								<li>The item is found in a product assigned to you which you did not select. You get a message that the item exists 
+								<li>The item is found in a product assigned to you which you did not select. You get a message that the item exists
 									and a hint to add all your assigned products to your selection.</li>
 								<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible
 									to you.</li>
@@ -247,7 +244,7 @@
 							<p>To return to the original view, click on the white X next to the input field or return to the tree state
 								before a filter was set by clicking the 'Clear filter and ...' button.</p>
 							<h5>Search in titles</h5>
-							<p>After entering a text in this input field, press Enter or click outside this field. Any item of any selected product 
+							<p>After entering a text in this input field, press Enter or click outside this field. Any item of any selected product
 								wich has a (partial) match with the text in the title will be expanded and highlighted.
 								The first match will be selected. To return to the original view, click on the white X next to the input field.</p>
 						</div>
@@ -306,16 +303,17 @@
 					<p>This bar displays the user name, the database name and the number of products assigned to this user.</p>
 					<h4>The event bar</h4>
 					<p>This bar displays the latest event, a selection, a expansion/collapse of a tree branch, a warning or an
-						error. When a warning or error is displayed the event bar is froozen. New events cannot overwrite the warning or error. 
+						error. When a warning or error is displayed the event bar is froozen. New events cannot overwrite the warning or error.
 						A click on the event bar shows a list of all event messages of your session and releases a freeze if set.
 						<br>On the right side of this bar you see the <b>Sync light</b> which is hard to read when not lighted.
 						It lights when another user changes a title or the position of one or more items in your tree view below. Your
-						tree is updated instantly.</p>
+						tree is updated instantly.
+					</p>
 					<p>The <b>Sync light</b> will turn red with the the text 'offline' when your connection is lost. In this
 						condition you can not access the database. Wait for automatic recovery or restore the connection.</p>
 
 					<h2 id="start_using"> START USING THE APPLICATION</h2>
-					<p>When you, as server admin, login with your super admin credentials the application will notice that you are
+					<p>Sign-in with your CouchDb Server admin credentials. The application will notice that you are
 						unknown in the _users database. That will trigger a conversation where you name the first database and enter
 						your e-mail address.</p>
 					<p>Click on 'Create database' to start the creation. If you entered a database name testdb and a valid e-mail
@@ -349,10 +347,7 @@
 </template>
 
 <script setup>
-import { useStore } from 'vuex'
 import AppHeader from '../header/header.vue'
-
-const store = useStore()
 
 function getImgUrl(img) {
 	return import.meta.env.VITE_SITE_URL + '/' + img

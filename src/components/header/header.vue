@@ -156,19 +156,18 @@
       <BContainer align-v="true">
         <h3>Generic roles :</h3>
         <p>By default the application uses two databases. The _users database owned by the admin role and a database
-          holding the products. More databases can be created but the _users database is
-          shared.<br />
+          holding the products. More databases can be created but the _users database is shared.<br />
           What a user can see or do is determined by the roles assigned to that user.</p>
         <ul>
-          <li>'_admin': Is the CouchDb administrator. Can setup and delete databases. See the CouchDB documentation. The
-            scope is per CouchDb instance including all databases.</li>
+          <li>'_admin': One user with this role is the CouchDb Server administrator with 'root' rights. This user can setup, replicate and delete databases. 
+            See the CouchDB documentation. At application init this user also becomes the role of database admin (see below).</li>
         </ul>
-        <h5 v-if="isServerAdmin" class="have-role">You are CouchDb administrator</h5>
-        <h5 v-else class="not-have-role">No, you are not a CouchDb administrator</h5>
-        Two roles are set per database and include all products defined in that database:
+        <h5 v-if="isServerAdmin" class="have-role">You are CouchDb Server administrator</h5>
+        <h5 v-else class="not-have-role">No, you are not a CouchDb Server administrator</h5>
+        Three roles are set per database and include all products defined in that database:
         <ul>
-          <li>'admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access
-            to products. Is not member of a team.</li>
+          <li>'admin' or 'database admin': Can create products, teams and users. Can (un)assign databases and roles to users and user access
+            to products. Need not be a member of a team.</li>
           <li>'assistAdmin': An admin can delegate tasks to assistant admins as an extension to their product specific
             roles (see below) and only for the databases and products assigned to them. Can create teams and users. Can
             (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global
@@ -176,8 +175,8 @@
           <li>'areaPO': The Area Product Owners create and maintain their requirement areas. Can change priorities at the
             epic and feature level. Is not member of a team.</li>
         </ul>
-        <h5 v-if="isAdmin" class="have-role">You are Admin</h5>
-        <h5 v-else class="not-have-role">No, you are not Admin</h5>
+        <h5 v-if="isAdmin" class="have-role">You are (database) Admin</h5>
+        <h5 v-else class="not-have-role">No, you are not (database) Admin</h5>
         <h5 v-if="isAssistAdmin" class="have-role">You are Assistant Administrator</h5>
         <h5 v-else class="not-have-role">No, you are not Assistant Administrator</h5>
         <h5 v-if="isAPO" class="have-role">You are Area Product Owner</h5>
