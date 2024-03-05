@@ -5,7 +5,7 @@ import router from './router'
 import store from './store/store'
 import mitt from 'mitt'
 import FontAwesomeIcon from './fa.config'
-import BootstrapVueNext from 'bootstrap-vue-next'
+import createBootstrap from 'bootstrap-vue-next'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 // import the global css, see https://stackoverflow.com/questions/39438094/best-way-to-have-global-css-in-vuejs
@@ -37,7 +37,7 @@ const globalOptions = {
 const app = createApp(OneBacklog)
 app.use(router)
 app.use(store)
-app.use( BootstrapVueNext({ plugins: { modalController: true } }) )
+app.use(createBootstrap())
 app.component("font-awesome-icon", FontAwesomeIcon)
 QuillEditor.props.globalOptions.default = () => globalOptions
 app.component('QuillEditor', QuillEditor)
