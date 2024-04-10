@@ -171,8 +171,8 @@ These roles are set during loading by haveWritePermission(...).
 
 Access to team owned items
 ==========================
-By default an item is owned by dummy team 'not assigned yet' or is undefined
-When an level authorized user changes state of an item the item is assigned to the user's team
+By default an item is owned by dummy team 'not assigned yet'.
+When a level authorized user changes state of an item, the item is assigned to the user's team.
 Items with an assigned team can only be moved, removed, or changed by members of that team.
 
 Sprint Backlog

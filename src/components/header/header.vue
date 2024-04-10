@@ -172,7 +172,7 @@
             roles (see below) and only for the databases and products assigned to them. Can create teams and users. Can
             (un)assign databases and products to users. Can (un)assign user roles per product. Cannot (un)assign global
             roles or create products or remove users. Need not be a member of a team.</li>
-          <li>'areaPO': The Area Product Owners create and maintain their requirement areas. Can change priorities at the
+          <li>'APO': The Area Product Owners create and maintain their requirement areas. Can change priorities at the
             epic and feature level. Is not member of a team.</li>
         </ul>
         <h5 v-if="isAdmin" class="have-role">You are (database) Admin</h5>
