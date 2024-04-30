@@ -13,7 +13,7 @@
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{getFilterButtonText()}}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
-            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
+            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>

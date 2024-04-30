@@ -13,7 +13,7 @@
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{getFilterButtonText()}}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
-            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId" placeholder="Select on (short) Id"></BFormInput>
+            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
@@ -182,11 +182,10 @@
           <div class="pane" :style="{ minHeight: '40px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
-              <!-- do not use parenthesis with @change: see https://stackoverflow.com/questions/53106723/bootstrap-vue-select-sending-old-value -->
               <span v-else-if="!isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
-                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" />
+                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" />
                 </BFormGroup>
               </span>
             </div>
