@@ -6,6 +6,13 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.1 - 30 April 2024 bug fixes, improve docs, dependency upgrade</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix regression in 'Select on (short)Id' and 'Search in titles' not functioning</li>
+          </ul>
+          <p>Minor docs corrections</p>
+          <p>Dependency updates</p>
           <h3>v.2.2.0 - 29 Februari 2024 changed features, bug fixes, improve docs, dependency upgrade</h3>
           <p>Changed features:</p>
           <ul>
