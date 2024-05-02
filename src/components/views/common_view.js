@@ -44,6 +44,14 @@ function data() {
 }
 
 const computed = {
+	attachmentsLabel() {
+		let count = 0
+		if (store.state.currentDoc._attachments) {
+			count = Object.keys(store.state.currentDoc._attachments).length
+		}
+		return 'Attachments (' + count + ')'
+	},
+
 	undoTitle() {
 		const changes = store.state.changeHistory
 		if (changes && changes.length > 0) {
@@ -793,7 +801,7 @@ const methods = {
 	getViewOptions() {
 		const options = [
 			{ text: 'Comments', value: 'comments' },
-			{ text: 'Attachments', value: 'attachments', disabled: !this.canSeeAndUploadAttachments },
+			{ text: this.attachmentsLabel, value: 'attachments', disabled: !this.canSeeAndUploadAttachments },
 			{ text: 'History', value: 'history' }
 		]
 		return options
