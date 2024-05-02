@@ -26,7 +26,7 @@ function data() {
 			['link', 'image', 'code-block']
 		],
 		// set to an invalid value; must be updated before use
-		selectedPbiType: -1,
+		selectedPbiType: '',
 		// comments, history and attachments
 		doAddition: false,
 		startFiltering: false,

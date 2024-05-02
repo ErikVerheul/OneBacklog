@@ -44,14 +44,14 @@ function data() {
 }
 
 const watch = {
-	selectedPbiType: function (val) {
+	selectedPbiType: function (valStr) {
 		// prevent looping
-		if (val !== store.state.currentDoc.subtype) {
+		if (Number(valStr) !== store.state.currentDoc.subtype) {
 			const node = this.getLastSelectedNode
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
 				store.dispatch('setSubType', {
 					node,
-					newSubType: val,
+					newSubType: Number(valStr),
 					timestamp: Date.now()
 				})
 			}
@@ -213,11 +213,11 @@ const methods = {
 	},
 
 	getPbiOptions() {
-		this.selectedPbiType = store.state.currentDoc.subtype
+		this.selectedPbiType = store.state.currentDoc.subtype.toString()
 		const options = [
-			{ text: 'User story', value: 0 },
-			{ text: 'Spike', value: 1 },
-			{ text: 'Defect', value: 2 }
+			{ text: 'User story', value: '0' },
+			{ text: 'Spike', value: '1' },
+			{ text: 'Defect', value: '2' }
 		]
 		return options
 	}
