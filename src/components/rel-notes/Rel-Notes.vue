@@ -6,6 +6,16 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.2 - 2 May 2024 new feature, bug fixes</h3>
+          <p>New feature</p>
+          <ul>
+            <li>Show the number of available attachments up front</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix new comment or history not reset to empty message</li>
+            <li>Fix type warning; BFormRadioGroup does not accept a number</li>
+          </ul>
           <h3>v.2.2.1 - 30 April 2024 bug fixes, improve docs, dependency upgrade</h3>
           <p>Bug fixes:</p>
           <ul>
