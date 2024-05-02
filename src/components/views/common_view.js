@@ -32,9 +32,9 @@ function data() {
 		startFiltering: false,
 		isCommentsFilterActive: false,
 		isHistoryFilterActive: false,
-		newComment: '',
+		newComment: "<p></p>",
 		fileInfo: null,
-		newHistory: '',
+		newHistory: "<p></p>",
 		filterForCommentPrep: '',
 		filterForHistoryPrep: '',
 		// move data
@@ -175,14 +175,14 @@ const watch = {
 			}
 			if (store.state.selectedForView === 'comments') {
 				if (this.canCreateComments) {
-					this.newComment = ''
+					this.newComment = "<p></p>"
 					this.$refs.commentsEditorRef.show()
 				} else {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
 			if (store.state.selectedForView === 'history') {
-				this.newHistory = ''
+				this.newHistory = "<p></p>"
 				this.$refs.historyEditorRef.show()
 			}
 		}
