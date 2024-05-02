@@ -242,7 +242,7 @@ const utilities = {
 			if (selNodes.length === 1) {
 				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
 				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
-				if (this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
+				if (store.state.userData.myOptions.proUser === 'true' && this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
 			} else {
 				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`
