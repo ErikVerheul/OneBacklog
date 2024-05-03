@@ -170,18 +170,18 @@
       <div class="pane" :style="{ flexGrow: 1, minWidth: '30%', width: '50%', minHeight: '100%' }">
         <!-- inner horizontal panes -->
         <multipane class="horizontal-panes" layout="horizontal">
-          <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
+          <div class="pane" :style="{ height: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ minHeight: '40px', height: '60px', maxHeight: '60px' }">
+          <div class="pane" :style="{ height: '40px' }">
             <div class="d-table w-100">
-              <p v-if="!isReqAreaItem" class="title is-6">{{ getItemInfo() }}</p>
+              <p v-if="!isReqAreaItem" class="title">{{ getItemInfo() }}</p>
               <span v-else-if="!isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
@@ -190,11 +190,11 @@
               </span>
             </div>
           </div>
-          <div class="pane" :style="{ minHeight: '50px', height: '50px', maxHeight: '50px' }">
+          <div class="pane" :style="{ height: '40px' }">
             <div class="d-table w-100">
-              <h5 class="title is-6">Description</h5>
+              <h5 class="title">Description</h5>
               <div class="d-table-cell tar">
-                <p class="title is-6"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                <p class="title"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>
@@ -205,7 +205,7 @@
             <multipane-resizer></multipane-resizer>
             <div class="pane" :style="{ height: '45px', top: '5px' }">
               <div>
-                <h5 class="title is-6">Acceptance criteria</h5>
+                <h5 class="title">Acceptance criteria</h5>
               </div>
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
@@ -399,6 +399,10 @@ label {
 .d-table-cell {
   display: table-cell;
   vertical-align: middle;
+}
+
+.d-table-cell.bold {
+  font-weight: bold;
 }
 
 .w-100 {
