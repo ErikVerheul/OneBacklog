@@ -30,7 +30,7 @@ function created() {
 
 function mounted() {
 	if (this.returning) {
-		this.showLastEvent('returning to the Product details', SEV.INFO)
+		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	} else {
 		store.dispatch('loadProductDetails')
 	}

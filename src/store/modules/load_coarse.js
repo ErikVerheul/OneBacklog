@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup,createLoadEventText } from '../../common_functions.js'
+import { dedup, createLoadEventText } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -174,6 +174,14 @@ const actions = {
 
 					if (_id === rootGetters.getCurrentDefaultProductId) {
 						rootState.selectedNodes = [newNode]
+
+						rootState.currentProductId = _id
+						rootState.currentProductTitle = title
+						console.log('Load current product: res.data = ' + JSON.stringify(item.value, null, 2))
+
+						commit('updateNodesAndCurrentDoc', { newDoc: item.value })					
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('loadProductOverview: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
 					}
 
 					parentNode.children.push(newNode)

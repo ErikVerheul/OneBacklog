@@ -22,13 +22,13 @@ function created() {
 		store.state.resetSearchOnTitle = null
 		this.returning = false
 	} else this.returning = true
-	// must reset the event listener to prevent duplicated
+	// must reset the event listener to prevent duplication
 	this.eventBus.off('context-menu')
 }
 
 function mounted() {
 	if (this.returning) {
-		this.showLastEvent('returning to the Products overview', SEV.INFO)
+		this.showLastEvent('Returning to the Products overview', SEV.INFO)
 	} else {
 		store.dispatch('loadOverview')
 	}
