@@ -174,14 +174,6 @@ const actions = {
 
 					if (_id === rootGetters.getCurrentDefaultProductId) {
 						rootState.selectedNodes = [newNode]
-
-						rootState.currentProductId = _id
-						rootState.currentProductTitle = title
-						console.log('Load current product: res.data = ' + JSON.stringify(item.value, null, 2))
-
-						commit('updateNodesAndCurrentDoc', { newDoc: item.value })					
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('loadProductOverview: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
 					}
 
 					parentNode.children.push(newNode)
