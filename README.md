@@ -315,10 +315,5 @@ npm run lint
 npm run build
 ```
 
-### vite preview
-``` bash
-npm run serve --report
-```
-
 ## Customize configuration
 See [Configuration Reference](https://vitejs.dev/config/).
