@@ -1,5 +1,5 @@
 <template>
-  <div id="onebacklog">
+  <div>
     <router-view />
   </div>
 </template>

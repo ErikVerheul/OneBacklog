@@ -6,7 +6,6 @@ import store from './store/store'
 import mitt from 'mitt'
 import FontAwesomeIcon from './fa.config'
 import createBootstrap from 'bootstrap-vue-next'
-import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 // import the global css, see https://stackoverflow.com/questions/39438094/best-way-to-have-global-css-in-vuejs
 import '@/css/onebacklog.scss'
@@ -45,4 +44,4 @@ app.config.globalProperties.eventBus = eventBus
 // make the store available in all templates
 app.config.globalProperties.store = store
 
-app.mount('#onebacklog')
+app.mount('#app')
