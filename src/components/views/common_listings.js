@@ -203,21 +203,21 @@ const methods = {
 
   /* Presentation methods */
   mkAcceptanceEvent(value) {
-    return '<h5>The acceptance criteria of the item have changed:(from/to)<hr></h5>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
+    return '<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
   },
 
   mkAddSprintIdsEvent(value) {
     let txt = `This ${this.getLevelText(value[0], value[1])} is assigned to sprint '${value[2]}'.`
     if (value[3]) txt += ' The item was assigned to a sprint before.'
-    return `<h5> ${txt} </h5>`
+    return `<h6> ${txt} </h6>`
   },
 
   mkClonedBranchEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h5>`
+    return `<h6>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h6>`
   },
 
   mkCloneEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h5>`
+    return `<h6>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h6>`
   },
 
   mkCommentToHistoryEvent(value) {
@@ -227,53 +227,53 @@ const methods = {
   mkConditionRemovedEvent(value) {
     let s
     if (value[1]) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` } else if (value[0].length === 1) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` } else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-    return `<h5>${s}</h5>`
+    return `<h6>${s}</h6>`
   },
 
   mkCreateEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h5>`
+    return `<h6>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h6>`
   },
 
   mkCreateRootEvent(value) {
-    return '<h5>The root document was created for database ' + value[0] + '.</h5>'
+    return '<h6>The root document was created for database ' + value[0] + '.</h6>'
   },
 
   mkCreateTaskEvent(value) {
-    return `<h5>This task was created under parent '${value[0]}'.</h5>`
+    return `<h6>This task was created under parent '${value[0]}'.</h6>`
   },
 
   mkDependencyRemovedEvent(value) {
     let s
     if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` } else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` } else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-    return `<h5>${s}</h5>`
+    return `<h6>${s}</h6>`
   },
 
   mkDescriptionEvent(value) {
-    return '<h5>The description of the item has changed:(from/to)<hr></h5>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
+    return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
   },
 
   mkImportToSprintEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} was imported from sprint '${value[2]}' to sprint '${value[3]}'.</h5>`
+    return `<h6>This ${this.getLevelText(value[0], value[1])} was imported from sprint '${value[2]}' to sprint '${value[3]}'.</h6>`
   },
 
   mkItemRestoredEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} is restored from removal including its descendants.</h5>`
+    return `<h6>This ${this.getLevelText(value[0], value[1])} is restored from removal including its descendants.</h6>`
   },
 
   mkNewChildEvent(value) {
-    return `<h5>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h5>`
+    return `<h6>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h6>`
   },
 
   mkNodeMovedEvent(value) {
     const moveType = value[13] === 'undoMove' ? ' back' : ''
     let txt
-    if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+    if (value[7] !== value[8]) { txt = `<h6>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}.</h6>` } else txt = ''
     if (value[0] === value[1]) {
-      txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
+      txt += `<h6>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h6>`
       txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ''
       return txt
     } else {
-      txt += `<h5>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h5>`
+      txt += `<h6>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h6>`
       txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
       txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ''
       return txt
@@ -281,91 +281,91 @@ const methods = {
   },
 
   mkRemoveAttachmentEvent(value) {
-    return "<h5>Attachment with title '" + value[0] + "' is removed.</h5>"
+    return "<h6>Attachment with title '" + value[0] + "' is removed.</h6>"
   },
 
   mkRemoveCommentFromHistoryEvent() {
-    return `<h5>Your last comment on the history of this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h5>`
+    return `<h6>Your last comment on the history of this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h6>`
   },
 
   mkRemovedWithDescendantsEvent(value) {
-    return `<h5>This item and ${value[1] - 1} descendants are removed.</h5>
+    return `<h6>This item and ${value[1] - 1} descendants are removed.</h6>
       <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`
   },
 
   mkRemoveSprintIdsEvent(value) {
-    return `<h5>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h5>`
+    return `<h6>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h6>`
   },
 
   mkResetHistoryEvent(value) {
-    return `<h5> ${value[0]} History items are removed.</h5>`
+    return `<h6> ${value[0]} History items are removed.</h6>`
   },
 
   mkSetConditionsEvent(value) {
-    if (value[2]) return `<h5>The previous condition set for item '${value[1]} is undone'.</h5>`
-    return `<h5>This item is set to be conditional for item '${value[1]}'.</h5>`
+    if (value[2]) return `<h6>The previous condition set for item '${value[1]} is undone'.</h6>`
+    return `<h6>This item is set to be conditional for item '${value[1]}'.</h6>`
   },
 
   mkSetDependenciesEvent(value) {
-    if (value[2]) return `<h5>The previous dependency set on item '${value[1]} is undone'.</h5>`
-    return `<h5>This item is set to be dependent on item '${value[1]}'.</h5>`
+    if (value[2]) return `<h6>The previous dependency set on item '${value[1]} is undone'.</h6>`
+    return `<h6>This item is set to be dependent on item '${value[1]}'.</h6>`
   },
 
   mkSetHrsEvent(value) {
-    return '<h5>Spike estimate hours changed from ' + value[0] + ' to ' + value[1] + '.</h5>'
+    return '<h6>Spike estimate hours changed from ' + value[0] + ' to ' + value[1] + '.</h6>'
   },
 
   mkSetPointsEvent(value) {
-    return '<h5>Storypoints estimate changed from ' + value[0] + ' to ' + value[1] + '.</h5>'
+    return '<h6>Storypoints estimate changed from ' + value[0] + ' to ' + value[1] + '.</h6>'
   },
 
   mkSetSizeEvent(value) {
-    return '<h5>T-Shirt estimate changed from </h5>' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
+    return '<h6>T-Shirt estimate changed from </h6>' + this.getTsSize(value[0]) + ' to ' + this.getTsSize(value[1])
   },
 
   mkSetStateEvent(value) {
-    return `<h5>The item state changed from '${this.getItemStateText(value[0])}' to '${this.getItemStateText(value[1])}'</h5>` +
+    return `<h6>The item state changed from '${this.getItemStateText(value[0])}' to '${this.getItemStateText(value[1])}'</h6>` +
       `<p>This backlog item is realized by team '${value[2]}'</p>`
   },
 
   mkSetSubTypeEvent(value) {
-    return "<h5>The pbi subtype has changed from: </h5>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
+    return "<h6>The pbi subtype has changed from: </h6>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
   },
 
   mkSetTeamEventDescendant(value) {
-    return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'.</h5>"
+    return "<h6>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> as descendant of '" + value[2] + "'.</h6>"
   },
 
   mkSetTeamOwnerEvent(value) {
-    return "<h5>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> including " + value[2] + ' descendants.</h5>'
+    return "<h6>The team of the item has changed from '" + value[0] + "' to '" + value[1] + "',<br> including " + value[2] + ' descendants.</h6>'
   },
 
   mkSetTitleEvent(value) {
-    return "<h5>The item title has changed from: </h5>'" + value[0] + "' to '" + value[1] + "'."
+    return "<h6>The item title has changed from: </h6>'" + value[0] + "' to '" + value[1] + "'."
   },
 
   mkSubscribeEvent(value) {
     if (value[0]) {
-      return '<h5>User unsubscribed for messages about this backlog item.</h5>'
+      return '<h6>User unsubscribed for messages about this backlog item.</h6>'
     } else {
-      return '<h5>User subscribed to receive messages about this backlog item.</h5>'
+      return '<h6>User subscribed to receive messages about this backlog item.</h6>'
     }
   },
 
   mkUndoBranchRemovalEvent(value) {
-    return `<h5>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h5>`
+    return `<h6>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h6>`
   },
 
   mkTaskRemovedEvent(value) {
-    return `<h5>Task '${value[0]}' is removed by team '${value[1]}'.</h5>`
+    return `<h6>Task '${value[0]}' is removed by team '${value[1]}'.</h6>`
   },
 
   mkUpdateTaskOwnerEvent(value) {
-    return `<h5>Task owner is changed from '${value[0]}' to '${value[1]}'.</h5>`
+    return `<h6>Task owner is changed from '${value[0]}' to '${value[1]}'.</h6>`
   },
 
   mkUploadAttachmentEvent(value) {
-    return "<h5>Attachment with title '" + value[0] + "' of type " + value[2] + ' and size ' + value[1] + ' is uploaded.</h5>'
+    return "<h6>Attachment with title '" + value[0] + "' of type " + value[2] + ' and size ' + value[1] + ' is uploaded.</h6>'
   },
 
   mkComment(value) {
@@ -373,11 +373,11 @@ const methods = {
   },
 
   mkRemoveCommentEvent() {
-    return `<h5>Your last comment on this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h5>`
+    return `<h6>Your last comment on this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)} is removed.</h6>`
   },
 
   mkResetCommentsEvent(value) {
-    return `<h5> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h5>`
+    return `<h6> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h6>`
   },
 
   mkBy(value) {
