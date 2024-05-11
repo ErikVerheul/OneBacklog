@@ -204,7 +204,12 @@ const actions = {
 			}
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(batch.length + ' documents are loaded')
+			// clear memory usage
 			parentNodes = {}
+			// load the the default product root node
+			dispatch('loadDoc', {
+				id: rootGetters.getCurrentDefaultProductId,
+			})
 		}).catch(error => {
 			// eslint-disable-next-line no-console
 			if (rootState.debug) console.log(`loadOverview: Could not read from database ${rootState.userData.currentDb}, ${error}`)
