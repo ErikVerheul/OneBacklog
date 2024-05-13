@@ -100,7 +100,7 @@ const methods = {
 				}
 				if (this.contextNodeSelected.level === LEVEL.TASK) {
 					this.assistanceText = store.state.help.taskFromSprint
-					this.listItemText = `Remove this Task from the assigned sprint` + '; state = ' + this.contextNodeSelected.data.state
+					this.listItemText = `Remove this Task from the assigned sprint`
 				}
 				break
 			case this.INSERTBELOW:
