@@ -94,6 +94,7 @@ const computed = {
       if (event === 'removeCommentFromHistoryEvent') allText += this.mkRemoveCommentFromHistoryEvent(histItem[event])
       if (event === 'removedWithDescendantsEvent') allText += this.mkRemovedWithDescendantsEvent(histItem[event])
       if (event === 'removeSprintIdsEvent') allText += this.mkRemoveSprintIdsEvent(histItem[event])
+      if (event === 'removeStoryEvent') allText += this.mkRemoveStoryEvent(histItem[event])
       if (event === 'resetHistoryEvent') allText += this.mkResetHistoryEvent(histItem[event])
       if (event === 'setConditionEvent') allText += this.mkSetConditionsEvent(histItem[event])
       if (event === 'setDependencyEvent') allText += this.mkSetDependenciesEvent(histItem[event])
@@ -170,6 +171,7 @@ const methods = {
     if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
     if (key === 'removeCommentFromHistoryEvent') return this.mkRemoveCommentFromHistoryEvent(value)
     if (key === 'removeSprintIdsEvent') return this.mkRemoveSprintIdsEvent(value)
+    if (key === 'removeStoryEvent') return this.mkRemoveStoryEvent(value)
     if (key === 'removedWithDescendantsEvent') return this.mkRemovedWithDescendantsEvent(value)
     if (key === 'resetHistoryEvent') return this.mkResetHistoryEvent(value)
     if (key === 'setConditionEvent') return this.mkSetConditionsEvent(value)
@@ -273,9 +275,9 @@ const methods = {
       txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ''
       return txt
     } else {
-      txt += `<h6>The item changed type from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h6>`
+      txt += `<h6>The item changed level from ${this.getLevelText(value[0])} to ${this.getLevelText(value[1])}.</h6>`
       txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-      txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ''
+      txt += (value[4] > 0) ? `<p>${value[4]} children also changed level.</p>` : ''
       return txt
     }
   },
@@ -294,6 +296,10 @@ const methods = {
   },
 
   mkRemoveSprintIdsEvent(value) {
+    return `<h6>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h6>`
+  },
+
+  mkRemoveStoryEvent(value) {
     return `<h6>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h6>`
   },
 
