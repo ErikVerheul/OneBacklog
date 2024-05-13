@@ -180,10 +180,10 @@ Sprint Backlog
 From the 'Product details' view context menu features, user stories and tasks can be selected to be assigned to the current or next sprint:
  - When a feature is selected all its descendants (user stories and tasks) are assigned
  - A feature without user stories cannot be assigned to a sprint
- - When a user storie is selected, that user storie and it descendant tasks are assigned
+ - When a user story is selected, that user story and it descendant tasks are assigned
  - Individual tasks can also be assigned to a sprint
 
-Tasks added to a user storie later will automatically inherit the sprintId from their parent or sibling.
+Tasks added to a user story later will automatically inherit the sprintId from their parent or sibling.
 
 SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
 The calendar is stored in each database CONFIG file. The admin/assistAdmin can create a team calendar from the default calendar and change that calendar at will.
@@ -205,7 +205,7 @@ defaultSprintCalendar = [
 	...
 ]
 
-In the CONFIG document the user storie subtypes are defined
+In the CONFIG document the user story (also named PBI) subtypes are defined
 "subtype": [
     "User story",
     "Spike",
