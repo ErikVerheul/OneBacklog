@@ -179,8 +179,8 @@ const utilities = {
 			return store.state.configData.itemState[idx]
 		},
 
-		getLevelText(level) {
-			if (store.state.helpersRef) return store.state.helpersRef.getLevelText(level)
+		getLevelText(level, subtype = 0) {
+			if (store.state.helpersRef) return store.state.helpersRef.getLevelText(level, subtype)
 		},
 
 		getSubType(idx) {
