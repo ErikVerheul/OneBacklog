@@ -141,9 +141,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
 					txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
 					return mkHeader() + txt + mkFooter()
 				} else {
-					txt += `<h5>The item changed type from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}.</h5>`
+					txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}.</h5>`
 					txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-					txt += (value[4] > 0) ? `<p>${value[4]} children also changed type.</p>` : ""
+					txt += (value[4] > 0) ? `<p>${value[4]} children also changed level.</p>` : ""
 					return mkHeader() + txt + mkFooter()
 				}
 			}
