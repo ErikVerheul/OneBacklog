@@ -54,7 +54,7 @@ export default {
 
   methods: {
     /*
-    * From the 'Product details' view context menu a PBI or a task can be selected to be assigned to the current or next sprint
+    * From the 'Product details' view context menu a user story or a task can be selected to be assigned to the current or next sprint
     * Only items that are not in a sprint already can be assigned to a sprint.
     */
     addItemToSprint() {
@@ -65,7 +65,7 @@ export default {
       const sprintId = this.selectedSprintId
       const sprintName = getSprintNameById(sprintId, store.state.myCurrentSprintCalendar)
 
-      // when a PBI is selected, that PBI and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
+      // when a user story is selected, that user story and it descendant tasks that have no sprint assigned yet, are assigned to the sprint
       if (itemLevel === LEVEL.PBI) {
         const itemIds = [currentDoc._id]
         const descendants = store.state.helpersRef.getDescendantsInfoOnId(currentDoc._id).descendants
@@ -76,11 +76,11 @@ export default {
       }
 
       if (itemLevel === LEVEL.TASK) {
-        // when a task is selected, the task's PBI and the task are assigned to the sprint
+        // when a task is selected, the task's user story and the task are assigned to the sprint
 				const itemIds = [currentDoc._id]
         const pbiNode = store.state.helpersRef.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {
-					// if no other sprint is assigned, also assign the sprint to the task's PBI
+					// if no other sprint is assigned, also assign the task's user story to the sprint
           itemIds.push(pbiNode._id)
         }
 				store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })

@@ -130,11 +130,11 @@
             >Make a copy of this {{ contextNodeType }}</BListGroupItem>
 
             <BListGroupItem
-              v-if="canAssignPbiToSprint"
+              v-if="canAssignUsToSprint"
               button
-              :active="contextOptionSelected === PBITOSPRINT"
+              :active="contextOptionSelected === USTOSPRINT"
               variant="dark"
-              @click="showSelected(PBITOSPRINT)"
+              @click="showSelected(USTOSPRINT)"
             >Assing this {{ contextNodeType }} to a sprint</BListGroupItem>
 
             <BListGroupItem

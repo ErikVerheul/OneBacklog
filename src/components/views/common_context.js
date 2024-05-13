@@ -27,9 +27,9 @@ function created() {
 	this.CLONEBRANCH = 10
 	this.CLONEITEM = 11
 	this.REMOVEREQAREA = 12
-	this.PBITOSPRINT = 13
-	this.FROMSPRINT = 14
-	this.TASKTOSPRINT = 15
+	this.USTOSPRINT = 13
+	this.TASKTOSPRINT = 14
+	this.FROMSPRINT = 15
 }
 
 function data() {

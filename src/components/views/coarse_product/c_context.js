@@ -78,27 +78,27 @@ const methods = {
     this.disableOkButton = false
     switch (this.contextOptionSelected) {
       case this.CLONEPRODUCT:
-        this.assistanceText = store.state.help.help.productClone
+        this.assistanceText = store.state.help.productClone
 				this.listItemText = 'Make a clone of this product including its descendant items.'
         break
 			case this.CLONEBRANCH:
-				this.assistanceText = store.state.help.help.branchClone
+				this.assistanceText = store.state.help.branchClone
 				this.listItemText = 'Make a clone of this branch including its descendant items.'
 				break
       case this.CLONEITEM:
-        this.assistanceText = store.state.help.help.itemClone
+        this.assistanceText = store.state.help.itemClone
         this.listItemText = 'Make a clone of this item. No descendant items are copied.'
         break
       case this.INSERTBELOW:
-        this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level]
+        this.assistanceText = store.state.help.insert[this.contextNodeSelected.level]
         this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item.'
         break
       case this.INSERTINSIDE:
-        this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level + 1]
+        this.assistanceText = store.state.help.insert[this.contextNodeSelected.level + 1]
         this.listItemText = `Insert a ${this.contextChildType} inside this ${this.contextNodeType}.`
         break
       case this.REMOVEITEM:
-        this.assistanceText = store.state.help.help.remove
+        this.assistanceText = store.state.help.remove
         if (this.hasDependencies) {
 					this.contextWarning = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
           this.disableOkButton = true
@@ -108,16 +108,16 @@ const methods = {
         } else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
 			case this.ASIGNTOMYTEAM:
-				this.assistanceText = store.state.help.help.team
+				this.assistanceText = store.state.help.team
 				this.contextWarning = `Descendants of this ${this.contextNodeType} might be assigned to another team. To be save use the 'Product details' view to assign your team to this ${this.contextNodeType}`
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
       case this.REMOVEREQAREA:
-        this.assistanceText = store.state.help.help.remove
+        this.assistanceText = store.state.help.remove
         this.listItemText = 'Remove this requirement area'
         break
       case this.SETDEPENDENCY:
-        this.assistanceText = store.state.help.help.setDependency
+        this.assistanceText = store.state.help.setDependency
         if (!store.state.selectNodeOngoing) {
           this.listItemText = 'Click OK and right-click a node this item depends on.'
         } else {

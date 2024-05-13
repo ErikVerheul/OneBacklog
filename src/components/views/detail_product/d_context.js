@@ -13,7 +13,7 @@ function created() {
 function data() {
 	return {
 		isInSprint: false,
-		canAssignPbiToSprint: false,
+		canAssignUsToSprint: false,
 		canAssignTaskToSprint: false,
 		movedNode: {}
 	}
@@ -46,8 +46,8 @@ const methods = {
 				this.hasConditions = node.conditionalFor && node.conditionalFor.length > 0
 				this.allowRemoval = true
 				this.isInSprint = !!node.data.sprintId
-				// can only assign pbi's to a sprint if not in a sprint already
-				this.canAssignPbiToSprint = node.level === this.PBILEVEL && !node.data.sprintId
+				// can only assign user story to a sprint if not in a sprint already
+				this.canAssignUsToSprint = node.level === this.PBILEVEL && !node.data.sprintId
 				// can only assign tasks to a sprint if not in a sprint already
 				this.canAssignTaskToSprint = node.level === this.TASKLEVEL && !node.data.sprintId
 				if (this.$refs.d_contextMenuRef) {
@@ -82,50 +82,56 @@ const methods = {
 		this.disableOkButton = false
 		switch (this.contextOptionSelected) {
 			case this.CLONEPRODUCT:
-				this.assistanceText = store.state.help.help.productClone
-				this.listItemText = 'Make a clone of this product including its descendant items.'
+				this.assistanceText = store.state.help.productClone
+				this.listItemText = 'Make a clone of this product including its descendant items'
 				break
 			case this.CLONEBRANCH:
-				this.assistanceText = store.state.help.help.branchClone
-				this.listItemText = 'Make a clone of this branch including its descendant items.'
+				this.assistanceText = store.state.help.branchClone
+				this.listItemText = 'Make a clone of this branch including its descendant items'
 				break
 			case this.CLONEITEM:
-				this.assistanceText = store.state.help.help.itemClone
-				this.listItemText = 'Make a clone of this item. No descendant items are copied.'
+				this.assistanceText = store.state.help.itemClone
+				this.listItemText = 'Make a clone of this item. No descendant items are copied'
 				break
 			case this.FROMSPRINT:
-				if (this.contextNodeSelected.level === LEVEL.PBI) this.listItemText = `Remove this User story from the assigned sprint including it's tasks with the same sprint assigned.`
-				if (this.contextNodeSelected.level === LEVEL.TASK) this.listItemText = `Remove the Task from the assigned sprint.`
+				if (this.contextNodeSelected.level === LEVEL.PBI) {
+					this.assistanceText = store.state.help.usFromSprint
+					this.listItemText = `Remove this User story from the assigned sprint including it's tasks`
+				}
+				if (this.contextNodeSelected.level === LEVEL.TASK) {
+					this.assistanceText = store.state.help.taskFromSprint
+					this.listItemText = `Remove this Task from the assigned sprint` + '; state = ' + this.contextNodeSelected.data.state
+				}
 				break
 			case this.INSERTBELOW:
-				this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level]
-				this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item.'
+				this.assistanceText = store.state.help.insert[this.contextNodeSelected.level]
+				this.listItemText = 'Insert a ' + this.contextNodeType + ' below this item'
 				break
 			case this.INSERTINSIDE:
-				this.assistanceText = store.state.help.help.insert[this.contextNodeSelected.level + 1]
+				this.assistanceText = store.state.help.insert[this.contextNodeSelected.level + 1]
 				this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
 				break
 			case this.MOVETOPRODUCT:
-				this.assistanceText = store.state.help.help.move
+				this.assistanceText = store.state.help.move
 				if (!store.state.moveOngoing) {
-					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product.`
-				} else this.listItemText = 'Drop position is set.'
+					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product`
+				} else this.listItemText = 'Drop position is set'
 				break
-			case this.PBITOSPRINT:
-				this.listItemText = `Assign the current or next sprint to this ${this.contextNodeType}`
+			case this.USTOSPRINT:
+				this.assistanceText = store.state.help.usToSprint
+				this.listItemText = `Assign this ${this.contextNodeType} to the current or next sprint`
 				break
 			case this.TASKTOSPRINT:
+				this.assistanceText = store.state.help.taskToSprint
 				{
 					const pbiNode = store.state.helpersRef.getParentNode(this.contextNodeSelected)
 					if (pbiNode) {
-						if (pbiNode.data.sprintId) {
-							this.listItemText = `Assign this Task to the same sprint the User story is assigned to.`
-						} else this.listItemText = `Assign this Task to the current or next sprint.`
-					} else this.listItemText('Cannot find the user story this task belongs to.')
+						if (!pbiNode.data.sprintId) this.listItemText = `Assign this Task to the current or next sprint`
+					} else this.listItemText('Cannot find the user story this task belongs to')
 				}
 				break
 			case this.REMOVEITEM:
-				this.assistanceText = store.state.help.help.remove
+				this.assistanceText = store.state.help.remove
 				if (this.hasDependencies) {
 					this.contextWarning = 'WARNING: this item has dependencies on other items. Remove the dependency/dependencies first.'
 					this.disableOkButton = true
@@ -135,7 +141,7 @@ const methods = {
 				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
 			case this.ASIGNTOMYTEAM:
-				this.assistanceText = store.state.help.help.team
+				this.assistanceText = store.state.help.team
 				if (this.areDescendantsAssignedToOtherTeam(this.contextNodeDescendants.descendants)) {
 					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
 					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
@@ -145,7 +151,7 @@ const methods = {
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
 			case this.SETDEPENDENCY:
-				this.assistanceText = store.state.help.help.setDependency
+				this.assistanceText = store.state.help.setDependency
 				if (!store.state.selectNodeOngoing) {
 					this.listItemText = 'Click OK and right-click a node this item depends on.'
 				} else {
@@ -208,8 +214,8 @@ const methods = {
 			case this.SHOWCONDITIONS:
 				this.doRemoveConditions()
 				break
-			case this.PBITOSPRINT:
-				this.doAddPbiToSprint()
+			case this.USTOSPRINT:
+				this.doAddUsToSprint()
 				break
 			case this.TASKTOSPRINT:
 				this.doAddTaskToSprint()
@@ -251,24 +257,14 @@ const methods = {
 		}
 	},
 
-	doAddPbiToSprint() {
+	/* Assign the user story to the current or upcoming sprint. Ask the user to select */
+	doAddUsToSprint() {
 		window.assignToSprintRef.show()
 	},
 
-	/* Assign the task to the sprint of its PBI; or if the PBI has no sprint assigned, ask the user to select. */
+	/* Assign the task to the sprint of its user story; or if the user story has no sprint assigned, ask the user to select. */
 	doAddTaskToSprint() {
-		const taskNode = this.contextNodeSelected
-		const pbiNode = store.state.helpersRef.getParentNode(taskNode)
-		if (pbiNode) {
-			const pbiSprintId = pbiNode.data.sprintId
-			if (pbiSprintId) {
-				const sprintName = getSprintNameById(pbiSprintId, store.state.myCurrentSprintCalendar)
-				// assign the task to the same sprint the PBI is assigned to
-				store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds: [taskNode._id], sprintId: pbiSprintId, sprintName })
-			} else {
-				window.assignToSprintRef.show()
-			}
-		} else this.showLastEvent('Cannot find the user story this task belongs to. Task is not assigned.', SEV.ERROR)
+		window.assignToSprintRef.show()
 	},
 
 	doRemoveFromSprint() {

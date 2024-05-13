@@ -112,7 +112,7 @@ The item types are defined in the CONFIG file:
     "Product",
     "Epic",
     "Feature",
-    "PBI",
+    "PBI", // user story, spike or defect
 		"Task"
   ],
 
@@ -126,7 +126,7 @@ Database ............... 1 ................... 1
 Product ................ 2 ................... 2
 Epic .. ................ 3 ................... 3
 Feature ................ 4 ................... 4
-PBI ... ................ 5 ................... 5
+User story ............. 5 ................... 5
 Task .. ................ 6 ................... 6
 
 The '_admin' role is set on database creation to the creator. Initinally the '_admin' also has the role 'admin'.
@@ -177,13 +177,13 @@ Items with an assigned team can only be moved, removed, or changed by members of
 
 Sprint Backlog
 ==============
-From the 'Product details' view context menu features, PBI's and tasks can be selected to be assigned to the current or next sprint:
- - When a feature is selected all its descendants (PBI's and tasks) are assigned
- - A feature without PBI's cannot be assigned to a sprint
- - When a PBI is selected, that PBI and it descendant tasks are assigned
+From the 'Product details' view context menu features, user stories and tasks can be selected to be assigned to the current or next sprint:
+ - When a feature is selected all its descendants (user stories and tasks) are assigned
+ - A feature without user stories cannot be assigned to a sprint
+ - When a user storie is selected, that user storie and it descendant tasks are assigned
  - Individual tasks can also be assigned to a sprint
 
-Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.
+Tasks added to a user storie later will automatically inherit the sprintId from their parent or sibling.
 
 SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
 The calendar is stored in each database CONFIG file. The admin/assistAdmin can create a team calendar from the default calendar and change that calendar at will.
@@ -205,7 +205,7 @@ defaultSprintCalendar = [
 	...
 ]
 
-In the CONFIG document the PBI subtypes are defined
+In the CONFIG document the user storie subtypes are defined
 "subtype": [
     "User story",
     "Spike",
@@ -302,7 +302,7 @@ Y             Y	     Y    removeCommentEvent	        		update.js
 Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
 Y 			  		N			 N    removeItemsFromSprintEvent			planningboard.js
 Y             Y      Y    removedWithDescendantsEvent     removebranch.js
-N 			  		Y 	 	 Y    removeSprintIdsEvent						planningboard.js
+Y 			  		Y 	 	 Y    removeSprintIdsEvent						planningboard.js
 Y 			  		Y 	 	 Y    removeStoryEvent								planningboard.js
 N			  			N	     Y    resetHistoryEvent								utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
