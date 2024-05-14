@@ -171,7 +171,7 @@ export default {
           getCurrSprint = false
           continue
         }
-        options.push({ value: sprint, text: sprint.name })
+        options.push({ value: sprint, text: `${sprint.name} Stories-Done: ${store.state.helpersRef.countStoriesInSprint(sprint.id)}` })
       }
       return options
     },

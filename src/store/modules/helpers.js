@@ -6,7 +6,7 @@
 * Note that the store must be initialized before use
 */
 
-import { LEVEL, MISC, SEV } from '../../constants.js'
+import { LEVEL, MISC, SEV, STATE } from '../../constants.js'
 import { collapseNode, expandNode, dedup, showNode } from '../../common_functions.js'
 const actions = {
 	createHelpers({
@@ -391,6 +391,19 @@ const actions = {
 					}
 				}, rootState.helpersRef.getCurrentProductModel())
 				return idsWithReqArea
+			},
+
+			/* Count the number of user stories done assigned to a given sprint, in the current product */
+			countStoriesInSprint(sprintId) {
+				let count = 0
+				rootState.helpersRef.traverseModels((nm) => {
+					if (nm.data.sprintId === sprintId) {
+						if (nm.level === LEVEL.PBI && nm.data.state === STATE.DONE) {
+							count++
+						}
+					}
+				}, rootState.helpersRef.getCurrentProductModel())
+				return count
 			},
 
 			selectNodeById(id) {
