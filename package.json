@@ -20,14 +20,14 @@
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
-    "@fortawesome/vue-fontawesome": "^3.0.6",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "@popperjs/core": "^2.11.8",
     "@vueup/vue-quill": "^1.2.0",
-    "axios": "^1.6.8",
+    "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.17.4",
+    "bootstrap-vue-next": "^0.18.1",
     "mitt": "^3.0.1",
-    "vue": "^3.4.26",
+    "vue": "^3.4.27",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.3.2",
     "vuex": "^4.1.0"
