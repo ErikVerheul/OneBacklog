@@ -29,16 +29,16 @@
     "mitt": "^3.0.1",
     "vue": "^3.4.27",
     "vue-draggable-next": "^2.2.1",
-    "vue-router": "^4.3.2",
+    "vue-router": "^4.3.3",
     "vuex": "^4.1.0"
   },
   "overrides": {
     "quill": "^2.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.4",
+    "@vitejs/plugin-vue": "^5.0.5",
     "unplugin-vue-components": "^0.27.0",
-    "vite": "^5.2.11"
+    "vite": "^5.2.13"
   },
   "eslintConfig": {
     "root": true,
