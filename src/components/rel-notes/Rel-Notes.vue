@@ -6,7 +6,7 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
-          <h3>v.2.2.3 - 11 June 2024 new features, fix browser support, bug fixes</h3>
+          <h3>v.2.2.3 - 12 June 2024 new features, fix browser support, bug fixes</h3>
           <p>New features</p>
           <ul>
             <li>Show the PBI title in bold</li>

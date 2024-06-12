@@ -2,7 +2,7 @@
   <BContainer>
     <BRow v-if="isScreenWidthSufficient()">
       <div class="col-lg-12 col-sm-12">
-        <BImg :src="logo" center alt="OneBacklog logo" />
+        <BImg :src="logo" placement="center" alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12 cta">
         <router-link to="/signin">Sign In</router-link>
@@ -18,7 +18,7 @@
     </BRow>
     <BRow v-else>
       <div class="col-lg-12 col-sm-12">
-        <BImg hight="200" width="200" :src="logo" center alt="OneBacklog logo" />
+        <BImg hight="200" width="200" :src="logo" placement="center" alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12">
         <h3>Welcome to the OneBacklog single page web application</h3>
