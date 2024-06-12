@@ -2,7 +2,7 @@
   <BContainer>
     <BRow>
       <div class="col-lg-12 col-sm-12">
-        <BImg :src="logo" center alt="OneBacklog logo" />
+        <BImg :src="logo" placement="center" alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12" id="signin">
         <div class="signin-form">

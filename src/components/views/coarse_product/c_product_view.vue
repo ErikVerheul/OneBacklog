@@ -10,7 +10,7 @@
             {{ undoTitle }}
           </BTooltip>
           <div class="divider" />
-          <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{getFilterButtonText()}}</BButton>
+          <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText() }}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
             <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
@@ -51,22 +51,27 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <BCol cols="5">
+          <BCol cols="4">
             <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>
-          <BCol cols="3">
-            <h3 v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'" align="right">
-              State:
-              <BDropdown right :text=getItemStateText(store.state.currentDoc.state)>
-                <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
-                <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
-                <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
-                <BDropdownItem @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</BDropdownItem>
-                <BDropdownDivider></BDropdownDivider>
-                <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
-              </BDropdown>
-            </h3>
-          </BCol>
+          <template v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'">
+            <BCol cols="2"></BCol>
+            <BCol cols="1">
+              <h3 align="right">State:</h3>
+            </BCol>
+            <BCol cols="1">
+              <h3 align="right">  
+                <BDropdown right :text=getItemStateText(store.state.currentDoc.state)>
+                  <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
+                  <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
+                  <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
+                  <BDropdownItem @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</BDropdownItem>
+                  <BDropdownDivider></BDropdownDivider>
+                  <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
+                </BDropdown>
+              </h3>
+            </BCol>
+          </template>
         </BRow>
       </BContainer>
     </div>
@@ -179,7 +184,7 @@
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ height: '40px' }">
+          <div class="pane" :style="{ height: '80px' }">
             <div class="d-table w-100">
               <p v-if="!isReqAreaItem" class="title">{{ getItemInfo() }}</p>
               <span v-else-if="!isReqAreaTopLevel">
@@ -365,11 +370,11 @@
 
 /* other stuff */
 h3 {
-  font-size:1.4em;
+  font-size: 1.4em;
 }
 
 label {
-  font-size:1.4em;
+  font-size: 1.4em;
   font-weight: bolder;
 }
 
