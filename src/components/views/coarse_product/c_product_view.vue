@@ -13,7 +13,7 @@
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText() }}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
-            <BFormInput id="findItemOnId" v-model="store.state.itemId" @change="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
+            <BFormInput id="findItemOnId" v-model="store.state.itemId" @keydown.enter="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
@@ -21,7 +21,7 @@
           </BInputGroup>
           <div class="divider" />
           <BInputGroup class="group-height">
-            <BFormInput id="searchInput" v-model="store.state.keyword" @change="doSeachOnTitle" placeholder="Search in titles"></BFormInput>
+            <BFormInput id="searchInput" v-model="store.state.keyword" @keydown.enter="doSeachOnTitle" placeholder="Search in titles"></BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
