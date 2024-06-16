@@ -23,30 +23,20 @@
             </template>
           </div>
         </div>
-        <div v-if="!store.state.demo" class="text-center big-margin">No account yet? Ask your SM or PO to create
-          one.</div>
-        <div class="text-center">
+        <div v-if="!store.state.demo" class="text-center mb-1">No account yet? Ask your SM or PO to create one</div>
+        <div class="text-center mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</div>
+        <div class="text-left">
           This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
           implied warranty of
-          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu.
+          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu when signed-in
         </div>
-        <div v-if="store.state.demo" class="text-center">
-          <p>
-            This is a demo instance of the application. Your changes can be overridden by others or by a database restore.
-            <br />Please leave your findings in this applications register or raise an issue at
-            <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a>
-          </p>
-          <p>
-            Signin with
-            <b>demoUser</b> and password
-            <b>demoUser</b>.
-          </p>
-          <p>
-            Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest"
+        <div v-if="store.state.demo" class="text-left">
+          <p>This is a demo instance of the application. Your changes can be overridden by others or by a database restore. Please leave your findings in this applications register or raise an issue
+            at <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a></p>
+          <p class="text-center">Signin with <b>demoUser</b> and password <b>demoUser</b></p>
+          <p>Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest"
             for the 'Register your feature proposals and bug findings here' and 'Feel free
-            to play with this product'.
-            <br />So you can do almost everything. Please do not remove other peoples entries.
-          </p>
+            to play with this product'. So you can do almost everything. Please do not remove other peoples entries.</p>
         </div>
       </div>
     </BRow>
@@ -54,7 +44,7 @@
 </template>
 
 <script setup>
-import {useModal} from 'bootstrap-vue-next'
+import { useModal } from 'bootstrap-vue-next'
 import { computed, reactive } from 'vue'
 import { useStore } from 'vuex'
 import logo from '../../assets/logo.png'
@@ -93,10 +83,6 @@ const { show, hide, modal } = useModal('my-modal')
   margin: 10px auto;
 }
 
-.big-margin {
-  margin-bottom: 6em;
-}
-
 .input label {
   display: block;
   color: #4e4e4e;
@@ -111,28 +97,16 @@ const { show, hide, modal } = useModal('my-modal')
   border: 1px solid #ccc;
 }
 
-.input input:focus {
-  outline: none;
-  border: 1px solid #521751;
-  background-color: #eee;
-}
-
 .submit button {
   border: 1px solid #521751;
   color: #521751;
+  background-color: #408fae;
   padding: 10px 20px;
   font: inherit;
   cursor: pointer;
 }
 
-.submit button:hover,
-.submit button:active {
-  background-color: #408fae;
-  color: white;
-}
-
 .submit button[disabled],
-.submit button[disabled]:hover,
 .submit button[disabled]:active {
   border: 1px solid #ccc;
   background-color: transparent;
