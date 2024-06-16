@@ -140,21 +140,6 @@ const methods = {
 		store.state.areTeamsRemoved = false
 	},
 
-	// ToDo: remove this method if not used
-	onReset(evt) {
-		evt.preventDefault()
-		// Reset our form values
-		this.startDateStr = undefined
-		this.sprintStartTimeStr = '12'
-		this.sprintLength = '14'
-		this.numberOfSprintsStr = '26'
-		// Trick to reset/clear native browser form validation state
-		this.show = false
-		this.$nextTick(() => {
-			this.show = true
-		})
-	},
-
 	doAfterDbIsSelected() {
 		switch (this.optionSelected) {
 			case 'Create a user and assign product(s)':
