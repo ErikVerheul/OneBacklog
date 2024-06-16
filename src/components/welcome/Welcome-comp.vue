@@ -13,7 +13,6 @@
           large or small.<br>
           Your role determines what you can do. Run this application on a desktop computer or tablet with a pointing
           device.</p>
-        <p>Signin with <b>demoUser</b> and password <b>demoUser</b>.</p>
       </div>
     </BRow>
     <BRow v-else>
