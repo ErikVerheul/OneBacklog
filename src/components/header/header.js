@@ -1,4 +1,5 @@
 import Licence from './licence.vue'
+import { isValidEmail } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 import logo from '../../assets/logo.png'
 import store from '../../store/store.js'
@@ -18,6 +19,8 @@ function data() {
 		oldPassword: '',
 		newPassword1: '',
 		newPassword2: '',
+		newEmail1: "",
+		newEmail2: "",
 		selectedProducts: [],
 		defaultProductOptions: [],
 		selectedTeam: '',
@@ -26,6 +29,16 @@ function data() {
 		teamOptions: [],
 		newDefaultProductId: undefined,
 		showOptionsModal: false
+	}
+}
+
+const computed = {
+	canChangeDb() {
+		return store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true' && store.state.myAssignedDatabases.length > 1
+	},
+
+	emailIsCheckedOk() {
+		return this.newEmail1 === this.newEmail2 && isValidEmail(this.newEmail1)
 	}
 }
 
@@ -77,6 +90,12 @@ const methods = {
 
 	changeMyPassword() {
 		if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
+	},
+
+	changeMyEmail() {
+		this.newEmail1 = '',
+		this.newEmail2 = '',
+		this.$refs.changeEmailRef.show()
 	},
 
 	showMyRoles() {
@@ -196,6 +215,10 @@ const methods = {
 		store.dispatch('changeMyPasswordAction', this.newPassword1)
 	},
 
+	doChangeMyEmail() {
+		store.dispatch('changeMyEmailAction', this.newEmail1)
+	},
+
 	onSignout() {	
 		store.commit('endSession', 'header: user signed out')
 	}
@@ -205,6 +228,7 @@ export default {
 	mixins: [authorization, utilities],
 	created,
 	data,
+	computed,
 	methods,
 	components: {
 		appLicence: Licence

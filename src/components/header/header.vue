@@ -8,10 +8,10 @@
         <BNavbarNav>
           <BNavItem to="../../userguide">User guide</BNavItem>
         </BNavbarNav>
-             
+
         <BNavbarNav v-if="store.state.showHeaderDropDowns" class="ms-auto">
           <!-- app-header additions go in this slot -->
-          <slot></slot>        
+          <slot></slot>
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
             <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products overview</BDropdownItem>
@@ -27,15 +27,12 @@
             <template slot="button-content"></template>
 
             <template v-if="isAuthenticated">
-              <BDropdownItem
-                v-if="store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true' && store.state.myAssignedDatabases.length > 1"
-                @click="changeDatabase">Change database
-              </BDropdownItem>
+              <BDropdownItem v-if="canChangeDb" @click="changeDatabase">Change database</BDropdownItem>
               <BDropdownItem @click="showMyTeam">My team</BDropdownItem>
-              <BDropdownItem @click="changeTeam">Change team</BDropdownItem>             
-              <BDropdownItem v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select
-                products</BDropdownItem>
-              <BDropdownItem @click="changeMyPassword">Change password</BDropdownItem>
+              <BDropdownItem @click="changeTeam">Change team</BDropdownItem>
+              <BDropdownItem v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</BDropdownItem>
+              <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyPassword">Change password</BDropdownItem>
+              <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyEmail">Change my email</BDropdownItem>
               <BDropdownItem @click="showMyRoles">My authorizations</BDropdownItem>
             </template>
             <BDropdownItem v-else>No options here when not authenticated</BDropdownItem>
@@ -63,8 +60,7 @@
       <BContainer align-v="true">
         <h5>Select another database. Your current database is '{{ store.state.userData.currentDb }}'</h5>
         <BFormGroup>
-          <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions"
-            name="headerDatabaseOptions" />
+          <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions" name="headerDatabaseOptions" />
         </BFormGroup>
         <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database
         </p>
@@ -91,7 +87,7 @@
           </div>
           <hr>
           <h5>All teams working on products managed in database '{{ store.state.selectedDatabaseName }}'</h5>
-          <div v-for="team in store.state.fetchedTeams" :key="team.teamName">          
+          <div v-for="team in store.state.fetchedTeams" :key="team.teamName">
             <template v-if="team.hasTeamCalendar">
               <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
             </template>
@@ -106,49 +102,56 @@
       </BContainer>
     </BModal>
 
-    <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts"
-      title="Select one or more (hold shift or Ctrl) products to be loaded">
+    <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded">
       <BContainer align-v="true">
-        <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple
-          :select-size="store.state.myProductOptions.length"></BFormSelect>
+        <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length"></BFormSelect>
       </BContainer>
     </BModal>
 
-    <BModal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions"
-      title="Select the default product you are working on">
+    <BModal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions" title="Select the default product you are working on">
       <BContainer align-v="true">
-        <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions"
-          :select-size="defaultProductOptions.length"></BFormSelect>
+        <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></BFormSelect>
       </BContainer>
     </BModal>
 
     <BModal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
       <BContainer align-v="true">
-        <template v-if="isAuthenticated && store.state.demo && store.state.userData.user === 'demoUser'">
-          <h2>Demo users cannot change the password</h2>
-        </template>
-        <template v-if="isAuthenticated && isServerAdmin">
-          <h2>Demo users cannot change the password</h2>
-        </template>
-        <template v-if="isAuthenticated && store.state.demo && store.state.userData.user !== 'demoUser'">
-          <BRow class="my-1">
-            <BCard bg-variant="light">
-              <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg"
-                label-class="font-weight-bold pt-0" class="mb-0">
-                <BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
-                  <BFormInput v-model="oldPassword" id="currentPW" type="password"></BFormInput>
-                </BFormGroup>
-                <BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
-                  <BFormInput v-model="newPassword1" id="newPW1" type="password"></BFormInput>
-                </BFormGroup>
-                <BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
-                  <BFormInput v-model="newPassword2" id="newPW2" type="password"></BFormInput>
-                </BFormGroup>
+        <BRow class="my-1">
+          <BCard bg-variant="light">
+            <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
+              <BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
+                <BFormInput v-model="oldPassword" id="currentPW" type="password"></BFormInput>
               </BFormGroup>
-            </BCard>
-            You will be forced to sign-in again
-          </BRow>
-        </template>
+              <BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
+                <BFormInput v-model="newPassword1" id="newPW1" type="password"></BFormInput>
+              </BFormGroup>
+              <BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
+                <BFormInput v-model="newPassword2" id="newPW2" type="password"></BFormInput>
+              </BFormGroup>
+            </BFormGroup>
+          </BCard>
+          You will be forced to sign-in again
+        </BRow>
+      </BContainer>
+    </BModal>
+
+    <BModal size="lg" ref="changeEmailRef" :ok-disabled="!emailIsCheckedOk" @ok="doChangeMyEmail" title="Change my email">
+      <BContainer align-v="true">
+        <BRow class="my-1">
+          <BCard bg-variant="light">
+            <BFormGroup label-cols-lg="5" label="Change notices are send to this email address" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
+              <BFormGroup label-cols-sm="5" label="Current email:" label-align-sm="right" label-for="currentEmail">
+                <BCardText id="currentEmail">{{ store.state.userData.email }}</BCardText>
+              </BFormGroup>
+              <BFormGroup label-cols-sm="5" label="New email:" label-align-sm="right" label-for="newEmail1">
+                <BFormInput v-model="newEmail1" id="newEmail1" type="email"></BFormInput>
+              </BFormGroup>
+              <BFormGroup label-cols-sm="5" label="Retype new email:" label-align-sm="right" label-for="newEmail2">
+                <BFormInput v-model="newEmail2" id="newEmail2" type="email"></BFormInput>
+              </BFormGroup>
+            </BFormGroup>
+          </BCard>
+        </BRow>
       </BContainer>
     </BModal>
 
@@ -159,7 +162,7 @@
           holding the products. More databases can be created but the _users database is shared.<br />
           What a user can see or do is determined by the roles assigned to that user.</p>
         <ul>
-          <li>'_admin': One user with this role is the CouchDb Server administrator with 'root' rights. This user can setup, replicate and delete databases. 
+          <li>'_admin': One user with this role is the CouchDb Server administrator with 'root' rights. This user can setup, replicate and delete databases.
             See the CouchDB documentation. At application init this user also becomes the role of database admin (see below).</li>
         </ul>
         <h5 v-if="isServerAdmin" class="have-role">You are CouchDb Server administrator</h5>
@@ -205,14 +208,12 @@
       </BFormCheckbox>
 
       <h5 class="spacer">When changing the priority of backlog item(s)</h5>
-      <BFormCheckbox v-model="store.state.userData.myOptions.levelShiftWarning" value="do_warn"
-        unchecked-value="do_not_warn">
+      <BFormCheckbox v-model="store.state.userData.myOptions.levelShiftWarning" value="do_warn" unchecked-value="do_not_warn">
         Warn me when I move items to another level (eg. from task to user story)
       </BFormCheckbox>
 
       <h5 class="spacer">For the Planning board</h5>
-      <BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold"
-        unchecked-value="do_not_show_on_hold">
+      <BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
       </BFormCheckbox>
 
