@@ -1,5 +1,5 @@
 /*
-* Common functions for use in Vuex
+* Common functions
 * Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
 */
 
@@ -21,12 +21,12 @@ function bytesToBase64(bytes) {
 
 // convert unicode string to base64 encoded ascii
 export function utoa(str) {
-    return bytesToBase64(new TextEncoder().encode(str))
+	return bytesToBase64(new TextEncoder().encode(str))
 }
 
 // convert base64 encoded ascii to unicode string
 export function atou(bytes) {
-    return new TextDecoder().decode(base64ToBytes(bytes))
+	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
 //////////////// expand, collapse and show or hide the children of the node ////////////
@@ -179,4 +179,10 @@ export function getSprintNameById(id, calendar) {
 	} else return 'Unknown sprint'
 }
 
-export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray }
+/* Return true if the email address is valid, false otherwise */
+export function isValidEmail(email) {
+	const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	return re.test(email)
+}
+
+export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }

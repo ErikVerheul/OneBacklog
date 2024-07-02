@@ -1,5 +1,5 @@
 import { MISC } from '../../constants.js'
-import { addToArray, removeFromArray, createId } from '../../common_functions.js'
+import { addToArray, removeFromArray, createId, isValidEmail } from '../../common_functions.js'
 import AppHeader from '../header/header.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
@@ -266,8 +266,7 @@ const methods = {
 	},
 
 	validEmail: function (email) {
-		const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-		if (re.test(email)) {
+		if (isValidEmail(email)) {
 			this.localMessage = ''
 			return true
 		}
