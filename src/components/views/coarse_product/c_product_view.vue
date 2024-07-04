@@ -180,7 +180,7 @@
               <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
-                <BButton variant="primary" @click="subscribeClicked">{{ subsribeTitle }}</BButton>
+                <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
               </div>
             </div>
           </div>

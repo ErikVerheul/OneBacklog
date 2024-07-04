@@ -125,7 +125,7 @@ const computed = {
 		return store.state.online ? store.state.eventSyncColor : '#ff0000'
 	},
 
-	subsribeTitle() {
+	getSubscribeButtonTxt() {
 		if (this.isFollower) {
 			return 'Unsubscribe to change notices'
 		} else return 'Subscribe to change notices'
@@ -589,7 +589,10 @@ const methods = {
 	},
 
 	subscribeClicked() {
-		store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
+		if (store.state.userData.myOptions.subscribeDescendants === 'do_not_subscribe_descendants')
+			store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
+		if (store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
+			store.dispatch('changeSubsriptionsBulk', { node: this.getLastSelectedNode, timestamp: Date.now() })
 	},
 
 	filterComments() {
