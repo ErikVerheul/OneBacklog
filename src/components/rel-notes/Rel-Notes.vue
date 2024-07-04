@@ -6,6 +6,17 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.4 - 4 July 2024 new features, bug fixes, dependency upgrades</h3>
+          <p>New features</p>
+          <ul>
+            <li>Allow user to change its email address for receiving change notices</li>
+            <li>Add option to, by default, subscribe also the descendants for sending change notices. Setting in options menu added.</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Regression: re-enable repeated search with unaltered key</li>
+          </ul>
+          <p>4 dependency updates</p>
           <h3>v.2.2.3 - 12 June 2024 new features, fix browser support, bug fixes</h3>
           <p>New features</p>
           <ul>
