@@ -53,6 +53,7 @@
 					<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or
 						server admin.</p>
 					<h5><em>User</em></h5>
+					<BImg :src="getImgUrl('img/user-dropdown.png')" alt="User dropdown" />
 					<ul>
 						<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
 						<li>Change team: Its the user and only the user who can switch between teams *.</li>
