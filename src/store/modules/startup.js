@@ -94,6 +94,7 @@ const actions = {
 				rootState.userData.myOptions = {
 					proUser: 'false',
 					levelShiftWarning: 'do_warn',
+					subscribeDescendants: 'do_subscribe_descendants',
 					showOnHold: 'do_not_show_on_hold'
 				}
 			}

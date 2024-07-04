@@ -212,6 +212,11 @@
         Warn me when I move items to another level (eg. from task to user story)
       </BFormCheckbox>
 
+      <h5 class="spacer">When hitting the "Subscribe to change notices button"</h5>
+      <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants" unchecked-value="do_not_subscribe_descendants">
+        Also subscribe to the change notices of all descendants of selected item
+      </BFormCheckbox>
+
       <h5 class="spacer">For the Planning board</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
