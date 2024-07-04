@@ -11,7 +11,8 @@
 						release number the <b>release notes </b> will be displayed.</p>
 					<h5>User guide</h5>
 					<p>This text</p>
-					<h5>Professional mode</h5>
+					<h5>Professional mode and other options</h5>
+					<BImg :src="getImgUrl('img/options-menu.png')" alt="Options menu" />
 					<p>Initially a new user starts this app in non-professional mode offering basic features. Any time the user can
 						select professional mode bij selecting the cog at the top right in the application bar.</p>
 					<p>Professional mode adds the following features:</p>
@@ -32,6 +33,12 @@
 						<li>The user can clone a backlog item.</li>
 						<li>The user can copy a backlog item.</li>
 						<li>The user can move a backlog item to another product.</li>
+					</ul>
+					<h5>Other options</h5>
+					<ul>
+						<li>A warning when changing the items level (eg. from task to user story) while moving an item in the tree structure. The default is <strong>on</strong>.</li>
+						<li>Hitting the "Subscribe to change notices" button will toggle to mail all changes to this item and its descendants to your mail address. When unselected it will toggle only the selected item. </li>
+						<li>For the planning board: By default items with status <strong>On hold</strong> are hidden. Select this option to show them.</li>
 					</ul>
 					<p class="pro-user">In this guide the professional features are colored in gold</p>
 					<h5>Filters and searches</h5>
@@ -128,7 +135,7 @@
 						<p>On the right side of the title field the short id of the displayed item is displayed. Use this Id in
 							communications with other users of the application instead of using the title.</p>
 						<h4>Subscribe to change notices</h4>
-						<p>When you click on this button all changes to this item will be emailed to you provided you are signed in as
+						<p>When you click on this button all changes to this item and, by default, all is descendants will be emailed to you provided you are signed in as
 							a registered user and your provided email address is correct. This will not work for users of generic
 							accounts like demoUser or guest.</p>
 						<h4>The description input field</h4>

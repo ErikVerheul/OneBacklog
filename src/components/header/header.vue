@@ -212,9 +212,9 @@
         Warn me when I move items to another level (eg. from task to user story)
       </BFormCheckbox>
 
-      <h5 class="spacer">When hitting the "Subscribe to change notices button"</h5>
+      <h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants" unchecked-value="do_not_subscribe_descendants">
-        Also subscribe to the change notices of all descendants of selected item
+        Also subscribe to the change notices of all descendants of the selected item
       </BFormCheckbox>
 
       <h5 class="spacer">For the Planning board</h5>
