@@ -128,8 +128,8 @@ const actions = {
 						distributeEvent: false
 					}
 					if (doc._id === node._id) {
-						currentNodeFollowers = tmpFollowers,
-						currentNodeHist = newHist
+						currentNodeFollowers = tmpFollowers.slice(),
+						currentNodeHist = Object.assign({}, newHist)
 					}
 					doc.followers = tmpFollowers
 					doc.history.unshift(newHist)
