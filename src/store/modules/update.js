@@ -10,6 +10,10 @@ function concatMsg(oldMsg, newMsg) {
 	return oldMsg + ' ' + newMsg
 }
 
+/*
+	* Toggle the subscription for email change notifications of the selected item.
+	* Also update the current document to see an immediate update of the button text and the history.
+	*/
 const actions = {
 	changeSubsription({
 		rootState,
@@ -57,6 +61,89 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = `changeSubsription: Could not read document with id ${id}. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
+	/*
+	* If the selected item is subscibed for email change notifications => unsubscribe that item and all of its decendants,
+	* if not subscribed => subscribe that item and all of its decendants.
+	*
+	* Also update the current document to see an immediate update in the button text and the history
+	*/
+
+	changeSubsriptionsBulk({
+		rootState,
+		commit,
+		rootGetters,
+		dispatch
+	}, payload) {
+		const node = payload.node
+		let currentNodeFollowers = []
+		let currentNodeHist = {}
+		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
+		const docsToGet = [{ id: node._id }]
+		for (const id of descendantsInfo.ids) {
+			docsToGet.push({ id })
+		}
+
+		function isThisItemFollower(doc) {
+			if (!doc.followers) return false
+
+			const emails = doc.followers.map(e => e.email)
+			if (rootState.currentDoc) return emails.includes(rootState.userData.email)
+		}
+
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { docs: docsToGet }
+		}).then(res => {
+			const wasFollower = rootGetters.isFollower
+			const results = res.data.results
+			const docs = []
+			for (const r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const tmpFollowers = doc.followers || []
+					if (wasFollower) {
+						// set item to unfollow if following the users email adres					
+						if (isThisItemFollower(doc)) {
+							for (let i = 0; i < tmpFollowers.length; i++) {
+								if (tmpFollowers[i].email === rootState.userData.email) {
+									tmpFollowers.splice(i, 1)
+								}
+							}
+						}
+					} else {
+						// include the users email to follow this item if not allready
+						if (!tmpFollowers.includes(rootState.userData.email)) tmpFollowers.push({ email: rootState.userData.email })
+					}
+					
+					const newHist = {
+						subscribeEvent: [wasFollower],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						distributeEvent: false
+					}
+					if (doc._id === node._id) {
+						currentNodeFollowers = tmpFollowers,
+						currentNodeHist = newHist
+					}
+					doc.followers = tmpFollowers
+					doc.history.unshift(newHist)
+					doc.lastChange = payload.timestamp
+					docs.push(doc)
+				}
+			}
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs, caller: 'changeSubsriptionsBulk', onSuccessCallback: () => {
+					commit('updateNodesAndCurrentDoc', { node, followers: currentNodeFollowers, lastChange: payload.timestamp, newHist: currentNodeHist })
+				}
+			})
+		}).catch(e => {
+			const msg = 'changeSubsriptionsBulk: Could not read batch of documents: ' + e
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
