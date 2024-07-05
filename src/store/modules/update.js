@@ -87,49 +87,53 @@ const actions = {
 			docsToGet.push({ id })
 		}
 
-		function isThisItemFollower(doc) {
-			if (!doc.followers) return false
-
-			const emails = doc.followers.map(e => e.email)
-			if (rootState.currentDoc) return emails.includes(rootState.userData.email)
-		}
-
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
 			data: { docs: docsToGet }
 		}).then(res => {
-			const wasFollower = rootGetters.isFollower
+			const selectedItemWasFollower = rootGetters.isFollower
 			const results = res.data.results
 			const docs = []
 			for (const r of results) {
+				let docIsUpdated = false
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const tmpFollowers = doc.followers || []
-					if (wasFollower) {
+					if (selectedItemWasFollower) {
 						// set item to unfollow if following the users email adres					
-						if (isThisItemFollower(doc)) {
-							for (let i = 0; i < tmpFollowers.length; i++) {
-								if (tmpFollowers[i].email === rootState.userData.email) {
-									tmpFollowers.splice(i, 1)
-								}
+						for (let i = 0; i < tmpFollowers.length; i++) {
+							if (tmpFollowers[i].email === rootState.userData.email) {
+								tmpFollowers.splice(i, 1)
+								docIsUpdated = true
 							}
 						}
 					} else {
-						// include the users email to follow this item if not allready
-						if (!tmpFollowers.includes(rootState.userData.email)) tmpFollowers.push({ email: rootState.userData.email })
+						let isAlreadyFollowing = false
+						for (let i = 0; i < tmpFollowers.length; i++) {
+							if (tmpFollowers[i].email === rootState.userData.email) {
+								isAlreadyFollowing = true
+							}
+						}
+						// include the users email to follow this item if not already
+						if (!isAlreadyFollowing) {
+							tmpFollowers.push({ email: rootState.userData.email })
+							docIsUpdated = true
+						}
 					}
-					
+
+					if(!docIsUpdated) continue
+
 					const newHist = {
-						subscribeEvent: [wasFollower],
+						subscribeEvent: [selectedItemWasFollower],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						distributeEvent: false
 					}
 					if (doc._id === node._id) {
 						currentNodeFollowers = tmpFollowers.slice(),
-						currentNodeHist = Object.assign({}, newHist)
+							currentNodeHist = Object.assign({}, newHist)
 					}
 					doc.followers = tmpFollowers
 					doc.history.unshift(newHist)
