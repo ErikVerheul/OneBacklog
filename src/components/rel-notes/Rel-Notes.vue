@@ -59,7 +59,7 @@
             <li>More rows on screen in the tree view</li>
           </ul>
           <ul>
-            <li>Prevent initiation of CouchDb instance if allready done before</li>
+            <li>Prevent initiation of CouchDb instance if already done before</li>
           </ul>
           <p>Bug fixes:</p>
           <ul>
