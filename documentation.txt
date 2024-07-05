@@ -22,7 +22,7 @@ Database--------- backlogItem document -------------------- node
 "dependencies": []----------------------------------------- dependencies
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
-"followers": []-------------------------------------------- user names, loaded on request
+"followers": []-------------------------------------------- user email addresses, loaded on request
 "description"(string, base-64 encoded on save, decoded on load), loaded on request
 "acceptanceCriteria"(string, base-64 encoded on save, decoded on load), loaded on request
 "priority"(Integer)---------------------------------------- data.priority
