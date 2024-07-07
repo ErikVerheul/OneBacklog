@@ -7,3 +7,5 @@ COUCH_USER=name
 COUCH_PW=password
 DOMAIN=mg.yourdomain.net
 API_KEY=your key
+
+Note: build the app on the server with npm install in /home/pm2
