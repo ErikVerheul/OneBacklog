@@ -1,0 +1,18 @@
+{
+  "type": "module",
+  "name": "node.js",
+  "version": "1.0.0",
+  "description": "Change notices email service",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no tests specified\" && exit 1"
+  },
+  "author": "Erik Verheul",
+  "licence": "GPL-3.0",
+  "dependencies": {
+    "atob": "^2.1.2",
+    "dotenv": "^8.2.0",
+    "mailgun-js": "^0.22.0",
+    "nano": "^8.2.2"
+  }
+}
