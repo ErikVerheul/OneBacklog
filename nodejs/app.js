@@ -1,12 +1,15 @@
 'use strict'
-require('dotenv').config()
+import Dotenv from 'dotenv'
+new Dotenv.config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
 	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent",
 	"removeCommentFromHistoryEvent", "removedWithDescendantsEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
 	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
-const nano = require('nano')('http://' + import.meta.env.COUCH_USER + ':' + import.meta.env.COUCH_PW + '@localhost:5984')
-const atob = require('atob')
-const mailgun = require('mailgun-js')({ apiKey: import.meta.env.API_KEY, domain: import.meta.env.DOMAIN, host: 'api.eu.mailgun.net' })
+import Nano from 'nano'
+const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
+import atob from 'atob'
+import Mailgun from 'mailgun-js'
+const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
 const PBILEVEL = 5
 const TASKLEVEL = 6
 var db
