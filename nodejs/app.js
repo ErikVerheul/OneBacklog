@@ -7,7 +7,6 @@ const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSpri
 	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
-import atob from 'atob'
 import Mailgun from 'mailgun-js'
 const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
 const PBILEVEL = 5
