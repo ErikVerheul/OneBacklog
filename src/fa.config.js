@@ -9,7 +9,8 @@ import {
 	faChevronRight,
 	faBug,
 	faHourglassStart,
-	faCog
+	faCog,
+	faEdit
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -20,7 +21,8 @@ library.add(
 	faChevronRight,
 	faBug,
 	faHourglassStart,
-	faCog
+	faCog,
+	faEdit
 )
 
 export default FontAwesomeIcon
