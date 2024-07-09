@@ -217,10 +217,10 @@ const store = createStore({
 		},
 
 		isFollower(state) {
-			if (!state.currentDoc.followers) return false
-
-			const emails = state.currentDoc.followers.map(e => e.email)
-			if (state.currentDoc) return emails.includes(state.userData.email)
+			if (state.currentDoc && state.currentDoc.followers) {
+				const users = state.currentDoc.followers.map(e => e.user)
+				return users.includes(state.userData.user)
+			} else return false
 		},
 
 		isReqAreaTopLevel(state) {

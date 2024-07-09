@@ -198,15 +198,15 @@ const actions = {
 				url: '/_users/org.couchdb.user:' + userData.name,
 				data: userData
 			}).then(() => {
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `changeMyPasswordAction: The profile of user '${userData.name}' is updated successfully` })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `changeMyEmailAction: The profile of user '${userData.name}' is updated successfully` })
 				rootState.userData.email = newEmail
 			}).catch(error => {
-				const msg = `changeMyPasswordAction: Could not update the profile of user '${userData.name}', ${error}`
+				const msg = `changeMyEmailAction: Could not update the profile of user '${userData.name}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 		}).catch(error => {
-			const msg = `changeMyPasswordAction: Could not change email for user '${rootState.userData.user}', ${error}`
+			const msg = `changeMyEmailAction: Could not change email for user '${rootState.userData.user}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})

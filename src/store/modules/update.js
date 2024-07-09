@@ -66,8 +66,8 @@ const actions = {
 	},
 
 	/*
-	* If the selected item is subscibed for email change notifications => unsubscribe that item and all of its decendants,
-	* if not subscribed => subscribe that item and all of its decendants.
+	* If the selected item is subscribed for email change notifications => unsubscribe that item and all of its descendants,
+	* if not subscribed => subscribe that item and all of its descendants.
 	*
 	* Also update the current document to see an immediate update in the button text and the history
 	*/
@@ -92,7 +92,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_bulk_get',
 			data: { docs: docsToGet }
 		}).then(res => {
-			const selectedItemWasFollower = rootGetters.isFollower
+			const selectedItemWasFollowed = rootGetters.isFollower
 			const results = res.data.results
 			const docs = []
 			for (const r of results) {
@@ -101,32 +101,41 @@ const actions = {
 				if (envelope.ok) {
 					const doc = envelope.ok
 					const tmpFollowers = doc.followers || []
-					if (selectedItemWasFollower) {
-						// set item to unfollow if following the users email adres					
+					// ToDo: temporary patch, romove over time
+					for (let i = 0; i < tmpFollowers.length; i++) {
+						// remove 'old' email entries
+						if (tmpFollowers[i].email) {
+							tmpFollowers.splice(i, 1)
+							docIsUpdated = true
+						}
+					}
+					if (selectedItemWasFollowed) {
+						// set item to be unfollowed by the current user				
 						for (let i = 0; i < tmpFollowers.length; i++) {
-							if (tmpFollowers[i].email === rootState.userData.email) {
+							if (tmpFollowers[i].user === rootState.userData.user) {
 								tmpFollowers.splice(i, 1)
 								docIsUpdated = true
 							}
 						}
 					} else {
-						let isAlreadyFollowing = false
+						// set item to be followed by the current user
+						let isAlreadyFollowed = false
 						for (let i = 0; i < tmpFollowers.length; i++) {
-							if (tmpFollowers[i].email === rootState.userData.email) {
-								isAlreadyFollowing = true
+							if (tmpFollowers[i].user === rootState.userData.user) {
+								isAlreadyFollowed = true
 							}
 						}
-						// include the users email to follow this item if not already
-						if (!isAlreadyFollowing) {
-							tmpFollowers.push({ email: rootState.userData.email })
+						// include the users name to follow this item if not already
+						if (!isAlreadyFollowed) {
+							tmpFollowers.push({ user: rootState.userData.user })
 							docIsUpdated = true
 						}
 					}
 
-					if(!docIsUpdated) continue
+					if (!docIsUpdated) continue
 
 					const newHist = {
-						subscribeEvent: [selectedItemWasFollower],
+						subscribeEvent: [selectedItemWasFollowed],
 						by: rootState.userData.user,
 						timestamp: Date.now(),
 						distributeEvent: false
