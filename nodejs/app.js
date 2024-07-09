@@ -68,12 +68,6 @@ function getItemStateText(dbName, idx) {
 	return configData[dbName].itemState[idx]
 }
 
-function getEmail(user) {
-	configData.userToEmailMap.forEach(element => {
-		if (element.user === user) return element.email
-	})
-}
-
 function getTsSize(dbName, idx) {
 	if (idx < 0 || idx >= configData[dbName].tsSize.length) {
 		return 'Error: unknown T-shirt size'
