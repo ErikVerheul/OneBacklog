@@ -6,6 +6,12 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.5 - 9 July 2024 refactoring</h3>
+          <p>New features</p>
+          <ul>
+            <li>Store the users name instead of his email for receiving change notices mking it easy to change email</li>
+            <li>Full update of the email server side components including node.js and dependencies</li>
+          </ul>
           <h3>v.2.2.4 - 4 July 2024 new features, bug fixes, dependency upgrades</h3>
           <p>New features</p>
           <ul>
