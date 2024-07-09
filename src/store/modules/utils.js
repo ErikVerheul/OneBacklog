@@ -92,6 +92,7 @@ const actions = {
 		product.history = [{
 			createEvent: [LEVEL.PRODUCT, payload.dbName, position],
 			by: rootState.userData.user,
+			email: rootState.userData.email,
 			timestamp: Date.now(),
 			distributeEvent: false
 		}]
@@ -347,6 +348,7 @@ const actions = {
 						const newHist = {
 							resetHistoryEvent: [histRemovedCount],
 							by: rootState.userData.user,
+							email: rootState.userData.email,
 							timestamp: now,
 							distributeEvent: false
 						}
@@ -363,6 +365,7 @@ const actions = {
 						const newComment = {
 							resetCommentsEvent: [commentsRemovedCount],
 							by: rootState.userData.user,
+							email: rootState.userData.email,
 							timestamp: now,
 							distributeEvent: false
 						}

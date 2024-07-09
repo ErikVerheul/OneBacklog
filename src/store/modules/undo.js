@@ -48,6 +48,7 @@ const actions = {
 			const newHist = {
 				itemRestoredEvent: [updatedParentDoc.level, updatedParentDoc.subtype],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}
@@ -211,6 +212,7 @@ const actions = {
 				globalEntry.removedIntConditions, globalEntry.removedExtConditions, globalEntry.removedProductRoles, 'not in use', globalEntry.itemsRemovedFromReqArea,
 				globalEntry.removedNode.level, globalEntry.removedNode.data.subtype, globalEntry.removedNode.title],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,

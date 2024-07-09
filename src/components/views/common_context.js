@@ -166,6 +166,7 @@ const methods = {
 			history: [{
 				createEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 				by: store.state.userData.user,
+				email: store.state.userData.email,
 				timestamp: now,
 				sessionId: store.state.mySessionId,
 				distributeEvent: true
@@ -273,6 +274,7 @@ const methods = {
 				history: [{
 					createEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 					by: store.state.userData.user,
+					email: store.state.userData.email,
 					timestamp: now,
 					sessionId: store.state.mySessionId,
 					distributeEvent: true,

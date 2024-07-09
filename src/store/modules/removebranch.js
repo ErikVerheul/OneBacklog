@@ -339,6 +339,7 @@ const actions = {
 			const newHist = {
 				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedFromIds.length, extCondsRemovedFromIds.length, sprintsAffected, payload.delmark],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,

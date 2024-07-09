@@ -29,6 +29,7 @@ const actions = {
 			event: payload.event,
 			level: payload.level,
 			by: rootState.userData.user,
+			email: rootState.userData.email,
 			timestamp: Date.now()
 		}
 		// eslint-disable-next-line no-console

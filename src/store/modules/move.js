@@ -150,6 +150,7 @@ const actions = {
 						nodeMovedEvent: [m.sourceLevel, targetLevel, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId,
 						m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,

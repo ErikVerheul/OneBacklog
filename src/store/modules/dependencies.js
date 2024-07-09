@@ -20,6 +20,7 @@ const actions = {
 			const newHist = {
 				setDependencyEvent: [payload.conditionalForNode._id, payload.conditionalForNode.title],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -60,6 +61,7 @@ const actions = {
 			const newHist = {
 				setConditionEvent: [payload.dependentOnNode._id, payload.dependentOnNode.title],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: timestamp,
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -124,6 +126,7 @@ const actions = {
 				const newHist = {
 					setDependencyEvent: [id, payload.conditionalForNode.title, undo],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true
@@ -170,6 +173,7 @@ const actions = {
 				const newHist = {
 					setConditionEvent: [id, payload.dependentOnNode.title, undo],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true
@@ -215,6 +219,7 @@ const actions = {
 			const newHist = {
 				dependencyRemovedEvent: [payload.removedIds],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -267,6 +272,7 @@ const actions = {
 					const newHist = {
 						conditionRemovedEvent: [[payload.node._id], payload.node.title],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						sessionId: rootState.mySessionId,
 						timestamp: Date.now(),
 						distributeEvent: true
@@ -324,6 +330,7 @@ const actions = {
 			const newHist = {
 				conditionRemovedEvent: [payload.removedIds],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -378,6 +385,7 @@ const actions = {
 					const newHist = {
 						dependencyRemovedEvent: [[payload.node._id], payload.node.title],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						sessionId: rootState.mySessionId,
 						timestamp: Date.now(),
 						distributeEvent: true

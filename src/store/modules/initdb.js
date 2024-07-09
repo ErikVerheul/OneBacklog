@@ -215,6 +215,7 @@ const actions = {
 					event: 'Log initialization',
 					level: 'INFO',
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now()
 				}
 			]
@@ -502,6 +503,7 @@ const actions = {
 			history: [{
 				createRootEvent: [payload.dbName],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}]
@@ -534,6 +536,7 @@ const actions = {
 				{
 					teamCreationEvent: [defaultTeam],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					distributeEvent: false
 				}]
@@ -580,6 +583,7 @@ const actions = {
 			history: [{
 				createRootEvent: [payload.dbName],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}]
@@ -625,6 +629,7 @@ const actions = {
 			history: [{
 				createEvent: [LEVEL.PRODUCT, 'root', 1],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}]

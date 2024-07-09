@@ -44,6 +44,7 @@ const actions = {
 			const newHist = {
 				subscribeEvent: [wasFollower],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}
@@ -137,6 +138,7 @@ const actions = {
 					const newHist = {
 						subscribeEvent: [selectedItemWasFollowed],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						distributeEvent: false
 					}
@@ -178,6 +180,7 @@ const actions = {
 			const newHist = {
 				setSizeEvent: [oldTsSize, payload.newSizeIdx],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -239,6 +242,7 @@ const actions = {
 			const newHist = {
 				setHrsEvent: [oldPersonHours, payload.newHrs],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -302,6 +306,7 @@ const actions = {
 			const newHist = {
 				setPointsEvent: [oldPoints, payload.newPoints],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -374,6 +379,7 @@ const actions = {
 			const newHist = {
 				setStateEvent: [oldState, payload.newState, payload.newTeam, payload.position],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -465,6 +471,7 @@ const actions = {
 				const newHist = {
 					setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
@@ -548,6 +555,7 @@ const actions = {
 							const newHist = {
 								setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
 								by: rootState.userData.user,
+								email: rootState.userData.email,
 								timestamp: Date.now(),
 								sessionId: rootState.mySessionId,
 								distributeEvent: false
@@ -590,6 +598,7 @@ const actions = {
 			const newHist = {
 				setTitleEvent: [oldTitle, payload.newTitle],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -652,6 +661,7 @@ const actions = {
 			const newHist = {
 				setSubTypeEvent: [rootState.currentDoc.subtype, payload.newSubType],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -714,6 +724,7 @@ const actions = {
 			const newHist = {
 				descriptionEvent: [tmpDoc.description, newEncodedDescription],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -777,6 +788,7 @@ const actions = {
 			const newHist = {
 				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -835,6 +847,7 @@ const actions = {
 			const newComment = {
 				addCommentEvent: [utoa(payload.comment)],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -887,6 +900,7 @@ const actions = {
 			const newComment = {
 				removeCommentEvent: 'Last comment removed',
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -925,6 +939,7 @@ const actions = {
 			const newHist = {
 				commentToHistoryEvent: [utoa(payload.comment)],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -977,6 +992,7 @@ const actions = {
 			const newHistory = {
 				removeCommentFromHistoryEvent: 'Last comment removed',
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -1128,6 +1144,7 @@ const actions = {
 			const parentHist = {
 				newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}

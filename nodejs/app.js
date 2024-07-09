@@ -68,6 +68,12 @@ function getItemStateText(dbName, idx) {
 	return configData[dbName].itemState[idx]
 }
 
+function getEmail(user) {
+	configData.userToEmailMap.forEach(element => {
+		if (element.user === user) return element.email
+	})
+}
+
 function getTsSize(dbName, idx) {
 	if (idx < 0 || idx >= configData[dbName].tsSize.length) {
 		return 'Error: unknown T-shirt size'
@@ -201,7 +207,7 @@ function listenForChanges(dbName) {
 					for (let f of doc.followers) {
 						const event = doc.comments[0]
 						const eventType = Object.keys(event)[0]
-						const data = { from: 'no-reply@onebacklog.net', to: f.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
+						const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
 						mailgun.messages().send(data, (error, body) => {
 							// eslint-disable-next-line no-console
 							console.log(body)
@@ -213,7 +219,7 @@ function listenForChanges(dbName) {
 						const event = doc.history[0]
 						const eventType = Object.keys(event)[0]
 						if (interestingHistoryEvents.includes(eventType)) {
-							const data = { from: 'no-reply@onebacklog.net', to: f.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
+							const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
 							mailgun.messages().send(data, (error, body) => {
 								// eslint-disable-next-line no-console
 								console.log(body)
@@ -255,7 +261,7 @@ function checkForNewDataBases() {
 			if (!dbName.startsWith('_') && !dbName.includes('backup')) {
 				if (Object.keys(runData).includes(dbName)) {
 					if (runData[dbName].listening === false) {
-						// database returned
+						// database returned from being absent
 						db = nano.use(dbName)
 						runData[dbName].listening = true
 						getConfig(dbName)

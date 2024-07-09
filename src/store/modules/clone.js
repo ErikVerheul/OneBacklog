@@ -104,6 +104,7 @@ const actions = {
 				history: [{
 					resetHistoryEvent: [doc.history.length],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					distributeEvent: false
 				}],
@@ -128,6 +129,7 @@ const actions = {
 			const newHist = {
 				ignoreEvent: ['cloneDescendants'],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				distributeEvent: false
 			}
@@ -190,6 +192,7 @@ const actions = {
 			const newHist = {
 				clonedBranchEvent: [payload.originalNode.level, payload.originalNode.subtype],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: false

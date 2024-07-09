@@ -569,6 +569,7 @@ const actions = {
 					const newHist = {
 						importToSprintEvent: [doc.level, doc.subtype, oldSprintName, newSprintName],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: false
@@ -591,6 +592,7 @@ const actions = {
 					sendMessageAsync: {
 						boardReloadEvent: [rootState.loadedSprintId, rootState.userData.myTeam],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,
@@ -750,6 +752,7 @@ const actions = {
 			const newHist = {
 				updateTaskOrderEvent: { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds },
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -799,6 +802,7 @@ const actions = {
 					const newHist = {
 						addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true
@@ -810,6 +814,7 @@ const actions = {
 			const newHist = {
 				addItemsToSprintEvent: [newPBI, newTasks],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -890,6 +895,7 @@ const actions = {
 					const newHist = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, removedSprintId],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true
@@ -903,6 +909,7 @@ const actions = {
 			const newHist = {
 				removeItemsFromSprintEvent: [storyIdToRemove, tasksToRemove],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1014,6 +1021,7 @@ const actions = {
 				history: [{
 					createTaskEvent: [storyDoc.title],
 					by: rootState.userData.user,
+					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
@@ -1093,6 +1101,7 @@ const actions = {
 			const newHist = {
 				removeStoryEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar), removedSprintId],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1233,6 +1242,7 @@ const actions = {
 			const newHist = {
 				taskRemovedEvent: [payload.taskTitle, payload.teamName, payload.storyId, payload.taskId, payload.taskState],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1267,6 +1277,7 @@ const actions = {
 			const newHist = {
 				setTitleEvent: [oldTitle, doc.title],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1323,6 +1334,7 @@ const actions = {
 			const newHist = {
 				updateTaskOwnerEvent: [oldTaskOwner, doc.taskOwner],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,

@@ -110,6 +110,7 @@ const actions = {
 						{
 							teamCreationEvent: [teamName],
 							by: rootState.userData.user,
+							email: rootState.userData.email,
 							timestamp: Date.now(),
 							distributeEvent: false
 						}]
@@ -295,6 +296,7 @@ const actions = {
 					const leaveHist = {
 						leavingTeamEvent: [payload.userName],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: now,
 						distributeEvent: false
 					}
@@ -303,6 +305,7 @@ const actions = {
 					const joinHist = {
 						joiningTeamEvent: [payload.userName],
 						by: rootState.userData.user,
+						email: rootState.userData.email,
 						timestamp: now,
 						distributeEvent: false
 					}

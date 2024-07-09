@@ -4,17 +4,17 @@ import globalAxios from 'axios'
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const actions = {
-	/*
-	 * When updating the database, first load the document with the actual revision number and changes by other users.
-	 * Then apply the update to the field and write the updated document back to the database.
-	 */
-  uploadAttachmentAsync ({
+  /*
+   * When updating the database, first load the document with the actual revision number and changes by other users.
+   * Then apply the update to the field and write the updated document back to the database.
+   */
+  uploadAttachmentAsync({
     rootState,
     commit,
     dispatch
   }, payload) {
     rootState.uploadDone = false
-    function arrayBufferToBase64 (buffer) {
+    function arrayBufferToBase64(buffer) {
       let binary = ''
       const bytes = new Uint8Array(buffer)
       const len = bytes.byteLength
@@ -23,10 +23,10 @@ const actions = {
       }
       return window.btoa(binary)
     }
-    function createTitle (attachments) {
-      function createNew (name) {
+    function createTitle(attachments) {
+      function createNew(name) {
         if (existingTitles.includes(name)) {
-					// name exists
+          // name exists
           const dotPos = name.lastIndexOf('.')
           if (dotPos !== -1) {
             const body = name.slice(0, dotPos)
@@ -79,6 +79,7 @@ const actions = {
         const newHist = {
           uploadAttachmentEvent: [title, payload.fileInfo.size, payload.fileInfo.type],
           by: rootState.userData.user,
+          email: rootState.userData.email,
           timestamp: Date.now(),
           sessionId: rootState.mySessionId,
           distributeEvent: true
@@ -105,7 +106,7 @@ const actions = {
   },
 
   // ToDo: show badge in tree when attachment is recently removed
-  removeAttachmentAsync ({
+  removeAttachmentAsync({
     rootState,
     commit,
     dispatch
@@ -121,6 +122,7 @@ const actions = {
         const newHist = {
           removeAttachmentEvent: [payload.attachmentTitle],
           by: rootState.userData.user,
+          email: rootState.userData.email,
           timestamp: Date.now(),
           sessionId: rootState.mySessionId,
           distributeEvent: true

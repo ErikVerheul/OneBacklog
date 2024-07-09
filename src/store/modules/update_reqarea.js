@@ -33,6 +33,7 @@ const actions = {
 			const newHist = {
 				changeReqAreaColorEvent: [prevColor, payload.newColor],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -92,6 +93,7 @@ const actions = {
 			const newHist = {
 				updateReqAreaEvent: [id, oldAreaId, payload.reqareaId, reqAreaTitle],
 				by: rootState.userData.user,
+				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
