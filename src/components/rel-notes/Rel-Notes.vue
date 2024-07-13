@@ -6,6 +6,20 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.6 - 13 July 2024 New features, bug fix, refactoring</h3>
+          <p>New features</p>
+          <ul>
+            <li>Copy parent's change notices subcriptions on newly created item</li>
+            <li>Block firering bulk update of change notice subscriptions when busy, show 'Busy, please wait ...' on button</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Cannot insert user stories in the products overview, Fixed</li>
+          </ul>
+          <p>Refactoring:</p>
+          <ul>
+            <li>Add the subscribed users for change notices to the node data, so that these are easily available</li>
+          </ul>
           <h3>v.2.2.5 - 9 July 2024 refactoring</h3>
           <p>Changes</p>
           <ul>
