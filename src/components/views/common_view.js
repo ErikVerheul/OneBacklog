@@ -126,6 +126,9 @@ const computed = {
 	},
 
 	getSubscribeButtonTxt() {
+		if (store.state.busyChangingSubscriptions) {
+			return "Busy, please wait ..."
+		}
 		if (this.isFollower) {
 			return 'Unsubscribe to change notices'
 		} else return 'Subscribe to change notices'
@@ -591,7 +594,7 @@ const methods = {
 	subscribeClicked() {
 		if (store.state.userData.myOptions.subscribeDescendants === 'do_not_subscribe_descendants')
 			store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
-		if (store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
+		if (!store.state.busyChangingSubscriptions && store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
 			store.dispatch('changeSubsriptionsBulk', { node: this.getLastSelectedNode, timestamp: Date.now() })
 	},
 

@@ -134,6 +134,7 @@ const store = createStore({
 			reqAreaOptions: [],
 			// detail & coarse tree views
 			busyWithLastUndo: false,
+			busyChangingSubscriptions: false,
 			currentDoc: null,
 			changeHistory: [],
 			currentEventKey: 0,

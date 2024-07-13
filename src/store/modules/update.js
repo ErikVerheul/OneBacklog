@@ -87,7 +87,7 @@ const actions = {
 		for (const id of descendantsInfo.ids) {
 			docsToGet.push({ id })
 		}
-
+		rootState.busyChangingSubscriptions = true
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
@@ -154,10 +154,12 @@ const actions = {
 			}
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs, caller: 'changeSubsriptionsBulk', onSuccessCallback: () => {
+					rootState.busyChangingSubscriptions = false
 					commit('updateNodesAndCurrentDoc', { node, followers: currentNodeFollowers, lastChange: payload.timestamp, newHist: currentNodeHist })
 				}
 			})
 		}).catch(e => {
+			rootState.busyChangingSubscriptions = false
 			const msg = 'changeSubsriptionsBulk: Could not read batch of documents: ' + e
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
