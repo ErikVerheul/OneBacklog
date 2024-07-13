@@ -79,9 +79,9 @@
 
 						<p class="colorSeaBlue" v-if="contextNodeLevel === DATABASELEVEL">Cannot create a product here. An admin can create a new product in the admin view.</p>
 						<template v-else>
-							<!-- cannot create item inside task -->
+							<!-- cannot create item inside feature -->
 							<BListGroupItem
-								v-if="contextNodeLevel < TASKLEVEL"
+								v-if="contextNodeLevel < FEATURELEVEL"
 								button
 								:active="contextOptionSelected === INSERTINSIDE"
 								variant="dark"
