@@ -836,7 +836,7 @@ const store = createStore({
 								// not stored in the node
 								break
 							case 'followers':
-								// not stored in the node
+								node.data.followers = payload.followers
 								break
 							case 'isExpanded':
 								if (payload.isExpanded) {
@@ -876,16 +876,10 @@ const store = createStore({
 								node.data.lastStateChange = payload.lastStateChange
 								node.data.lastChange = payload.lastStateChange
 								break
-							case 'leavingFollower':
-								// not stored in the node
-								break
 							case 'level':
 								node.level = payload.level
 								break
 							case 'newComment':
-								// not stored in the node
-								break
-							case 'newFollower':
 								// not stored in the node
 								break
 							case 'newHist':
@@ -1049,23 +1043,11 @@ const store = createStore({
 									state.currentDoc.lastStateChange = payload.lastStateChange
 									state.currentDoc.lastChange = payload.lastChange
 									break
-								case 'leavingFollower':
-									{
-										const updatedFollowers = []
-										for (const f of state.currentDoc.followers) {
-											if (f !== payload.leavingFollower) updatedFollowers.push(f)
-										}
-										state.currentDoc.followers = updatedFollowers
-									}
-									break
 								case 'level':
 									state.currentDoc.level = payload.level
 									break
 								case 'newComment':
 									state.currentDoc.comments.unshift(payload.newComment)
-									break
-								case 'newFollower':
-									state.currentDoc.followers.push(payload.newFollower)
 									break
 								case 'newHist':
 									state.currentDoc.history.unshift(payload.newHist)

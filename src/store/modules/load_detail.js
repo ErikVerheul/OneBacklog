@@ -47,6 +47,7 @@ const mutations = {
 			const lastContentChange = item.value[15] || 0
 			const lastPositionChange = item.value[16] || 0
 			const lastStateChange = item.value[17] || 0
+			const followers = item.value[18] || []
 
 			// initialize with the root document
 			if (itemLevel === LEVEL.DATABASE) {
@@ -73,7 +74,8 @@ const mutations = {
 							state: itemState,
 							team,
 							priority,
-							lastChange: 0
+							lastChange: 0,
+							followers
 						},
 						tmp: {}
 					}
@@ -152,6 +154,7 @@ const mutations = {
 						sprintId,
 						state: itemState,
 						subtype,
+						followers,
 						team
 					},
 					tmp: {}

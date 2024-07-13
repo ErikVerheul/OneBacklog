@@ -83,7 +83,8 @@ const actions = {
 						lastContentChange: doc.lastContentChange || 0,
 						lastPositionChange: doc.lastPositionChange || 0,
 						lastStateChange: doc.lastStateChange || 0,
-						lastChange: doc.lastChange || 0
+						lastChange: doc.lastChange || 0,
+						followers: doc.follewers || []
 					},
 					tmp: {}
 				}
@@ -523,7 +524,7 @@ const actions = {
 				}, rootState.helpersRef.getProductModel(removedNode.productId))
 			},
 
-			/* Return the productId, parentId, level, the index position and priority if this node is to be inserted */
+			/* Return the productId, parentId, level, the index position, priority and parentFollowers if this node is to be inserted */
 			preFlightSingeNodeInsert(cursorPosition, node) {
 				/* Recalculate the priorities of the inserted nodes. */
 				function calcNewPrio(node, predecessorNode, successorNode) {
@@ -546,6 +547,7 @@ const actions = {
 				let parentId
 				let level
 				let ind
+				let parentFollowers
 				const destNodeModel = cursorPosition.nodeModel
 				if (cursorPosition.placement === 'inside') {
 					// insert inside a parent -> the nodes become top level children
@@ -564,7 +566,8 @@ const actions = {
 					predecessorNode = destSiblings[ind - 1] || null
 					successorNode = destSiblings[ind] || null
 				}
-				return { productId: destNodeModel.productId, parentId, level, ind, priority: calcNewPrio(node, predecessorNode, successorNode) }
+				parentFollowers = rootState.helpersRef.getNodeById(parentId).data.followers || []
+				return { productId: destNodeModel.productId, parentId, level, ind, priority: calcNewPrio(node, predecessorNode, successorNode), parentFollowers }
 			},
 
 			/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. Use the options object to suppress productId updates and/or priority recalculation */

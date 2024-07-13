@@ -68,6 +68,7 @@ const actions = {
 				const lastContentChange = item.value[15] || 0
 				const lastPositionChange = item.value[16] || 0
 				const lastStateChange = item.value[17] || 0
+				const followers = item.value[18] || []
 
 				if (itemLevel === LEVEL.DATABASE) {
 					state.docsCount++
@@ -95,7 +96,8 @@ const actions = {
 								state: itemState,
 								team,
 								priority,
-								lastChange: 0
+								lastChange: 0,
+								followers
 							},
 							tmp: {}
 						}
@@ -165,6 +167,7 @@ const actions = {
 							sprintId,
 							state: itemState,
 							subtype,
+							followers,
 							team
 						},
 						tmp: {}

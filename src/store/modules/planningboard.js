@@ -976,7 +976,7 @@ const actions = {
 			} else return 0
 		}
 
-		// read the story to get the productId and the story title
+		// read the story to get the productId, story title and the followers
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + payload.storyId
@@ -1009,7 +1009,7 @@ const actions = {
 				dependencies: [],
 				conditionalFor: [],
 				title: payload.taskTitle,
-				followers: [],
+				followers: storyDoc.followers || [],
 				description: window.btoa(''),
 				acceptanceCriteria: window.btoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: taskPriority,
@@ -1053,7 +1053,8 @@ const actions = {
 								sprintId: rootState.loadedSprintId,
 								team: rootState.userData.myTeam,
 								taskOwner: rootState.userData.user,
-								lastChange: Date.now()
+								lastChange: Date.now(),
+								followers: newDoc.followers
 							},
 							tmp: {}
 						}

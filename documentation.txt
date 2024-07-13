@@ -22,7 +22,7 @@ Database--------- backlogItem document -------------------- node
 "dependencies": []----------------------------------------- dependencies
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
-"followers": []-------------------------------------------- user email addresses, loaded on request
+"followers": []-------------------------------------------- data.followers; contains user names
 "description"(string, base-64 encoded on save, decoded on load), loaded on request
 "acceptanceCriteria"(string, base-64 encoded on save, decoded on load), loaded on request
 "priority"(Integer)---------------------------------------- data.priority
@@ -72,6 +72,7 @@ data: {
 	team: doc.team, // the team membership of the user who updated the state the last time
 	taskOwner: doc.taskOwner, // the task owner is responsible for having the task done but he need not to do that work him self
 	subtype: doc.subtype,
+	followers: doc.followers,
 	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
 	lastPositionChange: doc.lastPositionChange,
 	lastStateChange: doc.lastStateChange,

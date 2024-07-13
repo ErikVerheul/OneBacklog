@@ -32,13 +32,13 @@ const actions = {
 			const tmpFollowers = tmpDoc.followers
 			if (rootGetters.isFollower) {
 				for (let i = 0; i < tmpFollowers.length; i++) {
-					if (tmpFollowers[i].email === rootState.userData.email) {
+					if (tmpFollowers[i].user === rootState.userData.user) {
 						tmpFollowers.splice(i, 1)
 					}
 				}
 				commit('addToEventList', { txt: `Sending change notices for this item is stopped`, severity: SEV.INFO })
 			} else {
-				tmpFollowers.push({ email: rootState.userData.email })
+				tmpFollowers.push({ user: rootState.userData.user })
 				commit('addToEventList', { txt: `Change notices for this item will be send to your e-mail address ${rootState.userData.email}`, severity: SEV.INFO })
 			}
 			const newHist = {
@@ -97,7 +97,7 @@ const actions = {
 			const results = res.data.results
 			const docs = []
 			for (const r of results) {
-				let docIsUpdated = false
+				let thisDocIsUpdated = false
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
@@ -107,7 +107,7 @@ const actions = {
 						// remove 'old' email entries
 						if (tmpFollowers[i].email) {
 							tmpFollowers.splice(i, 1)
-							docIsUpdated = true
+							thisDocIsUpdated = true
 						}
 					}
 					if (selectedItemWasFollowed) {
@@ -115,25 +115,25 @@ const actions = {
 						for (let i = 0; i < tmpFollowers.length; i++) {
 							if (tmpFollowers[i].user === rootState.userData.user) {
 								tmpFollowers.splice(i, 1)
-								docIsUpdated = true
+								thisDocIsUpdated = true
 							}
 						}
 					} else {
 						// set item to be followed by the current user
-						let isAlreadyFollowed = false
+						let isAlreadyFollowing = false
 						for (let i = 0; i < tmpFollowers.length; i++) {
 							if (tmpFollowers[i].user === rootState.userData.user) {
-								isAlreadyFollowed = true
+								isAlreadyFollowing = true
 							}
 						}
 						// include the users name to follow this item if not already
-						if (!isAlreadyFollowed) {
+						if (!isAlreadyFollowing) {
 							tmpFollowers.push({ user: rootState.userData.user })
-							docIsUpdated = true
+							thisDocIsUpdated = true
 						}
 					}
 
-					if (!docIsUpdated) continue
+					if (!thisDocIsUpdated) continue
 
 					const newHist = {
 						subscribeEvent: [selectedItemWasFollowed],

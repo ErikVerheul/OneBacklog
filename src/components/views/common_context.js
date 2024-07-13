@@ -81,6 +81,7 @@ const methods = {
 	},
 
 	/* Copy an item EXCLUDING its descendants, attachments, sprintId, dependencies, conditions and followers
+	* Initiate followers with empty array (no folowers)
 	* Insert the new node above the original (inside or after the previous node)
 	*/
 	doCopyItem(node) {
@@ -124,7 +125,8 @@ const methods = {
 				reqAreaItemColor: node.data.reqAreaItemColor,
 				team: node.data.team,
 				subtype: node.data.subtype,
-				lastChange: now
+				lastChange: now,
+				followers: []
 			},
 			tmp: {}
 		}
@@ -229,6 +231,8 @@ const methods = {
 		newNode.level = preFligthData.level
 		newNode.ind = preFligthData.ind
 		newNode.data.priority = preFligthData.priority
+		// copy the parent's followers
+		newNode.data.followers = preFligthData.parentFollowers
 
 		if (newNode.level === SEV.TASK) {
 			// when inserting a task, copy the team name from the parent PBI or sibling task
@@ -262,7 +266,7 @@ const methods = {
 				dependencies: [],
 				conditionalFor: [],
 				title: newNode.title,
-				followers: [],
+				followers: newNode.data.followers,
 				description: utoa(''),
 				acceptanceCriteria: newNode.level < this.TASKLEVEL ? utoa('<p>Please do not neglect</p>') : utoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
