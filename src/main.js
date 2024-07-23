@@ -5,7 +5,7 @@ import router from './router'
 import store from './store/store'
 import mitt from 'mitt'
 import FontAwesomeIcon from './fa.config'
-import createBootstrap from 'bootstrap-vue-next'
+import { createBootstrap } from 'bootstrap-vue-next'
 import 'bootstrap-vue-next/dist/bootstrap-vue-next.css'
 // import the global css, see https://stackoverflow.com/questions/39438094/best-way-to-have-global-css-in-vuejs
 import '@/css/onebacklog.scss'
