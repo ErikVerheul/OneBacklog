@@ -4,7 +4,7 @@
       <div v-for="comment in getFilteredComments" :key="comment.timestamp">
         <BCard>
           <BCardBody>
-            <BRow v-if="isMyAddition(comment) && !otherUserCommentedAfterme(comment)">
+            <BRow v-if="isMyAddition(comment, 'addCommentEvent') && !otherUserCommentedAfterme(comment, getFilteredComments)">
               <BCol cols="11">
                 <div v-html="prepCommentsText(getEvent(comment), getEventValue(comment))"></div>
               </BCol>
@@ -23,6 +23,7 @@
             <p class="p1" v-html="prepCommentsText('timestamp', comment['timestamp'])"></p>
           </BCardFooter>
         </BCard>
+        <br>
       </div>
     </div>
     <ul v-if="store.state.selectedForView === 'attachments'">
@@ -37,13 +38,32 @@
         </span>
       </div>
     </ul>
-    <ul v-if="store.state.selectedForView === 'history'">
-      <li v-for="hist in getFilteredHistory" :key="hist.timestamp">
-        <div v-for="(value, key) in hist" :key="key">
-          <div class="p1" v-html="prepHistoryText(key, value)"></div>
-        </div>
-      </li>
-    </ul>
+    <div v-else-if="store.state.selectedForView === 'history'">
+      <div v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
+        <BCard>
+          <BCardBody>
+            <BRow v-if="isMyAddition(histItem, 'commentToHistoryEvent') && !otherUserCommentedAfterme(histItem, getFilteredHistory)">
+              <BCol cols="11">
+                <div v-html="prepHistoryText(getEvent(histItem), getEventValue(histItem))"></div>
+              </BCol>
+              <BCol cols="1">
+                <font-awesome-icon icon="edit" @click="startEditMyHistComment(histItem)" />
+              </BCol>
+            </BRow>
+            <BRow v-else>
+              <BCol cols="12">
+                <div v-html="prepHistoryText(getEvent(histItem), getEventValue(histItem))"></div>
+              </BCol>
+            </BRow>
+          </BCardBody>
+          <BCardFooter>
+            <p class="p1" v-html="prepHistoryText('by', histItem['by'])"></p>
+            <p class="p1" v-html="prepHistoryText('timestamp', histItem['timestamp'])"></p>
+          </BCardFooter>
+        </BCard>
+        <br>
+      </div>
+    </div>
   </div>
 
   <template>
@@ -53,17 +73,26 @@
       </BFormGroup>
     </BModal>
   </template>
+
+  <template>
+    <BModal size="lg" v-model="editMyHistComment" scrollable @ok="replaceEditedHistComment" title="Edit your history comment">
+      <BFormGroup>
+        <QuillEditor v-model:content=myLastHistCommentText contentType="html"></QuillEditor>
+      </BFormGroup>
+    </BModal>
+  </template>
 </template>
 
 <script>
-import store from '../../../store/store'
 import commonListings from '../common_listings.js'
 
 function data() {
   return {
     editMyComment: false,
+    editMyHistComment: false,
     commentObjToBeReplaced: {},
     myLastCommentText: "<p></p>",
+    myLastHistCommentText: "<p></p>"
   }
 }
 

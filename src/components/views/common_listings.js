@@ -71,9 +71,13 @@ const computed = {
     const filteredHistory = []
     for (const histItem of store.state.currentDoc.history) {
       let allText = ''
-      // all items in the events list are objects; by default the first 3 keys are: event name, 'by' and 'timestamp'; other keys are not relevant here
+      /*
+      *  All items in the events list are objects; by default the first 3 keys are: event name, 'by' and 'timestamp'; other keys are not relevant here.
+      *  For privacy reasons (do not reveal edited text) skip creation and changes in comments but process comments to the history.
+      */
       const event = Object.keys(histItem)[0]
-      if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'removeItemsFromSprintEvent') continue
+      if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'removeItemsFromSprintEvent' ||
+      event === 'addCommentEvent' || event === 'replaceCommentEvent') continue
 
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
@@ -394,9 +398,9 @@ const methods = {
     return comment[Object.keys(comment)[0]]
   },
 
-  otherUserCommentedAfterme(comment) {
+  otherUserCommentedAfterme(comment, allItems) {
     let otherUserFound = false
-    for (let c of this.getFilteredComments) {
+    for (let c of allItems) {
       if (c.by !== store.state.userData.user) {
         otherUserFound = true
       }
@@ -407,9 +411,8 @@ const methods = {
     return otherUserFound
   },
 
-  isMyAddition(comment) {
-    return comment.by === store.state.userData.user && Object.keys(comment)[0] === 'addCommentEvent'
-
+  isMyAddition(comment, eventName) {
+    return comment.by === store.state.userData.user && Object.keys(comment)[0] === eventName
   },
 
   startEditMyComment(comment) {
@@ -418,11 +421,26 @@ const methods = {
     this.editMyComment = true
   },
 
+  startEditMyHistComment(comment) {
+    this.commentObjToBeReplaced = comment
+    this.myLastHistCommentText = atou(this.getEventValue(comment))
+    this.editMyHistComment = true
+  },
+
   replaceEditedComment() {
     store.dispatch('replaceComment', {
       node: this.getLastSelectedNode,
       commentObjToBeReplaced: this.commentObjToBeReplaced,
       editedCommentText: this.myLastCommentText,
+      timestamp: Date.now()
+    })
+  },
+
+  replaceEditedHistComment() {
+    store.dispatch('replaceHistComment', {
+      node: this.getLastSelectedNode,
+      commentObjToBeReplaced: this.commentObjToBeReplaced,
+      editedCommentText: this.myLastHistCommentText,
       timestamp: Date.now()
     })
   }
