@@ -299,12 +299,11 @@ N			  			N	     Y    itemRestoredEvent								undo.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
-Y             Y	     Y    removeCommentEvent	        		update.js
-Y             Y	     Y    removeCommentFromHistoryEvent  	update.js
 Y 			  		N			 N    removeItemsFromSprintEvent			planningboard.js
 Y             Y      Y    removedWithDescendantsEvent     removebranch.js
 Y 			  		Y 	 	 Y    removeSprintIdsEvent						planningboard.js
 Y 			  		Y 	 	 Y    removeStoryEvent								planningboard.js
+Y             Y	     Y    replaceCommentEvent	            update.js
 N			  			N	     Y    resetHistoryEvent								utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
 Y             Y	     Y    setDependencyEvent	        		update.js

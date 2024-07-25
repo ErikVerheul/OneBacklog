@@ -2,8 +2,8 @@
 import Dotenv from 'dotenv'
 new Dotenv.config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent", "removeCommentEvent",
-	"removeCommentFromHistoryEvent", "removedWithDescendantsEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
+	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent",
+	"removedWithDescendantsEvent", "replaceCommentEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
 	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
@@ -33,17 +33,17 @@ function bytesToBase64(bytes) {
 
 // convert unicode string to base64 encoded ascii
 function utoa(str) {
-    return bytesToBase64(new TextEncoder().encode(str))
+	return bytesToBase64(new TextEncoder().encode(str))
 }
 
 // convert base64 encoded ascii to unicode string
 function atou(bytes) {
-    return new TextDecoder().decode(base64ToBytes(bytes))
+	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
 function replaceEmpty(text) {
-  if (text === "" || text === "<p></p>" || text === "<p><br></p>") return "EMPTY TEXT"
-  return text
+	if (text === "" || text === "<p></p>" || text === "<p><br></p>") return "EMPTY TEXT"
+	return text
 }
 
 function getSubTypeText(dbName, idx) {
@@ -151,15 +151,13 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			}
 		case "removeAttachmentEvent":
 			return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
-		case 'removeCommentEvent':
-			return mkHeader() + `<h3>The last comment on this item is removed.</h3>` + mkFooter()
-		case 'removeCommentFromHistoryEvent':
-			return mkHeader() + `<h3>The last comment on the history of this item is removed.</h3>` + mkFooter()
 		case "removedWithDescendantsEvent":
 			return mkHeader() + `<h3>This item and ${value[1] - 1} descendants are removed.</h3>
           <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>` + mkFooter()
 		case "removeStoryEvent":
 			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
+		case "replaceCommentEvent":
+			return mkHeader() + `<h3>The user changed his last comment:</h3><p>${replaceEmpty(atou(value[0]))}</p>` + mkFooter()
 		case "setConditionEvent":
 			if (value[2]) return mkHeader() + `<h3>The previous condition set for item '${value[1]} is undone'.</h3>` + mkFooter()
 			return mkHeader() + `<h3>This item is set to be conditional for item '${value[1]}'.</h3>` + mkFooter()

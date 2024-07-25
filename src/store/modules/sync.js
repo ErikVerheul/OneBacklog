@@ -195,11 +195,11 @@ const actions = {
 								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
 								showSyncMessage(`added a comment to item`, SEV.INFO)
 								break
-							case 'removeCommentEvent':
+							case 'replaceCommentEvent':
 								node.data.lastCommentAddition = lastCommentsTimestamp
 								// show the comments update
 								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
-								showSyncMessage(`removed the last comment to item`, SEV.INFO)
+								showSyncMessage(`changed a comment to item`, SEV.INFO)
 								break
 							default:
 								// eslint-disable-next-line no-console
@@ -319,10 +319,6 @@ const actions = {
 								case 'removeAttachmentEvent':
 									commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
 									showSyncMessage(`removed an attachment from`, SEV.INFO)
-									break
-								case 'removeCommentFromHistoryEvent':
-									commit('updateNodesAndCurrentDoc', { node, replaceHistory: doc.history })
-									showSyncMessage(`removed the last comment to the history of`, SEV.INFO)
 									break
 								case 'removedWithDescendantsEvent':
 									if (node && doc.delmark) {

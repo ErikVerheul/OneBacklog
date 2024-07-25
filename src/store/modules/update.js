@@ -851,25 +851,27 @@ const actions = {
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
+			}
+			tmpDoc.history.unshift(newComment)
+			tmpDoc.lastCommentAddition = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
+
+			const newHist = {
+				addCommentEvent: [utoa(payload.comment)],
+				by: rootState.userData.user,
+				email: rootState.userData.email,
+				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
-			tmpDoc.comments.unshift(newComment)
-			tmpDoc.lastCommentAddition = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
+			tmpDoc.comments.unshift(newHist)
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: tmpDoc,
 				caller: 'addComment',
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, newComment, lastCommentAddition: payload.timestamp })
-					// create an entry for undoing the change in a last-in first-out sequence
-					const entry = {
-						node,
-						type: 'undoNewComment',
-					}
-					rootState.changeHistory.unshift(entry)
+					commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
 				}
 			})
 		}).catch(error => {
@@ -878,7 +880,7 @@ const actions = {
 		})
 	},
 
-	undoNewCommentAsync({
+	replaceComment({
 		rootState,
 		commit,
 		dispatch
@@ -888,40 +890,47 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
+		}).then((res) => {
 			const tmpDoc = res.data
-			const comments = tmpDoc.comments
-			// find and change my last comment
-			for (const c of comments) {
-				if (Object.keys(c)[0] === 'addCommentEvent' && c.by === rootState.userData.user) {
-					c.addCommentEvent = [utoa('Comment removed')]
-					break
-				}
-			}
-
-			const newComment = {
-				removeCommentEvent: 'Last comment removed',
+			const newHist = {
+				replaceCommentEvent: [utoa(payload.editedCommentText)],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
-			tmpDoc.comments.unshift(newComment)
+			tmpDoc.history.unshift(newHist)
+			// replace the comment in the document.comments array
+			let couldReplace = false
+			for (let i = 0; i < tmpDoc.comments.length; i++) {
+				const uneditedCommentObj = tmpDoc.comments[i]
+				if (Object.keys(uneditedCommentObj)[0] === 'addCommentEvent' && uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
+					tmpDoc.comments[i].addCommentEvent = [utoa(payload.editedCommentText)]
+					tmpDoc.comments[i].timestamp = Date.now()
+					couldReplace = true
+					break
+				}
+			}
+			if (!couldReplace) {
+				const msg = `replaceComment: Could not find the comment to replace in document with id ${id}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				return
+			}
+
+			tmpDoc.lastCommentAddition = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: tmpDoc,
-				caller: 'undoNewCommentAsync',
+				caller: 'replaceComment',
 				onSuccessCallback: () => {
-					rootState.busyWithLastUndo = false
-					commit('updateNodesAndCurrentDoc', { node, replaceComments: comments })
-					commit('addToEventList', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
+					commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
 				}
 			})
-
 		}).catch(error => {
-			const msg = `undoNewCommentAsync: Could not read document with id ${id}. ${error}`
+			const msg = `replaceComment: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -956,64 +965,10 @@ const actions = {
 				caller: 'addHistoryComment',
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: payload.timestamp, newHist })
-					// create an entry for undoing the change in a last-in first-out sequence
-					const entry = {
-						node,
-						type: 'undoNewCommentToHistory'
-					}
-					rootState.changeHistory.unshift(entry)
 				}
 			})
 		}).catch(error => {
 			const msg = `addHistoryComment: Could not read document with id ${id}. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	undoNewCommentToHistoryAsync({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const node = payload.node
-		const id = node._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
-			const tmpDoc = res.data
-			const history = tmpDoc.history
-			// find and change my last comment
-			for (const c of history) {
-				if (Object.keys(c)[0] === 'commentToHistoryEvent' && c.by === rootState.userData.user) {
-					c.commentToHistoryEvent = [utoa('Comment removed')]
-					break
-				}
-			}
-
-			const newHistory = {
-				removeCommentFromHistoryEvent: 'Last comment removed',
-				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				distributeEvent: true
-			}
-			tmpDoc.history.unshift(newHistory)
-
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: tmpDoc,
-				caller: 'undoNewCommentAsync',
-				onSuccessCallback: () => {
-					rootState.busyWithLastUndo = false
-					commit('updateNodesAndCurrentDoc', { node, replaceHistory: history })
-					commit('addToEventList', { txt: 'Your last comment addition is undone', severity: SEV.INFO })
-				}
-			})
-
-		}).catch(error => {
-			const msg = `undoNewCommentToHistoryAsync: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
