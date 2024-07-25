@@ -382,6 +382,49 @@ const methods = {
 
   mkTimestamp(value) {
     return 'timestamp: ' + new Date(value).toString() + '<br><br>'
+  },
+
+  // ======================== methods for editing my last comment(s) ===============================
+
+  getEvent(comment) {
+    return Object.keys(comment)[0]
+  },
+
+  getEventValue(comment) {
+    return comment[Object.keys(comment)[0]]
+  },
+
+  otherUserCommentedAfterme(comment) {
+    let otherUserFound = false
+    for (let c of this.getFilteredComments) {
+      if (c.by !== store.state.userData.user) {
+        otherUserFound = true
+      }
+      if (c === comment) {
+        break
+      }
+    }
+    return otherUserFound
+  },
+
+  isMyAddition(comment) {
+    return comment.by === store.state.userData.user && Object.keys(comment)[0] === 'addCommentEvent'
+
+  },
+
+  startEditMyComment(comment) {
+    this.commentObjToBeReplaced = comment
+    this.myLastCommentText = atou(this.getEventValue(comment))
+    this.editMyComment = true
+  },
+
+  replaceEditedComment() {
+    store.dispatch('replaceComment', {
+      node: this.getLastSelectedNode,
+      commentObjToBeReplaced: this.commentObjToBeReplaced,
+      editedCommentText: this.myLastCommentText,
+      timestamp: Date.now()
+    })
   }
 }
 
