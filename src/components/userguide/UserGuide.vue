@@ -151,8 +151,8 @@
 						</p>
 						<h4>Add comments</h4>
 						<p>Instead of extending or overwriting the fields above you can start a discussion by using this button. It
-							will open a WYSIWYG editor to write your text. Subscribed users will receive a copy of your comment by
-							email.</p>
+							will open a WYSIWYG editor to write your text. Todo: Subscribed users will receive a copy of your comment by
+							email. Upon another user responded you can edit your comment. To do that click on the edit icon at the right of the message.</p>
 						<h4>Filter comments</h4>
 						<p>Enter a key word and you will only see comments including this key word.</p>
 						<h4>The Comments, Attachments, History radio buttons</h4>

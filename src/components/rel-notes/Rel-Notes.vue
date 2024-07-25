@@ -6,6 +6,13 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.7 - 25 July 2024 New features</h3>
+          <p>New features</p>
+          <ul>
+            <li>Undo add comment removed; Edit my last comment(s) added</li>
+            <li>Allow editing own comments added to the history</li>
+            <li>Use cards instead of lists to show comments and history</li>
+          </ul>
           <h3>v.2.2.6 - 13 July 2024 New features, bug fix, refactoring</h3>
           <p>New features</p>
           <ul>
