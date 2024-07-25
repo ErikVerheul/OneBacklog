@@ -204,7 +204,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" :toolbar="editorToolbar" @update:content="initNewDescription" @blur="updateDescription()"></QuillEditor>
+            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription" @blur="updateDescription()"></QuillEditor>
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
@@ -214,7 +214,7 @@
               </div>
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" :toolbar="editorToolbar" @update:content="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
+              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
@@ -273,13 +273,13 @@
     <filters></filters>
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
       <BFormGroup>
-        <QuillEditor v-model:content=newComment contentType="html" :toolbar="editorToolbar" id="newComment"></QuillEditor>
+        <QuillEditor v-model:content=newComment contentType="html" id="newComment"></QuillEditor>
       </BFormGroup>
     </BModal>
 
     <BModal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
       <BFormGroup>
-        <QuillEditor v-model:content=newHistory contentType="html" :toolbar="editorToolbar" id="newHistory"></QuillEditor>
+        <QuillEditor v-model:content=newHistory contentType="html" id="newHistory"></QuillEditor>
       </BFormGroup>
     </BModal>
 
