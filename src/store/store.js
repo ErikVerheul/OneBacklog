@@ -61,10 +61,12 @@ function createEventToDisplay(payload) {
 			severityStr = 'CRITICAL'
 			color = '#ff5c33'
 	}
+	let tip = ''
+	if (payload.severity > SEV.INFO) tip = ' CLICK to resume'
 	const newEvent = {
 		eventKey: payload.eventKey,
 		time: `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`,
-		txt: payload.txt,
+		txt: payload.txt + tip,
 		sevKey: payload.severity,
 		severity: severityStr,
 		color
@@ -608,14 +610,13 @@ const store = createStore({
 
 	mutations: {
 		/*		
-		* Stops showing running progress indicator upto the next process indicator call
 		* Show a message in the message bar in the Product details or Products overview
 		* Stops showing new events if a CRITICAL, ERROR or WARNING event message is displayed.
 		* Resume showing new events after the events list is displayed (click on event bar)
 		*/
 		addToEventList(state, payload) {
 			state.showProgress = false
-			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.newEventKey, eventList: state.eventList })
+			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.newEventKey })
 			state.eventList.unshift(newEvent)
 			state.eventList = state.eventList.slice(0, MAX_EVENTLIST_SIZE)
 			state.newEventKey++
