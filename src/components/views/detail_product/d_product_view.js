@@ -7,7 +7,7 @@ import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import DcontextMenu from './d_context.vue'
 import Filters from './d_filters.vue'
-import Listings from './d_listings.vue'
+import Listings from '../common_listings.vue'
 import ToSprint from './d_tosprint.vue'
 import store from '../../../store/store.js'
 

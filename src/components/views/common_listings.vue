@@ -84,7 +84,7 @@
 </template>
 
 <script>
-import commonListings from '../common_listings.js'
+import commonListings from './common_listings.js'
 
 function data() {
   return {
