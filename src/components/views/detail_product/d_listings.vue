@@ -2,7 +2,7 @@
   <div>
     <div v-if="store.state.selectedForView === 'comments'">
       <div v-for="comment in getFilteredComments" :key="comment.timestamp">
-        <BCard>
+        <BCard class="card border-primary">
           <BCardBody>
             <BRow v-if="isMyAddition(comment, 'addCommentEvent') && !otherUserCommentedAfterme(comment, getFilteredComments)">
               <BCol cols="11">
@@ -40,7 +40,7 @@
     </ul>
     <div v-else-if="store.state.selectedForView === 'history'">
       <div v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
-        <BCard>
+        <BCard class="card border-primary">
           <BCardBody>
             <BRow v-if="isMyAddition(histItem, 'commentToHistoryEvent') && !otherUserCommentedAfterme(histItem, getFilteredHistory)">
               <BCol cols="11">
