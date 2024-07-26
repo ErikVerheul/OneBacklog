@@ -75,7 +75,7 @@ const computed = {
       */
       const event = Object.keys(histItem)[0]
       if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'removeItemsFromSprintEvent' ||
-      event === 'addCommentEvent' || event === 'replaceCommentEvent') continue
+        event === 'addCommentEvent' || event === 'replaceCommentEvent') continue
 
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
@@ -203,7 +203,7 @@ const methods = {
 
   /* Presentation methods */
   mkAcceptanceEvent(value) {
-    return '<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
+    return '<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1]))
   },
 
   mkAddSprintIdsEvent(value) {
@@ -249,7 +249,7 @@ const methods = {
   },
 
   mkDescriptionEvent(value) {
-    return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1])) + '<hr>'
+    return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1]))
   },
 
   mkImportToSprintEvent(value) {
