@@ -194,29 +194,16 @@ function listenForChanges(dbName) {
 		for (let r of results) {
 			let doc = r.doc
 			if (doc.followers) {
-				if (doc.comments[0].timestamp > doc.history[0].timestamp) {
-					// process new comment
-					for (let f of doc.followers) {
-						const event = doc.comments[0]
-						const eventType = Object.keys(event)[0]
+				// process new event in history; comment additions and changes are included
+				for (let f of doc.followers) {
+					const event = doc.history[0]
+					const eventType = Object.keys(event)[0]
+					if (interestingHistoryEvents.includes(eventType)) {
 						const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
 						mailgun.messages().send(data, (error, body) => {
 							// eslint-disable-next-line no-console
 							console.log(body)
 						})
-					}
-				} else {
-					// process new event in history
-					for (let f of doc.followers) {
-						const event = doc.history[0]
-						const eventType = Object.keys(event)[0]
-						if (interestingHistoryEvents.includes(eventType)) {
-							const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
-							mailgun.messages().send(data, (error, body) => {
-								// eslint-disable-next-line no-console
-								console.log(body)
-							})
-						}
 					}
 				}
 			}
