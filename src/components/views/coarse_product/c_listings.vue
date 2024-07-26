@@ -26,14 +26,14 @@
         <br>
       </div>
     </div>
-    <ul v-if="store.state.selectedForView === 'attachments'">
+    <ul v-else-if="store.state.selectedForView === 'attachments'">
       <div v-if="!isUploadDone">loading...</div>
       <div v-for="(attach, index) in getAttachments()" :key="attach.title + attach.data.digest">
         <span>
           <template v-if="getNrOfTitles() > 1">
             {{ index + 1 }}/{{ getNrOfTitles() }}
           </template>
-          <BButton class="space3px" @click="showAttachment(attach)"> {{ attach.title }} </BButton>
+          <BButton class="space3px" variant="seablueInverted" @click="showAttachment(attach)"> {{ attach.title }} </BButton>
           <BButton class="space3px" variant="danger" @click="removeAttachment(attach)">X</BButton>
         </span>
       </div>
@@ -100,13 +100,13 @@ export default {
   extends: commonListings,
   data
 }
-
 </script>
 
 <style scoped>
 .space3px {
   margin: 3px;
 }
+
 .p1 {
   font-size: 12px;
 }
