@@ -50,10 +50,8 @@ const computed = {
       if (event === 'replaceCommentEvent') allText += removeImages(this.mkComment(commentItem[event]))
       if (event === 'resetCommentsEvent') allText += this.mkResetCommentsEvent(commentItem[event])
 
-      const by = Object.keys(commentItem)[1]
-      if (by === 'by') allText += this.mkBy(commentItem[by])
-      const ts = Object.keys(commentItem)[2]
-      if (ts === 'timestamp') allText += this.mkTimestamp(commentItem[ts])
+      allText += this.mkBy(commentItem['by'])
+      allText += this.mkTimestamp(commentItem['timestamp'])
 
       if (allText.toLowerCase().includes(store.state.filterForCommentSearchString.toLowerCase())) {
         filteredComments.push(commentItem)
@@ -115,10 +113,8 @@ const computed = {
       if (event === 'updateTaskOwnerEvent') allText += this.mkUpdateTaskOwnerEvent(histItem[event])
       if (event === 'uploadAttachmentEvent') allText += this.mkUploadAttachmentEvent(histItem[event])
 
-      const by = Object.keys(histItem)[1]
-      if (by === 'by') allText += this.mkBy(histItem[by])
-      const ts = Object.keys(histItem)[2]
-      if (ts === 'timestamp') allText += this.mkTimestamp(histItem[ts])
+      allText += this.mkBy(histItem['by'])
+      allText += this.mkTimestamp(histItem['timestamp'])
       // push anyway if filterForHistorySearchString is empty => selecting all
       if (allText.toLowerCase().includes(store.state.filterForHistorySearchString.toLowerCase())) {
         filteredHistory.push(histItem)
@@ -385,7 +381,7 @@ const methods = {
   },
 
   mkTimestamp(value) {
-    return 'timestamp: ' + new Date(value).toString() + '<br><br>'
+    return 'timestamp: ' + new Date(value).toString()
   },
 
   // ======================== methods for editing my last comment(s) ===============================
