@@ -3,34 +3,16 @@
     <h3 v-if="idx === 0">{{ title }}</h3>
     <hr />
     <template v-if="idx >= 0 && draggables.length === 0">
-      <BButton
-        @click="showModal = !showModal"
-        block
-        squared
-        variant="outline-secondary"
-      >Click to create a task here</BButton>
+      <BButton @click="showModal = !showModal" block squared variant="outline-secondary">Click to create a task here</BButton>
     </template>
     <div class="BCardBody">
       <draggable v-model="draggables" :group="idx.toString()">
         <div v-for="item in tasks" :key="item.id">
-          <taskitem
-            :storyId="storyId"
-            :storyTitle="storyTitle"
-            :productId="productId"
-            :taskState="taskState"
-            :columnName="title"
-            :item="item"
-          ></taskitem>
+          <taskitem :storyId="storyId" :storyTitle="storyTitle" :productId="productId" :taskState="taskState" :columnName="title" :item="item"></taskitem>
         </div>
       </draggable>
     </div>
-    <BModal
-      v-model="showModal"
-      :ok-disabled="taskTitle.length === 0"
-      @ok="procSelected"
-      @cancel="doCancel"
-      title="Enter task title"
-    >
+    <BModal v-model="showModal" :ok-disabled="taskTitle.length === 0" @ok="procSelected" @cancel="doCancel" title="Enter task title">
       <BFormInput v-model="taskTitle"></BFormInput>
     </BModal>
   </div>
@@ -53,7 +35,7 @@ export default {
     draggable: VueDraggableNext
   },
 
-  data () {
+  data() {
     return {
       showModal: false,
       taskTitle: ''
@@ -62,10 +44,10 @@ export default {
 
   computed: {
     draggables: {
-      get () {
+      get() {
         return this.tasks
       },
-      set (tasks) {
+      set(tasks) {
         if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
           store.dispatch('updateTasks', {
             tasks,
@@ -78,11 +60,11 @@ export default {
   },
 
   methods: {
-    procSelected () {
+    procSelected() {
       store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
     },
 
-    doCancel () {
+    doCancel() {
       this.taskTitle = ''
     }
   }
@@ -93,9 +75,11 @@ export default {
 .b-cards-margin {
   margin-left: 5px;
 }
-.BCardBody > * {
+
+.BCardBody>* {
   min-height: 50px;
 }
+
 .b-card:last-child {
   margin-bottom: 5px;
 }
