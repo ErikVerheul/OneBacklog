@@ -71,7 +71,7 @@
               <h3 align="right">State:</h3>
             </BCol>
             <BCol cols="1">
-              <h3 align="right">               
+              <h3 align="right">
                 <BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right :text=getItemStateText(store.state.currentDoc.state)>
                   <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                   <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
@@ -253,7 +253,8 @@
               <div class="d-table-cell tar">
                 <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
                   @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-                <BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
+                <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
+                <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
               </div>
             </div>
           </div>
