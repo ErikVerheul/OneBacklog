@@ -406,7 +406,7 @@ const actions = {
 					let warnMsg = undefined
 					// check on team
 					const parentNode = rootState.helpersRef.getParentNode(node)
-					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin) {
+					if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin && tmpDoc.level >= LEVEL.FEATURE) {
 						if (parentNode.data.team !== rootGetters.myTeam) {
 							warnMsg = concatMsg(warnMsg, `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
 							Consider to assign team '${parentNode.data.team}' to this item`)
