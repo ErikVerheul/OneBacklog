@@ -1348,6 +1348,20 @@ const actions = {
 				updatedDoc: doc,
 				caller: 'boardUpdateTaskOwner',
 				onSuccessCallback: () => {
+					// update the planningboard
+					for (const s of rootState.planningboard.stories) {
+						if (s.storyId === doc.parentId) {
+							const tasks = s.tasks
+							const targetColumn = tasks[doc.state]
+							for (const t of targetColumn) {
+								if (t.id === doc._id) {
+									t.taskOwner = payload.newTaskOwner
+									break
+								}
+							}
+							break
+						}
+					}
 					if (rootState.lastTreeView === 'detailProduct') {
 						// update the tree model
 						const node = rootState.helpersRef.getNodeById(payload.taskId)
