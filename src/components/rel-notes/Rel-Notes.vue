@@ -6,6 +6,19 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.8 - 28 July 2024 Bug fix, refactoring</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Edited comments not emailed, fixed</li>
+            <li>Filtering comments and history on time stamp not working, fixed</li>
+            <li>Epics have no owning team. Features, user stories and tasks have</li>
+            <li>"This backlog item is realized by team 'null'" in setStateEvent, fixed</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Combine filtering code for detail and overview to one common file</li>
+            <li>Change BCard border color to blue</li>
+          </ul>
           <h3>v.2.2.7 - 25 July 2024 New features</h3>
           <p>New features</p>
           <ul>
