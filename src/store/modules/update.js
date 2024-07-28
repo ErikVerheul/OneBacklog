@@ -379,7 +379,7 @@ const actions = {
 				updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 			}
 			const newHist = {
-				setStateEvent: [oldState, payload.newState, payload.newTeam, payload.position],
+				setStateEvent: [oldState, payload.newState, node.data.team],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
