@@ -933,7 +933,7 @@ const store = createStore({
 									state.selectedNodes = [node]
 								}
 								break
-							case 'spikepersonhours':
+							case 'spikePersonHours':
 								// not stored in the node
 								break
 							case 'sprintId':
@@ -1087,8 +1087,8 @@ const store = createStore({
 								case 'selectNode':
 									// not a database field
 									break
-								case 'spikepersonhours':
-									state.currentDoc.spikepersonhours = payload.spikepersonhours
+								case 'spikePersonHours':
+									state.currentDoc.spikepersonhours = payload.spikePersonHours
 									break
 								case 'sprintId':
 									state.currentDoc.sprintId = payload.sprintId

@@ -260,7 +260,7 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'setPersonHours',
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, spikepersonhours: payload.newHrs, lastChange: payload.timestamp, newHist })
+					commit('updateNodesAndCurrentDoc', { node, spikePersonHours: payload.newHrs, lastChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence

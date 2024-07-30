@@ -380,7 +380,7 @@ const actions = {
 									}
 									break
 								case 'setHrsEvent':
-									commit('updateNodesAndCurrentDoc', { node, spikepersonhours: doc.spikepersonhours, lastChange: doc.lastChange })
+									commit('updateNodesAndCurrentDoc', { node, spikePersonHours: doc.spikepersonhours, lastChange: doc.lastChange })
 									showSyncMessage(`changed the maximum effort of`, SEV.INFO)
 									break
 								case 'setPointsEvent':
