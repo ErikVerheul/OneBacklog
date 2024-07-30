@@ -789,6 +789,7 @@ const store = createStore({
 			}, payload.nodesToScan)
 		},
 
+		/* The keys of the payload object are evaluated by key name and value */
 		updateNodesAndCurrentDoc(state, payload) {
 			if (payload.newNode) {
 				renewSelection(state, payload.newNode)
