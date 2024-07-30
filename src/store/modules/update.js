@@ -1023,6 +1023,62 @@ const actions = {
 		})
 	},
 
+	/* When a user changes team, the tasks he ownes need to be assigned to his new team also */
+	updateTasksToNewTeam({
+		rootState,
+		commit,
+		dispatch
+	}, payload) {
+		const dbName = payload.dbName
+		globalAxios({
+			method: 'GET',
+			url: dbName + '/_design/design1/_view/assignedTasksToUser?include_docs=true'
+		}).then(res => {
+			const results = res.data.rows
+			const docsToUpdate = []
+			for (const r of results) {
+				const tmpDoc = r.doc
+				if (tmpDoc.taskOwner && payload.userName === tmpDoc.taskOwner) {
+					const oldTeam = tmpDoc.team
+					tmpDoc.team = payload.newTeam
+					let updateBoards = undefined
+					if (tmpDoc.sprintId) {
+						updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [oldTeam, payload.newTeam] }
+					}
+					const newHist = {
+						taskToNewTeamEvent: [payload.newTeam, tmpDoc.sprintId],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+						updateBoards
+					}
+					tmpDoc.history.unshift(newHist)
+					docsToUpdate.push(tmpDoc)
+				}
+			}
+			// update the docs and the nodes in the onSuccessCallback with the new team name
+			if (docsToUpdate.length > 0) {
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb, docs: docsToUpdate, caller: 'updateTasksToNewTeam', onSuccessCallback: () => {
+						if (rootState.currentView === 'coarseProduct') {
+							// the overview does not load the task level
+							return
+						}
+						// update the nodes and the current doc
+						docsToUpdate.forEach(doc => {
+							const node = rootState.helpersRef.getNodeById(doc._id)
+							commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam })
+						})
+					}
+				})
+			}
+		}).catch(error => {
+			const msg = `updateTasksToNewTeam: Could not read documents. ${error}`
+			dispatch('doLog', { event: msg, level: SEV.ERROR })
+		})
+	},
+
 	/*
 	* Create or update an existing document by creating a new revision.
 	* Executes a onSuccessCallback and onFailureCallback if provided in the payload.

@@ -425,6 +425,11 @@ const actions = {
 										}
 									}
 									break
+								case 'taskToNewTeamEvent':
+									console.log('sync: taskToNewTeamEvent to be processed, lastHistObj = ' + JSON.stringify(lastHistObj))
+									const team = lastHistObj.taskToNewTeamEvent[0]
+									commit('updateNodesAndCurrentDoc', { node, team })
+									break
 								case 'uploadAttachmentEvent':
 									commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
 									showSyncMessage(`uploaded an attachment to`, SEV.INFO)
@@ -723,6 +728,11 @@ const actions = {
 								const taskState = lastHistObj.taskRemovedEvent[4]
 								commit('removeTaskFromBoard', { storyId, taskId, taskState })
 							}
+							break
+						case 'taskToNewTeamEvent':
+							const team = lastHistObj.taskToNewTeamEvent[0]
+							const sprintId = lastHistObj.taskToNewTeamEvent[1]						
+							dispatch('loadPlanningBoard', { sprintId, team })
 							break
 						case 'updateTaskOrderEvent':
 							{

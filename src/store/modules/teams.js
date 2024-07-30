@@ -15,7 +15,12 @@ const actions = {
 			const tmpUserData = res.data
 			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
 			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
-			const toDispatch = [{ updateTeamsInDb: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } }]
+			const toDispatch = [
+				// Update the 'team' documents and check if the teamcalendar needs to be extended
+				{ updateTeamsInDb: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } },
+				// Update tasks to the new team where this user is assigned to
+				{ updateTasksToNewTeam: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, newTeam } }
+			]
 			dispatch('updateUserAction', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			const msg = `changeTeam: Could not change team for user ${rootState.userData.user}. ${error}`
