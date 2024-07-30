@@ -73,6 +73,7 @@
         <BFormGroup>
           <BFormRadioGroup v-model="selectedTeam" :options="teamOptions" name="teamOptions" />
         </BFormGroup>
+        <p class="text-danger mt-3">Note that tasks assigned to you will move with you to the newly selected team</p>
       </BContainer>
     </BModal>
 
