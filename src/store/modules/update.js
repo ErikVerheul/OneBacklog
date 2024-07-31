@@ -1023,7 +1023,10 @@ const actions = {
 		})
 	},
 
-	/* When a user changes team, the tasks he ownes need to be assigned to his new team also */
+	/* 
+	* When a user changes team, the tasks he ownes need to be assigned to his new team also 
+	* Note that the doc's sptintId can be null if the task is removed from the sprint 
+	*/
 	updateTasksToNewTeam({
 		rootState,
 		commit,
