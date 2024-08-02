@@ -296,6 +296,7 @@ Y             Y	     Y    dependencyRemovedEvent 	      	update.js
 Y             Y	     Y    descriptionEvent	            	update.js
 N             N      Y    importToSprintEvent             planningboard.js
 N			  			N	     Y    itemRestoredEvent								undo.js
+Y			  			N	     N		itemToNewTeamEvent							update.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
@@ -317,7 +318,6 @@ Y             Y	     Y    setTeamOwnerEvent	            	update.js
 Y             Y	     Y    setTitleEvent	                	update.js, planningboard.js
 N			  			N	     Y    subscribeEvent									update.js
 Y             N      Y    taskRemovedEvent								planningboard.js
-Y			  			N	     N		taskToNewTeamEvent							update.js
 Y             N	     Y    undoBranchRemovalEvent	  			undo.js
 Y             Y	     Y    uploadAttachmentEvent	        	attachments.js
 Y             N	     N    updateTaskOrderEvent	        	planningboard.js

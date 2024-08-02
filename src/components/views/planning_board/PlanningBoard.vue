@@ -1,4 +1,5 @@
 <template>
+  <p>myTeam = {{ selectedTeam }}</p>
   <div>
     <app-header>
       <!-- Right aligned nav items -->
@@ -21,7 +22,7 @@
     <BContainer fluid>
       <BRow v-if="!showWarning" class="title-bar">
         <BCol cols="5">
-          <h5>Welcome {{ userData.user }} from team '{{ userData.myTeam }}'</h5>
+          <h5>Welcome {{ userData.user }} from team '{{ selectedTeam }}'</h5>
         </BCol>
         <BCol cols="4">
           <h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
@@ -97,13 +98,13 @@ export default {
     }
 
     // reload when the user changes team
-    this.unsubscribe = store.subscribe((mutation, state) => {
-      if (mutation.type === 'updateTeam') {
-        // select and load the current sprint of the newly selected team calendar
-        this.selectedSprint = this.getActiveSprints.currentSprint
-        store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: state.userData.myTeam })
-      }
-    })
+    // const unsubscribe = store.subscribe((mutation, state) => {
+    //   if (mutation.type === 'updateTeam') {
+    //     // select and load the current sprint of the newly selected team calendar
+    //     this.selectedSprint = this.getActiveSprints.currentSprint
+    //     store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: this.userData.myTeam, caller: 'planningboard.created' })
+    //   }
+    // })
   },
 
   data() {
@@ -118,7 +119,13 @@ export default {
     // initially load the current sprint and reload when the user selects another sprint
     selectedSprint: function (newVal) {
       this.currentSprintLoaded = newVal.id === this.getActiveSprints.currentSprint.id
-      store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.userData.myTeam })
+      store.dispatch('loadPlanningBoard', { sprintId: newVal.id, team: this.selectedTeam, caller: 'watch: selectedSprint' })
+    },
+
+    // initially load the current sprint for the user's team and reload when the user changes team
+    selectedTeam: function (newVal) {
+      this.selectedSprint = this.getActiveSprints.currentSprint
+      store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: newVal, caller: 'watch: selectedTeam' })
     }
   },
 
@@ -126,10 +133,15 @@ export default {
     ...mapGetters([
       'getPersonHours',
       'getStoryPoints',
-      'getStoryPointsDone',
-      'myTeam'
+      'getStoryPointsDone'
     ]),
     ...mapState(['userData']),
+
+    selectedTeam() {
+      // eslint-disable-next-line no-console
+      console.log('Planningboard: selectedTeam is updated to ' + this.userData.myTeam)
+      return this.userData.myTeam
+    },
 
     showWarning() {
       return store.state.warningText !== ''

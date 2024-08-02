@@ -4,24 +4,24 @@ import globalAxios from 'axios'
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const actions = {
-	changeTeam({
+	changeTeamAsync({
 		rootState,
 		dispatch
-	}, newTeam) {
+	}, payload) {
+		const newTeam = payload.newTeam
 		globalAxios({
 			method: 'GET',
 			url: '/_users/org.couchdb.user:' + rootState.userData.user
 		}).then(res => {
 			const tmpUserData = res.data
+			// replace the team name in the users record
 			const oldTeam = tmpUserData.myDatabases[res.data.currentDb].myTeam
 			tmpUserData.myDatabases[res.data.currentDb].myTeam = newTeam
 			const toDispatch = [
 				// Update the 'team' documents and check if the teamcalendar needs to be extended
 				{ updateTeamsInDb: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, oldTeam, newTeam } },
-				// Update tasks to the new team where this user is assigned to
-				{ updateTasksToNewTeam: { dbName: rootState.userData.currentDb, userName: rootState.userData.user, newTeam } }
 			]
-			dispatch('updateUserAction', { data: tmpUserData, toDispatch })
+			dispatch('updateUserDb', { data: tmpUserData, toDispatch })
 		}).catch(error => {
 			const msg = `changeTeam: Could not change team for user ${rootState.userData.user}. ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
@@ -262,12 +262,14 @@ const actions = {
 		})
 	},
 
+
+	/* Register the team membership and history in the teammembers document */
 	updateTeamsInDb({
 		rootState,
 		commit,
 		dispatch
 	}, payload) {
-		const dbName = payload.dbName
+		const dbName = rootState.userData.currentDb
 		if (payload.oldTeam !== payload.newTeam) {
 			globalAxios({
 				method: 'GET',
@@ -316,10 +318,27 @@ const actions = {
 					}
 					newTeamDoc.history.unshift(joinHist)
 
+					// create a trigger to update any open planningboards of the old team to the new team
+					const newHist = {
+						teamChangeEvent: [payload.oldTeam, payload.newTeam],
+						by: rootState.userData.user,
+						email: rootState.userData.email,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+						updateBoards: { sprintsAffected: undefined, teamsAffected: [payload.oldTeam, payload.newTeam] }
+					}
+
+					// sending this trigger must be the last action in the chain of events
+					const toDispatch2 = [
+						{ sendMessageAsync: newHist }
+					]
+
 					const toDispatch = [{
 						updateDoc: {
 							dbName,
 							updatedDoc: newTeamDoc,
+							toDispatch: toDispatch2,
 							onSuccessCallback: () => {
 								// update the team list in memory
 								rootState.allTeams[payload.oldTeam].members = oldTeamDoc.members

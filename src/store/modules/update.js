@@ -1032,50 +1032,39 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		const dbName = payload.dbName
+		const dbName = rootState.userData.currentDb
+		const taskOwner = payload.userName
 		globalAxios({
 			method: 'GET',
-			url: dbName + '/_design/design1/_view/assignedTasksToUser?include_docs=true'
+			url: dbName + `/_design/design1/_view/assignedTasksToUser?startkey=["${taskOwner}"]&endkey=["${taskOwner}"]&include_docs=true`
 		}).then(res => {
 			const results = res.data.rows
 			const docsToUpdate = []
 			for (const r of results) {
 				const tmpDoc = r.doc
-				if (tmpDoc.taskOwner && payload.userName === tmpDoc.taskOwner) {
-					const oldTeam = tmpDoc.team
-					tmpDoc.team = payload.newTeam
-					let updateBoards = undefined
-					if (tmpDoc.sprintId) {
-						updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [oldTeam, payload.newTeam] }
-					}
-					const newHist = {
-						taskToNewTeamEvent: [payload.newTeam, tmpDoc.sprintId],
-						by: rootState.userData.user,
-						timestamp: Date.now(),
-						sessionId: rootState.mySessionId,
-						distributeEvent: true,
-						updateBoards
-					}
-					tmpDoc.history.unshift(newHist)
-					docsToUpdate.push(tmpDoc)
+				tmpDoc.team = payload.newTeam
+				const newHist = {
+					itemToNewTeamEvent: [payload.newTeam],
+					by: rootState.userData.user,
+					timestamp: Date.now(),
+					sessionId: rootState.mySessionId,
+					distributeEvent: true
 				}
+				tmpDoc.history.unshift(newHist)
+				docsToUpdate.push(tmpDoc)
 			}
-			// update the docs and the nodes in the onSuccessCallback with the new team name
-			if (docsToUpdate.length > 0) {
-				dispatch('updateBulk', {
-					dbName: rootState.userData.currentDb, docs: docsToUpdate, caller: 'updateTasksToNewTeam', onSuccessCallback: () => {
-						if (rootState.currentView === 'coarseProduct') {
-							// the overview does not load the task level
-							return
-						}
-						// update the nodes and the current doc
+			const toDispatch = [{ changeTeamAsync: { newTeam: payload.newTeam }}]
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb, docs: docsToUpdate, caller: 'updateTasksToNewTeam', toDispatch, onSuccessCallback: () => {
+					if (rootState.currentView !== 'coarseProduct') {
+						// the overview does not load the task level
 						docsToUpdate.forEach(doc => {
 							const node = rootState.helpersRef.getNodeById(doc._id)
 							commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam })
 						})
 					}
-				})
-			}
+				}
+			})
 		}).catch(error => {
 			const msg = `updateTasksToNewTeam: Could not read documents. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })

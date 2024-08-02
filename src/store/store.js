@@ -443,6 +443,8 @@ const store = createStore({
 			if (payload.toDispatch) {
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
+					// eslint-disable-next-line no-console
+					console.log('additionalActions: dispatching ' + name)
 					dispatch(name, td[name])
 				}
 			}
@@ -542,7 +544,7 @@ const store = createStore({
 					const tmpUserData = res.data
 					tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
 					tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
-					dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: updateProducts })
+					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
 				const msg = `addToMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
@@ -585,7 +587,7 @@ const store = createStore({
 						// delete the id from my subscriptions
 						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
 					}
-					dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: updateProducts })
+					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
 				}
 			}).catch(error => {
 				const msg = `removeFromMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
@@ -600,7 +602,7 @@ const store = createStore({
 			}).then(res => {
 				const tmpUserData = res.data
 				tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
-				dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
+				dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
 			}).catch(error => {
 				const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })

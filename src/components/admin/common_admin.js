@@ -335,7 +335,7 @@ const methods = {
 		if (store.state.isUserRemoved) {
 			newUserData._rev = store.state.useracc.fetchedUserData._rev
 			// replace existing removed user
-			store.dispatch('updateUserAction', { data: newUserData, onSuccessCallback: () => store.state.isUserCreated = true })
+			store.dispatch('updateUserDb', { data: newUserData, onSuccessCallback: () => store.state.isUserCreated = true })
 		} else store.dispatch('createUserIfNotExistentAction', newUserData)
 	},
 
@@ -469,7 +469,7 @@ const methods = {
 				}
 			}
 		}
-		store.dispatch('updateUserAction', {
+		store.dispatch('updateUserDb', {
 			data: newUserData, onSuccessCallback: () => {
 				if (removeDb) {
 					// the user cannot select this database anymore

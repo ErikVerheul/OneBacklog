@@ -47,6 +47,10 @@ const actions = {
 			const batch = res.data.rows
 			for (const item of batch) {
 				const _id = item.id
+				if (_id === 'messenger') {
+					// skip messenger document
+					continue
+				}
 				const itemLevel = item.key[0]
 				// negate the priority
 				const priority = -item.key[2]

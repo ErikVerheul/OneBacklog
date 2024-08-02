@@ -329,6 +329,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
+		console.log('loadPlanningBoard is called: payload.sprintId = ' +  payload.sprintId + ', payload.team = ' + payload.team + ', caller = ' + payload.caller)
 		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.myCurrentSprintCalendar) {
@@ -586,7 +587,7 @@ const actions = {
 			}
 
 			const toDispatch = [
-				{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam } },
+				{ loadPlanningBoard: { sprintId: rootState.loadedSprintId, team: rootState.userData.myTeam, caller: 'planningboard.importInSprint' } },
 				// also trigger the reload of other sessions of members of my team with this sprint opened in their board
 				{
 					sendMessageAsync: {

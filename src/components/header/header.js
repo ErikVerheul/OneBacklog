@@ -51,7 +51,7 @@ const methods = {
 	},
 
 	refreshPlanningboard() {
-		if (this.isPlanningBoardSelected) store.dispatch('loadPlanningBoard', { sprintId: store.state.loadedSprintId, team: store.state.userData.myTeam })
+		if (this.isPlanningBoardSelected) store.dispatch('loadPlanningBoard', { sprintId: store.state.loadedSprintId, team: store.state.userData.myTeam, caller: 'header.refreshPlanningboard' })
 	},
 
 	showOptions() {
@@ -110,7 +110,12 @@ const methods = {
 	},
 
 	doChangeTeam() {
-		store.dispatch('changeTeam', this.selectedTeam)
+		// Update tasks to the new team where this user is assigned to; when done other actions are started com complete the team change
+		console.log('doChangeTeam: store.state.userData.myTeam = ' + store.state.userData.myTeam + ', this.selectedTeam = ' + this.selectedTeam )
+		store.dispatch('updateTasksToNewTeam', {  
+			userName: store.state.userData.user, 
+			oldTeam: store.state.userData.myTeam, 
+			newTeam: this.selectedTeam })
 	},
 
 	doShowTeam() {

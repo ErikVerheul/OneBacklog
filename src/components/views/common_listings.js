@@ -75,7 +75,7 @@ const computed = {
       */
       const event = Object.keys(histItem)[0]
       if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'removeItemsFromSprintEvent' ||
-        event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'taskToNewTeamEvent') continue
+        event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'itemToNewTeamEvent') continue
 
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])

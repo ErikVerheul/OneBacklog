@@ -146,7 +146,7 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myDatabases[rootState.userData.currentDb].filterSettings = newFilterSettings
-			dispatch('updateUserAction', { data: tmpUserData })
+			dispatch('updateUserDb', { data: tmpUserData })
 		}).catch(error => {
 			const msg = `saveMyFilterSettingsAction: User '${rootState.userData.user}' cannot save the product filter settings, ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -242,7 +242,7 @@ const actions = {
 				tmpUserData.myDatabases[payload.dbName] = newDb
 				addedDb = payload.dbName
 			}
-			dispatch('updateUserAction', {
+			dispatch('updateUserDb', {
 				data: tmpUserData, onSuccessCallback: () => {
 					if (tmpUserData.name === rootState.userData.user && tmpUserData.currentDb === rootState.userData.currentDb) {
 						// the user is updating its own profile and loaded its current database (admin is not updating another user)
@@ -338,7 +338,7 @@ const actions = {
 					return
 				}
 			}
-			dispatch('updateUserAction', {
+			dispatch('updateUserDb', {
 				data: tmpUserData,
 				onSuccessCallback: () => {
 					rootState.isCurrentDbChanged = true
@@ -371,7 +371,7 @@ const actions = {
 			} else tmpUserData.doNotAskForImport = [sprintId]
 			// update the current user data
 			rootState.userData.doNotAskForImport = tmpUserData.doNotAskForImport
-			dispatch('updateUserAction', { data: tmpUserData })
+			dispatch('updateUserDb', { data: tmpUserData })
 		}).catch(error => {
 			const msg = `registerMyNoSprintImport: Could not update do not ask for import for user '${rootState.userData.user}', ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -409,7 +409,7 @@ const actions = {
 	* Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also.
 	* Executes a onSuccessCallback and additionalActions callback if provided in the payload.
 	*/
-	updateUserAction({
+	updateUserDb({
 		rootState,
 		commit,
 		dispatch
@@ -429,7 +429,7 @@ const actions = {
 			}
 		}
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log(`updateUserAction: Users roles are: ${allRoles}`)
+		if (rootState.debug) console.log(`updateUserDb: Users roles are: ${allRoles}`)
 		userData.roles = allRoles
 		globalAxios({
 			method: 'PUT',
@@ -447,11 +447,11 @@ const actions = {
 			// execute passed actions if provided
 			dispatch('additionalActions', payload)
 			rootState.isUserUpdated = true
-			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUserAction: The profile of user '${userData.name}' is updated successfully` })
+			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUserDb: The profile of user '${userData.name}' is updated successfully` })
 		}).catch(error => {
 			// execute passed callback if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
-			const msg = `updateUserAction: Could not update the profile of user '${userData.name}', ${error}`
+			const msg = `updateUserDb: Could not update the profile of user '${userData.name}', ${error}`
 			rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
@@ -561,7 +561,7 @@ const actions = {
 		}).then(res => {
 			const tmpUserData = res.data
 			tmpUserData.myOptions = rootState.userData.myOptions
-			dispatch('updateUserAction', { data: tmpUserData, onSuccessCallback: () => commit('addToEventList', { txt: 'Your options have been saved', severity: SEV.INFO }) })
+			dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: () => commit('addToEventList', { txt: 'Your options have been saved', severity: SEV.INFO }) })
 		}).catch(error => {
 			commit('addToEventList', { txt: 'Your options have NOT been saved', severity: SEV.ERROR })
 			const msg = `saveMyOptionsAsync: Could not update the options for user '${rootState.userData.user}', ${error}`

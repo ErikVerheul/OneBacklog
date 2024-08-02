@@ -15,7 +15,7 @@ const actions = {
 	* Order of execution:
 	* 1. getDatabases
 	* 2. getOtherUserData and start the watchdog
-	* 3. getAllProducts and call updateUserAction if databases or products are missing
+	* 3. getAllProducts and call updateUserDb if databases or products are missing
 	* 4. getConfig, load the default sprint calendar and warn the user if it ran out of sprints
 	* 5. getAllTeams and load the team calendar if present, extend the team calendar automatically if ran out of sprints
 	* 6. if the default sprint calendar is present and ran out of sprints, extend this calender with new sprints and save the config document
@@ -180,7 +180,7 @@ const actions = {
 			// update user data loaded in getOtherUserData and STORE THE USER DATA in store.state.userData
 			// postpone the warning message for 'no product found' until the configuration is loaded
 			const toDispatch = [{ getConfig: null }]
-			dispatch('updateUserAction', {
+			dispatch('updateUserDb', {
 				data: newUserData, toDispatch,
 				onSuccessCallback: () => {
 					// set the users product options to select from
