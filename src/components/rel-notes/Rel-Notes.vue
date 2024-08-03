@@ -6,6 +6,18 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.9 - 3 August 2024 Bug fix, refactoring</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Fix feature to add a selection on id or a search in titles on top of a filtered tree</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Full integration of team change in local and remote detail view and planning board</li>
+            <li>Refactor team change using a new couchDb filter and the messenger document to efficiently trigger updates when syncing with other online users</li>
+            <li>Allow user to search on title when a selection on id is open and vice versa. The open selection/search is undone automatically</li>
+            <li>Make the log list scrollable</li>
+          </ul>
           <h3>v.2.2.8 - 28 July 2024 Bug fix, refactoring</h3>
           <p>Bug fixes:</p>
           <ul>

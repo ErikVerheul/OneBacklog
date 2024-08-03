@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "onebacklog",
-  "version": "2.2.8",
+  "version": "2.2.9",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -23,20 +23,20 @@
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@popperjs/core": "^2.11.8",
     "@vueup/vue-quill": "^1.2.0",
-    "axios": "^1.7.2",
+    "axios": "^1.7.3",
     "bootstrap": "^5.3.3",
     "bootstrap-vue-next": "^0.24.2",
     "mitt": "^3.0.1",
-    "vue": "^3.4.34",
+    "vue": "^3.4.35",
     "vue-draggable-next": "^2.2.1",
-    "vue-router": "^4.4.0",
+    "vue-router": "^4.4.2",
     "vuex": "^4.1.0"
   },
   "overrides": {
     "quill": "^2.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.1.0",
+    "@vitejs/plugin-vue": "^5.1.2",
     "unplugin-vue-components": "^0.27.3",
     "vite": "^5.3.5"
   },
