@@ -584,7 +584,6 @@ const store = createStore({
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 					state.keyword = ''
-					console.log('resetSearchInTitles: resetSearchOnTitle is set to null')
 					state.resetSearchOnTitle = null
 				}
 			})
