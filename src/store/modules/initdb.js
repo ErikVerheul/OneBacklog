@@ -349,7 +349,8 @@ const actions = {
 					assignedTasksToUser: {
 						map: `function(doc) {
 							const TASKLEVEL = 6
-							if (doc.type === "backlogItem" && !doc.delmark && doc.level === TASKLEVEL && doc.taskOwner) emit([doc.taskOwner], 1)
+							const DONESTATE = 6
+							if (doc.type === "backlogItem" && !doc.delmark && doc.level === TASKLEVEL && doc.taskOwner && doc.state !== DONESTATE) emit([doc.taskOwner], 1)
 						}`
 					},
 					/* Filter on items with assigned requirement area */
