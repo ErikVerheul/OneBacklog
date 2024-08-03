@@ -37,7 +37,7 @@
         <BButton v-if="!showLogModal" class="m-1" @click="doViewLog" variant="primary">Show</BButton>
         <BButton v-if="!showLogModal" class="m-1" @click="cancel">Return</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Cancel</BButton>
-        <BModal v-model="showLogModal" size="lg" :title="logModalTitle()">
+        <BModal scrollable v-model="showLogModal" size="lg" :title="logModalTitle()">
           <div v-for="item in filtered(store.state.logEntries)"
             :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
             Event: {{ item.event }} <br />
