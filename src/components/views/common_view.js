@@ -239,7 +239,7 @@ const methods = {
 	},
 
 	resetSearchTitles() {
-		store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles' })
+		store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles', toDispatch: [] })
 	},
 
 	patchTitle(node) {
@@ -362,100 +362,30 @@ const methods = {
 
 	/* Find, load and select an item with a given short or full Id. Scan the full tree */
 	doFindItemOnId(id) {
-		if (store.state.resetSearchOnTitle !== null || !this.idCheck(id)) {
-			// return if pending search on title or invalid id string
+		if (!this.idCheck(id)) {
+			// return on invalid id string
 			return
 		}
 
-		const productNodes = store.state.helpersRef.getProductNodes()
-		// scan all items of the current products
-		const isShortId = id.length === SHORTKEYLENGTH
-		let nodeFound
-		store.state.helpersRef.traverseModels((nm) => {
-			if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
-				// short id or full id did match
-				nodeFound = nm
-				return false
-			}
-		}, productNodes)
-
-		if (nodeFound) {
-			// save display state of the current products
-			store.commit('saveTreeView', { productNodes, type: 'findId' })
-			// load and select the document if not already current
-			if (nodeFound._id !== store.state.currentDoc._id) {
-				// select the node after loading the document
-				store.dispatch('loadDoc', {
-					id: nodeFound._id, onSuccessCallback: () => {
-						// create reset object
-						store.state.resetSearchOnId = {
-							view: store.state.currentView,
-							savedSelectedNode: this.getLastSelectedNode,
-							nodeFound
-						}
-						if (this.isDetailsViewSelected && nodeFound.productId !== store.state.currentProductId) {
-							// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-							store.commit('switchCurrentProduct', nodeFound.productId)
-						}
-						// expand the tree view up to the found item
-						store.state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
-						store.commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
-						this.showLastEvent(`The item with full Id ${nodeFound._id} is found and selected in product '${store.state.currentProductTitle}'`, SEV.INFO)
-					}
-				})
-			}
-		} else {
-			// the node is not found in the current product selection; try to find it in the database using the short id
-			const lookUpId = isShortId ? id : id.slice(-5)
-			store.dispatch('loadItemByShortId', lookUpId)
-		}
+		if (store.state.resetSearchOnTitle !== null) {
+			// reset the search on id first
+			const toDispatch = [{ findItemOnId: { id } }]
+			store.dispatch('resetSearchInTitles', { caller: 'doFindItemOnId', toDispatch })
+		} else store.dispatch('findItemOnId', { id })
 	},
 
 	/* Find all items with the key as a substring in their title in the current product branch */
 	doSeachOnTitle() {
-		if (store.state.resetSearchOnId !== null || store.state.keyword === '') {
-			// return if pending search on Id or empty keyword
+		if (store.state.keyword === '') {
+			// return on empty keyword
 			return
 		}
 
-		const productNodes = store.state.helpersRef.getProductNodes()
-		const nodesFound = []
-		// save display state of the branch
-		store.commit('saveTreeView', { productNodes, type: 'titles' })
-		store.state.helpersRef.traverseModels((nm) => {
-			if (nm.title.toLowerCase().includes(store.state.keyword.toLowerCase())) {
-				// expand the product up to the found item and highlight it
-				store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
-				nodesFound.push(nm)
-			} else {
-				// collapse nodes with no findings in their subtree
-				if (nm.level > LEVEL.PRODUCT) {
-					if (nm.isExpanded) {
-						collapseNode(nm)
-					}
-				}
-			}
-		}, productNodes)
-
-		// create reset object
-		store.state.resetSearchOnTitle = {
-			view: store.state.currentView,
-			savedSelectedNode: this.getLastSelectedNode,
-			productNodes
-		}
-
-		const productStr = this.isOverviewSelected ? 'all products' : ` product '${store.state.currentProductTitle}'`
-		if (nodesFound.length > 0) {
-			// load and select the first node found
-			store.dispatch('loadDoc', {
-				id: nodesFound[0]._id, onSuccessCallback: () => {
-					store.commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
-					if (nodesFound.length === 1) {
-						this.showLastEvent(`One item title matches your search in ${productStr}. This item is selected`, SEV.INFO)
-					} else this.showLastEvent(`${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, SEV.INFO)
-				}
-			})
-		} else this.showLastEvent(`No item titles match your search in ${productStr}`, SEV.INFO)
+		if (store.state.resetSearchOnId !== null) {
+			// reset the search on title first
+			const toDispatch = [{ seachOnTitle: {} }]
+			store.dispatch('resetFindOnId', { caller: 'doSeachOnTitle', toDispatch })
+		} else store.dispatch('seachOnTitle')
 	},
 
 	/*

@@ -450,17 +450,108 @@ const store = createStore({
 			}
 		},
 
+		findItemOnId({ state, dispatch, commit, getters }, payload) {
+			const SHORTKEYLENGTH = 5
+			const id = payload.id
+			const productNodes = state.helpersRef.getProductNodes()
+			// scan all items of the current products
+			const isShortId = id.length === SHORTKEYLENGTH
+			let nodeFound
+			state.helpersRef.traverseModels((nm) => {
+				if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
+					// short id or full id did match
+					nodeFound = nm
+					return false
+				}
+			}, productNodes)
+
+			if (nodeFound) {
+				// save display state of the current products
+				commit('saveTreeView', { productNodes, type: 'findId' })
+				// load and select the document if not already current
+				if (nodeFound._id !== state.currentDoc._id) {
+					// select the node after loading the document
+					dispatch('loadDoc', {
+						id: nodeFound._id, onSuccessCallback: () => {
+							// create reset object
+							state.resetSearchOnId = {
+								view: state.currentView,
+								savedSelectedNode: getters.getLastSelectedNode,
+								nodeFound
+							}
+							if (getters.isDetailsViewSelected && nodeFound.productId !== state.currentProductId) {
+								// the node is found but not in the current product; collapse the currently selected product and switch to the new product
+								commit('switchCurrentProduct', nodeFound.productId)
+							}
+							// expand the tree view up to the found item
+							state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
+							commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
+							commit('addToEventList', { txt: `The item with full Id ${nodeFound._id} is found and selected in product '${state.currentProductTitle}'`, severity: SEV.INFO })
+						}
+					})
+				}
+			} else {
+				// the node is not found in the current product selection; try to find it in the database using the short id
+				const lookUpId = isShortId ? id : id.slice(-5)
+				dispatch('loadItemByShortId', lookUpId)
+			}
+		},
+
+		/* Find all items with the key as a substring in their title in the current product branch */
+		seachOnTitle({ state, dispatch, commit, getters }) {
+			const productNodes = state.helpersRef.getProductNodes()
+			const nodesFound = []
+			// save display state of the branch
+			commit('saveTreeView', { productNodes, type: 'titles' })
+			state.helpersRef.traverseModels((nm) => {
+				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
+					// expand the product up to the found item and highlight it
+					state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+					nodesFound.push(nm)
+				} else {
+					// collapse nodes with no findings in their subtree
+					if (nm.level > LEVEL.PRODUCT) {
+						if (nm.isExpanded) {
+							collapseNode(nm)
+						}
+					}
+				}
+			}, productNodes)
+
+			// create reset object
+			state.resetSearchOnTitle = {
+				view: state.currentView,
+				savedSelectedNode: getters.getLastSelectedNode,
+				productNodes
+			}
+
+			const productStr = getters.isOverviewSelected ? 'all products' : ` product '${state.currentProductTitle}'`
+			if (nodesFound.length > 0) {
+				// load and select the first node found
+				dispatch('loadDoc', {
+					id: nodesFound[0]._id, onSuccessCallback: () => {
+						commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
+						if (nodesFound.length === 1) {
+							commit('addToEventList', { txt: `One item title matches your search in ${productStr}. This item is selected`, severity: SEV.INFO })
+						} else commit('addToEventList', { txt: `${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, severity: SEV.INFO })
+					}
+				})
+			} else commit('addToEventList', { txt: `No item titles match your search in ${productStr}`, severity: SEV.INFO })
+		},
+
 		resetFindOnId({ state, dispatch, commit }, payload) {
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
 			if (!state.resetSearchOnId || !state.resetSearchOnId.nodeFound) {
 				// there is no pending search or the search did not find a node
+				state.itemId = ''
 				return
 			}
+			const toDispatch = payload.toDispatch
 			// load and select the previous selected document
 			const prevSelectedNode = state.resetSearchOnId.savedSelectedNode
 			dispatch('loadDoc', {
-				id: prevSelectedNode._id, onSuccessCallback: () => {
+				id: prevSelectedNode._id, toDispatch, onSuccessCallback: () => {
 					if (state.resetSearchOnId.view === 'detailProduct' && state.resetSearchOnId.nodeFound.productId !== prevSelectedNode.productId) {
 						// the node was found in another product
 						commit('switchCurrentProduct', prevSelectedNode.productId)
@@ -470,6 +561,7 @@ const store = createStore({
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 					state.itemId = ''
+					console.log('resetFindOnId: resetSearchOnId is set to null')
 					state.resetSearchOnId = null
 				}
 			})
@@ -480,16 +572,19 @@ const store = createStore({
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
 			if (!state.resetSearchOnTitle || !state.resetSearchOnTitle.savedSelectedNode) {
 				// there is no pending search on titles or the search did not find a node
+				state.keyword = ''
 				return
 			}
 			const prevSelectedNode = state.resetSearchOnTitle.savedSelectedNode
+			const toDispatch = payload.toDispatch
 			// load and select the previous selected document
 			dispatch('loadDoc', {
-				id: prevSelectedNode._id, onSuccessCallback: () => {
+				id: prevSelectedNode._id, toDispatch, onSuccessCallback: () => {
 					commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 					state.keyword = ''
+					console.log('resetSearchInTitles: resetSearchOnTitle is set to null')
 					state.resetSearchOnTitle = null
 				}
 			})
