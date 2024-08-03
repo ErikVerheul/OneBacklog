@@ -1053,9 +1053,12 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				docsToUpdate.push(tmpDoc)
 			}
-			const toDispatch = [{ changeTeamAsync: { newTeam: payload.newTeam }}]
+			commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks will be reassigned to team '${payload.newTeam}'`, severity: SEV.INFO })
+			const toDispatch = [{ changeTeamAsync: { newTeam: payload.newTeam } }]
 			dispatch('updateBulk', {
 				dbName: rootState.userData.currentDb, docs: docsToUpdate, caller: 'updateTasksToNewTeam', toDispatch, onSuccessCallback: () => {
+					const msg = `updateTasksToNewTeam: ${docsToUpdate.length} tasks from user '${taskOwner}' are assigned to team '${payload.newTeam}'`
+					dispatch('doLog', { event: msg, level: SEV.INFO })
 					if (rootState.currentView !== 'coarseProduct') {
 						// the overview does not load the task level
 						docsToUpdate.forEach(doc => {
@@ -1260,6 +1263,8 @@ const actions = {
 			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 			// execute passed function if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
+			// execute passed actions if provided
+			dispatch('additionalActions', payload)
 		}).catch(error => {
 			// execute passed function if provided
 			if (payload.onFailureCallback) payload.onFailureCallback()
