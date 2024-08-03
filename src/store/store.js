@@ -556,12 +556,13 @@ const store = createStore({
 						// the node was found in another product
 						commit('switchCurrentProduct', prevSelectedNode.productId)
 					} else {
-						commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
+						if (!store.resetFilter) {
+							commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
+						} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
 					}
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 					state.itemId = ''
-					console.log('resetFindOnId: resetSearchOnId is set to null')
 					state.resetSearchOnId = null
 				}
 			})
@@ -580,7 +581,9 @@ const store = createStore({
 			// load and select the previous selected document
 			dispatch('loadDoc', {
 				id: prevSelectedNode._id, toDispatch, onSuccessCallback: () => {
-					commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
+					if (!store.resetFilter) {
+						commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
+					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })	
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 					state.keyword = ''

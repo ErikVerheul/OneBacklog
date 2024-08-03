@@ -106,7 +106,7 @@ import store from '../../../store/store.js'
 const methods = {
 	/* Apply the AND logic to the included filters */
 	onApplyMyFilters() {
-		// return if a filer is already set or no filter is selected
+		// return if a filter is already set or no filter is selected
 		if (store.state.resetFilter || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
 		// save node display state; scan all products
