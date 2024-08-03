@@ -51,7 +51,7 @@ const actions = {
 		dispatch
 	}) {
 		if (rootState.online) {
-			dispatch('doLog', { event: `The authentication cookie refresh loop is started.`, level: SEV.INFO })
+			if (rootState.debugConnectionAndLogging) dispatch('doLog', { event: `The authentication cookie refresh loop is started.`, level: SEV.INFO })
 			state.runningCookieRefreshId = setInterval(() => {
 				dispatch('refreshCookie', { caller: 'refreshCookieLoop' })
 			}, COOKIE_REFRESH_INTERVAL)

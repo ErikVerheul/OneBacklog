@@ -50,9 +50,9 @@ const actions = {
 				}
 				// start listenForChanges if needed
 				if (!rootState.listenForChangesRunning) {
-					dispatch('doLog', { event: `Watchdog attemps to (re)start the listener for changes.`, level: SEV.INFO })
+					if (rootState.debugConnectionAndLogging) dispatch('doLog', { event: `Watchdog attemps to (re)start the listener for changes.`, level: SEV.INFO })
 					dispatch('listenForChanges')
-				}			
+				}
 				// save the log on every watchdog cycle
 				dispatch('saveLog')
 				consoleDebugStatus()
@@ -67,8 +67,8 @@ const actions = {
 					dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
 				} else {
 					rootState.online = false
-          // no idea if still authenticated
-          rootState.authentication.cookieAuthenticated = undefined
+					// no idea if still authenticated
+					rootState.authentication.cookieAuthenticated = undefined
 					if (!wasOffline) commit('addToEventList', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
 				}
 				consoleDebugStatus()

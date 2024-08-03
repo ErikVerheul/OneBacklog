@@ -826,7 +826,7 @@ const actions = {
 			return
 		}
 		rootState.listenForChangesRunning = true
-		if (!listenForChangesWasRunning) {
+		if (rootState.debugConnectionAndLogging && !listenForChangesWasRunning) {
 			dispatch('doLog', { event: 'sync: listenForChanges started.', level: SEV.INFO })
 		}
 		globalAxios({
