@@ -7,7 +7,7 @@
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
           <h3>v.2.2.9 - 3 August 2024 Bug fix, refactoring</h3>
-          <p>Bug fixes:</p>
+          <p>Bug fix:</p>
           <ul>
             <li>Fix feature to add a selection on id or a search in titles on top of a filtered tree</li>
           </ul>
@@ -18,7 +18,7 @@
             <li>Allow user to search on title when a selection on id is open and vice versa. The open selection/search is undone automatically</li>
             <li>Make the log list scrollable</li>
           </ul>
-          <h3>v.2.2.8 - 28 July 2024 Bug fix, refactoring</h3>
+          <h3>v.2.2.8 - 28 July 2024 Bug fixes, refactoring</h3>
           <p>Bug fixes:</p>
           <ul>
             <li>Edited comments not emailed, fixed</li>
