@@ -341,8 +341,7 @@ const methods = {
 
 	/* Creates fetchedUserData and have the prod.roles set in dbProducts */
 	doFetchUser(userName, justCheck) {
-		store.state.selectedDatabaseName = undefined
-		store.dispatch('getUserAction', { userName, justCheck })
+		store.dispatch('loadUserData', { userName, justCheck })
 	},
 
 	/*

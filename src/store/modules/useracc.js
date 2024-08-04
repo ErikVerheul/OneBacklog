@@ -16,12 +16,12 @@ const state = {
 
 const actions = {
 	/*
-	* Load the user's profile in state.fetchedUserData
+	* Load the user's profile in state.fetchedUserData and set several global variables
 	* Set the user's generic roles in state.userIsAdmin and state.userIsAPO
 	* Preset the selected database to the user's current database
 	* If justCheck === true return with rootState.isUserFound = false and no error message
 	*/
-	getUserAction({
+	loadUserData({
 		rootState,
 		state,
 		dispatch
@@ -43,7 +43,7 @@ const actions = {
 			rootState.isUserFound = true
 		}).catch(error => {
 			if (!payload.justCheck) {
-				const msg = `getUserAction: Could not find user '${payload.userName}', ${error}`
+				const msg = `loadUserData: Could not find user '${payload.userName}', ${error}`
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			}

@@ -1,4 +1,5 @@
 <template>
+  <p>store.state.selectedDatabaseName = {{ store.state.selectedDatabaseName }}</p>
   <div>
     <app-header></app-header>
     <BContainer>
@@ -186,16 +187,14 @@
                   </BCol>
                   <hr>
                   <BCol sm="12">
-                    <BButton v-if="!credentialsReady" class="m-1" @click="checkCredentials" variant="primary">Continue
-                    </BButton>
+                    <BButton v-if="!credentialsReady" class="m-1" @click="checkCredentials" variant="primary">Continue</BButton>
                     <BButton class="m-1" @click="cancel">Cancel</BButton>
                   </BCol>
                 </BRow>
               </div>
               <div v-if="credentialsReady">
                 <div v-if="store.state.areProductsFound">
-                  <h4>Creating user '{{ userName }}' with assigned products in database '{{
-                    store.state.selectedDatabaseName }}'</h4>
+                  <h4>Creating user '{{ userName }}' with assigned products in database '{{ store.state.selectedDatabaseName }}'</h4>
                   <h5 v-if="store.state.isUserRemoved">[Note that user '{{ userName }}' existed, but was removed. The old
                     assignments are loaded]</h5>
                   <h5>Make this user an 'admin'?</h5>
@@ -285,9 +284,9 @@
 
               <template v-else-if="optionSelected === 'Create / Maintain a team sprint calendar'">
                 <h4 v-if="!selectedTeamName">Maintain the team sprint calendar of a team in database '{{
-                  store.state.selectedDatabaseName }}'</h4>
+        store.state.selectedDatabaseName }}'</h4>
                 <h4 v-else>Maintain the team sprint calendar of team '{{ selectedTeamName }}' in database '{{
-                  store.state.selectedDatabaseName }}'</h4>
+        store.state.selectedDatabaseName }}'</h4>
                 <template v-if="!store.state.isTeamCalendarLoaded">
                   <BFormGroup label="Select a team">
                     <BFormRadioGroup v-model="selectedTeamName" :options="teamOptions" />
