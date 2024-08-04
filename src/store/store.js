@@ -444,7 +444,7 @@ const store = createStore({
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
 					// eslint-disable-next-line no-console
-					console.log('additionalActions: dispatching ' + name)
+					if (state.debug) console.log('additionalActions: dispatching ' + name)
 					dispatch(name, td[name])
 				}
 			}
