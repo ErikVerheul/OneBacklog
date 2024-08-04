@@ -744,7 +744,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('addToEventList', { txt: 'The item description is changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
@@ -808,7 +808,7 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('addToEventList', { txt: 'The item acceptance criteria are changed', severity: SEV.INFO })
+						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
 						const entry = {
 							node,
