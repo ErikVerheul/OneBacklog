@@ -439,7 +439,7 @@ const store = createStore({
 
 	actions: {
 		/* Launch additional actions if provided in the payload */
-		additionalActions({ dispatch }, payload) {
+		additionalActions({ state, dispatch }, payload) {
 			if (payload.toDispatch) {
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
