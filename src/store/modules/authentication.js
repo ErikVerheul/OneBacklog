@@ -17,7 +17,6 @@ const actions = {
 	/* Refresh the authentication cookie; passed functions and actions are executed when defined in the payload */
 	refreshCookie({
 		rootState,
-		commit,
 		dispatch,
 		state
 	}, payload) {
@@ -38,7 +37,6 @@ const actions = {
 				// stop the interval function and wait for the watchDog to start again
 				clearInterval(state.runningCookieRefreshId)
 				state.cookieAuthenticated = false
-				commit('addToEventList', { txt: 'Refresh of the authentication cookie failed', severity: SEV.CRITICAL })
 				dispatch('doLog', { event: `Refresh of the authentication cookie failed. ${error}`, level: SEV.CRITICAL })
 			})
 		}
