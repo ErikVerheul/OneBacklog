@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
-import { atou, expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
+import { b64ToUni, expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 import { SEV, LEVEL, MISC } from '../constants.js'
@@ -896,8 +896,8 @@ const store = createStore({
 
 			if (payload.newDoc) {
 				// decode from base64 + replace the encoded data
-				payload.newDoc.description = atou(payload.newDoc.description)
-				payload.newDoc.acceptanceCriteria = atou(payload.newDoc.acceptanceCriteria)
+				payload.newDoc.description = b64ToUni(payload.newDoc.description)
+				payload.newDoc.acceptanceCriteria = b64ToUni(payload.newDoc.acceptanceCriteria)
 				// replace the currently loaded document
 				state.currentDoc = cleanHistory(payload.newDoc)
 			}

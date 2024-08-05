@@ -1,5 +1,5 @@
 import { SEV, STATE, MISC } from '../../constants.js'
-import { utoa, createId } from '../../common_functions.js'
+import { uniTob64, createId } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
 
@@ -157,8 +157,8 @@ const methods = {
 			conditionalFor: [],
 			title: newNode.title,
 			followers: [],
-			description: utoa(currentDoc.description),
-			acceptanceCriteria: utoa(currentDoc.acceptanceCriteria),
+			description: uniTob64(currentDoc.description),
+			acceptanceCriteria: uniTob64(currentDoc.acceptanceCriteria),
 			priority: newNode.data.priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
@@ -267,8 +267,8 @@ const methods = {
 				conditionalFor: [],
 				title: newNode.title,
 				followers: newNode.data.followers,
-				description: utoa(''),
-				acceptanceCriteria: newNode.level < this.TASKLEVEL ? utoa('<p>Please do not neglect</p>') : utoa('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				description: uniTob64(''),
+				acceptanceCriteria: newNode.level < this.TASKLEVEL ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
 				comments: [{
 					ignoreEvent: 'comments initiated',

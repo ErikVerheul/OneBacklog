@@ -1,5 +1,5 @@
 import { SEV, STATE, LEVEL } from '../../constants.js'
-import { utoa, atou } from '../../common_functions.js'
+import { uniTob64, b64ToUni } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -720,9 +720,9 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			// decode from base64
-			const oldDescription = atou(tmpDoc.description)
+			const oldDescription = b64ToUni(tmpDoc.description)
 			// encode to base64
-			const newEncodedDescription = utoa(payload.newDescription)
+			const newEncodedDescription = uniTob64(payload.newDescription)
 			const newHist = {
 				descriptionEvent: [tmpDoc.description, newEncodedDescription],
 				by: rootState.userData.user,
@@ -784,9 +784,9 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			// decode from base64
-			const oldAcceptance = atou(tmpDoc.acceptanceCriteria)
+			const oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
 			// encode to base64
-			const newEncodedAcceptance = utoa(payload.newAcceptance)
+			const newEncodedAcceptance = uniTob64(payload.newAcceptance)
 			const newHist = {
 				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 				by: rootState.userData.user,
@@ -847,7 +847,7 @@ const actions = {
 		}).then((res) => {
 			const tmpDoc = res.data
 			const newComment = {
-				addCommentEvent: [utoa(payload.comment)],
+				addCommentEvent: [uniTob64(payload.comment)],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
@@ -857,7 +857,7 @@ const actions = {
 			tmpDoc.lastChange = payload.timestamp
 
 			const newHist = {
-				addCommentEvent: [utoa(payload.comment)],
+				addCommentEvent: [uniTob64(payload.comment)],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
@@ -897,7 +897,7 @@ const actions = {
 			for (let i = 0; i < tmpDoc.comments.length; i++) {
 				const uneditedCommentObj = tmpDoc.comments[i]
 				if (Object.keys(uneditedCommentObj)[0] === 'addCommentEvent' && uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
-					tmpDoc.comments[i].addCommentEvent = [utoa(payload.editedCommentText)]
+					tmpDoc.comments[i].addCommentEvent = [uniTob64(payload.editedCommentText)]
 					tmpDoc.comments[i].timestamp = Date.now()
 					couldReplace = true
 					break
@@ -905,7 +905,7 @@ const actions = {
 			}
 			if (couldReplace) {
 				const newHist = {
-					replaceCommentEvent: [utoa(payload.editedCommentText)],
+					replaceCommentEvent: [uniTob64(payload.editedCommentText)],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					timestamp: Date.now(),
@@ -954,7 +954,7 @@ const actions = {
 				if (Object.keys(tmpDoc.history[i])[0] === 'commentToHistoryEvent') {
 					const uneditedCommentObj = tmpDoc.history[i]
 					if (uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
-						tmpDoc.history[i].commentToHistoryEvent = [utoa(payload.editedCommentText)]
+						tmpDoc.history[i].commentToHistoryEvent = [uniTob64(payload.editedCommentText)]
 						tmpDoc.history[i].timestamp = Date.now()
 						couldReplace = true
 						break
@@ -998,7 +998,7 @@ const actions = {
 		}).then(res => {
 			const tmpDoc = res.data
 			const newHist = {
-				commentToHistoryEvent: [utoa(payload.comment)],
+				commentToHistoryEvent: [uniTob64(payload.comment)],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),

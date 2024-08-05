@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { atou, getLocationInfo } from '../../common_functions.js'
+import { b64ToUni, getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -243,7 +243,7 @@ const actions = {
 								}
 								break
 							case 'descriptionEvent':
-								commit('updateNodesAndCurrentDoc', { node, description: atou(doc.description), lastContentChange: doc.lastContentChange })
+								commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
 								showSyncMessage(`changed the description of`, SEV.INFO)
 								break
 							case 'nodeMovedEvent':
@@ -279,7 +279,7 @@ const actions = {
 						// process events for non requirement area items
 						switch (histEvent) {
 							case 'acceptanceEvent':
-								commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: atou(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
+								commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
 								showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
 								break
 							case 'addSprintIdsEvent':
@@ -312,7 +312,7 @@ const actions = {
 								showSyncMessage(`removed a condition for`, SEV.INFO)
 								break
 							case 'descriptionEvent':
-								commit('updateNodesAndCurrentDoc', { node, description: atou(doc.description), lastContentChange: doc.lastContentChange })
+								commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
 								showSyncMessage(`changed the description of`, SEV.INFO)
 								break
 							case 'itemToNewTeamEvent':

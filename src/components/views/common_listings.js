@@ -1,5 +1,5 @@
 import { utilities } from '../mixins/generic.js'
-import { atou } from '../../common_functions.js'
+import { b64ToUni } from '../../common_functions.js'
 import store from '../../store/store.js'
 
 
@@ -203,7 +203,7 @@ const methods = {
 
   /* Presentation methods */
   mkAcceptanceEvent(value) {
-    return '<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1]))
+    return '<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(b64ToUni(value[0])) + '<hr>' + replaceEmpty(b64ToUni(value[1]))
   },
 
   mkAddSprintIdsEvent(value) {
@@ -221,7 +221,7 @@ const methods = {
   },
 
   mkCommentToHistoryEvent(value) {
-    return replaceEmpty(atou(value[0]))
+    return replaceEmpty(b64ToUni(value[0]))
   },
 
   mkConditionRemovedEvent(value) {
@@ -249,7 +249,7 @@ const methods = {
   },
 
   mkDescriptionEvent(value) {
-    return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(atou(value[0])) + '<hr>' + replaceEmpty(atou(value[1]))
+    return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(b64ToUni(value[0])) + '<hr>' + replaceEmpty(b64ToUni(value[1]))
   },
 
   mkImportToSprintEvent(value) {
@@ -369,7 +369,7 @@ const methods = {
   },
 
   mkComment(value) {
-    return replaceEmpty(atou(value[0]))
+    return replaceEmpty(b64ToUni(value[0]))
   },
 
   mkResetCommentsEvent(value) {
@@ -413,13 +413,13 @@ const methods = {
 
   startEditMyComment(comment) {
     this.commentObjToBeReplaced = comment
-    this.myLastCommentText = atou(this.getEventValue(comment))
+    this.myLastCommentText = b64ToUni(this.getEventValue(comment))
     this.editMyComment = true
   },
 
   startEditMyHistComment(comment) {
     this.commentObjToBeReplaced = comment
-    this.myLastHistCommentText = atou(this.getEventValue(comment))
+    this.myLastHistCommentText = b64ToUni(this.getEventValue(comment))
     this.editMyHistComment = true
   },
 

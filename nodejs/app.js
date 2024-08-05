@@ -32,12 +32,12 @@ function bytesToBase64(bytes) {
 }
 
 // convert unicode string to base64 encoded ascii
-function utoa(str) {
+function uniTob64(str) {
 	return bytesToBase64(new TextEncoder().encode(str))
 }
 
 // convert base64 encoded ascii to unicode string
-function atou(bytes) {
+function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
@@ -98,9 +98,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
 	}
 	switch (eventType) {
 		case "acceptanceEvent":
-			return mkHeader() + `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(atou(value[0]))}</p> to <p>${replaceEmpty(atou(value[1]))}</p>` + mkFooter()
+			return mkHeader() + `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>` + mkFooter()
 		case "addCommentEvent":
-			return mkHeader() + `<h3>The user added a comment:</h3><p>${replaceEmpty(atou(value[0]))}</p>` + mkFooter()
+			return mkHeader() + `<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>` + mkFooter()
 		case "addSprintIdsEvent":
 			{
 				let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
@@ -110,7 +110,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		case "cloneEvent":
 			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} has been cloned as item of product '${value[2]}'.</h3>` + mkFooter()
 		case "commentToHistoryEvent":
-			return mkHeader() + `<h3>The user added comment:</h3><p>${replaceEmpty(atou(value[0]))}</p><h3>to the history of this item</h3>` + mkFooter()
+			return mkHeader() + `<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>` + mkFooter()
 		case "conditionRemovedEvent":
 			{
 				let s
@@ -128,7 +128,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				return mkHeader() + `<h3>${s}</h3>` + + mkFooter()
 			}
 		case "descriptionEvent":
-			return mkHeader() + `<h3>The description changed from:</h3><p>${replaceEmpty(atou(value[0]))}</p> to <p>${replaceEmpty(atou(value[1]))}</p>` + mkFooter()
+			return mkHeader() + `<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>` + mkFooter()
 		case "undoBranchRemovalEvent":
 			return mkHeader() + `<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h3>` + mkFooter()
 		case "newChildEvent":
@@ -157,7 +157,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		case "removeStoryEvent":
 			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
 		case "replaceCommentEvent":
-			return mkHeader() + `<h3>The user changed his last comment:</h3><p>${replaceEmpty(atou(value[0]))}</p>` + mkFooter()
+			return mkHeader() + `<h3>The user changed his last comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>` + mkFooter()
 		case "setConditionEvent":
 			if (value[2]) return mkHeader() + `<h3>The previous condition set for item '${value[1]} is undone'.</h3>` + mkFooter()
 			return mkHeader() + `<h3>This item is set to be conditional for item '${value[1]}'.</h3>` + mkFooter()

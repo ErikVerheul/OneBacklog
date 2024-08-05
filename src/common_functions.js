@@ -20,12 +20,12 @@ function bytesToBase64(bytes) {
 }
 
 // convert unicode string to base64 encoded ascii
-export function utoa(str) {
+export function uniTob64(str) {
 	return bytesToBase64(new TextEncoder().encode(str))
 }
 
 // convert base64 encoded ascii to unicode string
-export function atou(bytes) {
+export function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
@@ -185,4 +185,4 @@ export function isValidEmail(email) {
 	return re.test(email)
 }
 
-export default { utoa, atou, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }
+export default { uniTob64, b64ToUni, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }
