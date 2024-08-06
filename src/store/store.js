@@ -62,7 +62,7 @@ function createEventToDisplay(payload) {
 			color = '#ff5c33'
 	}
 	let tip = ''
-	if (payload.severity > SEV.INFO) tip = ' CLICK to resume'
+	if (payload.severity > SEV.INFO) tip = ' CLICK to unlock'
 	const newEvent = {
 		eventKey: payload.eventKey,
 		time: `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`,

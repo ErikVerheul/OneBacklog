@@ -6,6 +6,16 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.10 - 6 August 2024 Bug fix, refactoring</h3>
+          <p>Bug fix:</p>
+          <ul>
+            <li>Default database name not set when creating a new user, fixed</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Changing description and acceptance criteria refactored</li>
+            <li>Use unicode to base64 everywhere</li>
+          </ul>
           <h3>v.2.2.9 - 3 August 2024 Bug fix, refactoring</h3>
           <p>Bug fix:</p>
           <ul>

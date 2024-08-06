@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "onebacklog",
-  "version": "2.2.9",
+  "version": "2.2.10",
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -25,11 +25,11 @@
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.3",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.24.2",
+    "bootstrap-vue-next": "^0.24.3",
     "mitt": "^3.0.1",
-    "vue": "^3.4.35",
+    "vue": "^3.4.36",
     "vue-draggable-next": "^2.2.1",
-    "vue-router": "^4.4.2",
+    "vue-router": "^4.4.3",
     "vuex": "^4.1.0"
   },
   "overrides": {
