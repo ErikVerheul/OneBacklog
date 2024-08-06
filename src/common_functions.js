@@ -29,6 +29,11 @@ export function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
+export function areStringsEqual(str1, str2) {
+	const retVal = str1.localeCompare(str2)
+	return retVal === 0
+}
+
 //////////////// expand, collapse and show or hide the children of the node ////////////
 export function showNode(node) {
 	if (node) {
@@ -185,4 +190,4 @@ export function isValidEmail(email) {
 	return re.test(email)
 }
 
-export default { uniTob64, b64ToUni, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }
+export default { uniTob64, b64ToUni, areStringsEqual, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }

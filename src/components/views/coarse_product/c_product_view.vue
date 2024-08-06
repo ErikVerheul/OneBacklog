@@ -60,7 +60,7 @@
               <h3 align="right">State:</h3>
             </BCol>
             <BCol cols="1">
-              <h3 align="right">  
+              <h3 align="right">
                 <BDropdown right :text=getItemStateText(store.state.currentDoc.state)>
                   <BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
                   <BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
@@ -204,7 +204,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription" @blur="updateDescription()"></QuillEditor>
+            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription" @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
@@ -214,7 +214,7 @@
               </div>
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance" @blur="updateAcceptance()"></QuillEditor>
+              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance" @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
@@ -230,8 +230,8 @@
               <div class="d-table-cell tar">
                 <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
                   @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-                  <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
-                  <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
+                <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
+                <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
               </div>
             </div>
           </div>

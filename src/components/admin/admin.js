@@ -1,5 +1,5 @@
 import { STATE, LEVEL } from '../../constants.js'
-import { createId } from '../../common_functions.js'
+import { uniTob64, createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 import store from '../../store/store.js'
 
@@ -81,8 +81,8 @@ const methods = {
 			reqarea: null,
 			title: this.productTitle,
 			followers: [],
-			description: window.btoa(''),
-			acceptanceCriteria: window.btoa('<p>Please do not neglect</p>'),
+			description: uniTob64('<p><br></p>'),
+			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
 			priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',

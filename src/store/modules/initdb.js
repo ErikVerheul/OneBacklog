@@ -1,5 +1,5 @@
 import { LEVEL, MISC } from '../../constants.js'
-import { createId } from '../../common_functions.js'
+import { uniTob64, createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -499,8 +499,8 @@ const actions = {
 			title: 'The root of all products in this database',
 			team: 'n/a',
 			followers: [],
-			description: window.btoa('<p>Database root document</p>'),
-			acceptanceCriteria: window.btoa('<p>not applicable</p>'),
+			description: uniTob64('<p>Database root document</p>'),
+			acceptanceCriteria: uniTob64('<p>not applicable</p>'),
 			priority: 0,
 			comments: [{
 				ignoreEvent: 'comments initiated',
@@ -579,8 +579,8 @@ const actions = {
 			spikepersonhours: 0,
 			title: 'REQUIREMENT AREAS',
 			followers: [],
-			description: window.btoa('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
-			acceptanceCriteria: window.btoa('<p>n/a</p>'),
+			description: uniTob64('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
+			acceptanceCriteria: uniTob64('<p>n/a</p>'),
 			// do not set a priority, must be null
 			comments: [{
 				ignoreEvent: 'comments initiated',
@@ -625,8 +625,8 @@ const actions = {
 			reqarea: null,
 			title,
 			followers: [],
-			description: window.btoa(''),
-			acceptanceCriteria: window.btoa('<p>Please do not neglect</p>'),
+			description: uniTob64('<p><br></p>'),
+			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
 			priority: 0,
 			comments: [{
 				ignoreEvent: 'comments initiated',

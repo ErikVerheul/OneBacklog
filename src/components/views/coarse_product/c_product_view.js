@@ -103,25 +103,24 @@ const methods = {
 
 	/* Event handling */
 	onNodesSelected(fromContextMenu) {
-		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		if (this.isDescriptionEdited) this.updateDescription(this.getPreviousNodeSelected)
-		if (this.isAcceptanceEdited) this.updateAcceptance(this.getPreviousNodeSelected)
-		// load the document
-		store.dispatch('loadDoc', {
-			id: this.getLastSelectedNode._id,
-			onSuccessCallback: () => {
-				// preset the req area color if available
-				this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
-				// if the user clicked on a node of another product (not root)
-				if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
-					// update current productId and title
-					store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-				}
-				if (this.getLastSelectedNode._id !== 'requirement-areas') {
-					if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
-				} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
+		const onSuccessCallback = () => {
+			// preset the req area color if available
+			this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
+			// if the user clicked on a node of another product (not root)
+			if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
+				// update current productId and title
+				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
 			}
-		})
+			if (this.getLastSelectedNode._id !== 'requirement-areas') {
+				if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
+		}
+
+		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
+		if (this.isDescriptionEdited) { this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
+			if (this.isAcceptanceEdited) { this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
+				// load the selected document
+				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */

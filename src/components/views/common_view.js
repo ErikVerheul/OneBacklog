@@ -1,5 +1,5 @@
 import { SEV, LEVEL, STATE } from '../../constants.js'
-import { collapseNode } from '../../common_functions.js'
+import { areStringsEqual } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
 
@@ -14,10 +14,8 @@ function data() {
 		spikeSubtype: 1,
 		defectSubtype: 2,
 		docToUpdate: null,
-		newDescription: "<p></p>",
-		newAcceptance: "<p></p>",
-		isDescriptionEdited: false,
-		isAcceptanceEdited: false,
+		newDescription: "<p><br></p>",
+		newAcceptance: "<p><br></p>",
 		editorToolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 			['bold', 'italic', 'underline', 'strike'],
@@ -30,11 +28,13 @@ function data() {
 		// comments, history and attachments
 		doAddition: false,
 		startFiltering: false,
+		isDescriptionEdited: false,
+		isAcceptanceEdited: false,
 		isCommentsFilterActive: false,
 		isHistoryFilterActive: false,
-		newComment: "<p></p>",
+		newComment: "<p><br></p>",
 		fileInfo: null,
-		newHistory: "<p></p>",
+		newHistory: "<p><br></p>",
 		filterForCommentPrep: '',
 		filterForHistoryPrep: '',
 		// move data
@@ -143,7 +143,7 @@ const computed = {
 			let retVal = store.state.currentDoc.description
 			if (retVal === "") {
 				// correct empty field
-				retVal = "<p></p>"
+				retVal = "<p><br></p>"
 			}
 			return retVal
 		},
@@ -157,7 +157,7 @@ const computed = {
 			let retVal = store.state.currentDoc.acceptanceCriteria
 			if (retVal === "") {
 				// correct empty field
-				retVal = "<p></p>"
+				retVal = "<p><br></p>"
 			}
 			return retVal
 		},
@@ -182,14 +182,14 @@ const watch = {
 			}
 			if (store.state.selectedForView === 'comments') {
 				if (this.canCreateComments) {
-					this.newComment = "<p></p>"
+					this.newComment = "<p><br></p>"
 					this.$refs.commentsEditorRef.show()
 				} else {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
 			if (store.state.selectedForView === 'history') {
-				this.newHistory = "<p></p>"
+				this.newHistory = "<p><br></p>"
 				this.$refs.historyEditorRef.show()
 			}
 		}
@@ -552,32 +552,46 @@ const methods = {
 	},
 
 	/* Tree and database update methods */
-	updateDescription(node = this.getLastSelectedNode) {
-		if (this.isDescriptionEdited && (store.state.currentDoc.description !== this.newDescription)) {
-			// update skipped when not changed
+	updateDescription(payload) {
+		// node is either the current node (descripton changed and a click outside description and not on a node) or
+		// the previous selected node (description changed and clicked on a node)
+		const node = payload.node
+		if (areStringsEqual(store.state.currentDoc.description, this.newDescription)) {
+			// update skipped when not changed; load the doc of last clicked node
 			this.isDescriptionEdited = false
+			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
+		} else {
+			const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 				store.dispatch('saveDescription', {
 					node,
 					newDescription: this.newDescription,
-					timestamp: Date.now()
+					timestamp: Date.now(),
+					toDispatch
 				})
-			}
+			} else this.isDescriptionEdited = false
 		}
 	},
 
-	updateAcceptance(node = this.getLastSelectedNode) {
+	updateAcceptance(payload) {
+		// node is either the current node (descripton changed and a click outside description and not on a node) or
+		// the previous selected node (description changed and clicked on a node)
+		const node = payload.node
 		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
-			if (this.isAcceptanceEdited && (store.state.currentDoc.acceptanceCriteria !== this.newAcceptance)) {
-				// update skipped when not changed
+			if (areStringsEqual(store.state.currentDoc.acceptanceCriteria, this.newAcceptance)) {
+				// update skipped when not changed; load the doc of last clicked node
 				this.isAcceptanceEdited = false
+				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
+			} else {
+				const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
 				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 					store.dispatch('saveAcceptance', {
 						node,
 						newAcceptance: this.newAcceptance,
-						timestamp: Date.now()
+						timestamp: Date.now(),
+						toDispatch
 					})
-				}
+				} else this.isAcceptanceEdited = false
 			}
 		}
 	},

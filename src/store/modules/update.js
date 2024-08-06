@@ -735,32 +735,37 @@ const actions = {
 			const prevLastContentChange = tmpDoc.lastContentChange || 0
 			tmpDoc.lastContentChange = payload.timestamp
 			tmpDoc.lastChange = payload.timestamp
-
 			tmpDoc.description = newEncodedDescription
+			
+			const onSuccessCallback = () => {
+				rootState.isDescriptionEdited = false
+				commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
+				if (!payload.isUndoAction || payload.isUndoAction === undefined) {
+					commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
+					// create an entry for undoing the change in a last-in first-out sequence
+					const entry = {
+						node,
+						type: 'undoDescriptionChange',
+						oldDescription,
+						prevLastContentChange
+					}
+					rootState.changeHistory.unshift(entry)
+				} else {
+					commit('addToEventList', { txt: 'Change of the item description is undone', severity: SEV.INFO })
+					rootState.busyWithLastUndo = false
+				}
+			}
+
+			const onFailureCallback = () => {
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
+			}
+
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: tmpDoc,
 				caller: 'saveDescription',
-				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
-					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
-						// create an entry for undoing the change in a last-in first-out sequence
-						const entry = {
-							node,
-							type: 'undoDescriptionChange',
-							oldDescription,
-							prevLastContentChange
-						}
-						rootState.changeHistory.unshift(entry)
-					} else {
-						commit('addToEventList', { txt: 'Change of the item description is undone', severity: SEV.INFO })
-						rootState.busyWithLastUndo = false
-					}
-				},
-				onFailureCallback: () => {
-					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				},
+				onSuccessCallback,
+				onFailureCallback,
 				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
@@ -799,32 +804,37 @@ const actions = {
 			const prevLastContentChange = tmpDoc.lastContentChange || 0
 			tmpDoc.lastContentChange = payload.timestamp
 			tmpDoc.lastChange = payload.timestamp
-
 			tmpDoc.acceptanceCriteria = newEncodedAcceptance
+
+			const onSuccessCallback = () => {
+				rootState.isAcceptanceEdited = false
+				commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
+				if (!payload.isUndoAction || payload.isUndoAction === undefined) {
+					commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
+					// create an entry for undoing the change in a last-in first-out sequence
+					const entry = {
+						node,
+						type: 'undoAcceptanceChange',
+						oldAcceptance,
+						prevLastContentChange
+					}
+					rootState.changeHistory.unshift(entry)
+				} else {
+					commit('addToEventList', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
+					rootState.busyWithLastUndo = false
+				}
+			}
+
+			const onFailureCallback = () => {
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
+			}
+
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
 				updatedDoc: tmpDoc,
 				caller: 'saveAcceptance',
-				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
-					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
-						// create an entry for undoing the change in a last-in first-out sequence
-						const entry = {
-							node,
-							type: 'undoAcceptanceChange',
-							oldAcceptance,
-							prevLastContentChange
-						}
-						rootState.changeHistory.unshift(entry)
-					} else {
-						commit('addToEventList', { txt: 'Change of the item acceptance criteria is undone', severity: SEV.INFO })
-						rootState.busyWithLastUndo = false
-					}
-				},
-				onFailureCallback: () => {
-					if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				},
+				onSuccessCallback,
+				onFailureCallback,			
 				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
@@ -1076,6 +1086,7 @@ const actions = {
 
 	/*
 	* Create or update an existing document by creating a new revision.
+	* Must call loadDoc on success to update the current doc visable to the user.
 	* Executes a onSuccessCallback and onFailureCallback if provided in the payload.
 	*/
 	updateDoc({

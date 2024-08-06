@@ -91,8 +91,8 @@ function data() {
     editMyComment: false,
     editMyHistComment: false,
     commentObjToBeReplaced: {},
-    myLastCommentText: "<p></p>",
-    myLastHistCommentText: "<p></p>"
+    myLastCommentText: "<p><br></p>",
+    myLastHistCommentText: "<p><br></p>"
   }
 }
 
