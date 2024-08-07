@@ -80,10 +80,10 @@ const computed = {
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
       if (event === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[event])
-      if (event === 'cloneEvent') allText += this.mkCloneEvent(histItem[event])
+      if (event === 'copyItemEvent') allText += this.mkCopyItemEvent(histItem[event])
       if (event === 'commentToHistoryEvent') allText += removeImages(this.mkCommentToHistoryEvent(histItem[event]))
       if (event === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[event])
-      if (event === 'createEvent') allText += this.mkCreateEvent(histItem[event])
+      if (event === 'createItemEvent') allText += this.mkCreateItemEvent(histItem[event])
       if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])
       if (event === 'createRootEvent') allText += this.mkCreateRootEvent(histItem[event])
       if (event === 'dependencyRemovedEvent') allText += this.mkDependencyRemovedEvent(histItem[event])
@@ -155,10 +155,10 @@ const methods = {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
     if (key === 'addSprintIdsEvent') return this.mkAddSprintIdsEvent(value)
     if (key === 'clonedBranchEvent') return this.mkClonedBranchEvent(value)
-    if (key === 'cloneEvent') return this.mkCloneEvent(value)
     if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
-    if (key === 'createEvent') return this.mkCreateEvent(value)
+    if (key === 'copyItemEvent') return this.mkCopyItemEvent(value)
+    if (key === 'createItemEvent') return this.mkCreateItemEvent(value)
     if (key === 'createRootEvent') return this.mkCreateRootEvent(value)
     if (key === 'createTaskEvent') return this.mkCreateTaskEvent(value)
     if (key === 'dependencyRemovedEvent') return this.mkDependencyRemovedEvent(value)
@@ -216,10 +216,6 @@ const methods = {
     return `<h6>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h6>`
   },
 
-  mkCloneEvent(value) {
-    return `<h6>This ${this.getLevelText(value[0], value[1])} has been cloned as item of product '${value[2]}'.</h6>`
-  },
-
   mkCommentToHistoryEvent(value) {
     return replaceEmpty(b64ToUni(value[0]))
   },
@@ -230,7 +226,11 @@ const methods = {
     return `<h6>${s}</h6>`
   },
 
-  mkCreateEvent(value) {
+  mkCopyItemEvent(value) {
+    return `<h6>This ${this.getLevelText(value[0], value[1])} has been copied as item of product '${value[2]}'.</h6>`
+  },
+
+  mkCreateItemEvent(value) {
     return `<h6>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h6>`
   },
 

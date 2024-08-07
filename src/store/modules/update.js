@@ -185,6 +185,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -247,6 +248,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards
 			}
@@ -311,6 +313,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards
 			}
@@ -384,6 +387,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards
 			}
@@ -476,6 +480,7 @@ const actions = {
 					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
+					doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 					distributeEvent: true,
 					updateBoards
 				}
@@ -603,6 +608,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards
 			}
@@ -666,6 +672,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards
 			}
@@ -729,6 +736,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -798,6 +806,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -844,6 +853,7 @@ const actions = {
 		})
 	},
 
+	/* Comments are added to the comments array of the doc */
 	addComment({
 		rootState,
 		commit,
@@ -856,25 +866,25 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id
 		}).then((res) => {
 			const tmpDoc = res.data
+			const newHist = {
+				ignoreEvent: ['A new comment was added'],
+				timestamp: Date.now(),
+				distributeEvent: false
+			}
+			tmpDoc.history.unshift(newHist)
+			tmpDoc.lastCommentAddition = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
+
 			const newComment = {
 				addCommentEvent: [uniTob64(payload.comment)],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
-			}
-			tmpDoc.history.unshift(newComment)
-			tmpDoc.lastCommentAddition = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
-
-			const newHist = {
-				addCommentEvent: [uniTob64(payload.comment)],
-				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true
 			}
-			tmpDoc.comments.unshift(newHist)
+			tmpDoc.comments.unshift(newComment)
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -920,6 +930,7 @@ const actions = {
 					email: rootState.userData.email,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
+					doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 					distributeEvent: true
 				}
 				tmpDoc.history.unshift(newHist)
@@ -1013,6 +1024,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -1215,6 +1227,7 @@ const actions = {
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: false
 			}
 			parentDoc.lastChange = Date.now()
@@ -1284,7 +1297,7 @@ const actions = {
 		})
 	},
 
-	/* Send a message to to other users online with access to the current product */
+	/* Send a message to other users online with access to the current product */
 	sendMessageAsync({
 		rootState,
 		dispatch

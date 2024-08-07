@@ -635,7 +635,7 @@ const actions = {
 			}],
 			// do not distribute this event; other users have no access rights yet
 			history: [{
-				createEvent: [LEVEL.PRODUCT, 'root', 1],
+				createItemEvent: [LEVEL.PRODUCT, 'root', 1],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
 				timestamp: Date.now(),

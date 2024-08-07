@@ -90,7 +90,7 @@ const actions = {
 		const position = rootGetters.getMyProductsCount + 1
 		// do not distribute this event; other users have no access rights yet
 		product.history = [{
-			createEvent: [LEVEL.PRODUCT, payload.dbName, position],
+			createItemEvent: [LEVEL.PRODUCT, payload.dbName, position],
 			by: rootState.userData.user,
 			email: rootState.userData.email,
 			timestamp: Date.now(),

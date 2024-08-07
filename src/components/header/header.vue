@@ -204,7 +204,7 @@
     <!-- when userData not initialized do not show the options -->
     <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
-      <BFormCheckbox v-model="store.state.userData.myOptions.proUser" value='true' unchecked-value='false'>
+      <BFormCheckbox v-model="store.state.userData.myOptions.proUser" value="true" unchecked-value="false">
         Use the professional mode of this app
       </BFormCheckbox>
 
@@ -216,6 +216,9 @@
       <h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants" unchecked-value="do_not_subscribe_descendants">
         Also subscribe to the change notices of all descendants of the selected item
+      </BFormCheckbox>
+      <BFormCheckbox v-model="store.state.userData.myOptions.doNotMessageMyself" value="true" unchecked-value="false">
+        Do not send change notices to myself
       </BFormCheckbox>
 
       <h5 class="spacer">For the Planning board</h5>

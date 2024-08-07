@@ -1,10 +1,10 @@
 'use strict'
 import Dotenv from 'dotenv'
 new Dotenv.config()
-const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "cloneEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent",
-	"removedWithDescendantsEvent", "replaceCommentEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
-	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "removeStoryEvent", "setTitleEvent", "uploadAttachmentEvent"]
+const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "commentToHistoryEvent", "conditionRemovedEvent",
+	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent",
+	"removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
+	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "taskRemovedEvent", "uploadAttachmentEvent", "updateTaskOwnerEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 import Mailgun from 'mailgun-js'
@@ -81,7 +81,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
             <h3>'${doc.title}'</h3>`
 	}
 	function mkFooter() {
-		return `<p>This mutation occurred in database ${dbName} and document with id ${doc._id}</p></html>`
+		return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p></html>`
 	}
 	function cText(condition, text) {
 		if (condition) return text
@@ -107,8 +107,12 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				if (value[3]) txt += ` The item was assigned to a sprint before.`
 				return mkHeader() + `<h3>${txt}</h3>` + mkFooter()
 			}
-		case "cloneEvent":
-			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} has been cloned as item of product '${value[2]}'.</h3>` + mkFooter()
+		case "createItemEvent":
+			return mkHeader() + `<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h3>` + mkFooter()
+		case "createTaskEvent":
+			return mkHeader() + `<h3>This task was created under parent '${value[0]}'.</h3>` + mkFooter()
+		case "copyItemEvent":
+			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'.</h3>` + mkFooter()
 		case "commentToHistoryEvent":
 			return mkHeader() + `<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>` + mkFooter()
 		case "conditionRemovedEvent":
@@ -151,6 +155,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			}
 		case "removeAttachmentEvent":
 			return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
+		case "removeSprintIdsEvent":
+			return mkHeader() + `<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h3>` + mkFooter()
 		case "removedWithDescendantsEvent":
 			return mkHeader() + `<h3>This item and ${value[1] - 1} descendants are removed.</h3>
           <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>` + mkFooter()
@@ -180,8 +186,12 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				cText(value[2] > 0, `<h3>Also ${value[2]} descendants of this item are assigned to this team</h3>`) + mkFooter()
 		case "setTitleEvent":
 			return mkHeader() + `<h3>The item title changed from: </h3><h3>'${value[0]}' to <br>'${value[1]}'</h3>` + mkFooter()
+		case "taskRemovedEvent":
+			return mkHeader() + `<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>` + mkFooter()
 		case "uploadAttachmentEvent":
 			return mkHeader() + `<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>` + mkFooter()
+		case "updateTaskOwnerEvent":
+			return mkHeader() + `<h3>Task owner is changed from '${value[0]}' to '${value[1]}` + mkFooter()
 		default:
 			return "unknown event type"
 	}
@@ -197,6 +207,8 @@ function listenForChanges(dbName) {
 				// process new event in history; comment additions and changes are included
 				for (let f of doc.followers) {
 					const event = doc.history[0]
+					if (event.doNotMessageMyself && f === event.by) continue
+
 					const eventType = Object.keys(event)[0]
 					if (interestingHistoryEvents.includes(eventType)) {
 						const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }

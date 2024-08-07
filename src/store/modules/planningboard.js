@@ -806,6 +806,7 @@ const actions = {
 						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
+						doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -899,6 +900,7 @@ const actions = {
 						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
+						doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -1026,6 +1028,7 @@ const actions = {
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
+					doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 					updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 				}]
 			}
@@ -1106,6 +1109,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [removedSprintId], teamsAffected: [storyDoc.team] }
 			}
@@ -1247,6 +1251,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [payload.teamName] }
 			}
@@ -1339,6 +1344,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
+				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 			}

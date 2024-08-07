@@ -190,7 +190,7 @@ const actions = {
 				doBlinck(doc)
 				const node = rootState.helpersRef.getNodeById(doc._id)
 				// check for exception 'node not found'; skip the check for events that do not map to a node
-				if (node === null && !(histEvent === 'createEvent' || histEvent === 'createTaskEvent' ||
+				if (node === null && !(histEvent === 'createItemEvent' || histEvent === 'createTaskEvent' ||
 					histEvent === 'changeReqAreaColorEvent' || histEvent === 'teamChangeEvent')) {
 					showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 					dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
@@ -236,7 +236,7 @@ const actions = {
 								commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
 								showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 								break
-							case 'createEvent':
+							case 'createItemEvent':
 								if (node === null) {
 									createNewNode(doc)
 									showSyncMessage(`created`, SEV.INFO)
@@ -300,7 +300,7 @@ const actions = {
 								commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
 								showSyncMessage(`removed condition`, SEV.INFO)
 								break
-							case 'createEvent':
+							case 'createItemEvent':
 							case 'createTaskEvent':
 								if (node === null) {
 									createNewNode(doc)
@@ -530,7 +530,7 @@ const actions = {
 								}
 							}
 							break
-						case 'createEvent':
+						case 'createItemEvent':
 						case 'createTaskEvent':
 							if (doc.level === LEVEL.PBI) {
 								// a new story is created on another user's product details view
