@@ -75,6 +75,55 @@ function getTsSize(dbName, idx) {
 	return configData[dbName].tsSize[idx]
 }
 
+function createEmail(content) {
+return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Responsive Email Template</title>
+		<style>
+			@media screen and (max-width: 600px) {
+				.content {
+						width: 100% !important;
+						display: block !important;
+						padding: 10px !important;
+				}
+				.header, .body, .footer {
+						padding: 20px !important;
+				}
+			}
+		</style>
+</head>
+<body style="font-family: 'Poppins', Arial, sans-serif">
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td align="center" style="padding: 20px;">
+                <table class="content" width="600" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: 1px solid #cccccc;">
+                    <tr>
+                        <td class="header" style="background-color: #345C72; padding: 40px; text-align: center; color: white; font-size: 24px;">
+                        ${mkHeader()}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="body" style="padding: 40px; text-align: left; font-size: 16px; line-height: 1.6;">
+                        		${content}            
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="footer" style="background-color: #333333; padding: 40px; text-align: center; color: white; font-size: 14px;">
+                        ${mkFooter()} 
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>`
+}
+
 function mkHtml(dbName, eventType, value, event, doc) {
 	function mkHeader() {
 		return `<html><p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
@@ -98,7 +147,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 	}
 	switch (eventType) {
 		case "acceptanceEvent":
-			return mkHeader() + `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>` + mkFooter()
+			return createEmail(`<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
 		case "addCommentEvent":
 			return mkHeader() + `<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>` + mkFooter()
 		case "addSprintIdsEvent":
