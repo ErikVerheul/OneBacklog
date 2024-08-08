@@ -97,6 +97,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 								width: 100% !important;
 								display: block !important;
 								padding: 10px !important;
+								border-radius: 3px !important;
 						}
 						.header, .body, .footer {
 								padding: 20px !important;
@@ -108,19 +109,19 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				<table width="100%" border="0" cellspacing="0" cellpadding="0">
 						<tr>
 								<td align="center" style="padding: 20px;">
-										<table class="content" width="600" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: 1px solid #cccccc;">
+										<table class="content" width="600" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: 2px solid #cccccc;">
 												<tr>
-														<td class="header" style="background-color: #408fae; padding: 40px; text-align: center; color: white; font-size: 24px;">
+														<td class="header" style="background-color: #408fae; padding: 20px; text-align: center; color: white; font-size: 24px;">
 														${mkHeader()}
 														</td>
 												</tr>
 												<tr>
-														<td class="body" style="padding: 40px; text-align: left; font-size: 16px; line-height: 1.6;">
+														<td class="body" style="padding: 20px; text-align: left; font-size: 16px; line-height: 1.6;">
 																${content}            
 														</td>
 												</tr>
 												<tr>
-														<td class="footer" style="background-color: #333333; padding: 40px; text-align: center; color: white; font-size: 14px;">
+														<td class="footer" style="background-color: #333333; padding: 20px; text-align: center; color: white; font-size: 14px;">
 														${mkFooter()} 
 														</td>
 												</tr>

@@ -1,6 +1,5 @@
 // note about the QuillEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
 <template>
-  <p>store.state.userData.myOptions.doNotMessageMyself === 'true '= {{ store.state.userData.myOptions.doNotMessageMyself === 'true'}}</p>
   <div>
     <app-header>
       <!-- Right aligned nav items -->
