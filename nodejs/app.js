@@ -75,55 +75,6 @@ function getTsSize(dbName, idx) {
 	return configData[dbName].tsSize[idx]
 }
 
-function createEmail(content) {
-return `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Responsive Email Template</title>
-		<style>
-			@media screen and (max-width: 600px) {
-				.content {
-						width: 100% !important;
-						display: block !important;
-						padding: 10px !important;
-				}
-				.header, .body, .footer {
-						padding: 20px !important;
-				}
-			}
-		</style>
-</head>
-<body style="font-family: 'Poppins', Arial, sans-serif">
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        <tr>
-            <td align="center" style="padding: 20px;">
-                <table class="content" width="600" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: 1px solid #cccccc;">
-                    <tr>
-                        <td class="header" style="background-color: #345C72; padding: 40px; text-align: center; color: white; font-size: 24px;">
-                        ${mkHeader()}
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="body" style="padding: 40px; text-align: left; font-size: 16px; line-height: 1.6;">
-                        		${content}            
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="footer" style="background-color: #333333; padding: 40px; text-align: center; color: white; font-size: 14px;">
-                        ${mkFooter()} 
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-</body>
-</html>`
-}
-
 function mkHtml(dbName, eventType, value, event, doc) {
 	function mkHeader() {
 		return `<html><p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
@@ -132,6 +83,54 @@ function mkHtml(dbName, eventType, value, event, doc) {
 	function mkFooter() {
 		return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p></html>`
 	}
+	function createEmail(content) {
+		return `
+		<!DOCTYPE html>
+		<html lang="en">
+		<head>
+				<meta charset="UTF-8">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<title>Responsive Email Template</title>
+				<style>
+					@media screen and (max-width: 600px) {
+						.content {
+								width: 100% !important;
+								display: block !important;
+								padding: 10px !important;
+						}
+						.header, .body, .footer {
+								padding: 20px !important;
+						}
+					}
+				</style>
+		</head>
+		<body style="font-family: 'Poppins', Arial, sans-serif">
+				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+						<tr>
+								<td align="center" style="padding: 20px;">
+										<table class="content" width="600" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse; border: 1px solid #cccccc;">
+												<tr>
+														<td class="header" style="background-color: #408fae; padding: 40px; text-align: center; color: white; font-size: 24px;">
+														${mkHeader()}
+														</td>
+												</tr>
+												<tr>
+														<td class="body" style="padding: 40px; text-align: left; font-size: 16px; line-height: 1.6;">
+																${content}            
+														</td>
+												</tr>
+												<tr>
+														<td class="footer" style="background-color: #333333; padding: 40px; text-align: center; color: white; font-size: 14px;">
+														${mkFooter()} 
+														</td>
+												</tr>
+										</table>
+								</td>
+						</tr>
+				</table>
+		</body>
+		</html>`
+		}
 	function cText(condition, text) {
 		if (condition) return text
 		return ``
@@ -149,28 +148,28 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		case "acceptanceEvent":
 			return createEmail(`<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
 		case "addCommentEvent":
-			return mkHeader() + `<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>` + mkFooter()
+			return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>`)
 		case "addSprintIdsEvent":
 			{
 				let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
 				if (value[3]) txt += ` The item was assigned to a sprint before.`
-				return mkHeader() + `<h3>${txt}</h3>` + mkFooter()
+				return createEmail(`<h3>${txt}</h3>`)
 			}
 		case "createItemEvent":
-			return mkHeader() + `<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h3>` + mkFooter()
+			return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h3>`)
 		case "createTaskEvent":
-			return mkHeader() + `<h3>This task was created under parent '${value[0]}'.</h3>` + mkFooter()
+			return createEmail(`<h3>This task was created under parent '${value[0]}'.</h3>`)
 		case "copyItemEvent":
-			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'.</h3>` + mkFooter()
+			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'.</h3>`)
 		case "commentToHistoryEvent":
-			return mkHeader() + `<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>` + mkFooter()
+			return createEmail(`<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>`)
 		case "conditionRemovedEvent":
 			{
 				let s
 				if (value[1]) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
 				else if (value[0].length === 1) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
 				else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-				return mkHeader() + `<h3>${s}</h3>` + + mkFooter()
+				return createEmail(`<h3>${s}</h3>`)
 			}
 		case "dependencyRemovedEvent":
 			{
@@ -178,14 +177,14 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
 				else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
 				else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-				return mkHeader() + `<h3>${s}</h3>` + + mkFooter()
+				return createEmail(`<h3>${s}</h3>`)
 			}
 		case "descriptionEvent":
-			return mkHeader() + `<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>` + mkFooter()
+			return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
 		case "undoBranchRemovalEvent":
-			return mkHeader() + `<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h3>` + mkFooter()
+			return createEmail(`<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h3>`)
 		case "newChildEvent":
-			return mkHeader() + `<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>` + mkFooter()
+			return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>`)
 		case "nodeMovedEvent":
 			{
 				const moveType = value[13] === 'undoMove' ? ' back' : ''
@@ -194,53 +193,53 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				if (value[0] === value[1]) {
 					txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
 					txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
-					return mkHeader() + txt + mkFooter()
+					return createEmail(txt)
 				} else {
 					txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}.</h5>`
 					txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
 					txt += (value[4] > 0) ? `<p>${value[4]} children also changed level.</p>` : ""
-					return mkHeader() + txt + mkFooter()
+					return createEmail(txt)
 				}
 			}
 		case "removeAttachmentEvent":
-			return mkHeader() + `<h3>Attachment with title '${value[0]}' is removed from this item</h3>` + mkFooter()
+			return createEmail(`<h3>Attachment with title '${value[0]}' is removed from this item</h3>`)
 		case "removeSprintIdsEvent":
-			return mkHeader() + `<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h3>` + mkFooter()
+			return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h3>`)
 		case "removedWithDescendantsEvent":
-			return mkHeader() + `<h3>This item and ${value[1] - 1} descendants are removed.</h3>
-          <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>` + mkFooter()
+			return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed.</h3>
+          <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`)
 		case "removeStoryEvent":
-			return mkHeader() + `<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>` + mkFooter()
+			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
 		case "replaceCommentEvent":
-			return mkHeader() + `<h3>The user changed his last comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>` + mkFooter()
+			return createEmail(`<h3>The user changed his last comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>`)
 		case "setConditionEvent":
-			if (value[2]) return mkHeader() + `<h3>The previous condition set for item '${value[1]} is undone'.</h3>` + mkFooter()
-			return mkHeader() + `<h3>This item is set to be conditional for item '${value[1]}'.</h3>` + mkFooter()
+			if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'.</h3>`)
+			return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'.</h3>`)
 		case "setDependencyEvent":
-			if (value[2]) return mkHeader() + `<h3>The previous dependency set on item '${value[1]} is undone'.</h3>` + mkFooter()
-			return mkHeader() + `<h3>This item is set to be dependent on item '${value[1]}'.</h3>` + mkFooter()
+			if (value[2]) return createEmail(`<h3>The previous dependency set on item '${value[1]} is undone'.</h3>`)
+			return createEmail(`<h3>This item is set to be dependent on item '${value[1]}'.</h3>`)
 		case "setHrsEvent":
-			return mkHeader() + `<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>` + mkFooter()
+			return createEmail(`<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>`)
 		case "setPointsEvent":
-			return mkHeader() + `<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>` + mkFooter()
+			return createEmail(`<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>`)
 		case "setSizeEvent":
-			return mkHeader() + `<h3>The item T-shirt size changed from ${getTsSize(dbName, value[0])} to ${getTsSize(dbName, value[1])}</h3>` + mkFooter()
+			return createEmail(`<h3>The item T-shirt size changed from ${getTsSize(dbName, value[0])} to ${getTsSize(dbName, value[1])}</h3>`)
 		case "setStateEvent":
-			return mkHeader() + `<h3>The item state changed from ${getItemStateText(dbName, value[0])} to ${getItemStateText(dbName, value[1])}</h3>` +
-				`<p>This backlog item is realized by team '${value[2]}'</p>` + mkFooter()
+			return createEmail(`<h3>The item state changed from ${getItemStateText(dbName, value[0])} to ${getItemStateText(dbName, value[1])}</h3>` +
+				`<p>This backlog item is realized by team '${value[2]}'</p>`)
 		case "setSubTypeEvent":
-			return mkHeader() + `<h3>The item subtype changed from '${getSubTypeText(dbName, value[0])}' to '${getSubTypeText(dbName, value[1])}'</h3>` + mkFooter()
+			return createEmail(`<h3>The item subtype changed from '${getSubTypeText(dbName, value[0])}' to '${getSubTypeText(dbName, value[1])}'</h3>`)
 		case "setTeamOwnerEvent":
-			return mkHeader() + `<h3>The owning team changed from '${value[0]}' to '${value[1]}'</h3>` +
-				cText(value[2] > 0, `<h3>Also ${value[2]} descendants of this item are assigned to this team</h3>`) + mkFooter()
+			return createEmail(`<h3>The owning team changed from '${value[0]}' to '${value[1]}'</h3>` +
+				cText(value[2] > 0, `<h3>Also ${value[2]} descendants of this item are assigned to this team</h3>`))
 		case "setTitleEvent":
-			return mkHeader() + `<h3>The item title changed from: </h3><h3>'${value[0]}' to <br>'${value[1]}'</h3>` + mkFooter()
+			return createEmail(`<h3>The item title changed from: </h3><h3>'${value[0]}' to <br>'${value[1]}'</h3>`)
 		case "taskRemovedEvent":
-			return mkHeader() + `<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>` + mkFooter()
+			return createEmail(`<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>`)
 		case "uploadAttachmentEvent":
-			return mkHeader() + `<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>` + mkFooter()
+			return createEmail(`<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>`)
 		case "updateTaskOwnerEvent":
-			return mkHeader() + `<h3>Task owner is changed from '${value[0]}' to '${value[1]}` + mkFooter()
+			return createEmail(`<h3>Task owner is changed from '${value[0]}' to '${value[1]}`)
 		default:
 			return "unknown event type"
 	}
@@ -254,12 +253,12 @@ function listenForChanges(dbName) {
 			let doc = r.doc
 			if (doc.followers) {
 				// process new event in history; comment additions and changes are included
-				for (let f of doc.followers) {
+				for (let fObj of doc.followers) {
 					const event = doc.history[0]
-					if (event.doNotMessageMyself && f === event.by) continue
-
 					const eventType = Object.keys(event)[0]
 					if (interestingHistoryEvents.includes(eventType)) {
+						if (event.doNotMessageMyself && fObj.user === event.by) continue
+
 						const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
 						mailgun.messages().send(data, (error, body) => {
 							// eslint-disable-next-line no-console

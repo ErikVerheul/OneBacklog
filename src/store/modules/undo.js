@@ -215,7 +215,7 @@ const actions = {
 				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
-				doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
+				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 				distributeEvent: true,
 				updateBoards: { sprintsAffected, teamsAffected }
 			}

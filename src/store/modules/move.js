@@ -154,7 +154,7 @@ const actions = {
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,
-						doNotMessageMyself: rootState.userData.doNotMessageMyself === 'true',
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						updateBoards: { sprintsAffected, teamsAffected }
 					}
 					// update the document; products never change their product id
