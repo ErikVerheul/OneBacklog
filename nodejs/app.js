@@ -2,9 +2,10 @@
 import Dotenv from 'dotenv'
 new Dotenv.config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", "nodeMovedEvent", "removeAttachmentEvent",
-	"removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent", "setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent",
-	"setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", "setTitleEvent", "taskRemovedEvent", "uploadAttachmentEvent", "updateTaskOwnerEvent"]
+	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", 
+	"nodeMovedEvent", "removeAttachmentEvent", "removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent", 
+	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", 
+	"setTitleEvent", "taskRemovedEvent", "uploadAttachmentEvent", "updateTaskOwnerEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 import Mailgun from 'mailgun-js'
@@ -97,7 +98,6 @@ function mkHtml(dbName, eventType, value, event, doc) {
 								width: 100% !important;
 								display: block !important;
 								padding: 10px !important;
-								border-radius: 3px !important;
 						}
 						.header, .body, .footer {
 								padding: 20px !important;
@@ -157,11 +157,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				return createEmail(`<h3>${txt}</h3>`)
 			}
 		case "createItemEvent":
-			return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}.</h3>`)
+			return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}</h3>`)
 		case "createTaskEvent":
-			return createEmail(`<h3>This task was created under parent '${value[0]}'.</h3>`)
+			return createEmail(`<h3>This task was created under parent '${value[0]}'</h3>`)
 		case "copyItemEvent":
-			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'.</h3>`)
+			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'</h3>`)
 		case "commentToHistoryEvent":
 			return createEmail(`<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>`)
 		case "conditionRemovedEvent":
@@ -183,42 +183,42 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		case "descriptionEvent":
 			return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
 		case "undoBranchRemovalEvent":
-			return createEmail(`<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal.</h3>`)
+			return createEmail(`<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`)
 		case "newChildEvent":
-			return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}.</h3>`)
+			return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}</h3>`)
 		case "nodeMovedEvent":
 			{
 				const moveType = value[13] === 'undoMove' ? ' back' : ''
 				let txt
-				if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}.</h5>` } else txt = ''
+				if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}</h5>` } else txt = ''
 				if (value[0] === value[1]) {
 					txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
-					txt += (value[4] > 0) ? `<p>${value[4]} children were also moved.</p>` : ""
+					txt += (value[4] > 0) ? `<p>${value[4]} children were also moved</p>` : ""
 					return createEmail(txt)
 				} else {
-					txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}.</h5>`
+					txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}</h5>`
 					txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-					txt += (value[4] > 0) ? `<p>${value[4]} children also changed level.</p>` : ""
+					txt += (value[4] > 0) ? `<p>${value[4]} children also changed level</p>` : ""
 					return createEmail(txt)
 				}
 			}
 		case "removeAttachmentEvent":
 			return createEmail(`<h3>Attachment with title '${value[0]}' is removed from this item</h3>`)
 		case "removeSprintIdsEvent":
-			return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}.</h3>`)
+			return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
 		case "removedWithDescendantsEvent":
-			return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed.</h3>
-          <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed.</p>`)
+			return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed</h3>
+          <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed</p>`)
 		case "removeStoryEvent":
 			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
 		case "replaceCommentEvent":
 			return createEmail(`<h3>The user changed his last comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>`)
 		case "setConditionEvent":
-			if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'.</h3>`)
-			return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'.</h3>`)
+			if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'</h3>`)
+			return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'</h3>`)
 		case "setDependencyEvent":
-			if (value[2]) return createEmail(`<h3>The previous dependency set on item '${value[1]} is undone'.</h3>`)
-			return createEmail(`<h3>This item is set to be dependent on item '${value[1]}'.</h3>`)
+			if (value[2]) return createEmail(`<h3>The previous dependency set on item '${value[1]} is undone'</h3>`)
+			return createEmail(`<h3>This item is set to be dependent on item '${value[1]}'</h3>`)
 		case "setHrsEvent":
 			return createEmail(`<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>`)
 		case "setPointsEvent":
