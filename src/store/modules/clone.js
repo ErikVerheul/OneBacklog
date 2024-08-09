@@ -102,9 +102,7 @@ const actions = {
 				priority: doc._id === payload.originalNode._id ? calcNewClonePriority(rootState, payload.originalNode) : doc.priority,
 				comments: doc.comments,
 				history: [{
-					resetHistoryEvent: [doc.history.length],
-					by: rootState.userData.user,
-					email: rootState.userData.email,
+					ignoreEvent: ['processItemsToClone'],
 					timestamp: Date.now(),
 					distributeEvent: false
 				}],
