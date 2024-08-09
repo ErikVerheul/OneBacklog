@@ -6,6 +6,21 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.2.11 - 9 August 2024 New and removed feature, bug fixex, refactoring</h3>
+          <p>Features</p>
+          <ul>
+            <li>Option to not send change notices to myself implementedd</li>
+            <li>Feature to add comments to history events is never used: removed</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Missing email notifications added</li>
+            <li>Fix insertion in wrong array</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Same look for the event list as the emailed event notifications</li>
+          </ul>
           <h3>v.2.2.10 - 6 August 2024 Bug fix, refactoring</h3>
           <p>Bug fix:</p>
           <ul>
