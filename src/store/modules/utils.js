@@ -347,7 +347,7 @@ const actions = {
 						}
 						doc.history = newHistory
 						const newHist = {
-							resetHistoryEvent: [histRemovedCount],
+							resetHistoryEvent: [histRemovedCount, payload.olderThan],
 							by: rootState.userData.user,
 							email: rootState.userData.email,
 							timestamp: now,
@@ -364,7 +364,7 @@ const actions = {
 						}
 						doc.comments = newComments
 						const newComment = {
-							resetCommentsEvent: [commentsRemovedCount],
+							resetCommentsEvent: [commentsRemovedCount, payload.olderThan],
 							by: rootState.userData.user,
 							email: rootState.userData.email,
 							timestamp: now,
