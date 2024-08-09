@@ -78,11 +78,11 @@ function getTsSize(dbName, idx) {
 
 function mkHtml(dbName, eventType, value, event, doc) {
 	function mkHeader() {
-		return `<html><p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
+		return `<p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
             <h3>'${doc.title}'</h3>`
 	}
 	function mkFooter() {
-		return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p></html>`
+		return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p>`
 	}
 	function createEmail(content) {
 		return `
