@@ -271,7 +271,6 @@ Example:
 		entry.removedProductRoles = rootGetters.getMyProductsRoles[payload.node._id]
 	}
 	...
-}
 
 Thee events and their usage:
 
@@ -294,7 +293,7 @@ Y             Y	     Y    commentToHistoryEvent	        	update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
 N             Y	     Y    copyItemEvent                  	common.context.js
 Y             Y	     Y    createItemEvent 	              common.context.js
-N             N	     Y  	createItemEvent									utils.js
+N             N	     Y  	createItemEvent									utils.js			// use the same even here
 N			  			N	     Y    createRootEvent									intdb.js
 Y             Y	     Y    createTaskEvent 	              planningboard.js
 Y             Y	     Y    dependencyRemovedEvent 	      	update.js

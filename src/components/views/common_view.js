@@ -188,10 +188,6 @@ const watch = {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
 				}
 			}
-			if (store.state.selectedForView === 'history') {
-				this.newHistory = "<p><br></p>"
-				this.$refs.historyEditorRef.show()
-			}
 		}
 	},
 

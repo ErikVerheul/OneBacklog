@@ -221,7 +221,10 @@
           <div class="pane" :style="{ height: '75px', top: '5px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <BButton variant="primary" @click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
+                <BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="primary" 
+                  @click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
+                <BButton v-else-if="!isHistoryFilterActive" variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
+                <BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
               </div>
               <div class="d-table-cell tac">
                 <label>Select to see</label>

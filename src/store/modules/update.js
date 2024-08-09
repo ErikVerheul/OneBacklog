@@ -923,7 +923,6 @@ const actions = {
 					break
 				}
 			}
-			console.log('replaceComment: couldReplace = ' + couldReplace)
 			if (couldReplace) {
 				const newComment = {
 					replaceCommentEvent: [uniTob64(payload.editedCommentText)],
@@ -954,55 +953,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = `replaceComment: Could not read document with id ${id}. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	replaceHistComment({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const node = payload.node
-		const id = node._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then((res) => {
-			const tmpDoc = res.data
-			// replace the comment in the history array
-			let couldReplace = false
-			for (let i = 0; i < tmpDoc.history.length; i++) {
-				if (Object.keys(tmpDoc.history[i])[0] === 'commentToHistoryEvent') {
-					const uneditedCommentObj = tmpDoc.history[i]
-					if (uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
-						tmpDoc.history[i].commentToHistoryEvent = [uniTob64(payload.editedCommentText)]
-						tmpDoc.history[i].timestamp = Date.now()
-						couldReplace = true
-						break
-					}
-				}
-			}
-			if (!couldReplace) {
-				const msg = `replaceComment: Could not find the history comment to replace in document with id ${id}. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-				return
-			}
-
-			// do not write a history entry here; we create a modified history entry with updated content and timestamp
-			tmpDoc.lastCommentAddition = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
-
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: tmpDoc,
-				caller: 'replaceHistComment',
-				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, replaceHistory: tmpDoc.history })
-				}
-			})
-		}).catch(error => {
-			const msg = `replaceHistComment: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
