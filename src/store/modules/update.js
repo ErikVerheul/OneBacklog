@@ -923,8 +923,9 @@ const actions = {
 					break
 				}
 			}
+			console.log('replaceComment: couldReplace = ' + couldReplace)
 			if (couldReplace) {
-				const newHist = {
+				const newComment = {
 					replaceCommentEvent: [uniTob64(payload.editedCommentText)],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
@@ -933,7 +934,7 @@ const actions = {
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					distributeEvent: true
 				}
-				tmpDoc.history.unshift(newHist)
+				tmpDoc.comments.unshift(newComment)
 			} else {
 				const msg = `replaceComment: Could not find the comment to replace in document with id ${id}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
