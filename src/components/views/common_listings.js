@@ -151,6 +151,25 @@ const methods = {
     store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title })
   },
 
+  mkCommentHeader(comment) {
+    if (comment.addCommentEvent) {
+      return `User ${comment.by} created a comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+    } else {
+      if (comment.replaceCommentEvent) {
+        return `User ${comment.by} amended the comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+      } else {
+        if (comment.resetCommentsEvent) {
+          return `Administrator ${comment.by} did remove comments upto this items date`
+        }
+      }
+    }
+  },
+
+  mkHistHeader(histItem) {
+    if (histItem.resetHistoryEvent) return `Administrator ${histItem.by} did remove history upto this items date`
+    return `User ${histItem.by} made a change in this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+  },
+
   prepHistoryText(key, value) {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
     if (key === 'addSprintIdsEvent') return this.mkAddSprintIdsEvent(value)
@@ -187,18 +206,16 @@ const methods = {
     if (key === 'undoBranchRemovalEvent') return this.mkUndoBranchRemovalEvent(value)
     if (key === 'updateTaskOwnerEvent') return this.mkUpdateTaskOwnerEvent(value)
     if (key === 'uploadAttachmentEvent') return this.mkUploadAttachmentEvent(value)
+  },
 
-    if (key === 'by') return this.mkBy(value)
-    if (key === 'timestamp') return this.mkTimestamp(value)
+  mkHistFooter(histItem) {
+    return `${this.mkTimestamp(histItem.timestamp)}`
   },
 
   prepCommentsText(key, value) {
     if (key === 'addCommentEvent') return this.mkComment(value)
     if (key === 'replaceCommentEvent') return this.mkComment(value)
     if (key === 'resetCommentsEvent') return this.mkResetCommentsEvent(value)
-
-    if (key === 'by') return this.mkBy(value)
-    if (key === 'timestamp') return this.mkTimestamp(value)
   },
 
   /* Presentation methods */
@@ -373,6 +390,7 @@ const methods = {
   },
 
   mkResetCommentsEvent(value) {
+    if (value[1]) return `<h6> ${value[0]} Comment items older than ${value[1]} days are removed in a cleanup initiated by an admistrator.</h6>`
     return `<h6> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h6>`
   },
 
@@ -417,26 +435,11 @@ const methods = {
     this.editMyComment = true
   },
 
-  startEditMyHistComment(comment) {
-    this.commentObjToBeReplaced = comment
-    this.myLastHistCommentText = b64ToUni(this.getEventValue(comment))
-    this.editMyHistComment = true
-  },
-
   replaceEditedComment() {
     store.dispatch('replaceComment', {
       node: this.getLastSelectedNode,
       commentObjToBeReplaced: this.commentObjToBeReplaced,
       editedCommentText: this.myLastCommentText,
-      timestamp: Date.now()
-    })
-  },
-
-  replaceEditedHistComment() {
-    store.dispatch('replaceHistComment', {
-      node: this.getLastSelectedNode,
-      commentObjToBeReplaced: this.commentObjToBeReplaced,
-      editedCommentText: this.myLastHistCommentText,
       timestamp: Date.now()
     })
   }

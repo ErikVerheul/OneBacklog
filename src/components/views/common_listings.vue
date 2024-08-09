@@ -3,8 +3,15 @@
     <div v-if="store.state.selectedForView === 'comments'">
       <div v-for="comment in getFilteredComments" :key="comment.timestamp">
         <BCard class="card border-primary">
-          <BCardBody>
-            <BRow v-if="isMyAddition(comment, 'addCommentEvent') && !otherUserCommentedAfterme(comment, getFilteredComments)">
+          <BCardBody class="list-header">
+            <BRow>
+              <BCol cols="12">
+                {{ mkCommentHeader(comment) }}
+              </BCol>
+            </BRow>
+          </BCardBody>
+          <BCardBody class="list-body">
+            <BRow v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserCommentedAfterme(comment, getFilteredComments)">
               <BCol cols="11">
                 <div v-html="prepCommentsText(getEvent(comment), getEventValue(comment))"></div>
               </BCol>
@@ -18,9 +25,8 @@
               </BCol>
             </BRow>
           </BCardBody>
-          <BCardFooter>
-            <p class="p1" v-html="prepCommentsText('by', comment['by'])"></p>
-            <p class="p1" v-html="prepCommentsText('timestamp', comment['timestamp'])"></p>
+          <BCardFooter class="list-footer">
+            {{ mkHistFooter(comment) }}
           </BCardFooter>
         </BCard>
         <br>
@@ -41,24 +47,22 @@
     <div v-else-if="store.state.selectedForView === 'history'">
       <div v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
         <BCard class="card border-primary">
-          <BCardBody>
-            <BRow v-if="isMyAddition(histItem, 'commentToHistoryEvent') && !otherUserCommentedAfterme(histItem, getFilteredHistory)">
-              <BCol cols="11">
-                <div v-html="prepHistoryText(getEvent(histItem), getEventValue(histItem))"></div>
-              </BCol>
-              <BCol cols="1">
-                <font-awesome-icon icon="edit" @click="startEditMyHistComment(histItem)" />
+          <BCardBody class="list-header">
+            <BRow>
+              <BCol cols="12">
+                {{ mkHistHeader(histItem) }}
               </BCol>
             </BRow>
-            <BRow v-else>
+          </BCardBody>
+          <BCardBody class="list-body">
+            <BRow>
               <BCol cols="12">
                 <div v-html="prepHistoryText(getEvent(histItem), getEventValue(histItem))"></div>
               </BCol>
             </BRow>
           </BCardBody>
-          <BCardFooter>
-            <p class="p1" v-html="prepHistoryText('by', histItem['by'])"></p>
-            <p class="p1" v-html="prepHistoryText('timestamp', histItem['timestamp'])"></p>
+          <BCardFooter class="list-footer">
+            {{ mkHistFooter(histItem) }}
           </BCardFooter>
         </BCard>
         <br>
@@ -73,14 +77,6 @@
       </BFormGroup>
     </BModal>
   </template>
-
-  <template>
-    <BModal size="lg" v-model="editMyHistComment" scrollable @ok="replaceEditedHistComment" title="Edit your history comment">
-      <BFormGroup>
-        <QuillEditor v-model:content=myLastHistCommentText contentType="html"></QuillEditor>
-      </BFormGroup>
-    </BModal>
-  </template>
 </template>
 
 <script>
@@ -89,10 +85,8 @@ import commonListings from './common_listings.js'
 function data() {
   return {
     editMyComment: false,
-    editMyHistComment: false,
     commentObjToBeReplaced: {},
     myLastCommentText: "<p><br></p>",
-    myLastHistCommentText: "<p><br></p>"
   }
 }
 
@@ -109,5 +103,28 @@ export default {
 
 .p1 {
   font-size: 12px;
+}
+
+.list-header {
+  background-color: #408fae;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  color: white;
+  font-size: 18px;
+}
+
+.list-body {
+  padding: 10px 0px 10px 0px;
+  text-align: left;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.list-footer {
+  background-color: #333333;
+  padding: 10px 0px 10px 0px;
+  text-align: center;
+  color: white;
+  font-size: 14px;
 }
 </style>
