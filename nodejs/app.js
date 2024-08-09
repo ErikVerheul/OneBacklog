@@ -2,9 +2,9 @@
 import Dotenv from 'dotenv'
 new Dotenv.config()
 const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent", 
-	"nodeMovedEvent", "removeAttachmentEvent", "removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent", 
-	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent", 
+	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent",
+	"nodeMovedEvent", "removeAttachmentEvent", "removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent",
+	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
 	"setTitleEvent", "taskRemovedEvent", "uploadAttachmentEvent", "updateTaskOwnerEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
@@ -131,7 +131,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				</table>
 		</body>
 		</html>`
-		}
+	}
 	function cText(condition, text) {
 		if (condition) return text
 		return ``
