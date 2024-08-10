@@ -282,7 +282,7 @@ const methods = {
 					email: store.state.userData.email,
 					timestamp: now,
 					sessionId: store.state.mySessionId,
-					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+					doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] }
 				}]
