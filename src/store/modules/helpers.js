@@ -290,7 +290,7 @@ const actions = {
 				return violationsWereFound
 			},
 
-			/* Scan the full tree to find a node with the passed id and stop scanning at the first match */
+			/* Scan the full tree to find a node with the passed id and stop scanning at the first match; return null when no match is found */
 			getNodeById: function (id) {
 				let resultNode = null
 				rootState.helpersRef.traverseModels((nm) => {
