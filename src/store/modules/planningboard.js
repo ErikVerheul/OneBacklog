@@ -189,61 +189,6 @@ const mutations = {
 		tasks.sort((a, b) => b.priority - a.priority)
 	},
 
-	/* Add a story to the board on a location based on its priority. No tasks are added yet */
-	addEmptyStoryToBoard(state, doc) {
-		const priorityChain = [doc.priority]
-		const featureNode = state.helpersRef.getNodeById(doc.parentId)
-		if (!featureNode) return
-
-		const featureName = featureNode.title
-		priorityChain.unshift(featureNode.data.priority)
-		const epicNode = state.helpersRef.getNodeById(featureNode.parentId)
-		if (!epicNode) return
-
-		const epicName = epicNode.title
-		priorityChain.unshift(epicNode.data.priority)
-		const productNode = state.helpersRef.getNodeById(doc.productId)
-		if (!productNode) return
-
-		const productName = productNode.title
-		priorityChain.unshift(productNode.data.priority)
-
-		const newStory = {
-			idx: undefined,
-			priorityChain,
-			storyId: doc._id,
-			featureId: featureNode._id,
-			featureName,
-			epicName,
-			productId: doc.productId,
-			productName,
-			title: doc.title,
-			size: doc.spsize,
-			subType: doc.subtype,
-			tasks: {
-				[STATE.ON_HOLD]: [],
-				[STATE.TODO]: [],
-				[STATE.INPROGRESS]: [],
-				[STATE.TESTREVIEW]: [],
-				[STATE.DONE]: []
-			}
-		}
-
-		const updatedBoardStories = []
-		for (const story of state.stories) {
-			updatedBoardStories.push(story)
-		}
-		// insert the new story
-		updatedBoardStories.push(newStory)
-		// sort on priorities
-		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
-		// reassign the indexes
-		for (let i = 0; i < updatedBoardStories.length; i++) {
-			updatedBoardStories[i].idx = i
-		}
-		state.stories = updatedBoardStories
-	},
-
 	/* Add the task to the planning board */
 	addTaskToBoard(state, doc) {
 		for (const s of state.stories) {
@@ -322,6 +267,65 @@ const getters = {
 }
 
 const actions = {
+
+	/* 
+	* Add a story to the board on a location based on its priority.
+	* Use an action instead of a commit as both rootState and state are needed.
+	*/
+	addStoryToBoard({ rootState, state }, doc) {
+		const priorityChain = [doc.priority]
+		const featureNode = rootState.helpersRef.getNodeById(doc.parentId)
+		if (!featureNode) return
+
+		const featureName = featureNode.title
+		priorityChain.unshift(featureNode.data.priority)
+		const epicNode = rootState.helpersRef.getNodeById(featureNode.parentId)
+		if (!epicNode) return
+
+		const epicName = epicNode.title
+		priorityChain.unshift(epicNode.data.priority)
+		const productNode = rootState.helpersRef.getNodeById(doc.productId)
+		if (!productNode) return
+
+		const productName = productNode.title
+		priorityChain.unshift(productNode.data.priority)
+
+		const newStory = {
+			idx: undefined,
+			priorityChain,
+			storyId: doc._id,
+			featureId: featureNode._id,
+			featureName,
+			epicName,
+			productId: doc.productId,
+			productName,
+			title: doc.title,
+			size: doc.spsize,
+			subType: doc.subtype,
+			tasks: {
+				[STATE.ON_HOLD]: [],
+				[STATE.TODO]: [],
+				[STATE.INPROGRESS]: [],
+				[STATE.TESTREVIEW]: [],
+				[STATE.DONE]: []
+			}
+		}
+
+		const updatedBoardStories = []
+		for (const story of state.stories) {
+			updatedBoardStories.push(story)
+		}
+		// insert the new story
+		updatedBoardStories.push(newStory)
+		// sort on priorities
+		updatedBoardStories.sort((a, b) => comparePriorities(b.priorityChain, a.priorityChain))
+		// reassign the indexes
+		for (let i = 0; i < updatedBoardStories.length; i++) {
+			updatedBoardStories[i].idx = i
+		}
+		state.stories = updatedBoardStories
+	},
+
 	/* Multiple calls to this action are serialized */
 	loadPlanningBoard({
 		rootState,
@@ -329,7 +333,7 @@ const actions = {
 		commit,
 		dispatch
 	}, payload) {
-		console.log('loadPlanningBoard is called: payload.sprintId = ' +  payload.sprintId + ', payload.team = ' + payload.team + ', caller = ' + payload.caller)
+		console.log('loadPlanningBoard is called: payload.sprintId = ' + payload.sprintId + ', payload.team = ' + payload.team + ', caller = ' + payload.caller)
 		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.myCurrentSprintCalendar) {
@@ -800,7 +804,7 @@ const actions = {
 						addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
-				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true', 
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
 						isListed: true,
 						sessionId: rootState.mySessionId,
@@ -894,7 +898,7 @@ const actions = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, removedSprintId],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
-				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
 						isListed: true,
 						sessionId: rootState.mySessionId,

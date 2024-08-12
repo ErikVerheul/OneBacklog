@@ -314,6 +314,7 @@ const actions = {
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
+							// does also update the board							
 							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
 								rootState.helpersRef.correctDependencies(node)
@@ -341,6 +342,11 @@ const actions = {
 									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 								}
 								rootState.helpersRef.removeNodes([node])
+								if (updateThisBoard) {
+									const delmark = lastHistObj.removedWithDescendantsEvent[5]
+									// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
+									dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
+								}
 								showSyncMessage(`removed the`, SEV.INFO)
 							}
 							break
@@ -498,7 +504,7 @@ const actions = {
 						case 'addItemsToSprintEvent':
 							{
 								const newPBI = lastHistObj.addItemsToSprintEvent[0]
-								if (newPBI) commit('addStoryToBoard', newPBI)
+								if (newPBI) dispatch('addStoryToBoard', newPBI)
 								const newTasks = lastHistObj.addItemsToSprintEvent[1]
 								for (const t of newTasks) {
 									commit('addTaskToBoard', t)
@@ -519,7 +525,7 @@ const actions = {
 						case 'createTaskEvent':
 							if (doc.level === LEVEL.PBI) {
 								// a new story is created on another user's product details view
-								commit('addStoryToBoard', doc)
+								dispatch('addStoryToBoard', doc)
 							}
 							if (doc.level === LEVEL.TASK) {
 								// a new task is created on another user's product details view or board
@@ -585,7 +591,7 @@ const actions = {
 												case LEVEL.TASK:
 													// a task is promoted to a PBI
 													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-													commit('addStoryToBoard', doc)
+													dispatch('addStoryToBoard', doc)
 													break
 												case LEVEL.PBI:
 												case LEVEL.FEATURE:
@@ -619,11 +625,7 @@ const actions = {
 							}
 							break
 						case 'removedWithDescendantsEvent':
-							{
-								const delmark = lastHistObj.removedWithDescendantsEvent[5]
-								// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
-								dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
-							}
+							// taken care of when updating the tree model
 							break
 						case 'removeItemsFromSprintEvent':
 							{
@@ -768,6 +770,7 @@ const actions = {
 		}
 
 		const lastHistObj = doc.history[0]
+		console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user

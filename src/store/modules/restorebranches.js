@@ -54,8 +54,8 @@ const actions = {
 			if (unremovedMark) {
 				// update the board if in view
 				if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
-					if (doc.level === LEVEL.PBI) commit('addEmptyStoryToBoard', doc)
-					if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
+					if (doc.level === LEVEL.PBI) dispatch('addStoryToBoard', doc)
+					if (doc.level === LEVEL.TASK) dispatch('addTaskToBoard', doc)
 				}
 				// no need to add history here as the data is only used to update the tree model (no update of the database)
 				const parentNode = rootState.helpersRef.getNodeById(doc.parentId)
@@ -195,7 +195,7 @@ const actions = {
 			const newParentNode = rootState.helpersRef.appendDescendantNode(payload.parentNode, doc)
 			// also update the board if in view
 			if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
-				if (doc.level === LEVEL.PBI) commit('addEmptyStoryToBoard', doc)
+				if (doc.level === LEVEL.PBI) dispatch('addStoryToBoard', doc)
 				if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
 			}
 			// scan next level
