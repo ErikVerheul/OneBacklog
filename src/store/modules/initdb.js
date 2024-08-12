@@ -471,9 +471,9 @@ const actions = {
 			data: {
 				filters: {
 					/* Filter on changes with subscribed followers */
-					email_filter: 'function(doc, req) { return doc.type === \'backlogItem\' && (doc.followers && doc.followers.length > 0) }',
-					/* Filter on changes to backlog items that changed with an event tagged for distribution */
-					sync_filter: "function(doc, req) { return doc.type === 'backlogItem' && (doc.comments[0].distributeEvent && doc.comments[0].timestamp > doc.history[0].timestamp || doc.history[0].distributeEvent && doc.comments[0].timestamp <= doc.history[0].timestamp) }"
+					email_filter: "function(doc, req) { return doc.type === 'backlogItem' && (doc.followers && doc.followers.length > 0) }",
+					/* Filter on changes to backlog items that changed and have history with an event that is not a 'ignoreEvent' and tagged for distribution */
+					sync_filter: "function(doc, req) { return doc.type === 'backlogItem' && (doc.history && Object.keys(doc.history[0])[0] !== 'ignoreEvent') && doc.history[0].distributeEvent }"
 				},
 				language: 'javascript'
 			}
