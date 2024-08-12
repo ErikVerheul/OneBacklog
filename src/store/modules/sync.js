@@ -32,10 +32,12 @@ const actions = {
 				// eslint-disable-next-line no-console
 				console.log(
 					`listenForChanges @ ${now.toLocaleTimeString()} &${pad(now.getMilliseconds(), 3)} ms.\n\
-					document with _id ${doc._id} is processed with priority ${doc.priority}\n\				
+					document with _id ${doc._id} is processed\n\				
 					current view = ${rootState.currentView}\n\
-					histEvent = ${histEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n\
-					processHistory = ${processHistory}, title = '${doc.title}'\n\
+					histEvent = ${histEvent}\n\
+					timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n\
+					item level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}\n\
+					title = '${doc.title}'\n\
 					updateThisBoard = ${updateThisBoard}\n\
 					sprintId = ${doc.sprintId}`)
 			}
@@ -196,295 +198,293 @@ const actions = {
 				}
 
 				const isCurrentDocument = doc._id === rootState.currentDoc._id
-				if (processHistory) {
-					// process the last event from the document history array (in the tree and/or board)
-					reportOddTimestamp(lastHistObj, doc._id)
-					// show the history update in he currently visable document
-					if (isCurrentDocument) rootState.currentDoc.history = doc.history
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
-					// process requirement area items
-					if (rootGetters.isOverviewSelected && isReqAreaItem) {
-						switch (histEvent) {
-							case 'changeReqAreaColorEvent':
-								commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-								commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
-								showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
-								break
-							case 'createItemEvent':
-								if (node === null) {
-									createNewNode(doc)
-									showSyncMessage(`created`, SEV.INFO)
-								}
-								break
-							case 'descriptionEvent':
-								commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the description of`, SEV.INFO)
-								break
-							case 'nodeMovedEvent':
-								moveNode(node, doc.parentId)
-								showSyncMessage(`moved`, SEV.INFO)
-								break
-							case 'removedWithDescendantsEvent':
-								if (node) {
-									// remove references from the requirement area
-									const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
-									rootState.helpersRef.traverseModels((nm) => {
-										if (nm.data.reqarea === reqAreaId) {
-											delete nm.data.reqarea
-										}
-									})
-									rootState.helpersRef.removeNodes([node])
-									showSyncMessage(`removed`, SEV.INFO)
-								}
-								break
-							case 'setTitleEvent':
-								commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the title of`, SEV.INFO)
-								break
-							case 'undoBranchRemovalEvent':
-								// does also update the board
-								dispatch('syncRestoreBranch', {
-									histArray: lastHistObj.undoBranchRemovalEvent,
-									restoreReqArea: true
+				// process the last event from the document history array (in the tree and/or board)
+				reportOddTimestamp(lastHistObj, doc._id)
+				// show the history update in he currently visable document
+				if (isCurrentDocument) rootState.currentDoc.history = doc.history
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
+				// process requirement area items
+				if (rootGetters.isOverviewSelected && isReqAreaItem) {
+					switch (histEvent) {
+						case 'changeReqAreaColorEvent':
+							commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+							commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
+							showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
+							break
+						case 'createItemEvent':
+							if (node === null) {
+								createNewNode(doc)
+								showSyncMessage(`created`, SEV.INFO)
+							}
+							break
+						case 'descriptionEvent':
+							commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the description of`, SEV.INFO)
+							break
+						case 'nodeMovedEvent':
+							moveNode(node, doc.parentId)
+							showSyncMessage(`moved`, SEV.INFO)
+							break
+						case 'removedWithDescendantsEvent':
+							if (node) {
+								// remove references from the requirement area
+								const reqAreaId = lastHistObj.removedWithDescendantsEvent[0]
+								rootState.helpersRef.traverseModels((nm) => {
+									if (nm.data.reqarea === reqAreaId) {
+										delete nm.data.reqarea
+									}
 								})
-								break
-						}
-					} else {
-						// process events for non requirement area items
-						switch (histEvent) {
-							case 'acceptanceEvent':
-								commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
-								break
-							case 'addSprintIdsEvent':
-								commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
-								showSyncMessage(`set the sprint for`, SEV.INFO)
-								break
-							case 'changeReqAreaColorEvent':
-								if (rootGetters.isDetailsViewSelected) {
-									commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-									showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
+								rootState.helpersRef.removeNodes([node])
+								showSyncMessage(`removed`, SEV.INFO)
+							}
+							break
+						case 'setTitleEvent':
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the title of`, SEV.INFO)
+							break
+						case 'undoBranchRemovalEvent':
+							// does also update the board
+							dispatch('syncRestoreBranch', {
+								histArray: lastHistObj.undoBranchRemovalEvent,
+								restoreReqArea: true
+							})
+							break
+					}
+				} else {
+					// process events for non requirement area items
+					switch (histEvent) {
+						case 'acceptanceEvent':
+							commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
+							break
+						case 'addSprintIdsEvent':
+							commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
+							showSyncMessage(`set the sprint for`, SEV.INFO)
+							break
+						case 'changeReqAreaColorEvent':
+							if (rootGetters.isDetailsViewSelected) {
+								commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+								showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
+							}
+							break
+						case 'commentAmendedEvent':
+							node.data.lastCommentAddition = doc.comments[0].timestamp
+							// show the comments update
+							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+							showSyncMessage(`changed a comment to item`, SEV.INFO)
+							break
+						case 'conditionRemovedEvent':
+							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
+							showSyncMessage(`removed condition`, SEV.INFO)
+							break
+						case 'createItemEvent':
+						case 'createTaskEvent':
+							if (node === null) {
+								createNewNode(doc)
+								showSyncMessage(`created`, SEV.INFO)
+							}
+							break
+						case 'dependencyRemovedEvent':
+							commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange })
+							showSyncMessage(`removed a condition for`, SEV.INFO)
+							break
+						case 'descriptionEvent':
+							commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the description of`, SEV.INFO)
+							break
+						case 'itemToNewTeamEvent':
+							const team = lastHistObj.itemToNewTeamEvent[0]
+							commit('updateNodesAndCurrentDoc', { node, team })
+							break
+						case 'newCommentEvent':
+							node.data.lastCommentAddition = doc.comments[0].timestamp
+							// show the comments update
+							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+							showSyncMessage(`added a comment to item`, SEV.INFO)
+							break
+						case 'nodeMovedEvent':
+							moveNode(node, doc.parentId)
+							showSyncMessage(`moved`, SEV.INFO)
+							// check for created or resolved dependency violations
+							rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
+							break
+						case 'removeAttachmentEvent':
+							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
+							showSyncMessage(`removed an attachment from`, SEV.INFO)
+							break
+						case 'removedWithDescendantsEvent':
+							if (node && doc.delmark) {
+								// remove any dependency references to/from outside the removed items
+								rootState.helpersRef.correctDependencies(node)
+								let doSignOut = false
+								if (node.isSelected || rootState.helpersRef.isDescendantNodeSelected(node)) {
+									// before removal select the predecessor of the removed node (sibling or parent)
+									const prevNode = rootState.helpersRef.getPreviousNode(node.path)
+									let nowSelectedNode = prevNode
+									if (prevNode.level === LEVEL.DATABASE) {
+										// if a product is to be removed and the previous node is root, select the next product
+										const nextProduct = rootState.helpersRef.getNextSibling(node.path)
+										if (nextProduct === null) {
+											// there is no next product
+											alert('WARNING - the only product you are viewing is removed by another user! You will be signed out. Contact your administrator.')
+											doSignOut = true
+										}
+										nowSelectedNode = nextProduct
+									}
+									commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+									// load the new selected item
+									dispatch('loadDoc', { id: nowSelectedNode._id })
 								}
-								break
-							case 'commentAmendedEvent':
-								node.data.lastCommentAddition = lastCommentsTimestamp
-								// show the comments update
-								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
-								showSyncMessage(`changed a comment to item`, SEV.INFO)
-								break
-							case 'conditionRemovedEvent':
-								commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
-								showSyncMessage(`removed condition`, SEV.INFO)
-								break
-							case 'createItemEvent':
-							case 'createTaskEvent':
-								if (node === null) {
-									createNewNode(doc)
-									showSyncMessage(`created`, SEV.INFO)
+								if (node.level === LEVEL.PRODUCT) {
+									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
+									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 								}
-								break
-							case 'dependencyRemovedEvent':
-								commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange })
-								showSyncMessage(`removed a condition for`, SEV.INFO)
-								break
-							case 'descriptionEvent':
-								commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the description of`, SEV.INFO)
-								break
-							case 'itemToNewTeamEvent':
-								const team = lastHistObj.itemToNewTeamEvent[0]
-								commit('updateNodesAndCurrentDoc', { node, team })
-								break
-							case 'newCommentEvent':
-								node.data.lastCommentAddition = lastCommentsTimestamp
-								// show the comments update
-								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
-								showSyncMessage(`added a comment to item`, SEV.INFO)
-								break
-							case 'nodeMovedEvent':
-								moveNode(node, doc.parentId)
-								showSyncMessage(`moved`, SEV.INFO)
-								// check for created or resolved dependency violations
-								rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
-								break
-							case 'removeAttachmentEvent':
-								commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
-								showSyncMessage(`removed an attachment from`, SEV.INFO)
-								break
-							case 'removedWithDescendantsEvent':
-								if (node && doc.delmark) {
-									// remove any dependency references to/from outside the removed items
-									rootState.helpersRef.correctDependencies(node)
-									let doSignOut = false
-									if (node.isSelected || rootState.helpersRef.isDescendantNodeSelected(node)) {
+								rootState.helpersRef.removeNodes([node])
+								showSyncMessage(`removed the`, SEV.INFO)
+							}
+							break
+						case 'removeSprintIdsEvent':
+							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
+							showSyncMessage(`removed the sprint for`, SEV.INFO)
+							break
+						case 'removeStoryEvent':
+							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
+							showSyncMessage(`unassigned the sprint from`, SEV.INFO)
+							break
+						case 'setConditionEvent':
+							if (lastHistObj.setConditionEvent[2]) {
+								// undo single addition
+								commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange })
+								showSyncMessage(`undid a dependency setting on`, SEV.INFO)
+							} else {
+								const dependentOnNodeId = lastHistObj.setConditionEvent[0]
+								commit('updateNodesAndCurrentDoc', { node, addConditionalFor: dependentOnNodeId, lastChange: doc.lastChange })
+								showSyncMessage(`set a dependency on`, SEV.INFO)
+							}
+							break
+						case 'setDependencyEvent':
+							if (lastHistObj.setDependencyEvent[2]) {
+								// undo single addition
+								commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange })
+								showSyncMessage(`undid a condition setting for`, SEV.INFO)
+							} else {
+								const conditionalForNodeId = lastHistObj.setDependencyEvent[0]
+								commit('updateNodesAndCurrentDoc', { node, addDependencyOn: conditionalForNodeId, lastChange: doc.lastChange })
+								showSyncMessage(`set a condition for`, SEV.INFO)
+							}
+							break
+						case 'setHrsEvent':
+							commit('updateNodesAndCurrentDoc', { node, spikePersonHours: doc.spikepersonhours, lastChange: doc.lastChange })
+							showSyncMessage(`changed the maximum effort of`, SEV.INFO)
+							break
+						case 'setPointsEvent':
+							commit('updateNodesAndCurrentDoc', { node, spsize: doc.spsize, lastChange: doc.lastChange })
+							showSyncMessage(`changed the story points of`, SEV.INFO)
+							break
+						case 'setSizeEvent':
+							commit('updateNodesAndCurrentDoc', { node, tssize: doc.tssize, lastChange: doc.lastChange })
+							showSyncMessage(`changed the T-shirt size of`, SEV.INFO)
+							break
+						case 'setStateEvent':
+							commit('updateNodesAndCurrentDoc', { node, state: doc.state, lastStateChange: doc.lastStateChange })
+							showSyncMessage(`changed the state of`, SEV.INFO)
+							break
+						case 'setSubTypeEvent':
+							commit('updateNodesAndCurrentDoc', { node, subtype: doc.subtype, lastChange: doc.lastChange })
+							showSyncMessage(`changed the type of`, SEV.INFO)
+							break
+						case 'setTeamOwnerEvent':
+							commit('updateNodesAndCurrentDoc', { node, team: doc.team, lastChange: doc.lastChange })
+							break
+						case 'setTitleEvent':
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the title of`, SEV.INFO)
+							break
+						case 'taskRemovedEvent':
+							if (rootState.lastTreeView === 'detailProduct') {
+								const taskId = lastHistObj.taskRemovedEvent[3]
+								const taskTitle = lastHistObj.taskRemovedEvent[0]
+								const team = lastHistObj.taskRemovedEvent[1]
+								// remove the node from the tree view
+								const node = rootState.helpersRef.getNodeById(taskId)
+								if (node) {
+									if (node.isSelected) {
 										// before removal select the predecessor of the removed node (sibling or parent)
 										const prevNode = rootState.helpersRef.getPreviousNode(node.path)
 										let nowSelectedNode = prevNode
-										if (prevNode.level === LEVEL.DATABASE) {
-											// if a product is to be removed and the previous node is root, select the next product
-											const nextProduct = rootState.helpersRef.getNextSibling(node.path)
-											if (nextProduct === null) {
-												// there is no next product
-												alert('WARNING - the only product you are viewing is removed by another user! You will be signed out. Contact your administrator.')
-												doSignOut = true
-											}
-											nowSelectedNode = nextProduct
-										}
 										commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
-										// load the new selected item
-										dispatch('loadDoc', { id: nowSelectedNode._id })
-									}
-									if (node.level === LEVEL.PRODUCT) {
-										// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
-										dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 									}
 									rootState.helpersRef.removeNodes([node])
-									showSyncMessage(`removed the`, SEV.INFO)
+									showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, SPECIAL_TEXT)
 								}
-								break
-							case 'removeSprintIdsEvent':
-								commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
-								showSyncMessage(`removed the sprint for`, SEV.INFO)
-								break
-							case 'removeStoryEvent':
-								commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
-								showSyncMessage(`unassigned the sprint from`, SEV.INFO)
-								break
-							case 'setConditionEvent':
-								if (lastHistObj.setConditionEvent[2]) {
-									// undo single addition
-									commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange })
-									showSyncMessage(`undid a dependency setting on`, SEV.INFO)
-								} else {
-									const dependentOnNodeId = lastHistObj.setConditionEvent[0]
-									commit('updateNodesAndCurrentDoc', { node, addConditionalFor: dependentOnNodeId, lastChange: doc.lastChange })
-									showSyncMessage(`set a dependency on`, SEV.INFO)
-								}
-								break
-							case 'setDependencyEvent':
-								if (lastHistObj.setDependencyEvent[2]) {
-									// undo single addition
-									commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange })
-									showSyncMessage(`undid a condition setting for`, SEV.INFO)
-								} else {
-									const conditionalForNodeId = lastHistObj.setDependencyEvent[0]
-									commit('updateNodesAndCurrentDoc', { node, addDependencyOn: conditionalForNodeId, lastChange: doc.lastChange })
-									showSyncMessage(`set a condition for`, SEV.INFO)
-								}
-								break
-							case 'setHrsEvent':
-								commit('updateNodesAndCurrentDoc', { node, spikePersonHours: doc.spikepersonhours, lastChange: doc.lastChange })
-								showSyncMessage(`changed the maximum effort of`, SEV.INFO)
-								break
-							case 'setPointsEvent':
-								commit('updateNodesAndCurrentDoc', { node, spsize: doc.spsize, lastChange: doc.lastChange })
-								showSyncMessage(`changed the story points of`, SEV.INFO)
-								break
-							case 'setSizeEvent':
-								commit('updateNodesAndCurrentDoc', { node, tssize: doc.tssize, lastChange: doc.lastChange })
-								showSyncMessage(`changed the T-shirt size of`, SEV.INFO)
-								break
-							case 'setStateEvent':
-								commit('updateNodesAndCurrentDoc', { node, state: doc.state, lastStateChange: doc.lastStateChange })
-								showSyncMessage(`changed the state of`, SEV.INFO)
-								break
-							case 'setSubTypeEvent':
-								commit('updateNodesAndCurrentDoc', { node, subtype: doc.subtype, lastChange: doc.lastChange })
-								showSyncMessage(`changed the type of`, SEV.INFO)
-								break
-							case 'setTeamOwnerEvent':
-								commit('updateNodesAndCurrentDoc', { node, team: doc.team, lastChange: doc.lastChange })
-								break
-							case 'setTitleEvent':
-								commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the title of`, SEV.INFO)
-								break
-							case 'taskRemovedEvent':
-								if (rootState.lastTreeView === 'detailProduct') {
-									const taskId = lastHistObj.taskRemovedEvent[3]
-									const taskTitle = lastHistObj.taskRemovedEvent[0]
-									const team = lastHistObj.taskRemovedEvent[1]
-									// remove the node from the tree view
-									const node = rootState.helpersRef.getNodeById(taskId)
-									if (node) {
-										if (node.isSelected) {
-											// before removal select the predecessor of the removed node (sibling or parent)
-											const prevNode = rootState.helpersRef.getPreviousNode(node.path)
-											let nowSelectedNode = prevNode
-											commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
-										}
-										rootState.helpersRef.removeNodes([node])
-										showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, SPECIAL_TEXT)
-									}
-								}
-								break
-							case 'teamChangeEvent':
-								const newTeam = lastHistObj.teamChangeEvent[1]
-								rootState.userData.myTeam = newTeam
-								break
-							case 'undoBranchRemovalEvent':
-								// does also update the board
-								dispatch('syncRestoreBranch', {
-									histArray: lastHistObj.undoBranchRemovalEvent,
-									isSameUserInDifferentSession,
-									updateThisBoard,
-									sprintId: rootState.loadedSprintId,
-									team: rootState.userData.myTeam
-								})
-								break
-							case 'uploadAttachmentEvent':
-								commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
-								showSyncMessage(`uploaded an attachment to`, SEV.INFO)
-								break
-							case 'updateReqAreaEvent':
-								dispatch('updateReqAreaInTree', lastHistObj)
-								break
-							//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
-							case 'updateTaskOrderEvent':
-								if (rootState.lastTreeView === 'detailProduct') {
-									// update the position of the tasks of the story and update the index and priority values in the tree
-									const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
-									const storyNode = rootState.helpersRef.getNodeById(doc._id)
-									if (!storyNode) return
+							}
+							break
+						case 'teamChangeEvent':
+							const newTeam = lastHistObj.teamChangeEvent[1]
+							rootState.userData.myTeam = newTeam
+							break
+						case 'undoBranchRemovalEvent':
+							// does also update the board
+							dispatch('syncRestoreBranch', {
+								histArray: lastHistObj.undoBranchRemovalEvent,
+								isSameUserInDifferentSession,
+								updateThisBoard,
+								sprintId: rootState.loadedSprintId,
+								team: rootState.userData.myTeam
+							})
+							break
+						case 'uploadAttachmentEvent':
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
+							showSyncMessage(`uploaded an attachment to`, SEV.INFO)
+							break
+						case 'updateReqAreaEvent':
+							dispatch('updateReqAreaInTree', lastHistObj)
+							break
+						//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
+						case 'updateTaskOrderEvent':
+							if (rootState.lastTreeView === 'detailProduct') {
+								// update the position of the tasks of the story and update the index and priority values in the tree
+								const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
+								const storyNode = rootState.helpersRef.getNodeById(doc._id)
+								if (!storyNode) return
 
-									const mapper = []
-									for (const c of storyNode.children) {
-										if (afterMoveIds.includes(c._id)) {
-											mapper.push({ child: c, priority: c.data.priority, reordered: true })
-										} else mapper.push({ child: c, reordered: false })
-									}
-									const newTreeChildren = []
-									let ind = 0
-									let afterMoveIdx = 0
-									for (const m of mapper) {
-										if (!m.reordered) {
-											newTreeChildren.push(m.child)
-										} else {
-											for (const c of storyNode.children) {
-												if (c._id === afterMoveIds[afterMoveIdx]) {
-													c.ind = ind
-													c.data.priority = m.priority
-													newTreeChildren.push(c)
-													afterMoveIdx++
-													break
-												}
+								const mapper = []
+								for (const c of storyNode.children) {
+									if (afterMoveIds.includes(c._id)) {
+										mapper.push({ child: c, priority: c.data.priority, reordered: true })
+									} else mapper.push({ child: c, reordered: false })
+								}
+								const newTreeChildren = []
+								let ind = 0
+								let afterMoveIdx = 0
+								for (const m of mapper) {
+									if (!m.reordered) {
+										newTreeChildren.push(m.child)
+									} else {
+										for (const c of storyNode.children) {
+											if (c._id === afterMoveIds[afterMoveIdx]) {
+												c.ind = ind
+												c.data.priority = m.priority
+												newTreeChildren.push(c)
+												afterMoveIdx++
+												break
 											}
 										}
-										ind++
 									}
-									storyNode.children = newTreeChildren
+									ind++
 								}
-								showSyncMessage(`changed the priority of`, SEV.INFO)
-								break
-							case 'updateTaskOwnerEvent':
-								commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })
-								showSyncMessage(`changed the task owner of`, SEV.INFO)
-								break
-							default:
-								// eslint-disable-next-line no-console
-								if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
-						}
+								storyNode.children = newTreeChildren
+							}
+							showSyncMessage(`changed the priority of`, SEV.INFO)
+							break
+						case 'updateTaskOwnerEvent':
+							commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })
+							showSyncMessage(`changed the task owner of`, SEV.INFO)
+							break
+						default:
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 					}
 				}
 
@@ -498,7 +498,7 @@ const actions = {
 						case 'addItemsToSprintEvent':
 							{
 								const newPBI = lastHistObj.addItemsToSprintEvent[0]
-								if (newPBI) commit('addEmptyStoryToBoard', newPBI)
+								if (newPBI) commit('addStoryToBoard', newPBI)
 								const newTasks = lastHistObj.addItemsToSprintEvent[1]
 								for (const t of newTasks) {
 									commit('addTaskToBoard', t)
@@ -519,7 +519,7 @@ const actions = {
 						case 'createTaskEvent':
 							if (doc.level === LEVEL.PBI) {
 								// a new story is created on another user's product details view
-								commit('addEmptyStoryToBoard', doc)
+								commit('addStoryToBoard', doc)
 							}
 							if (doc.level === LEVEL.TASK) {
 								// a new task is created on another user's product details view or board
@@ -527,7 +527,6 @@ const actions = {
 							}
 							break
 						case 'undoBranchRemovalEvent':
-							// is handled in 'processHistory'
 							break
 						case 'nodeMovedEvent':
 							// process moves initiated from the details view
@@ -586,7 +585,7 @@ const actions = {
 												case LEVEL.TASK:
 													// a task is promoted to a PBI
 													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
-													commit('addEmptyStoryToBoard', doc)
+													commit('addStoryToBoard', doc)
 													break
 												case LEVEL.PBI:
 												case LEVEL.FEATURE:
@@ -768,26 +767,22 @@ const actions = {
 			}
 		}
 
-		const lastCommentsObj = doc.comments[0]
-		const lastCommentsTimestamp = lastCommentsObj.timestamp
 		const lastHistObj = doc.history[0]
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
-		// process messenger events and the last history event if to be distributed and not to be ignored 
-		const processHistory = doc._id === 'messenger' || lastHistObj.distributeEvent && histEvent !== 'ignoreEvent'
-		if (!processHistory) {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('sync: nothing to process for histEvent = ' + histEvent + ', doc.title = ' + doc.title)
-			return
-		}
-
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
 		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
-		// process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, or the item is a requirement area item while the overview is in view
+
+		/* 
+		* Process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, 
+		*	or the item is a requirement area item and the overview is in view 
+		*/
 		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
-			histEvent === 'changeReqAreaColorEvent' || (histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) || (rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
+			histEvent === 'changeReqAreaColorEvent' ||
+			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
+			(rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
 	},
 
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
