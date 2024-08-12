@@ -1201,7 +1201,7 @@ const actions = {
 	},
 
 	/*
-	* Load document by _id and make it the current backlog item.
+	* Load document by _id and make it the current backlog item and update the tree scructure.
 	* Executes a onSuccessCallback and onFailureCallback callback if provided in the payload.
 	*/
 	loadDoc({
