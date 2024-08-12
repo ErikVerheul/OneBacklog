@@ -13,7 +13,7 @@ function created() {
 
 function data() {
 	return {
-		appVersion: 'v.2.2.11',
+		appVersion: store.state.appVersion,
 		logo: logo,
 		disableOkButton: false,
 		oldPassword: '',
