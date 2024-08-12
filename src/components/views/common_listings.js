@@ -67,27 +67,24 @@ const computed = {
   },
 
   /*
-  * Loop over all history items and concatenate the text of the event name, 'by' and 'timestamp' to one string
+  * Loop over all history items where isListed = true and concatenate the text of the event name, 'by' and 'timestamp' to one string
   * If filterForHistorySearchString is a substring of that string add the history item to the filteredHistory array
   * Return that array
   */
   getFilteredHistory() {
     const filteredHistory = []
     for (const histItem of store.state.currentDoc.history) {
-      // skip events created in version 2.2.12 and later and not designated to be listed
+      // skip events created in version 2.3.0 and later and not designated to be listed
       if (histItem.timestamp > 1723314712647 && !histItem.isListed) continue
-
-      let allText = ''
-      /*
-      *  All items in the events list are objects; by default the first 3 keys are: event name, 'by' and 'timestamp'; other keys are not relevant here.
-      */
+     
       const event = Object.keys(histItem)[0]
-      // for compatibility reasons for data created in versions before 2.2.12
+      // for compatibility reasons for data created in versions before 2.3.0
       if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'commentAmendedEvent'
         || event === 'newCommentEvent' || event === 'removeItemsFromSprintEvent' || event === 'itemToNewTeamEvent') continue
-      // for compatibility reasons for data created in versions before 2.2.12
+      // for compatibility reasons for data created in versions before 2.3.0
       if (event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'resetCommentsEvent' || event === 'resetHistoryEvent') continue
 
+      let allText = ''
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
       if (event === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[event])
