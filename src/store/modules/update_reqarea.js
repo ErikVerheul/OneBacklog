@@ -33,7 +33,6 @@ const actions = {
 			const newHist = {
 				changeReqAreaColorEvent: [prevColor, payload.newColor],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -93,7 +92,6 @@ const actions = {
 			const newHist = {
 				updateReqAreaEvent: [id, oldAreaId, payload.reqareaId, reqAreaTitle],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true
@@ -179,8 +177,7 @@ const actions = {
 					if (updated) {
 						const newHist = {
 							ignoreEvent: ['updateReqAreaChildren'],
-							timestamp: Date.now(),
-							distributeEvent: false
+							timestamp: Date.now()
 						}
 						doc.history.unshift(newHist)
 						docs.push(doc)

@@ -86,8 +86,7 @@ const methods = {
 			priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}]
 		}
 		// update the database, insert the new node below the last product and add the product to this admin's subscriptions and productsRoles

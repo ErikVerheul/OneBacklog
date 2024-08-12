@@ -1,11 +1,6 @@
 'use strict'
 import Dotenv from 'dotenv'
 new Dotenv.config()
-const interestingHistoryEvents = ["acceptanceEvent", "addCommentEvent", "addSprintIdsEvent", "commentToHistoryEvent", "conditionRemovedEvent",
-	"copyItemEvent", "createItemEvent", "createTaskEvent", "dependencyRemovedEvent", "descriptionEvent", "undoBranchRemovalEvent", "newChildEvent",
-	"nodeMovedEvent", "removeAttachmentEvent", "removeSprintIdsEvent", "removedWithDescendantsEvent", "replaceCommentEvent", "removeStoryEvent",
-	"setConditionEvent", "setDependencyEvent", "setHrsEvent", "setPointsEvent", "setSizeEvent", "setStateEvent", "setSubTypeEvent", "setTeamOwnerEvent",
-	"setTitleEvent", "taskRemovedEvent", "uploadAttachmentEvent", "updateTaskOwnerEvent"]
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 import Mailgun from 'mailgun-js'
@@ -145,11 +140,12 @@ function mkHtml(dbName, eventType, value, event, doc) {
 		}
 		return '[' + shortIds + ']'
 	}
+
 	switch (eventType) {
 		case "acceptanceEvent":
 			return createEmail(`<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
-		case "addCommentEvent":
-			return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>`)
+		case "newCommentEvent":
+			return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(doc.comments[0]))}</p>`)
 		case "addSprintIdsEvent":
 			{
 				let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
@@ -162,8 +158,6 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			return createEmail(`<h3>This task was created under parent '${value[0]}'</h3>`)
 		case "copyItemEvent":
 			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'</h3>`)
-		case "commentToHistoryEvent":
-			return createEmail(`<h3>The user added comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p><h3>to the history of this item</h3>`)
 		case "conditionRemovedEvent":
 			{
 				let s
@@ -211,8 +205,9 @@ function mkHtml(dbName, eventType, value, event, doc) {
           <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed</p>`)
 		case "removeStoryEvent":
 			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
-		case "replaceCommentEvent":
-			return createEmail(`<h3>The user changed his last comment:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p>`)
+		case "commentAmendedEvent":
+			return createEmail(`<h3>The user changed his comment to this ${getLevelText(dbName, doc.level, doc.subtype)} he created at ${new Date(value[1]).toString()}</h3>
+			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} to see the conversation</h3>`)
 		case "setConditionEvent":
 			if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'</h3>`)
 			return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'</h3>`)
@@ -252,20 +247,20 @@ function listenForChanges(dbName) {
 		const results = body.results
 		for (let r of results) {
 			let doc = r.doc
-			if (doc.followers) {
-				// process new event in history; comment additions and changes are included
-				for (let fObj of doc.followers) {
-					const event = doc.history[0]
-					const eventType = Object.keys(event)[0]
-					if (interestingHistoryEvents.includes(eventType)) {
-						if (event.doNotMessageMyself && fObj.user === event.by) continue
+			const event = doc.history[0]
+			const eventType = Object.keys(event)[0]
+			if (eventType = 'ignoreEvent') continue
 
-						const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
-						mailgun.messages().send(data, (error, body) => {
-							// eslint-disable-next-line no-console
-							console.log(body)
-						})
-					}
+			if (event.email && doc.followers) {
+				// process new event in history; comment additions and changes are also registered in history. However, the content is not.
+				for (let fObj of doc.followers) {
+					if (event.doNotMessageMyself && fObj.user === event.by) continue
+
+					const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
+					mailgun.messages().send(data, (error, body) => {
+						// eslint-disable-next-line no-console
+						console.log(body)
+					})
 				}
 			}
 		}

@@ -570,9 +570,8 @@ const actions = {
 					const newHist = {
 						importToSprintEvent: [doc.level, doc.subtype, oldSprintName, newSprintName],
 						by: rootState.userData.user,
-						email: rootState.userData.email,
 						timestamp: Date.now(),
-						sessionId: rootState.mySessionId,
+						isListed: true,
 						distributeEvent: false
 					}
 					doc.history.unshift(newHist)
@@ -593,7 +592,6 @@ const actions = {
 					sendMessageAsync: {
 						boardReloadEvent: [rootState.loadedSprintId, rootState.userData.myTeam],
 						by: rootState.userData.user,
-						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,
@@ -688,8 +686,7 @@ const actions = {
 			for (const c of newChildren) {
 				const newHist = {
 					ignoreEvent: ['updateMovedTasks'],
-					timestamp: Date.now(),
-					distributeEvent: false
+					timestamp: Date.now()
 				}
 				c.history.unshift(newHist)
 			}
@@ -753,7 +750,6 @@ const actions = {
 			const newHist = {
 				updateTaskOrderEvent: { sprintId: rootState.loadedSprintId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds },
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -804,9 +800,10 @@ const actions = {
 						addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
+				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true', 
 						timestamp: Date.now(),
+						isListed: true,
 						sessionId: rootState.mySessionId,
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -816,7 +813,6 @@ const actions = {
 			const newHist = {
 				addItemsToSprintEvent: [newPBI, newTasks],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -898,9 +894,10 @@ const actions = {
 						removeSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, removedSprintId],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
+				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
+						isListed: true,
 						sessionId: rootState.mySessionId,
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -912,7 +909,6 @@ const actions = {
 			const newHist = {
 				removeItemsFromSprintEvent: [storyIdToRemove, tasksToRemove],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1018,17 +1014,17 @@ const actions = {
 				priority: taskPriority,
 				comments: [{
 					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-					distributeEvent: false
+					timestamp: Date.now()
 				}],
 				history: [{
 					createTaskEvent: [storyDoc.title],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
+					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
+					isListed: true,
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
-					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 				}]
 			}
@@ -1107,9 +1103,10 @@ const actions = {
 				removeStoryEvent: [storyDoc.level, storyDoc.subtype, getSprintNameById(rootState.loadedSprintId, rootState.myCurrentSprintCalendar), removedSprintId],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [removedSprintId], teamsAffected: [storyDoc.team] }
 			}
@@ -1165,8 +1162,7 @@ const actions = {
 						delete doc.sprintId
 						const newHist = {
 							ignoreEvent: ['removeSprintFromChildren'],
-							timestamp: Date.now(),
-							distributeEvent: false
+							timestamp: Date.now()
 						}
 						doc.history.unshift(newHist)
 						updatedDocs.push(doc)
@@ -1209,8 +1205,7 @@ const actions = {
 			// no use to add history to a removed document
 			const newHist = {
 				ignoreEvent: ['boardRemoveTask'],
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}
 			taskDoc.history.unshift(newHist)
 
@@ -1249,9 +1244,10 @@ const actions = {
 				taskRemovedEvent: [payload.taskTitle, payload.teamName, payload.storyId, payload.taskId, payload.taskState],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [payload.teamName] }
 			}
@@ -1285,6 +1281,7 @@ const actions = {
 				setTitleEvent: [oldTitle, doc.title],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
+				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 				timestamp: Date.now(),
 				sessionId: rootState.mySessionId,
 				distributeEvent: true,
@@ -1342,9 +1339,10 @@ const actions = {
 				updateTaskOwnerEvent: [oldTaskOwner, doc.taskOwner],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards: { sprintsAffected: [rootState.loadedSprintId], teamsAffected: [rootState.userData.myTeam] }
 			}

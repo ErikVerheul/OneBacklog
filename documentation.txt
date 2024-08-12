@@ -280,20 +280,35 @@ The first 4 keys of every event object are: 'event name', 'by', 'email' and 'tim
 - mailed events are to users that have subscribed to be noticed for changes
 - listed events appear in the history listing
 
+Rule for creating an event: (Y means the line is required)
+																																								distibuted	mailed	listed
+eventname: [array with data elements],																					--------------------------																			
+by: rootState.userData.user,																													Y 			Y 			Y
+email: rootState.userData.email,																															Y
+doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',								Y
+timestamp: Date.now(),																																Y				Y				Y 
+isListed: true,																																												Y 
+sessionId: rootState.mySessionId,																											Y 
+distributeEvent: true																																	Y
+
+Events to be ignored only need a timestamp:
+
+ignoreEvent: ['updateMovedDescendantsBulk'],
+timestamp: Date.now()
+
 distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------
 Y             Y	     Y    acceptanceEvent	              	update.js
-Y             Y	     Y    addCommentEvent	              	update.js
+n/a           n/a    Y    addCommentEvent	              	update.js					// stored in the comments array
 Y			  			N	     N    addItemsToSprintEvent						planningboard.js
 Y			  			Y	     Y    addSprintIdsEvent								planningboard.js
 Y			  			N	     N    boardReloadEvent								planningboard.js
 Y             N	     N    changeReqAreaColorEvent         update.js
 N             N	     Y    clonedBranchEvent	              clone.js
-Y             Y	     Y    commentToHistoryEvent	        	update.js
+Y							Y			 N 		commentAmendedEvent							update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
 N             Y	     Y    copyItemEvent                  	common.context.js
 Y             Y	     Y    createItemEvent 	              common.context.js
-N             N	     Y  	createItemEvent									utils.js			// use the same even here
 N			  			N	     Y    createRootEvent									intdb.js
 Y             Y	     Y    createTaskEvent 	              planningboard.js
 Y             Y	     Y    dependencyRemovedEvent 	      	update.js
@@ -301,6 +316,7 @@ Y             Y	     Y    descriptionEvent	            	update.js
 N             N      Y    importToSprintEvent             planningboard.js
 N			  			N	     Y    itemRestoredEvent								undo.js
 Y			  			N	     N		itemToNewTeamEvent							update.js
+Y			  			Y	     N    newCommentEvent									update.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js
@@ -308,9 +324,9 @@ Y             Y      Y    removedWithDescendantsEvent     removebranch.js
 Y 			  		N	     N    removeItemsFromSprintEvent			planningboard.js
 Y 			  		Y 	 	 Y    removeSprintIdsEvent						planningboard.js
 Y 			  		Y 	 	 Y    removeStoryEvent								planningboard.js
-Y             Y	     Y    replaceCommentEvent	            update.js
-N			  			N	     Y    resetCommentsEvent							utils.js
-N			  			N	     Y    resetHistoryEvent								utils.js
+n/a           n/a    Y    replaceCommentEvent	            update.js				// stored in the comments array
+n/a		  			n/a    Y    resetCommentsEvent							utils.js				// stored in the comments array
+N 			  		N      Y    resetHistoryEvent								utils.js
 Y             Y	     Y    setConditionEvent	          		update.js
 Y             Y	     Y    setDependencyEvent	        		update.js
 Y             Y	     Y    setHrsEvent	                  	update.js

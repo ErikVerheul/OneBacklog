@@ -1,3 +1,9 @@
+/* 
+* By default the comments to the current item are loaded and dsplayed. The text of all comments is accumulated te enable a filter on text snippets.
+* When the 'History' radio button is clicked the same happens to the accumulated events saved in history.
+* When the 'Attachments" radio button is clicked the attachments to this item are listed. These can be removed. New attchments can be oploaded.
+*/
+
 import { utilities } from '../mixins/generic.js'
 import { b64ToUni } from '../../common_functions.js'
 import store from '../../store/store.js'
@@ -68,20 +74,24 @@ const computed = {
   getFilteredHistory() {
     const filteredHistory = []
     for (const histItem of store.state.currentDoc.history) {
+      // skip events created in version 2.2.12 and later and not designated to be listed
+      if (histItem.timestamp > 1723314712647 && !histItem.isListed) continue
+
       let allText = ''
       /*
       *  All items in the events list are objects; by default the first 3 keys are: event name, 'by' and 'timestamp'; other keys are not relevant here.
-      *  For privacy reasons (do not reveal edited text) skip creation and changes in comments but process comments to the history.
       */
       const event = Object.keys(histItem)[0]
-      if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'removeItemsFromSprintEvent' ||
-        event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'itemToNewTeamEvent') continue
+      // for compatibility reasons for data created in versions before 2.2.12
+      if (event === 'ignoreEvent' || event === 'updateTaskOrderEvent' || event === 'changeReqAreaColorEvent' || event === 'commentAmendedEvent'
+        || event === 'newCommentEvent' || event === 'removeItemsFromSprintEvent' || event === 'itemToNewTeamEvent') continue
+      // for compatibility reasons for data created in versions before 2.2.12
+      if (event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'resetCommentsEvent' || event === 'resetHistoryEvent') continue
 
       if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
       if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
       if (event === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[event])
       if (event === 'copyItemEvent') allText += this.mkCopyItemEvent(histItem[event])
-      if (event === 'commentToHistoryEvent') allText += removeImages(this.mkCommentToHistoryEvent(histItem[event]))
       if (event === 'conditionRemovedEvent') allText += this.mkConditionRemovedEvent(histItem[event])
       if (event === 'createItemEvent') allText += this.mkCreateItemEvent(histItem[event])
       if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])
@@ -174,7 +184,6 @@ const methods = {
     if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
     if (key === 'addSprintIdsEvent') return this.mkAddSprintIdsEvent(value)
     if (key === 'clonedBranchEvent') return this.mkClonedBranchEvent(value)
-    if (key === 'commentToHistoryEvent') return this.mkCommentToHistoryEvent(value)
     if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
     if (key === 'copyItemEvent') return this.mkCopyItemEvent(value)
     if (key === 'createItemEvent') return this.mkCreateItemEvent(value)
@@ -231,10 +240,6 @@ const methods = {
 
   mkClonedBranchEvent(value) {
     return `<h6>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h6>`
-  },
-
-  mkCommentToHistoryEvent(value) {
-    return replaceEmpty(b64ToUni(value[0]))
   },
 
   mkConditionRemovedEvent(value) {

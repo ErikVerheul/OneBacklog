@@ -48,8 +48,8 @@ const actions = {
 			const newHist = {
 				itemRestoredEvent: [updatedParentDoc.level, updatedParentDoc.subtype],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
+				isListed: true,
 				distributeEvent: false
 			}
 			updatedParentDoc.history.unshift(newHist)
@@ -153,8 +153,7 @@ const actions = {
 		for (const doc of docs) {
 			const newHist = {
 				ignoreEvent: ['unremoveDescendants'],
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}
 			doc.history.unshift(newHist)
 			// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
@@ -213,9 +212,10 @@ const actions = {
 				globalEntry.removedNode.level, globalEntry.removedNode.data.subtype, globalEntry.removedNode.title],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards: { sprintsAffected, teamsAffected }
 			}
@@ -343,8 +343,7 @@ const actions = {
 					}
 					const newHist = {
 						ignoreEvent: ['restoreExtDepsAndConds'],
-						timestamp: Date.now(),
-						distributeEvent: false
+						timestamp: Date.now()
 					}
 					doc.history.unshift(newHist)
 					docs.push(doc)
@@ -398,8 +397,7 @@ const actions = {
 					doc.reqarea = globalEntry.removedNode._id
 					const newHist = {
 						ignoreEvent: ['restoreReqarea'],
-						timestamp: Date.now(),
-						distributeEvent: false
+						timestamp: Date.now()
 					}
 					doc.history.unshift(newHist)
 					docs.push(doc)

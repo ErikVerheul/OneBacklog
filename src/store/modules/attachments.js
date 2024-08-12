@@ -80,9 +80,10 @@ const actions = {
           uploadAttachmentEvent: [title, payload.fileInfo.size, payload.fileInfo.type],
           by: rootState.userData.user,
           email: rootState.userData.email,
+					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
           timestamp: Date.now(),
+          isListed: true,
           sessionId: rootState.mySessionId,
-          doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
           distributeEvent: true
         }
         tmpDoc.history.unshift(newHist)
@@ -124,9 +125,10 @@ const actions = {
           removeAttachmentEvent: [payload.attachmentTitle],
           by: rootState.userData.user,
           email: rootState.userData.email,
+					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
           timestamp: Date.now(),
+          isListed: true,
           sessionId: rootState.mySessionId,
-          doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
           distributeEvent: true
         }
         tmpDoc.history.unshift(newHist)

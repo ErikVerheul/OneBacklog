@@ -8,7 +8,7 @@ const SPECIAL_TEXT = true
 
 /*
 * Listen for any changes in the user subscribed products made by other users and update the products tree view.
-* - Select from the changes in documents of type 'backlogItem' the items with a history or comments array and a first entry tagged for distribution (exluding config, log and possibly others)
+* - Select from the changes in documents of type 'backlogItem' the items with a history and a first entry tagged for distribution (exluding config, log and possibly others)
 * - When a user starts multiple sessions each session has a different sessionId. These sessions are synced also.
 * - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone.
 * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
@@ -34,8 +34,6 @@ const actions = {
 					`listenForChanges @ ${now.toLocaleTimeString()} &${pad(now.getMilliseconds(), 3)} ms.\n\
 					document with _id ${doc._id} is processed with priority ${doc.priority}\n\				
 					current view = ${rootState.currentView}\n\
-					commentsEvent = ${commentsEvent}, timestamp = ${String(new Date(lastCommentsTimestamp)).substring(0, 24)}\n\
-					processComment = ${processComment}, title = '${doc.title}'\n\
 					histEvent = ${histEvent}, timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n\
 					processHistory = ${processHistory}, title = '${doc.title}'\n\
 					updateThisBoard = ${updateThisBoard}\n\
@@ -198,31 +196,8 @@ const actions = {
 				}
 
 				const isCurrentDocument = doc._id === rootState.currentDoc._id
-				if (processComment) {
-					// process the last event from the document comments array (in the tree)
-					reportOddTimestamp(lastCommentsObj, doc._id)
-					// eslint-disable-next-line no-console
-					if (rootState.debug) console.log('sync:update the comments with event ' + commentsEvent)
-					switch (commentsEvent) {
-						case 'addCommentEvent':
-							node.data.lastCommentAddition = lastCommentsTimestamp
-							// show the comments update
-							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
-							showSyncMessage(`added a comment to item`, SEV.INFO)
-							break
-						case 'replaceCommentEvent':
-							node.data.lastCommentAddition = lastCommentsTimestamp
-							// show the comments update
-							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
-							showSyncMessage(`changed a comment to item`, SEV.INFO)
-							break
-						default:
-							// eslint-disable-next-line no-console
-							if (rootState.debug) console.log('sync.trees.comments: event not found, name = ' + commentsEvent)
-					}
-				}
 				if (processHistory) {
-					// if not a comment, process the last event from the document history array (in the tree and/or board)
+					// process the last event from the document history array (in the tree and/or board)
 					reportOddTimestamp(lastHistObj, doc._id)
 					// show the history update in he currently visable document
 					if (isCurrentDocument) rootState.currentDoc.history = doc.history
@@ -292,9 +267,11 @@ const actions = {
 									showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 								}
 								break
-							case 'commentToHistoryEvent':
-								commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: doc.lastCommentToHistory })
-								showSyncMessage(`added a comment to the history of`, SEV.INFO)
+							case 'commentAmendedEvent':
+								node.data.lastCommentAddition = lastCommentsTimestamp
+								// show the comments update
+								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+								showSyncMessage(`changed a comment to item`, SEV.INFO)
 								break
 							case 'conditionRemovedEvent':
 								commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
@@ -318,6 +295,12 @@ const actions = {
 							case 'itemToNewTeamEvent':
 								const team = lastHistObj.itemToNewTeamEvent[0]
 								commit('updateNodesAndCurrentDoc', { node, team })
+								break
+							case 'newCommentEvent':
+								node.data.lastCommentAddition = lastCommentsTimestamp
+								// show the comments update
+								if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+								showSyncMessage(`added a comment to item`, SEV.INFO)
 								break
 							case 'nodeMovedEvent':
 								moveNode(node, doc.parentId)
@@ -349,6 +332,8 @@ const actions = {
 											nowSelectedNode = nextProduct
 										}
 										commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+										// load the new selected item
+										dispatch('loadDoc', { id: nowSelectedNode._id })
 									}
 									if (node.level === LEVEL.PRODUCT) {
 										// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
@@ -785,21 +770,18 @@ const actions = {
 
 		const lastCommentsObj = doc.comments[0]
 		const lastCommentsTimestamp = lastCommentsObj.timestamp
-		const commentsEvent = Object.keys(lastCommentsObj)[0]
 		const lastHistObj = doc.history[0]
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
-		// process the last comment event if not to be ignored and distributed and newer than the last history event
-		const processComment = commentsEvent !== 'ignoreEvent' && lastCommentsObj.distributeEvent && lastCommentsTimestamp > lastHistoryTimestamp
-		// process the last history event if not to be ignored and distributed and newer or of the same date (giving precedence to the history event) as the last comment event
-		const processHistory = doc._id === 'messenger' || histEvent !== 'ignoreEvent' && lastHistObj.distributeEvent && lastHistoryTimestamp >= lastCommentsTimestamp
-		if (!processComment && !processHistory) {
+		// process messenger events and the last history event if to be distributed and not to be ignored 
+		const processHistory = doc._id === 'messenger' || lastHistObj.distributeEvent && histEvent !== 'ignoreEvent'
+		if (!processHistory) {
 			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('sync: nothing to process for commentsEvent = ' + commentsEvent + ' and histEvent = ' + histEvent + ', doc.title = ' + doc.title)
+			if (rootState.debug) console.log('sync: nothing to process for histEvent = ' + histEvent + ', doc.title = ' + doc.title)
 			return
 		}
 
-		const isSameUserInDifferentSession = processComment ? lastCommentsObj.by === rootState.userData.user : lastHistObj.by === rootState.userData.user
+		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
 		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
 		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
@@ -844,23 +826,27 @@ const actions = {
 
 					lastSeq = r.seq
 					const doc = r.doc
+
+					if (!doc.history[0].distributeEvent) {
+						// do not process events that are not designated to be distributed
+						continue
+					}
+					if (doc.history[0].sessionId === rootState.mySessionId) {
+						// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
+						continue
+					}
+
 					if (rootState.currentView === 'coarseProduct' && doc.level > LEVEL.FEATURE) {
 						// cannot update documents and nodes that are not loaded in the Products overview
 						continue
 					}
-					const isLastCommentNewer = doc.comments[0].timestamp > doc.history[0].timestamp
-					if (
-						// compare with the session id of the most recent distributed comments or history event
-						doc.comments[0].distributeEvent && isLastCommentNewer && doc.comments[0].sessionId !== rootState.mySessionId ||
-						doc.history[0].distributeEvent && !isLastCommentNewer && doc.history[0].sessionId !== rootState.mySessionId
-					) {
-						if (doc._id === 'messenger') {
-							// eslint-disable-next-line no-console
-							console.log('MESSENGER DOC received')
-						}
-						// process either a comments or a history event on backlog items received from other sessions (not the session that created the event)
-						dispatch('processDoc', doc)
+
+					if (doc._id === 'messenger') {
+						// eslint-disable-next-line no-console
+						if (rootState.debug) console.log('MESSENGER DOC received')
 					}
+					// process a history event on backlog items received from other sessions (not the session that created the event)
+					dispatch('processDoc', doc)
 				}
 			}
 		}).catch(error => {

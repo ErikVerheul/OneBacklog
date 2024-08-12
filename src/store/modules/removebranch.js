@@ -132,8 +132,7 @@ const actions = {
 
 			const newHist = {
 				ignoreEvent: ['removeDescendants'],
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}
 			doc.history.unshift(newHist)
 			// multiple instances can be dispatched
@@ -207,8 +206,7 @@ const actions = {
 							extCondsRemovedFromIds.push(doc._id)
 							const newHist = {
 								ignoreEvent: ['removeExternalConds'],
-								timestamp: Date.now(),
-								distributeEvent: false
+								timestamp: Date.now()
 							}
 							doc.history.unshift(newHist)
 							docs.push(doc)
@@ -256,8 +254,7 @@ const actions = {
 							extDepsRemovedFromIds.push(doc._id)
 							const newHist = {
 								ignoreEvent: ['removeExternalDeps'],
-								timestamp: Date.now(),
-								distributeEvent: false
+								timestamp: Date.now()
 							}
 							doc.history.unshift(newHist)
 							docs.push(doc)
@@ -303,8 +300,7 @@ const actions = {
 				delete doc.reqarea
 				const newHist = {
 					ignoreEvent: ['removeReqAreaAssignments'],
-					timestamp: Date.now(),
-					distributeEvent: false
+					timestamp: Date.now()
 				}
 				doc.history.unshift(newHist)
 				updatedDocs.push(doc)
@@ -340,9 +336,10 @@ const actions = {
 				removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedFromIds.length, extCondsRemovedFromIds.length, sprintsAffected, payload.delmark],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards: { sprintsAffected, teamsAffected }
 			}

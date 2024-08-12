@@ -539,14 +539,6 @@ const methods = {
 		})
 	},
 
-	insertHist() {
-		store.dispatch('addHistoryComment', {
-			node: this.getLastSelectedNode,
-			comment: this.newHistory,
-			timestamp: Date.now()
-		})
-	},
-
 	/* Tree and database update methods */
 	updateDescription(payload) {
 		// node is either the current node (descripton changed and a click outside description and not on a node) or

@@ -21,9 +21,10 @@ const actions = {
 				setDependencyEvent: [payload.conditionalForNode._id, payload.conditionalForNode.title],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),				
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -63,9 +64,10 @@ const actions = {
 				setConditionEvent: [payload.dependentOnNode._id, payload.dependentOnNode.title],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: timestamp,
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: timestamp,
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -129,9 +131,10 @@ const actions = {
 					setDependencyEvent: [id, payload.conditionalForNode.title, undo],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
+				  doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
+					isListed: true,
 					sessionId: rootState.mySessionId,
-					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					distributeEvent: true
 				}
 				tmpDoc.history.unshift(newHist)
@@ -177,9 +180,10 @@ const actions = {
 					setConditionEvent: [id, payload.dependentOnNode.title, undo],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
+				  doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
+					isListed: true,
 					sessionId: rootState.mySessionId,
-					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					distributeEvent: true
 				}
 				tmpDoc.history.unshift(newHist)
@@ -224,9 +228,10 @@ const actions = {
 				dependencyRemovedEvent: [payload.removedIds],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -278,9 +283,10 @@ const actions = {
 						conditionRemovedEvent: [[payload.node._id], payload.node.title],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
-						sessionId: rootState.mySessionId,
+				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						isListed: true,
+						sessionId: rootState.mySessionId,
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -337,9 +343,10 @@ const actions = {
 				conditionRemovedEvent: [payload.removedIds],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -393,9 +400,10 @@ const actions = {
 						dependencyRemovedEvent: [[payload.node._id], payload.node.title],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
-						sessionId: rootState.mySessionId,
+				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						isListed: true,
+						sessionId: rootState.mySessionId,
 						distributeEvent: true
 					}
 					doc.history.unshift(newHist)
@@ -468,8 +476,7 @@ const actions = {
 					}
 					const newHist = {
 						ignoreEvent: ['removeExtDependenciesAsync'],
-						timestamp: Date.now(),
-						distributeEvent: false
+						timestamp: Date.now()
 					}
 					doc.history.unshift(newHist)
 					doc.conditionalFor = newConditionalFor
@@ -517,8 +524,7 @@ const actions = {
 					}
 					const newHist = {
 						ignoreEvent: ['removeExtConditionsAsync'],
-						timestamp: Date.now(),
-						distributeEvent: false
+						timestamp: Date.now()
 					}
 					doc.history.unshift(newHist)
 					doc.dependencies = newDependencies

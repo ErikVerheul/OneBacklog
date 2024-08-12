@@ -44,8 +44,8 @@ const actions = {
 			const newHist = {
 				subscribeEvent: [wasFollower],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
+				isListed: true,
 				distributeEvent: false
 			}
 			tmpDoc.followers = tmpFollowers
@@ -138,8 +138,8 @@ const actions = {
 					const newHist = {
 						subscribeEvent: [selectedItemWasFollowed],
 						by: rootState.userData.user,
-						email: rootState.userData.email,
 						timestamp: Date.now(),
+						isListed: true,
 						distributeEvent: false
 					}
 					if (doc._id === node._id) {
@@ -183,9 +183,10 @@ const actions = {
 				setSizeEvent: [oldTsSize, payload.newSizeIdx],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -246,9 +247,10 @@ const actions = {
 				setHrsEvent: [oldPersonHours, payload.newHrs],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards
 			}
@@ -310,10 +312,11 @@ const actions = {
 			const newHist = {
 				setPointsEvent: [oldPoints, payload.newPoints],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
+				email: rootState.userData.email,			
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards
 			}
@@ -385,9 +388,10 @@ const actions = {
 				setStateEvent: [oldState, payload.newState, node.data.team],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards
 			}
@@ -478,9 +482,10 @@ const actions = {
 					setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
-					timestamp: Date.now(),
-					sessionId: rootState.mySessionId,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+					timestamp: Date.now(),
+					isListed: true,
+					sessionId: rootState.mySessionId,
 					distributeEvent: true,
 					updateBoards
 				}
@@ -562,9 +567,8 @@ const actions = {
 							const newHist = {
 								setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
 								by: rootState.userData.user,
-								email: rootState.userData.email,
 								timestamp: Date.now(),
-								sessionId: rootState.mySessionId,
+								isListed: true,
 								distributeEvent: false
 							}
 							doc.history.unshift(newHist)
@@ -606,9 +610,10 @@ const actions = {
 				setTitleEvent: [oldTitle, payload.newTitle],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards
 			}
@@ -670,9 +675,10 @@ const actions = {
 				setSubTypeEvent: [rootState.currentDoc.subtype, payload.newSubType],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true,
 				updateBoards
 			}
@@ -734,9 +740,10 @@ const actions = {
 				descriptionEvent: [tmpDoc.description, newEncodedDescription],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -744,7 +751,7 @@ const actions = {
 			tmpDoc.lastContentChange = payload.timestamp
 			tmpDoc.lastChange = payload.timestamp
 			tmpDoc.description = newEncodedDescription
-			
+
 			const onSuccessCallback = () => {
 				rootState.isDescriptionEdited = false
 				commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
@@ -804,9 +811,10 @@ const actions = {
 				acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
@@ -843,7 +851,7 @@ const actions = {
 				updatedDoc: tmpDoc,
 				caller: 'saveAcceptance',
 				onSuccessCallback,
-				onFailureCallback,			
+				onFailureCallback,
 				toDispatch: payload.toDispatch
 			})
 		}).catch(error => {
@@ -853,7 +861,7 @@ const actions = {
 		})
 	},
 
-	/* Comments are added to the comments array of the doc */
+	/* Comments are added to the comments array of the doc; a newComment event is added to the history */
 	addComment({
 		rootState,
 		commit,
@@ -867,24 +875,24 @@ const actions = {
 		}).then((res) => {
 			const tmpDoc = res.data
 			const newHist = {
-				ignoreEvent: ['A new comment was added'],
+				newCommentEvent: ['A new comment was added'],
+				by: rootState.userData.user,
+				email: rootState.userData.email,
+				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 				timestamp: Date.now(),
-				distributeEvent: false
+				sessionId: rootState.mySessionId,
+				distributeEvent: true
 			}
 			tmpDoc.history.unshift(newHist)
-			tmpDoc.lastCommentAddition = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
 
 			const newComment = {
 				addCommentEvent: [uniTob64(payload.comment)],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-				distributeEvent: true
 			}
 			tmpDoc.comments.unshift(newComment)
+			tmpDoc.lastCommentAddition = payload.timestamp
+			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -900,6 +908,7 @@ const actions = {
 		})
 	},
 
+	/* Edited comments are replaced; the original comment is overwritten to protect privacy*/
 	replaceComment({
 		rootState,
 		commit,
@@ -914,34 +923,42 @@ const actions = {
 			const tmpDoc = res.data
 			// replace the comment in the document.comments array
 			let couldReplace = false
+			let originalTimestamp
+			let amendedCommentIdx
 			for (let i = 0; i < tmpDoc.comments.length; i++) {
 				const uneditedCommentObj = tmpDoc.comments[i]
 				if (Object.keys(uneditedCommentObj)[0] === 'addCommentEvent' && uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
-					tmpDoc.comments[i].addCommentEvent = [uniTob64(payload.editedCommentText)]
-					tmpDoc.comments[i].timestamp = Date.now()
+					originalTimestamp = tmpDoc.comments[i].timestamp
+					// replace the comment with the amended version and a new timestamp
+					tmpDoc.comments[i] = {
+						replaceCommentEvent: [uniTob64(payload.editedCommentText)],
+						by: rootState.userData.user,
+						timestamp: Date.now()
+					}
+					amendedCommentIdx = i
 					couldReplace = true
 					break
 				}
 			}
 			if (couldReplace) {
-				const newComment = {
-					replaceCommentEvent: [uniTob64(payload.editedCommentText)],
+				const newHist = {
+					commentAmendedEvent: [amendedCommentIdx, originalTimestamp],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
-					timestamp: Date.now(),
-					sessionId: rootState.mySessionId,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+					timestamp: Date.now(),
+					isListed: true,
+					sessionId: rootState.mySessionId,
 					distributeEvent: true
 				}
-				tmpDoc.comments.unshift(newComment)
+				tmpDoc.history.unshift(newHist)
+				tmpDoc.lastCommentAddition = payload.timestamp
+				tmpDoc.lastChange = payload.timestamp
 			} else {
 				const msg = `replaceComment: Could not find the comment to replace in document with id ${id}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 				return
 			}
-
-			tmpDoc.lastCommentAddition = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
 
 			dispatch('updateDoc', {
 				dbName: rootState.userData.currentDb,
@@ -953,45 +970,6 @@ const actions = {
 			})
 		}).catch(error => {
 			const msg = `replaceComment: Could not read document with id ${id}. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-		})
-	},
-
-	addHistoryComment({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
-		const node = payload.node
-		const id = node._id
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id
-		}).then(res => {
-			const tmpDoc = res.data
-			const newHist = {
-				commentToHistoryEvent: [uniTob64(payload.comment)],
-				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
-				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-				distributeEvent: true
-			}
-			tmpDoc.history.unshift(newHist)
-			tmpDoc.lastCommentToHistory = payload.timestamp
-			tmpDoc.lastChange = payload.timestamp
-
-			dispatch('updateDoc', {
-				dbName: rootState.userData.currentDb,
-				updatedDoc: tmpDoc,
-				caller: 'addHistoryComment',
-				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { node, lastCommentToHistory: payload.timestamp, newHist })
-				}
-			})
-		}).catch(error => {
-			const msg = `addHistoryComment: Could not read document with id ${id}. ${error}`
 			dispatch('doLog', { event: msg, level: SEV.ERROR })
 		})
 	},
@@ -1177,8 +1155,10 @@ const actions = {
 				newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
 				by: rootState.userData.user,
 				email: rootState.userData.email,
-				timestamp: Date.now(),
 				doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+				timestamp: Date.now(),
+				isListed: true,
+				sessionId: rootState.mySessionId,
 				distributeEvent: false
 			}
 			parentDoc.lastChange = Date.now()

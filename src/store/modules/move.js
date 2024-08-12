@@ -151,10 +151,11 @@ const actions = {
 						m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
 						by: rootState.userData.user,
 						email: rootState.userData.email,
+				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						timestamp: Date.now(),
+						isListed: true,
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 						updateBoards: { sprintsAffected, teamsAffected }
 					}
 					// update the document; products never change their product id
@@ -294,8 +295,7 @@ const actions = {
 			// priority does not change for descendants
 			const newHist = {
 				ignoreEvent: ['updateMovedDescendantsBulk'],
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}
 			doc.history.unshift(newHist)
 		}

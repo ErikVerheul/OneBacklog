@@ -111,6 +111,7 @@ const actions = {
 					type: 'team',
 					teamName: teamName,
 					members: [],
+					// Note: this event is not a regular history event
 					history: [
 						{
 							teamCreationEvent: [teamName],
@@ -300,6 +301,7 @@ const actions = {
 					oldTeamDoc.members = oldTeamDocNewMembers
 					if (!newTeamDoc.members.includes(payload.userName)) newTeamDoc.members.push(payload.userName)
 					const now = Date.now()
+					// Note: this event is not a regular history event
 					const leaveHist = {
 						leavingTeamEvent: [payload.userName],
 						by: rootState.userData.user,
@@ -308,7 +310,7 @@ const actions = {
 						distributeEvent: false
 					}
 					oldTeamDoc.history.unshift(leaveHist)
-
+					// Note: this event is not a regular history event
 					const joinHist = {
 						joiningTeamEvent: [payload.userName],
 						by: rootState.userData.user,
@@ -322,7 +324,6 @@ const actions = {
 					const newHist = {
 						teamChangeEvent: [payload.oldTeam, payload.newTeam],
 						by: rootState.userData.user,
-						email: rootState.userData.email,
 						timestamp: Date.now(),
 						sessionId: rootState.mySessionId,
 						distributeEvent: true,

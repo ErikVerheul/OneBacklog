@@ -162,16 +162,16 @@ const methods = {
 			priority: newNode.data.priority,
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: now,
-				distributeEvent: false
+				timestamp: now
 			}],
 			history: [{
 				copyItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 				by: store.state.userData.user,
 				email: store.state.userData.email,
 				timestamp: now,
-				sessionId: store.state.mySessionId,
 				doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
+				isListed: true,
+				sessionId: store.state.mySessionId,
 				distributeEvent: true
 			}]
 		}
@@ -273,16 +273,16 @@ const methods = {
 				priority: newNode.data.priority,
 				comments: [{
 					ignoreEvent: 'comments initiated',
-					timestamp: now,
-					distributeEvent: false
+					timestamp: now
 				}],
 				history: [{
 					createItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
 					by: store.state.userData.user,
 					email: store.state.userData.email,
 					timestamp: now,
-					sessionId: store.state.mySessionId,
 					doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
+					isListed: true,
+					sessionId: store.state.mySessionId,
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] }
 				}]

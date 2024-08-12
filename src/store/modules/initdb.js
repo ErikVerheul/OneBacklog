@@ -504,15 +504,14 @@ const actions = {
 			priority: 0,
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}],
 			// do not distribute this event; other users have no access rights yet
 			history: [{
 				createRootEvent: [payload.dbName],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
+				isListed: true,
 				distributeEvent: false
 			}]
 		}
@@ -544,7 +543,6 @@ const actions = {
 				{
 					teamCreationEvent: [defaultTeam],
 					by: rootState.userData.user,
-					email: rootState.userData.email,
 					timestamp: Date.now(),
 					distributeEvent: false
 				}]
@@ -584,15 +582,14 @@ const actions = {
 			// do not set a priority, must be null
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}],
 			// do not distribute this event; other users have no access rights yet
 			history: [{
 				createRootEvent: [payload.dbName],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
+				isListed: true,
 				distributeEvent: false
 			}]
 		}
@@ -630,16 +627,12 @@ const actions = {
 			priority: 0,
 			comments: [{
 				ignoreEvent: 'comments initiated',
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}],
 			// do not distribute this event; other users have no access rights yet
 			history: [{
-				createItemEvent: [LEVEL.PRODUCT, 'root', 1],
-				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
-				distributeEvent: false
+				ignoreEvent: ['createFirstProduct'],
+				timestamp: Date.now()
 			}]
 		}
 		globalAxios({
@@ -677,14 +670,13 @@ const actions = {
 			comments: [
 				{
 					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-					distributeEvent: false
+					timestamp: Date.now()
 				}
 			],
 			history: [
 				{
 					ignoreEvent: ['messenger'],
-					distributeEvent: false
+					timestamp: Date.now()
 				}
 			]
 		}

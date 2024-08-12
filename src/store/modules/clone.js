@@ -103,8 +103,7 @@ const actions = {
 				comments: doc.comments,
 				history: [{
 					ignoreEvent: ['processItemsToClone'],
-					timestamp: Date.now(),
-					distributeEvent: false
+					timestamp: Date.now()
 				}],
 				delmark: false,
 				// add last changes
@@ -126,10 +125,7 @@ const actions = {
 			// add history to the created clone
 			const newHist = {
 				ignoreEvent: ['cloneDescendants'],
-				by: rootState.userData.user,
-				email: rootState.userData.email,
-				timestamp: Date.now(),
-				distributeEvent: false
+				timestamp: Date.now()
 			}
 			clonedDoc.history.unshift(newHist)
 			clonedDocs.push(clonedDoc)
@@ -190,9 +186,8 @@ const actions = {
 			const newHist = {
 				clonedBranchEvent: [payload.originalNode.level, payload.originalNode.subtype],
 				by: rootState.userData.user,
-				email: rootState.userData.email,
 				timestamp: Date.now(),
-				sessionId: rootState.mySessionId,
+				isListed: true,
 				distributeEvent: false
 			}
 			updatedDoc.history.unshift(newHist)

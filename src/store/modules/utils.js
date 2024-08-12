@@ -93,7 +93,10 @@ const actions = {
 			createItemEvent: [LEVEL.PRODUCT, payload.dbName, position],
 			by: rootState.userData.user,
 			email: rootState.userData.email,
+			doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 			timestamp: Date.now(),
+			isListed: true,
+			sessionId: rootState.mySessionId,
 			distributeEvent: false
 		}]
 		globalAxios({
@@ -349,9 +352,10 @@ const actions = {
 						const newHist = {
 							resetHistoryEvent: [histRemovedCount, payload.olderThan],
 							by: rootState.userData.user,
-							email: rootState.userData.email,
 							timestamp: now,
-							distributeEvent: false
+							isListed: true,
+							sessionId: rootState.mySessionId,
+							distributeEvent: true
 						}
 						doc.history.unshift(newHist)
 
@@ -366,9 +370,7 @@ const actions = {
 						const newComment = {
 							resetCommentsEvent: [commentsRemovedCount, payload.olderThan],
 							by: rootState.userData.user,
-							email: rootState.userData.email,
 							timestamp: now,
-							distributeEvent: false
 						}
 						doc.comments.unshift(newComment)
 						docs.push(doc)

@@ -281,12 +281,6 @@
       </BFormGroup>
     </BModal>
 
-    <BModal size="lg" ref="historyEditorRef" @ok="insertHist" title="Comment on last history event">
-      <BFormGroup>
-        <QuillEditor v-model:content=newHistory contentType="html" id="newHistory"></QuillEditor>
-      </BFormGroup>
-    </BModal>
-
     <BModal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
       <BFormInput v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></BFormInput>
     </BModal>
