@@ -314,7 +314,6 @@ const actions = {
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
-							// does also update the board							
 							if (node && doc.delmark) {
 								// remove any dependency references to/from outside the removed items
 								rootState.helpersRef.correctDependencies(node)
@@ -342,11 +341,6 @@ const actions = {
 									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 								}
 								rootState.helpersRef.removeNodes([node])
-								if (updateThisBoard) {
-									const delmark = lastHistObj.removedWithDescendantsEvent[5]
-									// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
-									dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
-								}
 								showSyncMessage(`removed the`, SEV.INFO)
 							}
 							break
@@ -625,7 +619,9 @@ const actions = {
 							}
 							break
 						case 'removedWithDescendantsEvent':
-							// taken care of when updating the tree model
+							const delmark = lastHistObj.removedWithDescendantsEvent[5]
+							// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
+							dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
 							break
 						case 'removeItemsFromSprintEvent':
 							{
@@ -811,6 +807,7 @@ const actions = {
 		}
 		globalAxios({
 			method: 'GET',
+			// the sync filter selects docs with a history of events, the event is NOT 'ignoreEvent' and the event has the 'distributeEvent===true' property
 			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
 		}).then(res => {
 			// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
@@ -825,10 +822,6 @@ const actions = {
 					lastSeq = r.seq
 					const doc = r.doc
 
-					if (!doc.history[0].distributeEvent) {
-						// do not process events that are not designated to be distributed
-						continue
-					}
 					if (doc.history[0].sessionId === rootState.mySessionId) {
 						// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
 						continue
