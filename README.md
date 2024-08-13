@@ -246,7 +246,7 @@ When using Apache2 as your web server add these lines to the `/etc/apache2/sites
 
 ## install the e-mail server
 To sent e-mails when users subscribe to receive change notices on bacloklog items you need to install or use an existing e-mail service.</br>
-The application `node.js/app.js` is intended to run in node.js and placed on the home directory of the account named `pm2`. The installOneBacklog.sh script does that by default.</br>
+The application `node.js/app.mjs` is intended to run in node.js and placed on the home directory of the account named `pm2`. The installOneBacklog.sh script does that by default.</br>
 See the [pm2 docs](https://pm2.keymetrics.io/docs/usage/quick-start/) to enable the service to restart automatically on (re)boot and error conditions.</br>
 The application uses an subscription on [mailgun](https://www.mailgun.com/).
 The .env file for the application looks like this:

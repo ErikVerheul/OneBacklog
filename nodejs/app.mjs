@@ -249,8 +249,6 @@ function listenForChanges(dbName) {
 			let doc = r.doc
 			const event = doc.history[0]
 			const eventType = Object.keys(event)[0]
-			if (eventType = 'ignoreEvent') continue
-
 			if (event.email && doc.followers) {
 				// process new event in history; comment additions and changes are also registered in history. However, the content is not.
 				for (let fObj of doc.followers) {

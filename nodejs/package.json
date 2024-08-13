@@ -3,7 +3,7 @@
   "name": "node.js",
   "version": "1.0.0",
   "description": "Change notices email service",
-  "main": "app.cjs",
+  "main": "app.mjs",
   "scripts": {
     "test": "echo \"Error: no tests specified\" && exit 1"
   },
