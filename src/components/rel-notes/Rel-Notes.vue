@@ -6,6 +6,21 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.3.0 - 13 August 2024 Bug fixex, refactoring, vulnerability fix</h3>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Bug syncking the undoing of the removal of an item and visible on the planning board of other users, fixed</li>
+            <li>Fix insertion in wrong array</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>New sync design filter. 'ignoreEvent' Event type is filtered out. Only events designated for distribution pass the filter. </li>
+            <li>Events mechanism refactored; the event content determines if it is to be distributed, emailed or listed in the history overview</li>
+          </ul>
+          <p>Vulnerability fix</p>
+          <ul>
+            <li>Critical vulnerability in Axios fixed with upgrade</li>
+          </ul>
           <h3>v.2.2.11 - 9 August 2024 New and removed feature, bug fixex, refactoring</h3>
           <p>Features</p>
           <ul>
@@ -101,7 +116,8 @@
             <li>Show number of done user stories in pick list of past sprints</li>
           </ul>
           <p>Fix browser support:</p>
-          <p>Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid site breakage. See https://chromestatus.com/feature/5083947249172480</p>
+          <p>Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid site breakage. See
+            https://chromestatus.com/feature/5083947249172480</p>
           <p>This is done by overriding the quill dependency version to 2.0.2</p>
           <p>Bug fixes:</p>
           <ul>
@@ -170,7 +186,7 @@
           <h3>v.2.0.2 - 15 Februari 2024 bug fix, refactoring and upgrade</h3>
           <p>Bug fix:</p>
           <ul>
-            <li>Saving updated node field in newly selected node  instead of updating originally selected node: bug fixed</li>
+            <li>Saving updated node field in newly selected node instead of updating originally selected node: bug fixed</li>
           </ul>
           <p>Changed feature:</p>
           <ul>
