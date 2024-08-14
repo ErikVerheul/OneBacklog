@@ -147,7 +147,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
         `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`,
       )
     case 'newCommentEvent':
-      return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)} at ${new Date(event.timestamp).toString()}</h3>
+      return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)}</h3>
 			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} with short id ${doc._id.slice(-5)} to see the conversation</h3>`)
     case 'addSprintIdsEvent': {
       let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
