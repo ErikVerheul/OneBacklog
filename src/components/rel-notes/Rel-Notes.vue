@@ -6,6 +6,16 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.3.1 - 14 August 2024 Bug fix, refactoring</h3>
+          <p>Bug fix:</p>
+          <ul>
+            <li>Emails are only send to myself, other subscribed users are not notified: fixed</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Make the mailing app ES6 module system compatible </li>
+            <li>Prettier formatter added and applied to all files</li>
+          </ul>
           <h3>v.2.3.0 - 13 August 2024 Bug fixex, refactoring, vulnerability fix</h3>
           <p>Bug fixes:</p>
           <ul>
