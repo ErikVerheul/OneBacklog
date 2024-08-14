@@ -18,69 +18,69 @@ For use cases where you need to encode arbitrary Unicode text,
 it is necessary to first convert the string to its constituent bytes in UTF-8, and then encode the bytes.*/
 
 function base64ToBytes(base64) {
-	const binString = atob(base64)
-	return Uint8Array.from(binString, (m) => m.codePointAt(0))
+  const binString = atob(base64)
+  return Uint8Array.from(binString, (m) => m.codePointAt(0))
 }
 
 function bytesToBase64(bytes) {
-	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
-	return window.btoa(binString)
+  const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
+  return window.btoa(binString)
 }
 
 // convert unicode string to base64 encoded ascii
 function uniTob64(str) {
-	return bytesToBase64(new TextEncoder().encode(str))
+  return bytesToBase64(new TextEncoder().encode(str))
 }
 
 // convert base64 encoded ascii to unicode string
 function b64ToUni(bytes) {
-	return new TextDecoder().decode(base64ToBytes(bytes))
+  return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
 function replaceEmpty(text) {
-	if (text === "" || text === "<p></p>" || text === "<p><br></p>") return "EMPTY TEXT"
-	return text
+  if (text === '' || text === '<p></p>' || text === '<p><br></p>') return 'EMPTY TEXT'
+  return text
 }
 
 function getSubTypeText(dbName, idx) {
-	if (idx < 0 || idx >= configData[dbName].subtype.length) {
-		return 'Error: unknown subtype'
-	}
-	return configData[dbName].subtype[idx]
+  if (idx < 0 || idx >= configData[dbName].subtype.length) {
+    return 'Error: unknown subtype'
+  }
+  return configData[dbName].subtype[idx]
 }
 
 function getLevelText(dbName, level, subtype) {
-	if (level < 0 || level > TASKLEVEL) return `Level not supported`
+  if (level < 0 || level > TASKLEVEL) return `Level not supported`
 
-	if (subtype && level === PBILEVEL) {
-		return getSubTypeText(dbName, subtype)
-	} else return configData[dbName].itemType[level]
+  if (subtype && level === PBILEVEL) {
+    return getSubTypeText(dbName, subtype)
+  } else return configData[dbName].itemType[level]
 }
 
 function getItemStateText(dbName, idx) {
-	if (idx < 0 || idx > TASKLEVEL) {
-		return `Error: unknown state`
-	}
-	return configData[dbName].itemState[idx]
+  if (idx < 0 || idx > TASKLEVEL) {
+    return `Error: unknown state`
+  }
+  return configData[dbName].itemState[idx]
 }
 
 function getTsSize(dbName, idx) {
-	if (idx < 0 || idx >= configData[dbName].tsSize.length) {
-		return 'Error: unknown T-shirt size'
-	}
-	return configData[dbName].tsSize[idx]
+  if (idx < 0 || idx >= configData[dbName].tsSize.length) {
+    return 'Error: unknown T-shirt size'
+  }
+  return configData[dbName].tsSize[idx]
 }
 
 function mkHtml(dbName, eventType, value, event, doc) {
-	function mkHeader() {
-		return `<p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
+  function mkHeader() {
+    return `<p>User '${event.by}' made a change in the ${getLevelText(dbName, doc.level, doc.subtype)} with title:</p>
             <h3>'${doc.title}'</h3>`
-	}
-	function mkFooter() {
-		return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p>`
-	}
-	function createEmail(content) {
-		return `
+  }
+  function mkFooter() {
+    return `<p>This mutation occurred in database ${dbName} and document with short id ${doc._id.slice(-5)}</p>`
+  }
+  function createEmail(content) {
+    return `
 		<!DOCTYPE html>
 		<html lang="en">
 		<head>
@@ -126,208 +126,235 @@ function mkHtml(dbName, eventType, value, event, doc) {
 				</table>
 		</body>
 		</html>`
-	}
-	function cText(condition, text) {
-		if (condition) return text
-		return ``
-	}
-	function convertToShortIds(ids) {
-		if (!ids || ids.length === 0) return '[none]'
+  }
+  function cText(condition, text) {
+    if (condition) return text
+    return ``
+  }
+  function convertToShortIds(ids) {
+    if (!ids || ids.length === 0) return '[none]'
 
-		const shortIds = []
-		for (let id of ids) {
-			shortIds.push(id.slice(-5))
-		}
-		return '[' + shortIds + ']'
-	}
+    const shortIds = []
+    for (let id of ids) {
+      shortIds.push(id.slice(-5))
+    }
+    return '[' + shortIds + ']'
+  }
 
-	switch (eventType) {
-		case "acceptanceEvent":
-			return createEmail(`<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
-		case "newCommentEvent":
-			return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(doc.comments[0]))}</p>`)
-		case "addSprintIdsEvent":
-			{
-				let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
-				if (value[3]) txt += ` The item was assigned to a sprint before.`
-				return createEmail(`<h3>${txt}</h3>`)
-			}
-		case "createItemEvent":
-			return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}</h3>`)
-		case "createTaskEvent":
-			return createEmail(`<h3>This task was created under parent '${value[0]}'</h3>`)
-		case "copyItemEvent":
-			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'</h3>`)
-		case "conditionRemovedEvent":
-			{
-				let s
-				if (value[1]) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
-				else if (value[0].length === 1) { s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
-				else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-				return createEmail(`<h3>${s}</h3>`)
-			}
-		case "dependencyRemovedEvent":
-			{
-				let s
-				if (value[1]) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.` }
-				else if (value[0].length === 1) { s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.` }
-				else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
-				return createEmail(`<h3>${s}</h3>`)
-			}
-		case "descriptionEvent":
-			return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
-		case "undoBranchRemovalEvent":
-			return createEmail(`<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`)
-		case "newChildEvent":
-			return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}</h3>`)
-		case "nodeMovedEvent":
-			{
-				const moveType = value[13] === 'undoMove' ? ' back' : ''
-				let txt
-				if (value[7] !== value[8]) { txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}</h5>` } else txt = ''
-				if (value[0] === value[1]) {
-					txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
-					txt += (value[4] > 0) ? `<p>${value[4]} children were also moved</p>` : ""
-					return createEmail(txt)
-				} else {
-					txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}</h5>`
-					txt += `<p>The new position is ${(value[2] + 1)} under parent '${value[3]}'</p>`
-					txt += (value[4] > 0) ? `<p>${value[4]} children also changed level</p>` : ""
-					return createEmail(txt)
-				}
-			}
-		case "removeAttachmentEvent":
-			return createEmail(`<h3>Attachment with title '${value[0]}' is removed from this item</h3>`)
-		case "removeSprintIdsEvent":
-			return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
-		case "removedWithDescendantsEvent":
-			return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed</h3>
+  switch (eventType) {
+    case 'acceptanceEvent':
+      return createEmail(
+        `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`,
+      )
+    case 'newCommentEvent':
+      return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(doc.comments[0]))}</p>`)
+    case 'addSprintIdsEvent': {
+      let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
+      if (value[3]) txt += ` The item was assigned to a sprint before.`
+      return createEmail(`<h3>${txt}</h3>`)
+    }
+    case 'createItemEvent':
+      return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}</h3>`)
+    case 'createTaskEvent':
+      return createEmail(`<h3>This task was created under parent '${value[0]}'</h3>`)
+    case 'copyItemEvent':
+      return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} has been copied as item of product '${value[2]}'</h3>`)
+    case 'conditionRemovedEvent': {
+      let s
+      if (value[1]) {
+        s = `The condition for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.`
+      } else if (value[0].length === 1) {
+        s = `The condition for item ${convertToShortIds(value[0])} (short Id) is removed from this item.`
+      } else s = `The conditions for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+      return createEmail(`<h3>${s}</h3>`)
+    }
+    case 'dependencyRemovedEvent': {
+      let s
+      if (value[1]) {
+        s = `The dependency for item ${convertToShortIds(value[0])} (short Id) and title '${value[1]}' is removed from this item.`
+      } else if (value[0].length === 1) {
+        s = `The dependency for item ${convertToShortIds(value[0])} (short Id) is removed from this item.`
+      } else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
+      return createEmail(`<h3>${s}</h3>`)
+    }
+    case 'descriptionEvent':
+      return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
+    case 'undoBranchRemovalEvent':
+      return createEmail(
+        `<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`,
+      )
+    case 'newChildEvent':
+      return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}</h3>`)
+    case 'nodeMovedEvent': {
+      const moveType = value[13] === 'undoMove' ? ' back' : ''
+      let txt
+      if (value[7] !== value[8]) {
+        txt = `<h5>The item was moved${moveType} from parent '${value[5]}', position ${value[9] + 1}</h5>`
+      } else txt = ''
+      if (value[0] === value[1]) {
+        txt += `<h5>The item changed priority to position ${value[2] + 1} under parent '${value[3]}'</h5>`
+        txt += value[4] > 0 ? `<p>${value[4]} children were also moved</p>` : ''
+        return createEmail(txt)
+      } else {
+        txt += `<h5>The item changed level from ${getLevelText(dbName, value[0])} to ${getLevelText(dbName, value[1])}</h5>`
+        txt += `<p>The new position is ${value[2] + 1} under parent '${value[3]}'</p>`
+        txt += value[4] > 0 ? `<p>${value[4]} children also changed level</p>` : ''
+        return createEmail(txt)
+      }
+    }
+    case 'removeAttachmentEvent':
+      return createEmail(`<h3>Attachment with title '${value[0]}' is removed from this item</h3>`)
+    case 'removeSprintIdsEvent':
+      return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
+    case 'removedWithDescendantsEvent':
+      return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed</h3>
           <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed</p>`)
-		case "removeStoryEvent":
-			return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
-		case "commentAmendedEvent":
-			return createEmail(`<h3>The user changed his comment to this ${getLevelText(dbName, doc.level, doc.subtype)} he created at ${new Date(value[1]).toString()}</h3>
+    case 'removeStoryEvent':
+      return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
+    case 'commentAmendedEvent':
+      return createEmail(`<h3>The user changed his comment to this ${getLevelText(dbName, doc.level, doc.subtype)} he created at ${new Date(value[1]).toString()}</h3>
 			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} to see the conversation</h3>`)
-		case "setConditionEvent":
-			if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'</h3>`)
-			return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'</h3>`)
-		case "setDependencyEvent":
-			if (value[2]) return createEmail(`<h3>The previous dependency set on item '${value[1]} is undone'</h3>`)
-			return createEmail(`<h3>This item is set to be dependent on item '${value[1]}'</h3>`)
-		case "setHrsEvent":
-			return createEmail(`<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>`)
-		case "setPointsEvent":
-			return createEmail(`<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>`)
-		case "setSizeEvent":
-			return createEmail(`<h3>The item T-shirt size changed from ${getTsSize(dbName, value[0])} to ${getTsSize(dbName, value[1])}</h3>`)
-		case "setStateEvent":
-			return createEmail(`<h3>The item state changed from ${getItemStateText(dbName, value[0])} to ${getItemStateText(dbName, value[1])}</h3>` +
-				`<p>This backlog item is realized by team '${value[2]}'</p>`)
-		case "setSubTypeEvent":
-			return createEmail(`<h3>The item subtype changed from '${getSubTypeText(dbName, value[0])}' to '${getSubTypeText(dbName, value[1])}'</h3>`)
-		case "setTeamOwnerEvent":
-			return createEmail(`<h3>The owning team changed from '${value[0]}' to '${value[1]}'</h3>` +
-				cText(value[2] > 0, `<h3>Also ${value[2]} descendants of this item are assigned to this team</h3>`))
-		case "setTitleEvent":
-			return createEmail(`<h3>The item title changed from: </h3><h3>'${value[0]}' to <br>'${value[1]}'</h3>`)
-		case "taskRemovedEvent":
-			return createEmail(`<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>`)
-		case "uploadAttachmentEvent":
-			return createEmail(`<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>`)
-		case "updateTaskOwnerEvent":
-			return createEmail(`<h3>Task owner is changed from '${value[0]}' to '${value[1]}`)
-		default:
-			return "unknown event type"
-	}
+    case 'setConditionEvent':
+      if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'</h3>`)
+      return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'</h3>`)
+    case 'setDependencyEvent':
+      if (value[2]) return createEmail(`<h3>The previous dependency set on item '${value[1]} is undone'</h3>`)
+      return createEmail(`<h3>This item is set to be dependent on item '${value[1]}'</h3>`)
+    case 'setHrsEvent':
+      return createEmail(`<h3>The maximum effort changed from ${value[0]} to ${value[1]} hours</h3>`)
+    case 'setPointsEvent':
+      return createEmail(`<h3>The item size changed from ${value[0]} to ${value[1]} story points</h3>`)
+    case 'setSizeEvent':
+      return createEmail(`<h3>The item T-shirt size changed from ${getTsSize(dbName, value[0])} to ${getTsSize(dbName, value[1])}</h3>`)
+    case 'setStateEvent':
+      return createEmail(
+        `<h3>The item state changed from ${getItemStateText(dbName, value[0])} to ${getItemStateText(dbName, value[1])}</h3>` +
+          `<p>This backlog item is realized by team '${value[2]}'</p>`,
+      )
+    case 'setSubTypeEvent':
+      return createEmail(`<h3>The item subtype changed from '${getSubTypeText(dbName, value[0])}' to '${getSubTypeText(dbName, value[1])}'</h3>`)
+    case 'setTeamOwnerEvent':
+      return createEmail(
+        `<h3>The owning team changed from '${value[0]}' to '${value[1]}'</h3>` +
+          cText(value[2] > 0, `<h3>Also ${value[2]} descendants of this item are assigned to this team</h3>`),
+      )
+    case 'setTitleEvent':
+      return createEmail(`<h3>The item title changed from: </h3><h3>'${value[0]}' to <br>'${value[1]}'</h3>`)
+    case 'taskRemovedEvent':
+      return createEmail(`<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>`)
+    case 'uploadAttachmentEvent':
+      return createEmail(`<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>`)
+    case 'updateTaskOwnerEvent':
+      return createEmail(`<h3>Task owner is changed from '${value[0]}' to '${value[1]}`)
+    default:
+      return 'unknown event type'
+  }
 }
 
 function listenForChanges(dbName) {
-	nano.db.changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since: 'now' }).then((body) => {
-		// console.log('body = ' + JSON.stringify(body, null, 2))
-		const results = body.results
-		for (let r of results) {
-			let doc = r.doc
-			const event = doc.history[0]
-			const eventType = Object.keys(event)[0]
-			if (event.email && doc.followers) {
-				// process new event in history; comment additions and changes are also registered in history. However, the content is not.
-				for (let fObj of doc.followers) {
-					if (event.doNotMessageMyself && fObj.user === event.by) continue
+  nano.db
+    .changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since: 'now' })
+    .then((body) => {
+      // console.log('body = ' + JSON.stringify(body, null, 2))
+      const results = body.results
+      for (let r of results) {
+        let doc = r.doc
+        const event = doc.history[0]
+        const eventType = Object.keys(event)[0]
+        if (event.email && doc.followers) {
+          // process new event in history; comment additions and changes are also registered in history. However, the content is not.
+          for (let fObj of doc.followers) {
+            if (event.doNotMessageMyself && fObj.user === event.by) continue
 
-					const data = { from: 'no-reply@onebacklog.net', to: event.email, subject: 'Event ' + eventType + ' occurred', html: mkHtml(dbName, eventType, event[eventType], event, doc) }
-					mailgun.messages().send(data, (error, body) => {
-						// eslint-disable-next-line no-console
-						console.log(body)
-					})
-				}
-			}
-		}
-		checkForNewDataBases()
-		// eslint-disable-next-line no-console
-		console.log('listenForChanges: listening to database ' + dbName)
-		listenForChanges(dbName)
-	}).catch((err) => {
-		if (err.code === "ESOCKETTIMEDOUT") { listenForChanges(dbName) } else
-			if (err.statusCode === 404) {
-				// eslint-disable-next-line no-console
-				console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
-				runData[dbName].listening = false
-			} else
-				// eslint-disable-next-line no-console
-				console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
-	})
+            const data = {
+              from: 'no-reply@onebacklog.net',
+              to: fObj.email,
+              subject: 'Event ' + eventType + ' occurred',
+              html: mkHtml(dbName, eventType, event[eventType], event, doc),
+            }
+            mailgun.messages().send(data, (error, body) => {
+              // eslint-disable-next-line no-console
+              console.log(body)
+            })
+          }
+        }
+      }
+      checkForNewDataBases()
+      // eslint-disable-next-line no-console
+      console.log('listenForChanges: listening to database ' + dbName)
+      listenForChanges(dbName)
+    })
+    .catch((err) => {
+      if (err.code === 'ESOCKETTIMEDOUT') {
+        listenForChanges(dbName)
+      } else if (err.statusCode === 404) {
+        // eslint-disable-next-line no-console
+        console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
+        runData[dbName].listening = false
+      }
+      // eslint-disable-next-line no-console
+      else console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
+    })
 }
 
 function getConfig(dbName) {
-	db.get("config").then((body) => {
-		configData[dbName] = body
-		listenForChanges(dbName)
-	}).catch((err) => {
-		// eslint-disable-next-line no-console
-		console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2))
-	})
+  db.get('config')
+    .then((body) => {
+      configData[dbName] = body
+      listenForChanges(dbName)
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2))
+    })
 }
 
 function checkForNewDataBases() {
-	nano.db.list().then((body) => {
-		body.forEach((dbName) => {
-			if (!dbName.startsWith('_') && !dbName.includes('backup')) {
-				if (Object.keys(runData).includes(dbName)) {
-					if (runData[dbName].listening === false) {
-						// database returned from being absent
-						db = nano.use(dbName)
-						runData[dbName].listening = true
-						getConfig(dbName)
-					}
-				} else {
-					// new database
-					db = nano.use(dbName)
-					runData[dbName] = { listening: true }
-					getConfig(dbName)
-				}
-			}
-		})
-	}).catch((err) => {
-		// eslint-disable-next-line no-console
-		console.log('checkForNewDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
-	})
+  nano.db
+    .list()
+    .then((body) => {
+      body.forEach((dbName) => {
+        if (!dbName.startsWith('_') && !dbName.includes('backup')) {
+          if (Object.keys(runData).includes(dbName)) {
+            if (runData[dbName].listening === false) {
+              // database returned from being absent
+              db = nano.use(dbName)
+              runData[dbName].listening = true
+              getConfig(dbName)
+            }
+          } else {
+            // new database
+            db = nano.use(dbName)
+            runData[dbName] = { listening: true }
+            getConfig(dbName)
+          }
+        }
+      })
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log('checkForNewDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
+    })
 }
 
 function getAllDataBases() {
-	nano.db.list().then((body) => {
-		body.forEach((dbName) => {
-			if (!dbName.startsWith('_') && !dbName.includes('backup')) {
-				// eslint-disable-next-line no-console
-				console.log('Listening to database = ' + dbName)
-				db = nano.use(dbName)
-				runData[dbName] = { listening: true }
-				getConfig(dbName)
-			}
-		})
-	}).catch((err) => {
-		// eslint-disable-next-line no-console
-		console.log('getAllDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
-	})
+  nano.db
+    .list()
+    .then((body) => {
+      body.forEach((dbName) => {
+        if (!dbName.startsWith('_') && !dbName.includes('backup')) {
+          // eslint-disable-next-line no-console
+          console.log('Listening to database = ' + dbName)
+          db = nano.use(dbName)
+          runData[dbName] = { listening: true }
+          getConfig(dbName)
+        }
+      })
+    })
+    .catch((err) => {
+      // eslint-disable-next-line no-console
+      console.log('getAllDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
+    })
 }
 
 getAllDataBases()
