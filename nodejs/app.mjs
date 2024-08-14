@@ -147,7 +147,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
         `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`,
       )
     case 'newCommentEvent':
-      return createEmail(`<h3>The user added a comment:</h3><p>${replaceEmpty(b64ToUni(doc.comments[0]))}</p>`)
+      return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)} at ${new Date(event.timestamp).toString()}</h3>
+			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} with short id ${doc._id.slice(-5)} to see the conversation</h3>`)
     case 'addSprintIdsEvent': {
       let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
       if (value[3]) txt += ` The item was assigned to a sprint before.`
@@ -212,8 +213,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'removeStoryEvent':
       return createEmail(`<h3>This ${getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
     case 'commentAmendedEvent':
-      return createEmail(`<h3>The user changed his comment to this ${getLevelText(dbName, doc.level, doc.subtype)} he created at ${new Date(value[1]).toString()}</h3>
-			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} to see the conversation</h3>`)
+      return createEmail(`<h3>The user changed his comment to this ${getLevelText(dbName, doc.level, doc.subtype)} he/she created at ${new Date(value[1]).toString()}</h3>
+			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} with short id ${doc._id.slice(-5)} to see the conversation</h3>`)
     case 'setConditionEvent':
       if (value[2]) return createEmail(`<h3>The previous condition set for item '${value[1]} is undone'</h3>`)
       return createEmail(`<h3>This item is set to be conditional for item '${value[1]}'</h3>`)
