@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { b64ToUni, getLocationInfo } from '../../common_functions.js'
+import { b64ToUni, getLocationInfo, localTimeAndMilis } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -16,17 +16,11 @@ const SPECIAL_TEXT = true
 
 const actions = {
 	processDoc({ rootState, rootGetters, commit, dispatch }, doc) {
-		function pad(num, size) {
-			var s = '000' + num
-			return s.substring(s.length - size)
-		}
-
 		function doBlinck(doc) {
 			if (rootState.debug) {
-				const now = new Date()
 				// eslint-disable-next-line no-console
 				console.log(
-					`listenForChanges @ ${now.toLocaleTimeString()} &${pad(now.getMilliseconds(), 3)} ms.\n\
+					`listenForChanges @ ${localTimeAndMilis(new Date())}\n\
 					document with _id ${doc._id} is processed\n\				
 					current view = ${rootState.currentView}\n\
 					histEvent = ${histEvent}\n\

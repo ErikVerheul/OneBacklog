@@ -101,7 +101,7 @@ export function addToArray(arr, item) {
 	return newArr
 }
 
-export function localTimeAndMilis() {
+export function localTimeAndMilis(now) {
 	function pad(num, size) {
 		var s = '000' + num
 		return s.substring(s.length - size)
@@ -116,7 +116,6 @@ export function localTimeAndMilis() {
 		// Chrome
 		return timeString.substring(0, len - 3)
 	}
-	const now = new Date()
 	return `${strip(now.toLocaleTimeString())}.${pad(now.getMilliseconds(), 3)}`
 }
 

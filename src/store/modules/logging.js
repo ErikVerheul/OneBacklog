@@ -30,7 +30,7 @@ const actions = {
 			timestamp: Date.now(),
 		}
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log(`logging => ${localTimeAndMilis()}: ${payload.event}`)
+		if (rootState.debug) console.log(`logging => ${localTimeAndMilis(new Date())}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
 		rootState.unsavedLogs.push(newLog)
 	},

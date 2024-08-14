@@ -18,6 +18,12 @@ const actions = {
 				return rootGetters.leafLevel
 			},
 
+			/* Pad a number to a string with a fixed number of digits */
+			pad(num, size) {
+				var s = '000' + num
+				return s.substring(s.length - size)
+			},
+
 			/* Return the subtype description (on PBI level only) */
 			getSubType(idx) {
 				if (idx < 0 || idx >= rootState.configData.subtype.length) {

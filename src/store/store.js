@@ -1,6 +1,6 @@
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
-import { b64ToUni, expandNode, collapseNode, addToArray, removeFromArray } from '../common_functions.js'
+import { b64ToUni, expandNode, collapseNode, addToArray, localTimeAndMilis, removeFromArray } from '../common_functions.js'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 import { SEV, LEVEL, MISC } from '../constants.js'
@@ -32,11 +32,6 @@ import watchdog from './modules/watchdog'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEventToDisplay(payload) {
-	function pad(num, size) {
-		var s = '000' + num
-		return s.substring(s.length - size)
-	}
-	const now = new Date()
 	let color = '#408FAE'
 	let severityStr = 'INFO'
 	switch (payload.severity) {
@@ -64,7 +59,7 @@ function createEventToDisplay(payload) {
 	if (payload.severity > SEV.INFO) tip = ' CLICK to unlock'
 	const newEvent = {
 		eventKey: payload.eventKey,
-		time: `${now.toLocaleTimeString()}.${pad(now.getMilliseconds(), 3)}`,
+		time: localTimeAndMilis(new Date()),
 		txt: payload.txt + tip,
 		sevKey: payload.severity,
 		severity: severityStr,

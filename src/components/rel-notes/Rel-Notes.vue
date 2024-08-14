@@ -18,7 +18,7 @@
           </ul>
           <p>Note for the users:</p>
           <p>You must unsubsribe your change notices and subscribe again for the email service to work</p>
-          <h3>v.2.3.0 - 13 August 2024 Bug fixex, refactoring, vulnerability fix</h3>
+          <p>v.2.3.0 - 13 August 2024 Bug fixes, refactoring, vulnerability fix</p>
           <p>Bug fixes:</p>
           <ul>
             <li>Bug syncking the undoing of the removal of an item and visible on the planning board of other users, fixed</li>
