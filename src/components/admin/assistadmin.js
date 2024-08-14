@@ -22,8 +22,7 @@ const methods = {
 		this.getUserFirst = true
 		this.isUserDbSelected = false
 		this.canRemoveLastProduct = true
-		this.canRemoveDatabase = true,
-		this.localMessage = ''
+		;(this.canRemoveDatabase = true), (this.localMessage = '')
 		store.state.backendMessages = []
 		store.state.isUserFound = false
 		store.state.areDatabasesFound = false
@@ -32,10 +31,10 @@ const methods = {
 		store.state.selectedDatabaseName = undefined
 		// get the users to select from
 		store.dispatch('getAllUsers')
-	}
+	},
 }
 
 export default {
 	extends: common_admin,
-	methods
+	methods,
 }

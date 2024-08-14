@@ -16,76 +16,76 @@ import AdminPage from './components/admin/AdminTool.vue'
 import ServerAdminPage from './components/serveradmin/ServerAdmin.vue'
 
 const routes = [
-  {
-    path: '/',
-    component: WelcomePage
-  },
-  {
-    path: '/rel-notes',
-    component: RelNotesPage
-  },
-  {
-    path: '/userguide',
-    component: UserGuidePage
-  },
-  {
-    path: '/signin',
-    component: SigninPage
-  },
-  {
-    path: '/init',
-    component: InitPage,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        next()
-      } else {
-        next('/signin')
-      }
-    }
-  },
-  {
-    path: '/detailProduct',
-    component: ProductPage,
+	{
+		path: '/',
+		component: WelcomePage,
+	},
+	{
+		path: '/rel-notes',
+		component: RelNotesPage,
+	},
+	{
+		path: '/userguide',
+		component: UserGuidePage,
+	},
+	{
+		path: '/signin',
+		component: SigninPage,
+	},
+	{
+		path: '/init',
+		component: InitPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		},
+	},
+	{
+		path: '/detailProduct',
+		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user && store.state.isProductAssigned) {
 				next()
 			} else {
 				next('/signin')
 			}
-    }
-  },
-  {
-    path: '/coarseProduct',
-    component: ReqsAreaPage,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        next()
-      } else {
-        next('/signin')
-      }
-    }
-  },
-  {
-    path: '/board',
-    component: PlanningBoard,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        next()
-      } else {
-        next('/signin')
-      }
-    }
-  },
-  {
-    path: '/admin',
-    component: AdminPage,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        next()
-      } else {
-        next('/signin')
-      }
-    }
+		},
+	},
+	{
+		path: '/coarseProduct',
+		component: ReqsAreaPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		},
+	},
+	{
+		path: '/board',
+		component: PlanningBoard,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		},
+	},
+	{
+		path: '/admin',
+		component: AdminPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		},
 	},
 	{
 		path: '/assistAdmin',
@@ -96,26 +96,26 @@ const routes = [
 			} else {
 				next('/signin')
 			}
-		}
+		},
 	},
-  {
-    path: '/serveradmin',
-    component: ServerAdminPage,
-    beforeEnter (to, from, next) {
-      if (store.state.userData.user) {
-        next()
-      } else {
-        next('/signin')
-      }
-    }
-  },
-  {
+	{
+		path: '/serveradmin',
+		component: ServerAdminPage,
+		beforeEnter(to, from, next) {
+			if (store.state.userData.user) {
+				next()
+			} else {
+				next('/signin')
+			}
+		},
+	},
+	{
 		path: '/:pathMatch(.*)*',
-    component: SigninPage
-  }
+		component: SigninPage,
+	},
 ]
 
 export default createRouter({
 	history: createWebHistory(),
-  routes
+	routes,
 })

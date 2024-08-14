@@ -8,7 +8,7 @@ const LOGDOCNAME = 'log'
 const MAXLOGSIZE = 1000
 
 const state = {
-	logSessionSeq: 0
+	logSessionSeq: 0,
 }
 
 const actions = {
@@ -18,10 +18,7 @@ const actions = {
 	 */
 
 	/* Create a log entry and let watchdog save it. */
-	doLog({
-		rootState,
-		state,
-	}, payload) {
+	doLog({ rootState, state }, payload) {
 		state.logSessionSeq++
 		const newLog = {
 			sessionSeq: state.logSessionSeq,
@@ -30,7 +27,7 @@ const actions = {
 			level: payload.level,
 			by: rootState.userData.user,
 			email: rootState.userData.email,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		}
 		// eslint-disable-next-line no-console
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis()}: ${payload.event}`)
@@ -38,30 +35,29 @@ const actions = {
 		rootState.unsavedLogs.push(newLog)
 	},
 
-	saveLog({
-		rootState,
-		dispatch
-	}) {
+	saveLog({ rootState, dispatch }) {
 		if (!rootState.signedOut && rootState.unsavedLogs.length > 0) {
 			if (rootState.userData.currentDb) {
 				// try to store all unsaved logs
 				globalAxios({
 					method: 'GET',
-					url: rootState.userData.currentDb + '/' + LOGDOCNAME
-				}).then(res => {
-					const log = res.data
-					// eslint-disable-next-line no-console
-					if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
-					for (const logEntry of rootState.unsavedLogs) {
-						// add the save time for debugging
-						logEntry.saveTime = Date.now()
-						log.entries.unshift(logEntry)
-					}
-					dispatch('replaceLog', log)
-				}).catch(error => {
-					const msg = `saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`
-					dispatch('doLog', { event: msg, level: SEV.ERROR })
+					url: rootState.userData.currentDb + '/' + LOGDOCNAME,
 				})
+					.then((res) => {
+						const log = res.data
+						// eslint-disable-next-line no-console
+						if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
+						for (const logEntry of rootState.unsavedLogs) {
+							// add the save time for debugging
+							logEntry.saveTime = Date.now()
+							log.entries.unshift(logEntry)
+						}
+						dispatch('replaceLog', log)
+					})
+					.catch((error) => {
+						const msg = `saveLog: Could not read the log. Pushed log entry to unsavedLogs. A retry is pending. ${error}`
+						dispatch('doLog', { event: msg, level: SEV.ERROR })
+					})
 			} else {
 				const msg = `saveLog: Could not read the log. A retry is pending, the database name is undefined yet`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
@@ -69,29 +65,28 @@ const actions = {
 		}
 	},
 
-	replaceLog({
-		rootState,
-		dispatch
-	}, log) {
+	replaceLog({ rootState, dispatch }, log) {
 		// limit the number of saved log entries
 		log.entries = log.entries.slice(0, MAXLOGSIZE)
 		globalAxios({
 			method: 'PUT',
 			url: rootState.userData.currentDb + '/' + LOGDOCNAME,
-			data: log
-		}).then(() => {
-			// delete the logs now they are saved
-			rootState.unsavedLogs = []
-			// eslint-disable-next-line no-console
-			if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
-		}).catch(error => {
-			const msg = `replaceLog: Could not save the log. A retry is pending. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			data: log,
 		})
-	}
+			.then(() => {
+				// delete the logs now they are saved
+				rootState.unsavedLogs = []
+				// eslint-disable-next-line no-console
+				if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
+			})
+			.catch((error) => {
+				const msg = `replaceLog: Could not save the log. A retry is pending. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
 }
 
 export default {
 	state,
-	actions
+	actions,
 }

@@ -1,7 +1,7 @@
 /*
-* Common functions
-* Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
-*/
+ * Common functions
+ * Usage: import * as <any name> from '../common_functions.js' to get all named exports in one object
+ */
 
 /* The "Unicode Problem" See https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
 Since btoa interprets the code points of its input string as byte values, 
@@ -15,7 +15,7 @@ function base64ToBytes(base64) {
 }
 
 function bytesToBase64(bytes) {
-	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join("")
+	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
 	return window.btoa(binString)
 }
 
@@ -75,7 +75,7 @@ export function createId() {
 /* Remove duplicates; return an empty array if arr is not defined or null */
 export function dedup(arr) {
 	function containsObject(obj, list) {
-		return list.some(el => el === obj)
+		return list.some((el) => el === obj)
 	}
 	if (arr) {
 		const dedupped = []
@@ -103,7 +103,7 @@ export function addToArray(arr, item) {
 
 export function localTimeAndMilis() {
 	function pad(num, size) {
-		var s = "000" + num
+		var s = '000' + num
 		return s.substring(s.length - size)
 	}
 	// remove the AM/PM ending (Chrome)
@@ -130,11 +130,11 @@ export function removeFromArray(arr, item) {
 }
 
 /*
-* When the parentNode exists this function returns an object with:
-* - the previous node (can be the parent)
-* - the path of the location in the tree
-* - the index in the array of siblings the node should have based on its priority
-*/
+ * When the parentNode exists this function returns an object with:
+ * - the previous node (can be the parent)
+ * - the path of the location in the tree
+ * - the index in the array of siblings the node should have based on its priority
+ */
 export function getLocationInfo(newPrio, parentNode) {
 	let newPath = []
 	if (parentNode.children && parentNode.children.length > 0) {
@@ -154,7 +154,7 @@ export function getLocationInfo(newPrio, parentNode) {
 		return {
 			prevNode,
 			newPath,
-			newInd: i
+			newInd: i,
 		}
 	} else {
 		parentNode.children = []
@@ -163,7 +163,7 @@ export function getLocationInfo(newPrio, parentNode) {
 		return {
 			prevNode: parentNode,
 			newPath,
-			newInd: 0
+			newInd: 0,
 		}
 	}
 }
@@ -186,8 +186,27 @@ export function getSprintNameById(id, calendar) {
 
 /* Return true if the email address is valid, false otherwise */
 export function isValidEmail(email) {
-	const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	const re =
+		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return re.test(email)
 }
 
-export default { uniTob64, b64ToUni, areStringsEqual, expandNode, collapseNode, showNode, hideNode, addToArray, createId, createLoadEventText, dedup, getLocationInfo, getSprintById, getSprintNameById, localTimeAndMilis, removeFromArray, isValidEmail }
+export default {
+	uniTob64,
+	b64ToUni,
+	areStringsEqual,
+	expandNode,
+	collapseNode,
+	showNode,
+	hideNode,
+	addToArray,
+	createId,
+	createLoadEventText,
+	dedup,
+	getLocationInfo,
+	getSprintById,
+	getSprintNameById,
+	localTimeAndMilis,
+	removeFromArray,
+	isValidEmail,
+}

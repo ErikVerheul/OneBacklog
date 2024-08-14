@@ -58,7 +58,7 @@ function data() {
 		dependenciesObjects: [],
 		conditionsObjects: [],
 		selectedDependencyIds: [],
-		selectedConditionIds: []
+		selectedConditionIds: [],
 	}
 }
 
@@ -81,9 +81,9 @@ const methods = {
 	},
 
 	/* Copy an item EXCLUDING its descendants, attachments, sprintId, dependencies, conditions and followers
-	* Initiate followers with empty array (no folowers)
-	* Insert the new node above the original (inside or after the previous node)
-	*/
+	 * Initiate followers with empty array (no folowers)
+	 * Insert the new node above the original (inside or after the previous node)
+	 */
 	doCopyItem(node) {
 		const now = Date.now()
 		let newNodeLocation
@@ -92,13 +92,13 @@ const methods = {
 			// the previous node is the parent
 			newNodeLocation = {
 				nodeModel: prevNode,
-				placement: 'inside'
+				placement: 'inside',
 			}
 		} else {
 			// the previous node is a sibling
 			newNodeLocation = {
 				nodeModel: prevNode,
-				placement: 'after'
+				placement: 'after',
 			}
 		}
 		// prepare the new node for insertion
@@ -126,9 +126,9 @@ const methods = {
 				team: node.data.team,
 				subtype: node.data.subtype,
 				lastChange: now,
-				followers: []
+				followers: [],
 			},
-			tmp: {}
+			tmp: {},
 		}
 
 		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
@@ -160,28 +160,32 @@ const methods = {
 			description: uniTob64(currentDoc.description),
 			acceptanceCriteria: uniTob64(currentDoc.acceptanceCriteria),
 			priority: newNode.data.priority,
-			comments: [{
-				ignoreEvent: 'comments initiated',
-				timestamp: now
-			}],
-			history: [{
-				copyItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
-				by: store.state.userData.user,
-				email: store.state.userData.email,
-				timestamp: now,
-				doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
-				isListed: true,
-				sessionId: store.state.mySessionId,
-				distributeEvent: true
-			}]
+			comments: [
+				{
+					ignoreEvent: 'comments initiated',
+					timestamp: now,
+				},
+			],
+			history: [
+				{
+					copyItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
+					by: store.state.userData.user,
+					email: store.state.userData.email,
+					timestamp: now,
+					doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
+					isListed: true,
+					sessionId: store.state.mySessionId,
+					distributeEvent: true,
+				},
+			],
 		}
 		store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 	},
 
 	/*
-	* Create and insert a new node in the tree and create a document for this new item
-	* A new node can be inserted 'inside' or 'after' the selected node
-	*/
+	 * Create and insert a new node in the tree and create a document for this new item
+	 * A new node can be inserted 'inside' or 'after' the selected node
+	 */
 	doInsertNewItem(node) {
 		const now = Date.now()
 		let newNodeLocation
@@ -189,13 +193,13 @@ const methods = {
 			// new node is a sibling placed below (after) the selected node
 			newNodeLocation = {
 				nodeModel: node,
-				placement: 'after'
+				placement: 'after',
 			}
 		} else {
 			// INSERTINSIDE: new node is a child placed a level lower (inside) than the selected node
 			newNodeLocation = {
 				nodeModel: node,
-				placement: 'inside'
+				placement: 'inside',
 			}
 		}
 		// prepare the new node for insertion and set isSelected to true
@@ -221,9 +225,9 @@ const methods = {
 				sprintId: undefined,
 				taskOwner: undefined,
 				team: undefined,
-				lastChange: now
+				lastChange: now,
 			},
-			tmp: {}
+			tmp: {},
 		}
 
 		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
@@ -269,23 +273,28 @@ const methods = {
 				title: newNode.title,
 				followers: newNode.data.followers,
 				description: uniTob64('<p><br></p>'),
-				acceptanceCriteria: newNode.level < this.TASKLEVEL ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				acceptanceCriteria:
+					newNode.level < this.TASKLEVEL ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
-				comments: [{
-					ignoreEvent: 'comments initiated',
-					timestamp: now
-				}],
-				history: [{
-					createItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
-					by: store.state.userData.user,
-					email: store.state.userData.email,
-					timestamp: now,
-					doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
-					isListed: true,
-					sessionId: store.state.mySessionId,
-					distributeEvent: true,
-					updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] }
-				}]
+				comments: [
+					{
+						ignoreEvent: 'comments initiated',
+						timestamp: now,
+					},
+				],
+				history: [
+					{
+						createItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
+						by: store.state.userData.user,
+						email: store.state.userData.email,
+						timestamp: now,
+						doNotMessageMyself: store.state.userData.myOptions.doNotMessageMyself === 'true',
+						isListed: true,
+						sessionId: store.state.mySessionId,
+						distributeEvent: true,
+						updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] },
+					},
+				],
 			}
 			store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 		}
@@ -302,9 +311,9 @@ const methods = {
 	},
 
 	/*
-	* In the database both the selected node and all its descendants will be tagged with a delmark
-	* The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
-	*/
+	 * In the database both the selected node and all its descendants will be tagged with a delmark
+	 * The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
+	 */
 	doRemove() {
 		const selectedNode = this.contextNodeSelected
 		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
@@ -406,12 +415,12 @@ const methods = {
 			} else this.allConditionsFound = false
 		}
 		this.disableOkButton = !this.allConditionsFound
-	}
+	},
 }
 
 export default {
 	mixins: [authorization, utilities],
 	created,
 	data,
-	methods
+	methods,
 }

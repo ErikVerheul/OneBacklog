@@ -16,10 +16,10 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.withCredentials = true
 
-const reqInterceptor = axios.interceptors.request.use(config => {
+const reqInterceptor = axios.interceptors.request.use((config) => {
 	return config
 })
-const resInterceptor = axios.interceptors.response.use(res => {
+const resInterceptor = axios.interceptors.response.use((res) => {
 	return res
 })
 axios.interceptors.request.eject(reqInterceptor)
@@ -27,26 +27,26 @@ axios.interceptors.response.eject(resInterceptor)
 
 const eventBus = mitt()
 const globalOptions = {
-  debug: 'warn',
-  placeholder: 'Compose your text...',
-  readOnly: false,
-  theme: 'snow',
-  modules: {
-    toolbar: [
+	debug: 'warn',
+	placeholder: 'Compose your text...',
+	readOnly: false,
+	theme: 'snow',
+	modules: {
+		toolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 			['bold', 'italic', 'underline', 'strike'],
 			[{ list: 'ordered' }, { list: 'bullet' }],
 			[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-			['link', 'image', 'code-block']
-		]
-  }
+			['link', 'image', 'code-block'],
+		],
+	},
 }
 
 const app = createApp(OneBacklog)
 app.use(router)
 app.use(store)
 app.use(createBootstrap())
-app.component("font-awesome-icon", FontAwesomeIcon)
+app.component('font-awesome-icon', FontAwesomeIcon)
 QuillEditor.props.globalOptions.default = () => globalOptions
 app.component('QuillEditor', QuillEditor)
 app.config.globalProperties.eventBus = eventBus

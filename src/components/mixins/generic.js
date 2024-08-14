@@ -31,18 +31,18 @@ const authorization = {
 			'getMyGenericRoles',
 			'getMyProductsRoles',
 			'getMyProductSubscriptions',
-			'getMyAssignedProductIds'
-		])
+			'getMyAssignedProductIds',
+		]),
 	},
 
 	methods: {
 		/*
-		* Returns true if the user has write access to the product at the given level.
-		* Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
-		* Note that level 0 is not used and the root of the tree starts with level 1.
-		* Note that guests have no write permissions.
-		* See README.md for the role definitions.
-		*/
+		 * Returns true if the user has write access to the product at the given level.
+		 * Creates an array for this user where the index is the item level in the tree and the value a boolean designating the write access right for this level.
+		 * Note that level 0 is not used and the root of the tree starts with level 1.
+		 * Note that guests have no write permissions.
+		 * See README.md for the role definitions.
+		 */
 		haveWritePermission(productId, level) {
 			const levels = []
 			for (let i = 0; i <= LEVEL.TASK; i++) {
@@ -83,7 +83,8 @@ const authorization = {
 			}
 			if (this.getMyProductsRoles[productId]) {
 				// eslint-disable-next-line no-console
-				if (store.state.debug) console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
+				if (store.state.debug)
+					console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 				// eslint-disable-next-line no-console
 				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
 			}
@@ -107,23 +108,29 @@ const authorization = {
 			}
 
 			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= LEVEL.EPIC
-			const canAccessOnTeam = skipTestOnTeam || itemTeam && itemTeam === this.myTeam
-			const canAccessOnLevel = this.haveWritePermission(productId, level) || allowExtraLevel && this.haveWritePermission(productId, level + 1)
+			const canAccessOnTeam = skipTestOnTeam || (itemTeam && itemTeam === this.myTeam)
+			const canAccessOnLevel = this.haveWritePermission(productId, level) || (allowExtraLevel && this.haveWritePermission(productId, level + 1))
 
 			if (canAccessOnTeam && canAccessOnLevel) return true
 
 			if (!canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] and team membership disallow you to ${forAction}`, SEV.WARNING)
+				this.showLastEvent(
+					`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] and team membership disallow you to ${forAction}`,
+					SEV.WARNING,
+				)
 			}
 			if (!canAccessOnTeam && canAccessOnLevel) {
 				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, SEV.WARNING)
 			}
 			if (canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`, SEV.WARNING)
+				this.showLastEvent(
+					`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`,
+					SEV.WARNING,
+				)
 			}
 			return false
-		}
-	}
+		},
+	},
 }
 
 const utilities = {
@@ -142,13 +149,13 @@ const utilities = {
 			'isFollower',
 			'isOverviewSelected',
 			'isPlanningBoardSelected',
-			'myTeam'
+			'myTeam',
 		]),
 
 		/*
-		* Return the current and coming next sprint objects depending on the current date and time.
-		* Return undefined if not found.
-		*/
+		 * Return the current and coming next sprint objects depending on the current date and time.
+		 * Return undefined if not found.
+		 */
 		getActiveSprints() {
 			const now = Date.now()
 			const myCurrentSprintCalendar = store.state.myCurrentSprintCalendar
@@ -168,7 +175,7 @@ const utilities = {
 				alert('Error: Missing current and/or next sprint; you need to sign-in again to have the sprint calendar extended. The application will exit.')
 				store.commit('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
 			}
-		}
+		},
 	},
 
 	methods: {
@@ -242,9 +249,10 @@ const utilities = {
 			if (selNodes.length === 1) {
 				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
 				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
-				if (store.state.userData.myOptions.proUser === 'true' && this.getLastSelectedNode.data.reqarea) evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
+				if (store.state.userData.myOptions.proUser === 'true' && this.getLastSelectedNode.data.reqarea)
+					evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
 			} else {
-				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${(selNodes.length - 1)} other item(s)`
+				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${selNodes.length - 1} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`
 			}
 			this.showLastEvent(evt, SEV.INFO)
@@ -268,7 +276,7 @@ const utilities = {
 				cursorPosition,
 				sourceLevel,
 				targetLevel,
-				levelShift
+				levelShift,
 			}
 		},
 
@@ -360,7 +368,7 @@ const utilities = {
 					sourceInd: nodes[i].ind,
 					targetInd: insertInd + i,
 					sourceSprintId,
-					targetSprintId
+					targetSprintId,
 				})
 			}
 
@@ -381,7 +389,7 @@ const utilities = {
 					targetInd: nodes[i].ind,
 					sourceSprintId,
 					targetSprintId,
-					lastPositionChange: nodes[i].data.lastPositionChange
+					lastPositionChange: nodes[i].data.lastPositionChange,
 				})
 			}
 
@@ -408,14 +416,10 @@ const utilities = {
 				targetParentTitle,
 				targetLevel,
 				forwardMoveMap,
-				reverseMoveMap: sortedIndMap
+				reverseMoveMap: sortedIndMap,
 			}
-		}
-	}
+		},
+	},
 }
 
-export {
-	constants,
-	authorization,
-	utilities
-}
+export { constants, authorization, utilities }

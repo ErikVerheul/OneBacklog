@@ -39,7 +39,7 @@ function mounted() {
 function data() {
 	return {
 		returning: false,
-		sprints: []
+		sprints: [],
 	}
 }
 
@@ -52,11 +52,11 @@ const watch = {
 				store.dispatch('setSubType', {
 					node,
 					newSubType: Number(valStr),
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				})
 			}
 		}
-	}
+	},
 }
 
 const methods = {
@@ -129,10 +129,13 @@ const methods = {
 		}
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		if (this.isDescriptionEdited) { this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
-			if (this.isAcceptanceEdited) { this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
-				// load the selected document
-				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+		if (this.isDescriptionEdited) {
+			this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		} else if (this.isAcceptanceEdited) {
+			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		}
+		// load the selected document
+		else store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
@@ -150,7 +153,7 @@ const methods = {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.TASK
+				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -180,10 +183,10 @@ const methods = {
 		const options = [
 			{ text: 'User story', value: '0' },
 			{ text: 'Spike', value: '1' },
-			{ text: 'Defect', value: '2' }
+			{ text: 'Defect', value: '2' },
 		]
 		return options
-	}
+	},
 }
 
 const components = {
@@ -194,7 +197,7 @@ const components = {
 	DcontextMenu,
 	Filters,
 	Listings,
-	ToSprint
+	ToSprint,
 }
 
 export default {
@@ -204,5 +207,5 @@ export default {
 	data,
 	watch,
 	methods,
-	components
+	components,
 }

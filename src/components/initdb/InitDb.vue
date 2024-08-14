@@ -1,4 +1,4 @@
-<template >
+<template>
   <div>
     <app-header />
     <BContainer fluid>
@@ -31,12 +31,13 @@
         </BRow>
       </BFormGroup>
       <div v-if="!store.state.isDatabaseInitiated">
-          <BButton v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</BButton>
-          <BButton class="m-1" @click="signOut" variant="outline-primary">Cancel</BButton>
+        <BButton v-if="dbName" class="m-1" @click="doCreateDatabase">Create database</BButton>
+        <BButton class="m-1" @click="signOut" variant="outline-primary">Cancel</BButton>
       </div>
       <div v-else>
         <h5>Success! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
-        <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or more admins to take over your admin task.</h5>
+        <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or
+          more admins to take over your admin task.</h5>
         <BButton class="m-1" @click="signOut" variant="outline-primary">Exit</BButton>
       </div>
       <div v-if="store.state.backendMessages.length > 0">
@@ -45,7 +46,7 @@
           <p>{{ item.msg }}</p>
         </div>
       </div>
-			<div v-if="store.state.backendMessages.length > 0">
+      <div v-if="store.state.backendMessages.length > 0">
         <hr>
         <div v-for="item in store.state.backendMessages" :key="item.seqKey">
           <p>{{ item.msg }}</p>

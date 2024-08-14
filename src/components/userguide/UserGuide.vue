@@ -1,11 +1,12 @@
-<template >
+<template>
 	<div>
 		<app-header />
 		<BContainer>
 			<BRow>
 				<BCol cols="12" class="left-column">
 					<h1>USER GUIDE</h1>
-					<p>When you, as CouchDB Server admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first database</a>.</p>
+					<p>When you, as CouchDB Server admin, have installed CouchDB and the web application you have to <a href="#start_using">initialize the first
+							database</a>.</p>
 					<h4>The header</h4>
 					<p>Always mention the version number located after the app name when reporting issues. When you click on the
 						release number the <b>release notes </b> will be displayed.</p>
@@ -36,8 +37,11 @@
 					</ul>
 					<h5>Other options</h5>
 					<ul>
-						<li>A warning when changing the items level (eg. from task to user story) while moving an item in the tree structure. The default is <strong>on</strong>.</li>
-						<li>Hitting the "Subscribe to change notices" button will toggle to mail all changes to this item and its descendants to your mail address. When unselected it will toggle only the selected item. </li>
+						<li>A warning when changing the items level (eg. from task to user story) while moving an item in the tree structure. The default is
+							<strong>on</strong>.
+						</li>
+						<li>Hitting the "Subscribe to change notices" button will toggle to mail all changes to this item and its descendants to your mail address. When
+							unselected it will toggle only the selected item. </li>
 						<li>For the planning board: By default items with status <strong>On hold</strong> are hidden. Select this option to show them.</li>
 					</ul>
 					<p class="pro-user">In this guide the professional features are colored in gold</p>
@@ -90,9 +94,11 @@
 							Three roles are set per database:
 						</p>
 						<ul>
-							<li>'_admin': One user with this role is CouchDb Server administrator. This user must be created when the CouchDb instance is created. Can setup and delete
+							<li>'_admin': One user with this role is CouchDb Server administrator. This user must be created when the CouchDb instance is created. Can setup
+								and delete
 								databases. See the CouchDB documentation.</li>
-							<li>'admin': Can create, maintain and assign users to products. The CouchDb Server administrator acquires this role during the initialization procedure and can assign this role to
+							<li>'admin': Can create, maintain and assign users to products. The CouchDb Server administrator acquires this role during the initialization
+								procedure and can assign this role to
 								other users.</li>
 							<li class="pro-user">'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
 						</ul>

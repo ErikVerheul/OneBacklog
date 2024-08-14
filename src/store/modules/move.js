@@ -12,18 +12,14 @@ function composeRangeString(id) {
 
 const actions = {
 	/*
-	* Multiple items with the same parent can be moved. The children of these items need no update unless the move is to another level (promote/demote) or product.
-	* Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
-	* Order of execution:
-	* 1. update the moved items with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
-	* 2. if moving to another product or level, call getMovedChildren and update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk.
-	* 3. save the update of the moved items with the nodeMovedEvent if all child updates are done (thus preventing other users to process the update premature)
-	*/
-	updateMovedItemsBulk({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
+	 * Multiple items with the same parent can be moved. The children of these items need no update unless the move is to another level (promote/demote) or product.
+	 * Note: the tree model is updated before the database is. To update the database the new priority must be calculated first while inserting the node.
+	 * Order of execution:
+	 * 1. update the moved items with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
+	 * 2. if moving to another product or level, call getMovedChildren and update the productId (not parentId) and level of the descendants in updateMovedDescendantsBulk.
+	 * 3. save the update of the moved items with the nodeMovedEvent if all child updates are done (thus preventing other users to process the update premature)
+	 */
+	updateMovedItemsBulk({ rootState, commit, dispatch }, payload) {
 		runningThreadsCount = 0
 		const mdc = payload.moveDataContainer
 		const items = []
@@ -46,7 +42,7 @@ const actions = {
 				targetParentId: mdc.targetParentId,
 				targetLevel: mdc.targetLevel,
 				targetProductTitle: mdc.targetProductTitle,
-				targetParentTitle: mdc.targetParentTitle
+				targetParentTitle: mdc.targetParentTitle,
 			}
 
 			for (const f of mdc.forwardMoveMap) {
@@ -65,7 +61,7 @@ const actions = {
 					childCount: node.children.length,
 					sourceSprintId: f.sourceSprintId,
 					targetSprintId: f.targetSprintId,
-					lastPositionChange: Date.now()
+					lastPositionChange: Date.now(),
 				}
 				items.push(payloadItem)
 			}
@@ -81,7 +77,7 @@ const actions = {
 				targetProductId: mdc.sourceProductId,
 				targetParentId: mdc.sourceParentId,
 				targetLevel: mdc.sourceLevel,
-				targetParentTitle: mdc.sourceParentTitle
+				targetParentTitle: mdc.sourceParentTitle,
 			}
 
 			for (const r of mdc.reverseMoveMap) {
@@ -100,7 +96,7 @@ const actions = {
 					childCount: node.children.length,
 					sourceSprintId: r.sourceSprintId,
 					targetSprintId: r.targetSprintId,
-					lastPositionChange: r.lastPositionChange
+					lastPositionChange: r.lastPositionChange,
 				}
 				items.push(payloadItem)
 			}
@@ -122,104 +118,128 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet }
-		}).then(res => {
-			const results = res.data.results
-			const docs = []
-			const error = []
-			for (const r of results) {
-				const envelope = r.docs[0]
-				if (envelope.ok) {
-					const doc = envelope.ok
-					const item = getPayLoadItem(doc._id)
-					const targetLevel = m.sourceLevel + m.levelShift
-					const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
-					// find the affected sprints
-					const sprintsAffected = []
-					if (item.sourceSprintId) sprintsAffected.push(item.sourceSprintId)
-					if (item.targetSprintId) sprintsAffected.push(item.targetSprintId)
-					for (const id of descendantsMetaData.sprintIds) {
-						if (!sprintsAffected.includes(id)) sprintsAffected.push(id)
-					}
-					const teamsAffected = doc.team ? [doc.team] : []
-					for (const t of descendantsMetaData.teams) {
-						if (!teamsAffected.includes(t)) teamsAffected.push(t)
-					}
-					const isProductMoved = m.sourceLevel === LEVEL.PRODUCT && m.targetLevel === LEVEL.PRODUCT
-					const newHist = {
-						nodeMovedEvent: [m.sourceLevel, targetLevel, item.targetInd, m.targetParentTitle, item.childCount, m.sourceParentTitle, m.placement, m.sourceParentId,
-						m.targetParentId, item.sourceInd, item.newlyCalculatedPriority, item.sourceSprintId, item.targetSprintId, m.type, item.lastPositionChange, isProductMoved],
-						by: rootState.userData.user,
-						email: rootState.userData.email,
-				  	doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-						timestamp: Date.now(),
-						isListed: true,
-						sessionId: rootState.mySessionId,
-						distributeEvent: true,
-						updateBoards: { sprintsAffected, teamsAffected }
-					}
-					// update the document; products never change their product id
-					if (doc.level !== LEVEL.PRODUCT) doc.productId = m.targetProductId
-					// check and correction for error: product level items must have their own id as productId
-					if (targetLevel === LEVEL.PRODUCT && doc.productId !== doc._id) {
-						const msg = `updateMovedItemsBulk: Product with id ${doc._id} was assigned ${doc.productId} as product id. Is corrected to be equal to the id.`
-						dispatch('doLog', { event: msg, level: SEV.WARNING })
-						doc.productId = doc._id
-					}
-					doc.parentId = m.targetParentId
-					doc.sprintId = item.targetSprintId
-					doc.level = targetLevel
-					doc.priority = item.newlyCalculatedPriority
-					doc.history.unshift(newHist)
-					doc.lastPositionChange = item.lastPositionChange
-					doc.lastChange = item.lastPositionChange
-					docs.push(doc)
-				}
-				if (envelope.error) error.push(envelope.error)
-			}
-			if (error.length > 0) {
-				const errorStr = ''
-				for (const e of error) {
-					errorStr.concat(`${e.id} (error = ${e.error},  reason = ${e.reason}), `)
-				}
-				const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-				// ToDo: make this an alert with the only option to restart the application
-				commit('addToEventList', { txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator', severity: SEV.WARNING })
-				if (payload.isUndoAction) rootState.busyWithLastUndo = false
-			} else {
-				if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
-					// if moving to another product or another level, update the descendants of the moved(back) items
-					const updates = {
-						targetProductId: m.targetProductId,
-						levelShift: m.levelShift
-					}
-					for (const it of items) {
-						// run in parallel for all moved nodes (nodes on the same level do not share descendants)
-						dispatch('getMovedChildren', { updates, parentId: it.id, toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction } }] })
-					}
-				} else {
-					// no need to process descendants
-					dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction })
-				}
-			}
-		}).catch(error => {
-			const msg = `updateMovedItemsBulk: Could not read descendants in bulk. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
-			if (payload.isUndoAction) rootState.busyWithLastUndo = false
+			data: { docs: docsToGet },
 		})
+			.then((res) => {
+				const results = res.data.results
+				const docs = []
+				const error = []
+				for (const r of results) {
+					const envelope = r.docs[0]
+					if (envelope.ok) {
+						const doc = envelope.ok
+						const item = getPayLoadItem(doc._id)
+						const targetLevel = m.sourceLevel + m.levelShift
+						const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
+						// find the affected sprints
+						const sprintsAffected = []
+						if (item.sourceSprintId) sprintsAffected.push(item.sourceSprintId)
+						if (item.targetSprintId) sprintsAffected.push(item.targetSprintId)
+						for (const id of descendantsMetaData.sprintIds) {
+							if (!sprintsAffected.includes(id)) sprintsAffected.push(id)
+						}
+						const teamsAffected = doc.team ? [doc.team] : []
+						for (const t of descendantsMetaData.teams) {
+							if (!teamsAffected.includes(t)) teamsAffected.push(t)
+						}
+						const isProductMoved = m.sourceLevel === LEVEL.PRODUCT && m.targetLevel === LEVEL.PRODUCT
+						const newHist = {
+							nodeMovedEvent: [
+								m.sourceLevel,
+								targetLevel,
+								item.targetInd,
+								m.targetParentTitle,
+								item.childCount,
+								m.sourceParentTitle,
+								m.placement,
+								m.sourceParentId,
+								m.targetParentId,
+								item.sourceInd,
+								item.newlyCalculatedPriority,
+								item.sourceSprintId,
+								item.targetSprintId,
+								m.type,
+								item.lastPositionChange,
+								isProductMoved,
+							],
+							by: rootState.userData.user,
+							email: rootState.userData.email,
+							doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+							timestamp: Date.now(),
+							isListed: true,
+							sessionId: rootState.mySessionId,
+							distributeEvent: true,
+							updateBoards: { sprintsAffected, teamsAffected },
+						}
+						// update the document; products never change their product id
+						if (doc.level !== LEVEL.PRODUCT) doc.productId = m.targetProductId
+						// check and correction for error: product level items must have their own id as productId
+						if (targetLevel === LEVEL.PRODUCT && doc.productId !== doc._id) {
+							const msg = `updateMovedItemsBulk: Product with id ${doc._id} was assigned ${doc.productId} as product id. Is corrected to be equal to the id.`
+							dispatch('doLog', { event: msg, level: SEV.WARNING })
+							doc.productId = doc._id
+						}
+						doc.parentId = m.targetParentId
+						doc.sprintId = item.targetSprintId
+						doc.level = targetLevel
+						doc.priority = item.newlyCalculatedPriority
+						doc.history.unshift(newHist)
+						doc.lastPositionChange = item.lastPositionChange
+						doc.lastChange = item.lastPositionChange
+						docs.push(doc)
+					}
+					if (envelope.error) error.push(envelope.error)
+				}
+				if (error.length > 0) {
+					const errorStr = ''
+					for (const e of error) {
+						errorStr.concat(`${e.id} (error = ${e.error},  reason = ${e.reason}), `)
+					}
+					const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+					// ToDo: make this an alert with the only option to restart the application
+					commit('addToEventList', {
+						txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator',
+						severity: SEV.WARNING,
+					})
+					if (payload.isUndoAction) rootState.busyWithLastUndo = false
+				} else {
+					if (m.targetProductId !== m.sourceProductId || m.levelShift !== 0) {
+						// if moving to another product or another level, update the descendants of the moved(back) items
+						const updates = {
+							targetProductId: m.targetProductId,
+							levelShift: m.levelShift,
+						}
+						for (const it of items) {
+							// run in parallel for all moved nodes (nodes on the same level do not share descendants)
+							dispatch('getMovedChildren', {
+								updates,
+								parentId: it.id,
+								toDispatch: [{ saveMovedItems: { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction } }],
+							})
+						}
+					} else {
+						// no need to process descendants
+						dispatch('saveMovedItems', { moveDataContainer: mdc, moveInfo, items, docs, isUndoAction: payload.isUndoAction })
+					}
+				}
+			})
+			.catch((error) => {
+				const msg = `updateMovedItemsBulk: Could not read descendants in bulk. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
+			})
 	},
 
 	/* Save the updated documents of the moved items. For every item saved, Couchdb will sent a synchronization event as defined in the added history */
-	saveMovedItems({
-		rootState,
-		commit,
-		dispatch
-	}, payload) {
+	saveMovedItems({ rootState, commit, dispatch }, payload) {
 		const items = payload.items
 		const docs = payload.docs
 		dispatch('updateBulk', {
-			dbName: rootState.userData.currentDb, docs, caller: 'saveMovedItems', onSuccessCallback: () => {
+			dbName: rootState.userData.currentDb,
+			docs,
+			caller: 'saveMovedItems',
+			onSuccessCallback: () => {
 				for (const it of items) {
 					// update the history of the moved items in the current tree view
 					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
@@ -229,7 +249,7 @@ const actions = {
 					const entry = {
 						type: 'undoMove',
 						moveDataContainer: payload.moveDataContainer,
-						items
+						items,
 					}
 					rootState.changeHistory.unshift(entry)
 					commit('addToEventList', { txt: `${docs.length} items have been moved with ${movedCount} descendants`, severity: SEV.INFO })
@@ -237,42 +257,40 @@ const actions = {
 					commit('addToEventList', { txt: `${docs.length} items have been moved back with ${movedCount} descendants`, severity: SEV.INFO })
 					rootState.busyWithLastUndo = false
 				}
-			}, onFailureCallback: () => {
+			},
+			onFailureCallback: () => {
 				if (payload.isUndoAction) rootState.busyWithLastUndo = false
-			}
+			},
 		})
 	},
 
-	getMovedChildren({
-		rootState,
-		dispatch
-	}, payload) {
+	getMovedChildren({ rootState, dispatch }, payload) {
 		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true'
-		}).then(res => {
-			runningThreadsCount--
-			const results = res.data.rows
-			if (results.length > 0) {
-				// process next level
-				dispatch('loopMoveResults', { updates: payload.updates, results, toDispatch: payload.toDispatch })
-			} else {
-				if (runningThreadsCount === 0) {
-					// db iteration ready; execute saveMovedItems that emits the nodeMovedEvent to other online users
-					dispatch('additionalActions', payload)
-				}
-			}
-		}).catch(error => {
-			runningThreadsCount--
-			const msg = `getMovedChildren: Could not fetch the child documents of document with id ${payload.parentId} in database ${rootState.userData.currentDb}. ${error}`
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			url: rootState.userData.currentDb + '/_design/design1/_view/docToParentMap?' + composeRangeString(payload.parentId) + '&include_docs=true',
 		})
+			.then((res) => {
+				runningThreadsCount--
+				const results = res.data.rows
+				if (results.length > 0) {
+					// process next level
+					dispatch('loopMoveResults', { updates: payload.updates, results, toDispatch: payload.toDispatch })
+				} else {
+					if (runningThreadsCount === 0) {
+						// db iteration ready; execute saveMovedItems that emits the nodeMovedEvent to other online users
+						dispatch('additionalActions', payload)
+					}
+				}
+			})
+			.catch((error) => {
+				runningThreadsCount--
+				const msg = `getMovedChildren: Could not fetch the child documents of document with id ${payload.parentId} in database ${rootState.userData.currentDb}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
 	},
 
-	loopMoveResults({
-		dispatch
-	}, payload) {
+	loopMoveResults({ dispatch }, payload) {
 		for (const r of payload.results) {
 			const id = r.id
 			dispatch('getMovedChildren', { updates: payload.updates, parentId: id, toDispatch: payload.toDispatch })
@@ -281,12 +299,8 @@ const actions = {
 		dispatch('updateMovedDescendantsBulk', { updates: payload.updates, results: payload.results })
 	},
 
-	updateMovedDescendantsBulk({
-		rootState,
-		dispatch,
-		commit
-	}, payload) {
-		const docs = payload.results.map(r => r.doc)
+	updateMovedDescendantsBulk({ rootState, dispatch, commit }, payload) {
+		const docs = payload.results.map((r) => r.doc)
 		const updates = payload.updates
 		for (const doc of docs) {
 			doc.productId = updates.targetProductId
@@ -295,19 +309,22 @@ const actions = {
 			// priority does not change for descendants
 			const newHist = {
 				ignoreEvent: ['updateMovedDescendantsBulk'],
-				timestamp: Date.now()
+				timestamp: Date.now(),
 			}
 			doc.history.unshift(newHist)
 		}
 		dispatch('updateBulk', {
-			dbName: rootState.userData.currentDb, docs, onSuccessCallback: () => {
+			dbName: rootState.userData.currentDb,
+			docs,
+			onSuccessCallback: () => {
 				movedCount += docs.length
 				commit('startOrContinueShowProgress', `${movedCount} descendant items are updated`)
-			}, caller: 'updateMovedDescendantsBulk'
+			},
+			caller: 'updateMovedDescendantsBulk',
 		})
-	}
+	},
 }
 
 export default {
-	actions
+	actions,
 }

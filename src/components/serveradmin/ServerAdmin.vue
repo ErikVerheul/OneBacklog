@@ -28,8 +28,8 @@
           <BCol>
             <h5>Select severity levels to show</h5>
             <div>
-              <BFormCheckboxGroup v-model="selectedLogLevels" :options="options" stacked class="mb-3" value-field="item"
-                text-field="name" disabled-field="notEnabled"></BFormCheckboxGroup>
+              <BFormCheckboxGroup v-model="selectedLogLevels" :options="options" stacked class="mb-3" value-field="item" text-field="name"
+                disabled-field="notEnabled"></BFormCheckboxGroup>
             </div>
           </BCol>
         </BRow>
@@ -38,8 +38,7 @@
         <BButton v-if="!showLogModal" class="m-1" @click="cancel">Return</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Cancel</BButton>
         <BModal scrollable v-model="showLogModal" size="lg" :title="logModalTitle()">
-          <div v-for="item in filtered(store.state.logEntries)"
-            :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
+          <div v-for="item in filtered(store.state.logEntries)" :key="createLogKey(item.timestamp, item.sessionId, item.sessionSeq)">
             Event: {{ item.event }} <br />
             Severity: {{ severity(item.level) }} <br />
             By: {{ item.by }} <br />
@@ -84,8 +83,9 @@
           </p>
         </template>
         <hr>
-        <BButton v-if="store.state.selectedDatabaseName !== 'not selected yet' && !store.state.utils.copyBusy" class="m-1"
-          @click="doRestoreBackup" variant="primary">Start restore</BButton>
+        <BButton v-if="store.state.selectedDatabaseName !== 'not selected yet' && !store.state.utils.copyBusy" class="m-1" @click="doRestoreBackup"
+          variant="primary">
+          Start restore</BButton>
         <BButton v-if="!store.state.utils.copyBusy" class="m-1" @click="cancel">Cancel</BButton>
         <h5 v-else>Busy copying. Please wait...</h5>
 
@@ -145,7 +145,7 @@
         <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="store.state.isCurrentDbChanged">
           <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{
-            store.state.selectedDatabaseName }} 'database</h4>
+        store.state.selectedDatabaseName }} 'database</h4>
           <div>
             <BButton class="m-1" @click="signOut()">Exit</BButton>
           </div>
@@ -204,7 +204,7 @@
         <BButton class="m-1" @click="cancel">Cancel</BButton>
         <h4 v-if="fauxtonStarted">FAUXTON has started in a new browser tab</h4>
       </div>
-    
+
       <p>{{ localMessage }}</p>
       <div v-if="store.state.backendMessages.length > 0">
         <hr>

@@ -80,9 +80,13 @@
                         </BFormGroup>
                       </div>
                       <hr>
-                      <p v-if="!canRemoveLastProduct">You cannot remove the last role of the last assigned product in the only database of this user. Consider the option to remove this user.</p>
-                      <p v-if="!canRemoveDatabase">You cannot remove the last database from the profile of this user. Consider the option to remove this user.</p>
-                      <BButton v-if="canRemoveLastProduct && canRemoveDatabase && store.state.areProductsFound && !store.state.isUserUpdated" class="m-1" @click="doUpdateUser" variant="primary">
+                      <p v-if="!canRemoveLastProduct">You cannot remove the last role of the last assigned product in the only database of this user. Consider
+                        the option
+                        to remove this user.</p>
+                      <p v-if="!canRemoveDatabase">You cannot remove the last database from the profile of this user. Consider the option to remove this user.
+                      </p>
+                      <BButton v-if="canRemoveLastProduct && canRemoveDatabase && store.state.areProductsFound && !store.state.isUserUpdated" class="m-1"
+                        @click="doUpdateUser" variant="primary">
                         Update this user</BButton>
                       <BButton v-if="!store.state.isUserUpdated" class="m-1" @click="cancel()">Cancel</BButton>
                       <BButton v-else class="m-1" @click="cancel()">Return</BButton>
@@ -211,7 +215,8 @@
                     <div v-else>
                       <h5>The calendar is not found, create a team calendar from the default calendar</h5>
                       <p class="colorRed">This is a one way change. When the team calendar is created the team has to maintain it.</p>
-                      <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar" variant="primary">Create team sprint calendar</BButton>
+                      <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="doCreateTeamCalendar" variant="primary">Create team sprint calendar
+                      </BButton>
                       <BButton v-if="!store.state.isCalendarSaved" class="m-1" @click="cancel">Cancel</BButton>
                       <BButton v-if="store.state.isCalendarSaved" class="m-1" @click="cancel">Return</BButton>
                     </div>

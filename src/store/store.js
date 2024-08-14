@@ -29,12 +29,11 @@ import useracc from './modules/useracc'
 import utils from './modules/utils'
 import watchdog from './modules/watchdog'
 
-
 const MAX_EVENTLIST_SIZE = 100
 
 function createEventToDisplay(payload) {
 	function pad(num, size) {
-		var s = "000" + num
+		var s = '000' + num
 		return s.substring(s.length - size)
 	}
 	const now = new Date()
@@ -69,7 +68,7 @@ function createEventToDisplay(payload) {
 		txt: payload.txt + tip,
 		sevKey: payload.severity,
 		severity: severityStr,
-		color
+		color,
 	}
 	return newEvent
 }
@@ -211,7 +210,7 @@ const store = createStore({
 			// planning board
 			loadedSprintId: null,
 			myCurrentSprintCalendar: [],
-			warningText: ''
+			warningText: '',
 		}
 	},
 
@@ -222,7 +221,7 @@ const store = createStore({
 
 		isFollower(state) {
 			if (state.currentDoc && state.currentDoc.followers) {
-				const users = state.currentDoc.followers.map(e => e.user)
+				const users = state.currentDoc.followers.map((e) => e.user)
 				return users.includes(state.userData.user)
 			} else return false
 		},
@@ -421,21 +420,26 @@ const store = createStore({
 		canCreateComments(state, getters) {
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
-				return myCurrentProductRoles &&
-					(getters.isServerAdmin || getters.isAssistAdmin || getters.isAdmin || getters.isAPO ||
+				return (
+					myCurrentProductRoles &&
+					(getters.isServerAdmin ||
+						getters.isAssistAdmin ||
+						getters.isAdmin ||
+						getters.isAPO ||
 						myCurrentProductRoles.includes('PO') ||
 						myCurrentProductRoles.includes('developer'))
+				)
 			} else return false
 		},
 		canSeeAndUploadAttachments(state, getters) {
 			if (getters.isAuthenticated && state.currentProductId) {
 				const myCurrentProductRoles = getters.getMyProductsRoles[state.currentProductId]
-				return myCurrentProductRoles &&
-					(getters.isAssistAdmin || getters.isAdmin || getters.isAPO ||
-						myCurrentProductRoles.includes('PO') ||
-						myCurrentProductRoles.includes('developer'))
+				return (
+					myCurrentProductRoles &&
+					(getters.isAssistAdmin || getters.isAdmin || getters.isAPO || myCurrentProductRoles.includes('PO') || myCurrentProductRoles.includes('developer'))
+				)
 			} else return false
-		}
+		},
 	},
 
 	actions: {
@@ -459,7 +463,7 @@ const store = createStore({
 			const isShortId = id.length === SHORTKEYLENGTH
 			let nodeFound
 			state.helpersRef.traverseModels((nm) => {
-				if (isShortId && nm._id.slice(-5) === id || !isShortId && nm._id === id) {
+				if ((isShortId && nm._id.slice(-5) === id) || (!isShortId && nm._id === id)) {
 					// short id or full id did match
 					nodeFound = nm
 					return false
@@ -473,12 +477,13 @@ const store = createStore({
 				if (nodeFound._id !== state.currentDoc._id) {
 					// select the node after loading the document
 					dispatch('loadDoc', {
-						id: nodeFound._id, onSuccessCallback: () => {
+						id: nodeFound._id,
+						onSuccessCallback: () => {
 							// create reset object
 							state.resetSearchOnId = {
 								view: state.currentView,
 								savedSelectedNode: getters.getLastSelectedNode,
-								nodeFound
+								nodeFound,
 							}
 							if (getters.isDetailsViewSelected && nodeFound.productId !== state.currentProductId) {
 								// the node is found but not in the current product; collapse the currently selected product and switch to the new product
@@ -487,8 +492,11 @@ const store = createStore({
 							// expand the tree view up to the found item
 							state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
 							commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
-							commit('addToEventList', { txt: `The item with full Id ${nodeFound._id} is found and selected in product '${state.currentProductTitle}'`, severity: SEV.INFO })
-						}
+							commit('addToEventList', {
+								txt: `The item with full Id ${nodeFound._id} is found and selected in product '${state.currentProductTitle}'`,
+								severity: SEV.INFO,
+							})
+						},
 					})
 				}
 			} else {
@@ -523,19 +531,24 @@ const store = createStore({
 			state.resetSearchOnTitle = {
 				view: state.currentView,
 				savedSelectedNode: getters.getLastSelectedNode,
-				productNodes
+				productNodes,
 			}
 
 			const productStr = getters.isOverviewSelected ? 'all products' : ` product '${state.currentProductTitle}'`
 			if (nodesFound.length > 0) {
 				// load and select the first node found
 				dispatch('loadDoc', {
-					id: nodesFound[0]._id, onSuccessCallback: () => {
+					id: nodesFound[0]._id,
+					onSuccessCallback: () => {
 						commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
 						if (nodesFound.length === 1) {
 							commit('addToEventList', { txt: `One item title matches your search in ${productStr}. This item is selected`, severity: SEV.INFO })
-						} else commit('addToEventList', { txt: `${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`, severity: SEV.INFO })
-					}
+						} else
+							commit('addToEventList', {
+								txt: `${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`,
+								severity: SEV.INFO,
+							})
+					},
 				})
 			} else commit('addToEventList', { txt: `No item titles match your search in ${productStr}`, severity: SEV.INFO })
 		},
@@ -552,7 +565,9 @@ const store = createStore({
 			// load and select the previous selected document
 			const prevSelectedNode = state.resetSearchOnId.savedSelectedNode
 			dispatch('loadDoc', {
-				id: prevSelectedNode._id, toDispatch, onSuccessCallback: () => {
+				id: prevSelectedNode._id,
+				toDispatch,
+				onSuccessCallback: () => {
 					if (state.resetSearchOnId.view === 'detailProduct' && state.resetSearchOnId.nodeFound.productId !== prevSelectedNode.productId) {
 						// the node was found in another product
 						commit('switchCurrentProduct', prevSelectedNode.productId)
@@ -565,7 +580,7 @@ const store = createStore({
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 					state.itemId = ''
 					state.resetSearchOnId = null
-				}
+				},
 			})
 		},
 
@@ -581,15 +596,17 @@ const store = createStore({
 			const toDispatch = payload.toDispatch
 			// load and select the previous selected document
 			dispatch('loadDoc', {
-				id: prevSelectedNode._id, toDispatch, onSuccessCallback: () => {
+				id: prevSelectedNode._id,
+				toDispatch,
+				onSuccessCallback: () => {
 					if (!store.resetFilter) {
 						commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
-					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })	
+					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 					state.keyword = ''
 					state.resetSearchOnTitle = null
-				}
+				},
 			})
 		},
 
@@ -601,7 +618,8 @@ const store = createStore({
 				const prevSelectedNode = state.resetFilter.savedSelectedNode
 				// load and select the previous selected document
 				dispatch('loadDoc', {
-					id: prevSelectedNode._id, onSuccessCallback: () => {
+					id: prevSelectedNode._id,
+					onSuccessCallback: () => {
 						state.itemId = ''
 						state.keyword = ''
 						state.resetFilter = null
@@ -610,7 +628,7 @@ const store = createStore({
 						commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
 						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
-					}
+					},
 				})
 			}
 		},
@@ -619,101 +637,116 @@ const store = createStore({
 		addToMyProducts({ state, dispatch }, payload) {
 			globalAxios({
 				method: 'GET',
-				url: '/_users/org.couchdb.user:' + state.userData.user
-			}).then(res => {
-				const updateProducts = () => {
-					if (!state.availableProductIds.includes(payload.productId)) {
-						// add the id to my available products
-						state.availableProductIds = addToArray(state.availableProductIds, payload.productId)
-					}
-					// add an object to my product options
-					state.myProductOptions = addToArray(state.myProductOptions, {
-						value: payload.productId,
-						text: payload.productTitle
-					})
-				}
-
-				// prevent updating the user's profile twice
-				if (payload.isSameUserInDifferentSession) {
-					state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId] = payload.newRoles
-					state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
-					updateProducts()
-				} else {
-					const tmpUserData = res.data
-					tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
-					tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
-					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
-				}
-			}).catch(error => {
-				const msg = `addToMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				url: '/_users/org.couchdb.user:' + state.userData.user,
 			})
+				.then((res) => {
+					const updateProducts = () => {
+						if (!state.availableProductIds.includes(payload.productId)) {
+							// add the id to my available products
+							state.availableProductIds = addToArray(state.availableProductIds, payload.productId)
+						}
+						// add an object to my product options
+						state.myProductOptions = addToArray(state.myProductOptions, {
+							value: payload.productId,
+							text: payload.productTitle,
+						})
+					}
+
+					// prevent updating the user's profile twice
+					if (payload.isSameUserInDifferentSession) {
+						state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId] = payload.newRoles
+						state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(
+							state.userData.myDatabases[state.userData.currentDb].subscriptions,
+							payload.productId,
+						)
+						updateProducts()
+					} else {
+						const tmpUserData = res.data
+						tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
+						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(
+							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions,
+							payload.productId,
+						)
+						dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
+					}
+				})
+				.catch((error) => {
+					const msg = `addToMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+				})
 		},
 
 		/* Remove the product from my profile and update my available products and my product options	*/
 		removeFromMyProducts({ state, getters, dispatch, commit }, payload) {
 			globalAxios({
 				method: 'GET',
-				url: '/_users/org.couchdb.user:' + state.userData.user
-			}).then(res => {
-				const updateProducts = () => {
-					if (state.availableProductIds.includes(payload.productId)) {
-						// delete the id from my available products
-						state.availableProductIds = removeFromArray(state.availableProductIds, payload.productId)
-					}
-					const newOptions = []
-					for (const o of state.myProductOptions) {
-						// delete the removed option object
-						if (o.value !== payload.productId) newOptions.push(o)
-					}
-					state.myProductOptions = newOptions
-					if (payload.doSignOut) {
-						commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
-					}
-				}
-
-				// prevent updating the user's profile twice
-				if (payload.isSameUserInDifferentSession) {
-					// delete product from my profile
-					delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
-					updateProducts()
-				} else {
-					const tmpUserData = res.data
-					// delete product from my profile
-					delete tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId]
-					if (getters.getMyProductSubscriptions.includes(payload.productId)) {
-						// delete the id from my subscriptions
-						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
-					}
-					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
-				}
-			}).catch(error => {
-				const msg = `removeFromMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				url: '/_users/org.couchdb.user:' + state.userData.user,
 			})
+				.then((res) => {
+					const updateProducts = () => {
+						if (state.availableProductIds.includes(payload.productId)) {
+							// delete the id from my available products
+							state.availableProductIds = removeFromArray(state.availableProductIds, payload.productId)
+						}
+						const newOptions = []
+						for (const o of state.myProductOptions) {
+							// delete the removed option object
+							if (o.value !== payload.productId) newOptions.push(o)
+						}
+						state.myProductOptions = newOptions
+						if (payload.doSignOut) {
+							commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
+						}
+					}
+
+					// prevent updating the user's profile twice
+					if (payload.isSameUserInDifferentSession) {
+						// delete product from my profile
+						delete state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId]
+						updateProducts()
+					} else {
+						const tmpUserData = res.data
+						// delete product from my profile
+						delete tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId]
+						if (getters.getMyProductSubscriptions.includes(payload.productId)) {
+							// delete the id from my subscriptions
+							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(
+								tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions,
+								payload.productId,
+							)
+						}
+						dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
+					}
+				})
+				.catch((error) => {
+					const msg = `removeFromMyProducts: User ${state.userData.user} cannot save its updated profile. ${error}`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+				})
 		},
 
 		updateMyProductSubscriptions({ state, dispatch }, payload) {
 			globalAxios({
 				method: 'GET',
-				url: '/_users/org.couchdb.user:' + state.userData.user
-			}).then(res => {
-				const tmpUserData = res.data
-				tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
-				dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
-			}).catch(error => {
-				const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				url: '/_users/org.couchdb.user:' + state.userData.user,
 			})
-		}
+				.then((res) => {
+					const tmpUserData = res.data
+					tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
+					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
+				})
+				.catch((error) => {
+					const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+				})
+		},
 	},
 
 	mutations: {
-		/*		
-		* Show a message in the message bar in the Product details or Products overview
-		* Stops showing new events if a CRITICAL, ERROR or WARNING event message is displayed.
-		* Resume showing new events after the events list is displayed (click on event bar)
-		*/
+		/*
+		 * Show a message in the message bar in the Product details or Products overview
+		 * Stops showing new events if a CRITICAL, ERROR or WARNING event message is displayed.
+		 * Resume showing new events after the events list is displayed (click on event bar)
+		 */
 		addToEventList(state, payload) {
 			state.showProgress = false
 			const newEvent = createEventToDisplay({ txt: payload.txt, severity: payload.severity, eventKey: state.newEventKey })
@@ -802,31 +835,51 @@ const store = createStore({
 				if (payload.type === 'condition') {
 					nm.tmp.savedIsExpandedInCondition = nm.isExpanded
 					nm.tmp.savedDoShowInCondition = nm.doShow
-					nm.tmp.savedHighLigthsInCondition = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+					nm.tmp.savedHighLigthsInCondition = {
+						isHighlighted_1: nm.tmp.isHighlighted_1,
+						isHighlighted_2: nm.tmp.isHighlighted_2,
+						isWarnLighted: nm.tmp.isWarnLighted,
+					}
 				}
 
 				if (payload.type === 'dependency') {
 					nm.tmp.savedIsExpandedInDependency = nm.isExpanded
 					nm.tmp.savedDoShowInDependency = nm.doShow
-					nm.tmp.savedHighLigthsInDependency = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+					nm.tmp.savedHighLigthsInDependency = {
+						isHighlighted_1: nm.tmp.isHighlighted_1,
+						isHighlighted_2: nm.tmp.isHighlighted_2,
+						isWarnLighted: nm.tmp.isWarnLighted,
+					}
 				}
 
 				if (payload.type === 'findId') {
 					nm.tmp.savedIsExpandedInFindId = nm.isExpanded
 					nm.tmp.savedDoShowInFindId = nm.doShow
-					nm.tmp.savedHighLigthsInFindId = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+					nm.tmp.savedHighLigthsInFindId = {
+						isHighlighted_1: nm.tmp.isHighlighted_1,
+						isHighlighted_2: nm.tmp.isHighlighted_2,
+						isWarnLighted: nm.tmp.isWarnLighted,
+					}
 				}
 
 				if (payload.type === 'filter') {
 					nm.tmp.savedIsExpandedInFilter = nm.isExpanded
 					nm.tmp.savedDoShowInFilter = nm.doShow
-					nm.tmp.savedHighLigthsInFilter = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+					nm.tmp.savedHighLigthsInFilter = {
+						isHighlighted_1: nm.tmp.isHighlighted_1,
+						isHighlighted_2: nm.tmp.isHighlighted_2,
+						isWarnLighted: nm.tmp.isWarnLighted,
+					}
 				}
 
 				if (payload.type === 'titles') {
 					nm.tmp.savedIsExpandedInTitles = nm.isExpanded
 					nm.tmp.savedDoShowInTitles = nm.doShow
-					nm.tmp.savedHighLigthsInTitles = { isHighlighted_1: nm.tmp.isHighlighted_1, isHighlighted_2: nm.tmp.isHighlighted_2, isWarnLighted: nm.tmp.isWarnLighted }
+					nm.tmp.savedHighLigthsInTitles = {
+						isHighlighted_1: nm.tmp.isHighlighted_1,
+						isHighlighted_2: nm.tmp.isHighlighted_2,
+						isWarnLighted: nm.tmp.isWarnLighted,
+					}
 				}
 				// remove highLights
 				delete nm.tmp.isHighlighted_1
@@ -1001,14 +1054,16 @@ const store = createStore({
 								node.productId = payload.productId
 								break
 							case 'removeLastConditionalFor':
-								{	// remove last element; create new array for reactivity
+								{
+									// remove last element; create new array for reactivity
 									const newconditionalFor = []
 									for (let i = 0; i < node.conditionalFor.length - 1; i++) newconditionalFor.push(node.conditionalFor[i])
 									node.conditionalFor = newconditionalFor
 								}
 								break
 							case 'removeLastDependencyOn':
-								{	// remove last element; create new array for reactivity
+								{
+									// remove last element; create new array for reactivity
 									const newDependencies = []
 									for (let i = 0; i < node.dependencies.length - 1; i++) newDependencies.push(node.dependencies[i])
 									node.dependencies = newDependencies
@@ -1071,7 +1126,8 @@ const store = createStore({
 								break
 							default:
 								// eslint-disable-next-line no-console
-								if (state.debug) console.log(`updateNodesAndCurrentDoc.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
+								if (state.debug)
+									console.log(`updateNodesAndCurrentDoc.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
 					}
 					if (node._id === state.currentDoc._id) {
@@ -1220,7 +1276,10 @@ const store = createStore({
 									break
 								default:
 									// eslint-disable-next-line no-console
-									if (state.debug) console.log(`updateNodesAndCurrentDoc.update currentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`)
+									if (state.debug)
+										console.log(
+											`updateNodesAndCurrentDoc.update currentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`,
+										)
 							}
 						}
 					}
@@ -1265,7 +1324,7 @@ const store = createStore({
 			window.location.reload()
 			// eslint-disable-next-line no-console
 			if (state.debug) console.log('endSession, signedOut = ' + state.signedOut + ', caller = ' + caller)
-		}
+		},
 	},
 
 	modules: {
@@ -1292,8 +1351,8 @@ const store = createStore({
 		update,
 		useracc,
 		utils,
-		watchdog
-	}
+		watchdog,
+	},
 })
 
 export default store

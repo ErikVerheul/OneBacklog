@@ -12,13 +12,13 @@ const edgeSize = 6
 const props = {
 	nodeLevel: {
 		type: Number,
-		default: 0
+		default: 0,
 	},
 
 	parentInd: {
 		type: Number,
-		default: 0
-	}
+		default: 0,
+	},
 }
 
 function data() {
@@ -29,10 +29,10 @@ function data() {
 		isDragging: false,
 		lastMousePos: {
 			x: 0,
-			y: 0
+			y: 0,
 		},
 		preventDrag: false,
-		lastClickedNode: {}
+		lastClickedNode: {},
 	}
 }
 
@@ -54,7 +54,7 @@ const computed = {
 			// console.log('filteredNodes1: returning the root node')
 			return store.state.treeNodes
 		}
-		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter(node => node.doShow === true)	
+		const retNodes = this.getParentComponent().filteredNodes[this.parentInd].children.filter((node) => node.doShow === true)
 		// console.log('filteredNodes2: returning ' + retNodes.length + ' nodes')
 		return retNodes
 	},
@@ -77,7 +77,7 @@ const computed = {
 
 	isRoot() {
 		return this.nodeLevel === 0
-	}
+	},
 }
 
 const methods = {
@@ -142,7 +142,7 @@ const methods = {
 		}
 		return {
 			nodeModel,
-			placement
+			placement,
 		}
 	},
 
@@ -174,7 +174,7 @@ const methods = {
 
 		this.lastMousePos = {
 			x: event.clientX,
-			y: event.clientY
+			y: event.clientY,
 		}
 
 		if (!isDraggingLocal) return
@@ -192,7 +192,7 @@ const methods = {
 	onNodeMousedownHandler(event, node) {
 		// disallow selection of the root node
 		if (node.level === 1) return
-		
+
 		if (!this.isRoot) {
 			this.getRootComponent().onNodeMousedownHandler(event, node)
 			return
@@ -232,9 +232,16 @@ const methods = {
 		}
 
 		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.moveOngoing || store.state.selectNodeOngoing) {
-			if (store.state.moveOngoing) this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
-			if (store.state.selectNodeOngoing) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
+		if (
+			!this.lastClickedNode.isSelected ||
+			this.cursorPosition.nodeModel.level === LEVEL.DATABASE ||
+			store.state.moveOngoing ||
+			store.state.selectNodeOngoing
+		) {
+			if (store.state.moveOngoing)
+				this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
+			if (store.state.selectNodeOngoing)
+				this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
 			return
 		}
@@ -252,8 +259,10 @@ const methods = {
 				return
 			}
 			// prevent dragging a product into another product
-			if (this.isDetailsViewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.placement === 'inside' ||
-				this.isOverviewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.nodeModel.parentId !== 'root') {
+			if (
+				(this.isDetailsViewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.placement === 'inside') ||
+				(this.isOverviewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.nodeModel.parentId !== 'root')
+			) {
 				this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
 				this.stopDrag()
 				return
@@ -283,7 +292,7 @@ const methods = {
 
 		// allow the drop to be cancelled
 		let cancelled = false
-		this.emitBeforeDrop(this.draggableNodes, this.cursorPosition, () => cancelled = true)
+		this.emitBeforeDrop(this.draggableNodes, this.cursorPosition, () => (cancelled = true))
 
 		if (cancelled) {
 			this.stopDrag()
@@ -313,7 +322,13 @@ const methods = {
 			this.preventDrag = false
 			const prevSelectedNode = store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if in professional mode and nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
-			if (store.state.userData.myOptions.proUser === 'true' && selNode.level > LEVEL.PRODUCT && selNode.parentId === prevSelectedNode.parentId && event && (event.ctrlKey || event.shiftKey)) {
+			if (
+				store.state.userData.myOptions.proUser === 'true' &&
+				selNode.level > LEVEL.PRODUCT &&
+				selNode.parentId === prevSelectedNode.parentId &&
+				event &&
+				(event.ctrlKey || event.shiftKey)
+			) {
 				if (event.ctrlKey) {
 					// multi selection
 					store.commit('addSelectedNode', selNode)
@@ -370,7 +385,6 @@ const methods = {
 		this.isLeftMouseButtonDown = false
 		this.setModelCursorPosition(null)
 	},
-
 }
 
 export default {
@@ -380,5 +394,5 @@ export default {
 	data,
 	mounted,
 	computed,
-	methods
+	methods,
 }

@@ -15,7 +15,7 @@ function data() {
 		isInSprint: false,
 		canAssignUsToSprint: false,
 		canAssignTaskToSprint: false,
-		movedNode: {}
+		movedNode: {},
 	}
 }
 
@@ -278,7 +278,7 @@ const methods = {
 			}
 		}
 		store.dispatch('removeSprintIds', { parentId: node._id, sprintId, itemIds, sprintName: getSprintNameById(sprintId, store.state.myCurrentSprintCalendar) })
-	}
+	},
 }
 
 export default {
@@ -286,5 +286,5 @@ export default {
 	extends: commonContext,
 	created,
 	data,
-	methods
+	methods,
 }

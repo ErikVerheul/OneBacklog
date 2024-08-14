@@ -42,7 +42,7 @@ export default {
 
   computed: {
     sprintOptions() {
-			const activeSprints = this.getActiveSprints
+      const activeSprints = this.getActiveSprints
       const currentSprintTxt = `Current sprint: '${activeSprints.currentSprint.name}' started ${shortStartDate(activeSprints.currentSprint)} and ending ${shortEndDate(activeSprints.currentSprint)}`
       const nextSprintTxt = `Next sprint: '${activeSprints.nextSprint.name}' starting ${shortStartDate(activeSprints.nextSprint)} and ending ${shortEndDate(activeSprints.nextSprint)}`
       return [
@@ -77,13 +77,13 @@ export default {
 
       if (itemLevel === LEVEL.TASK) {
         // when a task is selected, the task's user story and the task are assigned to the sprint
-				const itemIds = [currentDoc._id]
+        const itemIds = [currentDoc._id]
         const pbiNode = store.state.helpersRef.getNodeById(currentDoc.parentId)
         if (!pbiNode.data.sprintId) {
-					// if no other sprint is assigned, also assign the task's user story to the sprint
+          // if no other sprint is assigned, also assign the task's user story to the sprint
           itemIds.push(pbiNode._id)
         }
-				store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })
+        store.dispatch('addSprintIds', { parentId: pbiNode._id, itemIds, sprintId, sprintName })
       }
     }
   }

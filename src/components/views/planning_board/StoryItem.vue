@@ -12,7 +12,7 @@
       </i>
       {{ story.title }}
       <p v-if="story.subType !== 1">size = {{ story.size }}</p>
-			<p v-else>hours = {{ story.spikePersonHours }}</p>
+      <p v-else>hours = {{ story.spikePersonHours }}</p>
       <p class="small-text">
         F: {{ story.featureName }}
         <br />
@@ -23,8 +23,10 @@
     </div>
     <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
       <BListGroup>
-        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }} from the sprint</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
+          clipboard</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }}
+          from the sprint</BListGroupItem>
       </BListGroup>
     </BModal>
   </div>
@@ -46,16 +48,16 @@ export default {
   },
 
   computed: {
-    storyType () {
+    storyType() {
       switch (this.story.subType) {
         case 0:
           return 'User story'
-				case 1:
+        case 1:
           return 'Spike'
-				case 2:
+        case 2:
           return 'Defect'
-				default:
-					return 'Unknown subtype'
+        default:
+          return 'Unknown subtype'
       }
     }
   },

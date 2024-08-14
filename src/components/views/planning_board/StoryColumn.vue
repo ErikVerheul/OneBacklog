@@ -3,7 +3,7 @@
     <h3 v-if="story.idx === 0">User story</h3>
     <hr>
     <div>
-        <item :productId="productId" :story="story"></item>
+      <item :productId="productId" :story="story"></item>
     </div>
   </div>
 </template>

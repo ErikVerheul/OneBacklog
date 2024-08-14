@@ -13,7 +13,8 @@
           <BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText() }}</BButton>
           <div class="divider" />
           <BInputGroup class="id-sizing">
-            <BFormInput id="findItemOnId" v-model="store.state.itemId" @keydown.enter="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id"></BFormInput>
+            <BFormInput id="findItemOnId" v-model="store.state.itemId" @keydown.enter="doFindItemOnId(store.state.itemId)" placeholder="Select on (short) Id">
+            </BFormInput>
             <template #append>
               <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
@@ -47,14 +48,16 @@
               <label for="storyPointsId">Story points</label>
             </BCol>
             <BCol cols="1">
-              <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)" @blur="updateStoryPoints()" />
+              <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)"
+                @blur="updateStoryPoints()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
           <BCol cols="4">
             <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>
-          <template v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'">
+          <template
+            v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'">
             <BCol cols="2"></BCol>
             <BCol cols="1">
               <h3 align="right">State:</h3>
@@ -80,11 +83,13 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <div class="square" :style="{ 'background-color': squareColor }">{{ squareText }}</div>
-        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages" :style="{ 'background-color': getLastEventColor }">
+        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages"
+          :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
 
         <div class="tree-container">
-          <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
+          <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
+            @drop="nodeDropped">
             <template v-slot:title="{ node }">
               <span class="item-icon">
                 <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
@@ -177,7 +182,8 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ height: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)"
+                @blur="updateTitle()"></BFormInput>
               <div v-if="!isReqAreaItem" class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
@@ -190,7 +196,8 @@
               <span v-else-if="!isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
-                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color" :options="getRemainingColorOptions()" />
+                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
+                    :options="getRemainingColorOptions()" />
                 </BFormGroup>
               </span>
             </div>
@@ -199,12 +206,14 @@
             <div class="d-table w-100">
               <h5 class="title">Description</h5>
               <div class="d-table-cell tar">
-                <p class="title"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                <p class="title"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new
+            Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription" @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription"
+              @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
@@ -214,14 +223,15 @@
               </div>
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance" @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+              <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
+                @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '75px', top: '5px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
-                <BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="primary" 
+                <BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="primary"
                   @click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
                 <BButton v-else-if="!isHistoryFilterActive" variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
                 <BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
@@ -231,9 +241,12 @@
                 <BFormRadioGroup v-model="store.state.selectedForView" :options="getViewOptions()" name="viewOptions" />
               </div>
               <div class="d-table-cell tar">
-                <BButton v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive" variant="primary"
-                  @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-                <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
+                <BButton
+                  v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive"
+                  variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
+                <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView
+                  }}
+                  filter</BButton>
                 <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
               </div>
             </div>

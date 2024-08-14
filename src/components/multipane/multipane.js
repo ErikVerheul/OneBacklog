@@ -19,16 +19,10 @@ export default {
 
 	computed: {
 		classnames() {
-			return [
-				'multipane',
-				'layout-' + this.layout.slice(0, 1),
-				this.isResizing ? 'is-resizing' : '',
-			]
+			return ['multipane', 'layout-' + this.layout.slice(0, 1), this.isResizing ? 'is-resizing' : '']
 		},
 		cursor() {
-			return this.isResizing
-				? this.layout == LAYOUT_VERTICAL ? 'col-resize' : 'row-resize'
-				: ''
+			return this.isResizing ? (this.layout == LAYOUT_VERTICAL ? 'col-resize' : 'row-resize') : ''
 		},
 		userSelect() {
 			return this.isResizing ? 'none' : ''
@@ -42,10 +36,7 @@ export default {
 				let { $el: container, layout } = self
 
 				let pane = resizer.previousElementSibling
-				let {
-					offsetWidth: initialPaneWidth,
-					offsetHeight: initialPaneHeight,
-				} = pane
+				let { offsetWidth: initialPaneWidth, offsetHeight: initialPaneHeight } = pane
 
 				let usePercentage = !!(pane.style.width + '').match('%')
 
@@ -56,18 +47,14 @@ export default {
 						let containerWidth = container.clientWidth
 						let paneWidth = initialSize + offset
 
-						return (pane.style.width = usePercentage
-							? paneWidth / containerWidth * 100 + '%'
-							: paneWidth + 'px')
+						return (pane.style.width = usePercentage ? (paneWidth / containerWidth) * 100 + '%' : paneWidth + 'px')
 					}
 
 					if (layout == LAYOUT_HORIZONTAL) {
 						let containerHeight = container.clientHeight
 						let paneHeight = initialSize + offset
 
-						return (pane.style.height = usePercentage
-							? paneHeight / containerHeight * 100 + '%'
-							: paneHeight + 'px')
+						return (pane.style.height = usePercentage ? (paneHeight / containerHeight) * 100 + '%' : paneHeight + 'px')
 					}
 				}
 
@@ -81,20 +68,14 @@ export default {
 				self.$emit('paneResizeStart', pane, resizer, size)
 
 				const onMouseMove = function ({ pageX, pageY }) {
-					size =
-						layout == LAYOUT_VERTICAL
-							? resize(initialPaneWidth, pageX - initialPageX)
-							: resize(initialPaneHeight, pageY - initialPageY)
+					size = layout == LAYOUT_VERTICAL ? resize(initialPaneWidth, pageX - initialPageX) : resize(initialPaneHeight, pageY - initialPageY)
 
 					self.$emit('paneResize', pane, resizer, size)
 				}
 
 				const onMouseUp = function () {
 					// Run resize one more time to set computed width/height.
-					size =
-						layout == LAYOUT_VERTICAL
-							? resize(pane.clientWidth)
-							: resize(pane.clientHeight)
+					size = layout == LAYOUT_VERTICAL ? resize(pane.clientWidth) : resize(pane.clientHeight)
 
 					// This removes is-resizing class to container
 					self.isResizing = false
@@ -108,6 +89,6 @@ export default {
 				addEventListener('mousemove', onMouseMove)
 				addEventListener('mouseup', onMouseUp)
 			}
-		}
-	}
+		},
+	},
 }

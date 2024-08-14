@@ -257,7 +257,7 @@ const actions = {
 				placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 			},
 			[clonedRootNode],
-			{ skipUpdateProductId: true }
+			{ skipUpdateProductId: true },
 		)
 		// select the cloned node
 		const nowSelectedNode = rootState.helpersRef.getNodeById(clonedRootDoc._id)

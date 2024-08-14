@@ -8,10 +8,14 @@
     <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
       <BListGroup>
         <BListGroupItem button :active="contextOptionSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title
+        </BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner
+        </BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
+          clipboard</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task
+        </BListGroupItem>
       </BListGroup>
 
       <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
@@ -96,8 +100,8 @@ export default {
           this.selectedUser = store.state.userData.user
           break
         case this.ID_TO_CLIPBOARD:
-				case this.REMOVE_TASK:
-					break
+        case this.REMOVE_TASK:
+          break
         default:
           this.assistanceText = 'No assistance available'
           this.listItemText = 'nothing selected as yet'
@@ -127,7 +131,7 @@ export default {
             })
             break
           case this.REMOVE_TASK:
-						store.dispatch('boardRemoveTask', this.item.id)
+            store.dispatch('boardRemoveTask', this.item.id)
             break
         }
       } else {

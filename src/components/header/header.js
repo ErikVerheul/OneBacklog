@@ -19,8 +19,8 @@ function data() {
 		oldPassword: '',
 		newPassword1: '',
 		newPassword2: '',
-		newEmail1: "",
-		newEmail2: "",
+		newEmail1: '',
+		newEmail2: '',
 		selectedProducts: [],
 		defaultProductOptions: [],
 		selectedTeam: '',
@@ -28,7 +28,7 @@ function data() {
 		headerDatabaseOptions: [],
 		teamOptions: [],
 		newDefaultProductId: undefined,
-		showOptionsModal: false
+		showOptionsModal: false,
 	}
 }
 
@@ -39,7 +39,7 @@ const computed = {
 
 	emailIsCheckedOk() {
 		return this.newEmail1 === this.newEmail2 && isValidEmail(this.newEmail1)
-	}
+	},
 }
 
 const methods = {
@@ -51,7 +51,8 @@ const methods = {
 	},
 
 	refreshPlanningboard() {
-		if (this.isPlanningBoardSelected) store.dispatch('loadPlanningBoard', { sprintId: store.state.loadedSprintId, team: store.state.userData.myTeam, caller: 'header.refreshPlanningboard' })
+		if (this.isPlanningBoardSelected)
+			store.dispatch('loadPlanningBoard', { sprintId: store.state.loadedSprintId, team: store.state.userData.myTeam, caller: 'header.refreshPlanningboard' })
 	},
 
 	showOptions() {
@@ -89,13 +90,13 @@ const methods = {
 	},
 
 	changeMyPassword() {
-		if (this.isServerAdmin) { alert("As a 'server admin' you cannot change your password here. Use Fauxton instead") } else this.$refs.changePwRef.show()
+		if (this.isServerAdmin) {
+			alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
+		} else this.$refs.changePwRef.show()
 	},
 
 	changeMyEmail() {
-		this.newEmail1 = '',
-		this.newEmail2 = '',
-		this.$refs.changeEmailRef.show()
+		;(this.newEmail1 = ''), (this.newEmail2 = ''), this.$refs.changeEmailRef.show()
 	},
 
 	showMyRoles() {
@@ -111,11 +112,12 @@ const methods = {
 
 	doChangeTeam() {
 		// Update tasks to the new team where this user is assigned to; when done other actions are started com complete the team change
-		console.log('doChangeTeam: store.state.userData.myTeam = ' + store.state.userData.myTeam + ', this.selectedTeam = ' + this.selectedTeam )
-		store.dispatch('updateTasksToNewTeam', {  
-			userName: store.state.userData.user, 
-			oldTeam: store.state.userData.myTeam, 
-			newTeam: this.selectedTeam })
+		console.log('doChangeTeam: store.state.userData.myTeam = ' + store.state.userData.myTeam + ', this.selectedTeam = ' + this.selectedTeam)
+		store.dispatch('updateTasksToNewTeam', {
+			userName: store.state.userData.user,
+			oldTeam: store.state.userData.myTeam,
+			newTeam: this.selectedTeam,
+		})
 	},
 
 	doShowTeam() {
@@ -167,11 +169,13 @@ const methods = {
 	/* The default product changed, update currentProductId, load and show in the tree view and update the user's profile */
 	updateProductsView(productIds) {
 		store.dispatch('loadDoc', {
-			id: this.newDefaultProductId, onSuccessCallback: () => {
+			id: this.newDefaultProductId,
+			onSuccessCallback: () => {
 				const myOldSubscriptions = this.getMyProductSubscriptions
 				// update the user's profile; place the default productId on top in the array
 				store.dispatch('updateMyProductSubscriptions', {
-					productIds, onSuccessCallback: () => {
+					productIds,
+					onSuccessCallback: () => {
 						if (store.state.currentProductId !== this.newDefaultProductId) {
 							// another product is selected; collapse the currently selected product and switch to the new product
 							store.commit('switchCurrentProduct', this.newDefaultProductId)
@@ -198,9 +202,9 @@ const methods = {
 						}
 						// show the event
 						this.showSelectionEvent([store.state.helpersRef.getNodeById(this.newDefaultProductId)])
-					}
+					},
 				})
-			}
+			},
 		})
 	},
 
@@ -224,9 +228,9 @@ const methods = {
 		store.dispatch('changeMyEmailAction', this.newEmail1)
 	},
 
-	onSignout() {	
+	onSignout() {
 		store.commit('endSession', 'header: user signed out')
-	}
+	},
 }
 
 export default {
@@ -236,6 +240,6 @@ export default {
 	computed,
 	methods,
 	components: {
-		appLicence: Licence
-	}
+		appLicence: Licence,
+	},
 }

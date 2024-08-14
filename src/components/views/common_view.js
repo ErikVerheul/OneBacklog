@@ -14,14 +14,14 @@ function data() {
 		spikeSubtype: 1,
 		defectSubtype: 2,
 		docToUpdate: null,
-		newDescription: "<p><br></p>",
-		newAcceptance: "<p><br></p>",
+		newDescription: '<p><br></p>',
+		newAcceptance: '<p><br></p>',
 		editorToolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 			['bold', 'italic', 'underline', 'strike'],
 			[{ list: 'ordered' }, { list: 'bullet' }],
 			[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-			['link', 'image', 'code-block']
+			['link', 'image', 'code-block'],
 		],
 		// set to an invalid value; must be updated before use
 		selectedPbiType: '',
@@ -32,14 +32,14 @@ function data() {
 		isAcceptanceEdited: false,
 		isCommentsFilterActive: false,
 		isHistoryFilterActive: false,
-		newComment: "<p><br></p>",
+		newComment: '<p><br></p>',
 		fileInfo: null,
-		newHistory: "<p><br></p>",
+		newHistory: '<p><br></p>',
 		filterForCommentPrep: '',
 		filterForHistoryPrep: '',
 		// move data
 		movePreflightData: {},
-		warnForMoveToOtherLevel: false
+		warnForMoveToOtherLevel: false,
 	}
 }
 
@@ -101,18 +101,22 @@ const computed = {
 
 	welcomeMessage() {
 		let msg_2
-		if (this.myTeam === 'not assigned yet') { msg_2 = ' You are not a team member.' }
-		else msg_2 = ` You are member of team '${this.myTeam}'.`
+		if (this.myTeam === 'not assigned yet') {
+			msg_2 = ' You are not a team member.'
+		} else msg_2 = ` You are member of team '${this.myTeam}'.`
 
 		let msg_4
-		if (this.getMyAssignedProductIds.length === 1) { msg_4 = ` You have 1 product.` }
-		else msg_4 = ` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
+		if (this.getMyAssignedProductIds.length === 1) {
+			msg_4 = ` You have 1 product.`
+		} else msg_4 = ` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
 
 		return `Welcome '${store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${store.state.userData.currentDb}'.` + msg_4
 	},
 
 	squareText() {
-		if (store.state.online) { return 'sync' } else {
+		if (store.state.online) {
+			return 'sync'
+		} else {
 			return 'offline'
 		}
 	},
@@ -123,7 +127,7 @@ const computed = {
 
 	getSubscribeButtonTxt() {
 		if (store.state.busyChangingSubscriptions) {
-			return "Busy, please wait ..."
+			return 'Busy, please wait ...'
 		}
 		if (this.isFollower) {
 			return 'Unsubscribe to change notices'
@@ -141,35 +145,35 @@ const computed = {
 	description: {
 		get: () => {
 			let retVal = store.state.currentDoc.description
-			if (retVal === "") {
+			if (retVal === '') {
 				// correct empty field
-				retVal = "<p><br></p>"
+				retVal = '<p><br></p>'
 			}
 			return retVal
 		},
 		set(newDescription) {
 			this.newDescription = newDescription
-		}
+		},
 	},
 
 	acceptanceCriteria: {
 		get: () => {
 			let retVal = store.state.currentDoc.acceptanceCriteria
-			if (retVal === "") {
+			if (retVal === '') {
 				// correct empty field
-				retVal = "<p><br></p>"
+				retVal = '<p><br></p>'
 			}
 			return retVal
 		},
 		set(newAcceptanceCriteria) {
 			this.newAcceptance = newAcceptanceCriteria
-		}
+		},
 	},
 
 	// return true if the root node is selected or false if another or no node is selected
 	isRootSelected() {
 		return !!this.getLastSelectedNode && this.getLastSelectedNode._id === 'root'
-	}
+	},
 }
 
 const watch = {
@@ -182,7 +186,7 @@ const watch = {
 			}
 			if (store.state.selectedForView === 'comments') {
 				if (this.canCreateComments) {
-					this.newComment = "<p><br></p>"
+					this.newComment = '<p><br></p>'
 					this.$refs.commentsEditorRef.show()
 				} else {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
@@ -203,7 +207,7 @@ const watch = {
 				this.isHistoryFilterActive = true
 			}
 		}
-	}
+	},
 }
 
 const methods = {
@@ -292,11 +296,11 @@ const methods = {
 	},
 
 	/*
-	* Check for 'done' items with sub-items not 'done' and highlight them with a warning badge 'Done?' in the tree view.
-	* Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
-	*/
+	 * Check for 'done' items with sub-items not 'done' and highlight them with a warning badge 'Done?' in the tree view.
+	 * Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
+	 */
 	hasInconsistentState(node) {
-		if (node._id === "requirement-areas") {
+		if (node._id === 'requirement-areas') {
 			// skip this dummy product
 			return false
 		}
@@ -308,7 +312,7 @@ const methods = {
 				if (d.data.state > highestState) highestState = d.data.state
 				if (d.data.state < STATE.DONE && d.data.state !== STATE.ON_HOLD) allDone = false
 			}
-			return (node.data.state > highestState || node.data.state === STATE.DONE && !allDone)
+			return node.data.state > highestState || (node.data.state === STATE.DONE && !allDone)
 		}
 	},
 
@@ -318,8 +322,8 @@ const methods = {
 
 	getFilterButtonText() {
 		if (store.state.resetFilter === null) {
-			return "Filter in tree"
-		} else return "Reset filter"
+			return 'Filter in tree'
+		} else return 'Reset filter'
 	},
 
 	onSetMyFilters() {
@@ -385,9 +389,9 @@ const methods = {
 	},
 
 	/*
-	* Restore the nodes in their previous (source) position.
-	* Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
-	*/
+	 * Restore the nodes in their previous (source) position.
+	 * Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
+	 */
 	moveBack(sourceParentId, targetParentId, reverseMoveMap) {
 		const parentNode = store.state.helpersRef.getNodeById(targetParentId)
 		if (parentNode === null) return false
@@ -400,7 +404,7 @@ const methods = {
 			if (r.targetInd === 0) {
 				cursorPosition = {
 					nodeModel: parentNode,
-					placement: 'inside'
+					placement: 'inside',
 				}
 			} else {
 				let topSibling
@@ -413,7 +417,7 @@ const methods = {
 
 				cursorPosition = {
 					nodeModel: topSibling,
-					placement: 'after'
+					placement: 'after',
 				}
 			}
 			store.state.helpersRef.removeNodes([node])
@@ -481,7 +485,13 @@ const methods = {
 				store.dispatch('undoRemovedBranch', entry)
 				break
 			case 'undoRemoveSprintIds':
-				store.dispatch('addSprintIds', { parentId: entry.parentId, itemIds: entry.itemIds, sprintId: entry.sprintId, sprintName: entry.sprintName, isUndoAction })
+				store.dispatch('addSprintIds', {
+					parentId: entry.parentId,
+					itemIds: entry.itemIds,
+					sprintId: entry.sprintId,
+					sprintName: entry.sprintName,
+					isUndoAction,
+				})
 				break
 			case 'undoSelectedPbiType':
 				store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, isUndoAction })
@@ -523,7 +533,7 @@ const methods = {
 			node: this.getLastSelectedNode,
 			fileInfo: this.fileInfo,
 			currentDocId: store.state.currentDoc._id,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		})
 	},
 
@@ -535,7 +545,7 @@ const methods = {
 		store.dispatch('addComment', {
 			node: this.getLastSelectedNode,
 			comment: this.newComment,
-			timestamp: Date.now()
+			timestamp: Date.now(),
 		})
 	},
 
@@ -555,7 +565,7 @@ const methods = {
 					node,
 					newDescription: this.newDescription,
 					timestamp: Date.now(),
-					toDispatch
+					toDispatch,
 				})
 			} else this.isDescriptionEdited = false
 		}
@@ -577,7 +587,7 @@ const methods = {
 						node,
 						newAcceptance: this.newAcceptance,
 						timestamp: Date.now(),
-						toDispatch
+						toDispatch,
 					})
 				} else this.isAcceptanceEdited = false
 			}
@@ -591,7 +601,10 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change T-shirt size. */
 	updateTsSize() {
-		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the t-shirt size of this item')) {
+		if (
+			this.docToUpdate &&
+			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the t-shirt size of this item')
+		) {
 			const size = document.getElementById('tShirtSizeId').value.toUpperCase()
 			const sizeArray = store.state.configData.tsSize
 			if (sizeArray.includes(size)) {
@@ -600,7 +613,7 @@ const methods = {
 					store.dispatch('setTsSize', {
 						node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 						newSizeIdx,
-						timestamp: Date.now()
+						timestamp: Date.now(),
 					})
 				}
 			} else {
@@ -615,7 +628,10 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change story points. */
 	updateStoryPoints() {
-		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the story points size of this item')) {
+		if (
+			this.docToUpdate &&
+			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the story points size of this item')
+		) {
 			const el = document.getElementById('storyPointsId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -626,7 +642,7 @@ const methods = {
 				store.dispatch('setStoryPoints', {
 					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 					newPoints,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				})
 			}
 		}
@@ -634,7 +650,10 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change person hours. */
 	updatePersonHours() {
-		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change story person hours of this item')) {
+		if (
+			this.docToUpdate &&
+			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change story person hours of this item')
+		) {
 			const el = document.getElementById('personHoursId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -645,18 +664,18 @@ const methods = {
 				store.dispatch('setPersonHours', {
 					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 					newHrs,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				})
 			}
 		}
 	},
 
 	/*
-	* An authorized user can change state if member of the team owning this item.
-	* Issue a warning when the user assigns a state to a parent:
-	* - to DONE when not all descendants are done
-	* - higher than the state of any of its descendants
-	*/
+	 * An authorized user can change state if member of the team owning this item.
+	 * Issue a warning when the user assigns a state to a parent:
+	 * - to DONE when not all descendants are done
+	 * - higher than the state of any of its descendants
+	 */
 	onStateChange(newState) {
 		if (newState !== store.state.currentDoc.state) {
 			const node = this.getLastSelectedNode
@@ -665,7 +684,7 @@ const methods = {
 					node,
 					newState,
 					position: node.ind,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				})
 			}
 		}
@@ -681,7 +700,7 @@ const methods = {
 				store.dispatch('setDocTitle', {
 					node: store.state.helpersRef.getNodeById(this.docToUpdate._id),
 					newTitle,
-					timestamp: Date.now()
+					timestamp: Date.now(),
 				})
 			}
 		}
@@ -704,10 +723,10 @@ const methods = {
 	},
 
 	/*
-	* Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location.
-	* IMPORTANT: To guarantee an immediate response, as an exception to the rule, the tree is updated before the database.
-	* If the move fails in the database the user must reload the tree to return to the previous state.
-	*/
+	 * Move the nodes and save the status 'as is' before the move and update the database when one or more nodes are dropped on another location.
+	 * IMPORTANT: To guarantee an immediate response, as an exception to the rule, the tree is updated before the database.
+	 * If the move fails in the database the user must reload the tree to return to the previous state.
+	 */
 	doMove(nodes, cursorPosition) {
 		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
 		// show the event message before the database update is finished
@@ -719,7 +738,8 @@ const methods = {
 			let evt
 			if (nodes.length === 1) {
 				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
-			} else evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
+			} else
+				evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
 			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
 			this.showLastEvent(evt, SEV.INFO)
 		}
@@ -730,7 +750,7 @@ const methods = {
 		const options = [
 			{ text: 'Comments', value: 'comments' },
 			{ text: this.attachmentsLabel, value: 'attachments', disabled: !this.canSeeAndUploadAttachments },
-			{ text: 'History', value: 'history' }
+			{ text: 'History', value: 'history' },
 		]
 		return options
 	},
@@ -738,7 +758,7 @@ const methods = {
 	showMoreMessages() {
 		store.commit('resetfroozenEventDisplay')
 		this.$refs.historyEventRef.show()
-	}
+	},
 }
 
 export default {
@@ -746,5 +766,5 @@ export default {
 	data,
 	computed,
 	watch,
-	methods
+	methods,
 }

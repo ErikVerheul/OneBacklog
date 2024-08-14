@@ -52,11 +52,13 @@
       </div>
     </BContainer>
     <template v-if="currentSprintLoaded && askForImport() && unfinishedWork">
-      <BModal @cancel="$router.back()" @close="$router.back()" @ok="procSelected" v-model="currentSprintLoaded" title="Import unfinished tasks from previous sprints?">
+      <BModal @cancel="$router.back()" @close="$router.back()" @ok="procSelected" v-model="currentSprintLoaded"
+        title="Import unfinished tasks from previous sprints?">
         <BListGroup>
           <BListGroupItem button :active="contextOptionSelected === MOVE_TASKS" variant="dark" @click="prepSelected(MOVE_TASKS)">Yes, please</BListGroupItem>
           <BListGroupItem button :active="contextOptionSelected === NO_NOT_YET" variant="dark" @click="prepSelected(NO_NOT_YET)">No, not yet</BListGroupItem>
-          <BListGroupItem button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask again</BListGroupItem>
+          <BListGroupItem button :active="contextOptionSelected === NO_STOP_ASKING" variant="danger" @click="prepSelected(NO_STOP_ASKING)">No, and do not ask
+            again</BListGroupItem>
         </BListGroup>
         <p class="message-head">{{ showInfo() }}</p>
       </BModal>

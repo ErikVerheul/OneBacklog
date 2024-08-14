@@ -54,7 +54,8 @@
           <p>Refactoring</p>
           <ul>
             <li>Full integration of team change in local and remote detail view and planning board</li>
-            <li>Refactor team change using a new couchDb filter and the messenger document to efficiently trigger updates when syncing with other online users</li>
+            <li>Refactor team change using a new couchDb filter and the messenger document to efficiently trigger updates when syncing with other online users
+            </li>
             <li>Allow user to search on title when a selection on id is open and vice versa. The open selection/search is undone automatically</li>
             <li>Make the log list scrollable</li>
           </ul>
@@ -116,7 +117,8 @@
             <li>Show number of done user stories in pick list of past sprints</li>
           </ul>
           <p>Fix browser support:</p>
-          <p>Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid site breakage. See
+          <p>Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid
+            site breakage. See
             https://chromestatus.com/feature/5083947249172480</p>
           <p>This is done by overriding the quill dependency version to 2.0.2</p>
           <p>Bug fixes:</p>

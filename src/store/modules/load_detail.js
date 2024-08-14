@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup,createLoadEventText } from '../../common_functions.js'
+import { dedup, createLoadEventText } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -12,7 +12,7 @@ const state = {
 	docsCount: 0,
 	insertedCount: 0,
 	orphansCount: 0,
-	levelErrorCount: 0
+	levelErrorCount: 0,
 }
 
 const mutations = {
@@ -75,10 +75,10 @@ const mutations = {
 							team,
 							priority,
 							lastChange: 0,
-							followers
+							followers,
 						},
-						tmp: {}
-					}
+						tmp: {},
+					},
 				]
 				parentNodes.root = rootState.treeNodes[0]
 				state.docsCount++
@@ -155,9 +155,9 @@ const mutations = {
 						state: itemState,
 						subtype,
 						followers,
-						team
+						team,
 					},
-					tmp: {}
+					tmp: {},
 				}
 
 				state.insertedCount++
@@ -173,18 +173,12 @@ const mutations = {
 				orphansFound.push({ id: _id, parentId, productId })
 			}
 		}
-	}
+	},
 }
 
 const actions = {
 	/* Load current default user product and start loading the tree */
-	loadProductDetails({
-		rootState,
-		rootGetters,
-		state,
-		commit,
-		dispatch
-	}) {
+	loadProductDetails({ rootState, rootGetters, state, commit, dispatch }) {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
@@ -195,80 +189,78 @@ const actions = {
 		const _id = rootGetters.getCurrentDefaultProductId
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/' + _id
-		}).then(res => {
-			// after this assignment the access rights can be set in the store
-			rootState.currentProductId = _id
-			rootState.currentProductTitle = res.data.title
-			commit('updateNodesAndCurrentDoc', { newDoc: res.data })
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
-			dispatch('loadAssignedAndSubscribed', {
-				onSuccessCallback: () => {
-					rootState.helpersRef.setDescendantsReqArea()
-					rootState.helpersRef.dependencyViolationsFound()
-				}
-			})
-		}).catch(error => {
-			let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
-			if (error.response && error.response.status === 404) {
-				msg += ', is your default product deleted?'
-			}
-			dispatch('doLog', { event: msg, level: SEV.ERROR })
+			url: rootState.userData.currentDb + '/' + _id,
 		})
+			.then((res) => {
+				// after this assignment the access rights can be set in the store
+				rootState.currentProductId = _id
+				rootState.currentProductTitle = res.data.title
+				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
+				dispatch('loadAssignedAndSubscribed', {
+					onSuccessCallback: () => {
+						rootState.helpersRef.setDescendantsReqArea()
+						rootState.helpersRef.dependencyViolationsFound()
+					},
+				})
+			})
+			.catch((error) => {
+				let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
+				if (error.response && error.response.status === 404) {
+					msg += ', is your default product deleted?'
+				}
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
 	},
 
 	/* Load the current product first */
-	loadAssignedAndSubscribed({
-		rootState,
-		rootGetters,
-		state,
-		commit,
-		dispatch
-	}, payload) {
+	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }, payload) {
 		globalAxios({
 			method: 'GET',
-			url: rootState.userData.currentDb + '/_design/design1/_view/details'
-		}).then(res => {
-			rootState.lastTreeView = 'detailProduct'
-			rootState.loadedTreeDepth = LEVEL.TASK
-			rootState.loadedSprintId = null
-			rootState.productTitlesMap = {}
-			commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
-			const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
-			commit('addToEventList', { txt: createLoadEventText(state), severity })
-			// log any detected orphans, if present
-			if (state.orphansCount > 0) {
-				for (const o of orphansFound) {
-					const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
-					dispatch('doLog', { event: msg, level: SEV.CRITICAL })
-				}
-			}
-			// log any detected level errors, if present
-			if (state.levelErrorCount > 0) {
-				for (const l of levelErrorsFound) {
-					const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
-					const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
-					dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
-				}
-			}
-
-			// all products are read; initialize the helpers functions
-			dispatch('createHelpers')
-			// reset load parameters
-			parentNodes = {}
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
-		}).catch(error => {
-			// eslint-disable-next-line no-console
-			if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)
+			url: rootState.userData.currentDb + '/_design/design1/_view/details',
 		})
-	}
+			.then((res) => {
+				rootState.lastTreeView = 'detailProduct'
+				rootState.loadedTreeDepth = LEVEL.TASK
+				rootState.loadedSprintId = null
+				rootState.productTitlesMap = {}
+				commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
+				const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
+				commit('addToEventList', { txt: createLoadEventText(state), severity })
+				// log any detected orphans, if present
+				if (state.orphansCount > 0) {
+					for (const o of orphansFound) {
+						const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
+						dispatch('doLog', { event: msg, level: SEV.CRITICAL })
+					}
+				}
+				// log any detected level errors, if present
+				if (state.levelErrorCount > 0) {
+					for (const l of levelErrorsFound) {
+						const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
+						const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
+						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
+					}
+				}
+
+				// all products are read; initialize the helpers functions
+				dispatch('createHelpers')
+				// reset load parameters
+				parentNodes = {}
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
+				if (payload.onSuccessCallback) payload.onSuccessCallback()
+			})
+			.catch((error) => {
+				// eslint-disable-next-line no-console
+				if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)
+			})
+	},
 }
 
 export default {
 	state,
 	mutations,
-	actions
+	actions,
 }

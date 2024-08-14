@@ -27,7 +27,7 @@ function data() {
 		roleOptions: [
 			{ text: 'PO', value: 'PO' },
 			{ text: 'developer', value: 'developer' },
-			{ text: 'guest', value: 'guest' }
+			{ text: 'guest', value: 'guest' },
 		],
 		localMessage: '',
 		selectedUser: undefined,
@@ -50,7 +50,7 @@ function data() {
 		teamsToRemoveOptions: [],
 		teamOptions: [],
 		canRemoveLastProduct: true,
-		canRemoveDatabase: true
+		canRemoveDatabase: true,
 	}
 }
 
@@ -64,7 +64,9 @@ const computed = {
 		const changeNr = parseInt(this.changedNumberStr)
 		const lastDefinedNr = store.state.loadedCalendar.length - 1
 		const accepted = changeNr >= this.currentSprintNr && changeNr <= lastDefinedNr
-		this.acceptSprintNrMsg = accepted ? `` : `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
+		this.acceptSprintNrMsg = accepted
+			? ``
+			: `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
 		return accepted
 	},
 
@@ -86,7 +88,7 @@ const computed = {
 
 	changeDisableOkButton() {
 		return !this.acceptSprintnr || !this.acceptNewSprintLength || !this.acceptHourChange
-	}
+	},
 }
 
 const methods = {
@@ -158,11 +160,12 @@ const methods = {
 				store.state.isDefaultCalendarLoaded = false
 				store.state.isTeamCalendarLoaded = false
 				store.dispatch('fetchTeamsAction', {
-					dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+					dbName: store.state.selectedDatabaseName,
+					onSuccessCallback: () => {
 						for (const t of store.state.fetchedTeams) {
 							this.teamOptions.push(t.teamName)
 						}
-					}
+					},
 				})
 				break
 			case 'List teams':
@@ -171,13 +174,14 @@ const methods = {
 			case 'Remove teams without members':
 				this.teamNamesToRemove = []
 				store.dispatch('fetchTeamsAction', {
-					dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+					dbName: store.state.selectedDatabaseName,
+					onSuccessCallback: () => {
 						for (const t of store.state.fetchedTeams) {
 							if (t.members.length === 0) {
 								if (!this.teamsToRemoveOptions.includes(t.teamName)) this.teamsToRemoveOptions.push(t.teamName)
 							}
 						}
-					}
+					},
 				})
 				break
 		}
@@ -224,12 +228,18 @@ const methods = {
 			newSprintCalendar.push(sprint)
 			prevSprintEnd = sprint.startTimestamp + sprint.sprintLength
 		}
-		if (store.state.isDefaultCalendarLoaded) store.dispatch('saveDefaultSprintCalendarAction', {
-			dbName: store.state.selectedDatabaseName, newSprintCalendar
-		})
-		if (store.state.isTeamCalendarLoaded) store.dispatch('updateTeamCalendarAction', {
-			dbName: store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
-		})
+		if (store.state.isDefaultCalendarLoaded)
+			store.dispatch('saveDefaultSprintCalendarAction', {
+				dbName: store.state.selectedDatabaseName,
+				newSprintCalendar,
+			})
+		if (store.state.isTeamCalendarLoaded)
+			store.dispatch('updateTeamCalendarAction', {
+				dbName: store.state.selectedDatabaseName,
+				teamId: this.selectedTeamId,
+				teamName: this.selectedTeamName,
+				newSprintCalendar,
+			})
 	},
 
 	extendCalendar() {
@@ -247,18 +257,24 @@ const methods = {
 				id: sprintId,
 				name: 'sprint-' + i,
 				startTimestamp: startDate.valueOf() + j * sprintLengthMillis,
-				sprintLength: sprintLengthMillis
+				sprintLength: sprintLengthMillis,
 			}
 			extendSprintCalendar.push(obj)
 			j++
 		}
 		const newSprintCalendar = currentCalendar.concat(extendSprintCalendar)
-		if (store.state.isDefaultCalendarLoaded) store.dispatch('saveDefaultSprintCalendarAction', {
-			dbName: store.state.selectedDatabaseName, newSprintCalendar
-		})
-		if (store.state.isTeamCalendarLoaded) store.dispatch('updateTeamCalendarAction', {
-			dbName: store.state.selectedDatabaseName, teamId: this.selectedTeamId, teamName: this.selectedTeamName, newSprintCalendar
-		})
+		if (store.state.isDefaultCalendarLoaded)
+			store.dispatch('saveDefaultSprintCalendarAction', {
+				dbName: store.state.selectedDatabaseName,
+				newSprintCalendar,
+			})
+		if (store.state.isTeamCalendarLoaded)
+			store.dispatch('updateTeamCalendarAction', {
+				dbName: store.state.selectedDatabaseName,
+				teamId: this.selectedTeamId,
+				teamName: this.selectedTeamName,
+				newSprintCalendar,
+			})
 	},
 
 	showProductView() {
@@ -328,14 +344,14 @@ const methods = {
 				[store.state.selectedDatabaseName]: {
 					myTeam: 'not assigned yet',
 					subscriptions,
-					productsRoles
-				}
-			}
+					productsRoles,
+				},
+			},
 		}
 		if (store.state.isUserRemoved) {
 			newUserData._rev = store.state.useracc.fetchedUserData._rev
 			// replace existing removed user
-			store.dispatch('updateUserDb', { data: newUserData, onSuccessCallback: () => store.state.isUserCreated = true })
+			store.dispatch('updateUserDb', { data: newUserData, onSuccessCallback: () => (store.state.isUserCreated = true) })
 		} else store.dispatch('createUserIfNotExistentAction', newUserData)
 	},
 
@@ -345,11 +361,11 @@ const methods = {
 	},
 
 	/*
-	* Update the generic and product roles in the user's profile, including the product subscriptions.
-	* Check if the profile holds at least one database with at least one product.
-	* The currentDb must be present in myDatabases.
-	* Any subscription to a product must refer to an existing product.
-	*/
+	 * Update the generic and product roles in the user's profile, including the product subscriptions.
+	 * Check if the profile holds at least one database with at least one product.
+	 * The currentDb must be present in myDatabases.
+	 * Any subscription to a product must refer to an existing product.
+	 */
 	doUpdateUser() {
 		const dbName = store.state.selectedDatabaseName
 		const newUserData = store.state.useracc.fetchedUserData
@@ -399,7 +415,7 @@ const methods = {
 			// the database is new to this user; create a new entry
 			newUserData.myDatabases[dbName] = {
 				myTeam: 'not assigned yet',
-				subscriptions: []
+				subscriptions: [],
 			}
 			for (const prod of store.state.useracc.dbProducts) {
 				if (userIsAdminOrAPO || prod.roles.length > 0) {
@@ -469,12 +485,13 @@ const methods = {
 			}
 		}
 		store.dispatch('updateUserDb', {
-			data: newUserData, onSuccessCallback: () => {
+			data: newUserData,
+			onSuccessCallback: () => {
 				if (removeDb) {
 					// the user cannot select this database anymore
 					store.state.myAssignedDatabases = removeFromArray(store.state.myAssignedDatabases, dbName)
 				}
-			}
+			},
 		})
 	},
 
@@ -484,20 +501,23 @@ const methods = {
 
 	doRemoveTeams(teamNamesToRemove) {
 		store.dispatch('removeTeamsAction', {
-			dbName: store.state.selectedDatabaseName, teamNamesToRemove, onSuccessCallback: () => {
+			dbName: store.state.selectedDatabaseName,
+			teamNamesToRemove,
+			onSuccessCallback: () => {
 				// remove the teams from the selection options
 				const newOptions = []
 				for (const tn of this.teamsToRemoveOptions) {
 					if (!teamNamesToRemove.includes(tn)) newOptions.push(tn)
 				}
 				this.teamsToRemoveOptions = newOptions
-			}
+			},
 		})
 	},
 
 	doLoadDefaultCalendar() {
 		store.dispatch('fetchDefaultSprintCalendarAction', {
-			dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+			dbName: store.state.selectedDatabaseName,
+			onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
 				// get the current sprint number if the calendar is available
 				const now = Date.now()
@@ -508,20 +528,23 @@ const methods = {
 						break
 					}
 				}
-			}
+			},
 		})
 	},
 
 	doLoadTeamCalendar() {
 		store.dispatch('fetchTeamsAction', {
-			dbName: store.state.selectedDatabaseName, onSuccessCallback: () => {
+			dbName: store.state.selectedDatabaseName,
+			onSuccessCallback: () => {
 				this.checkForExistingCalendar = false
 				for (const t of store.state.fetchedTeams) {
 					if (t.teamName === this.selectedTeamName) {
 						// save the teamId for use in createTeamCalendarAction and updateTeamCalendarAction
 						this.selectedTeamId = t.teamId
 						store.dispatch('fetchTeamCalendarAction', {
-							dbName: store.state.selectedDatabaseName, teamId: t.teamId, onSuccessCallback: () => {
+							dbName: store.state.selectedDatabaseName,
+							teamId: t.teamId,
+							onSuccessCallback: () => {
 								// get the current sprint number if the calendar is available
 								const now = Date.now()
 								for (let i = 0; i < store.state.loadedCalendar.length; i++) {
@@ -531,13 +554,13 @@ const methods = {
 										break
 									}
 								}
-							}
+							},
 						})
 						break
 					}
 					this.loacalMessage = `Team ${this.selectedTeamName} not found`
 				}
-			}
+			},
 		})
 	},
 
@@ -558,11 +581,11 @@ const methods = {
 		this.optionSelected = 'Select a task'
 		this.dbIsSelected = false
 		store.state.backendMessages = []
-	}
+	},
 }
 
 const components = {
-	'app-header': AppHeader
+	'app-header': AppHeader,
 }
 
 export default {
@@ -571,5 +594,5 @@ export default {
 	computed,
 	data,
 	methods,
-	components
+	components,
 }

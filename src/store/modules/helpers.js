@@ -1,19 +1,15 @@
 /*
-* Global functions that need access to the Vuex store
-* Unlike getters these functions need no return value and are not re-evaluated and cached when some of its dependencies have changed.
-* Use in components by calling store.state.helpersRef.functionName(params)
-* Use in Vuex actions by calling rootState.helpersRef.functionName(params)
-* Note that the store must be initialized before use
-*/
+ * Global functions that need access to the Vuex store
+ * Unlike getters these functions need no return value and are not re-evaluated and cached when some of its dependencies have changed.
+ * Use in components by calling store.state.helpersRef.functionName(params)
+ * Use in Vuex actions by calling rootState.helpersRef.functionName(params)
+ * Note that the store must be initialized before use
+ */
 
 import { LEVEL, MISC, SEV, STATE } from '../../constants.js'
 import { collapseNode, expandNode, dedup, showNode } from '../../common_functions.js'
 const actions = {
-	createHelpers({
-		rootState,
-		rootGetters,
-		commit
-	}) {
+	createHelpers({ rootState, rootGetters, commit }) {
 		rootState.helpersRef = {
 			name: 'OneBacklog global helper functions',
 
@@ -84,9 +80,9 @@ const actions = {
 						lastPositionChange: doc.lastPositionChange || 0,
 						lastStateChange: doc.lastStateChange || 0,
 						lastChange: doc.lastChange || 0,
-						followers: doc.follewers || []
+						followers: doc.followers || [],
 					},
-					tmp: {}
+					tmp: {},
 				}
 				return newNode
 			},
@@ -149,10 +145,10 @@ const actions = {
 			},
 
 			/*
-			* Traverse the node models or the full tree (default), breadth first
-			* Stop when the callback returns false
-			* nodeModels: array of nodes
-			*/
+			 * Traverse the node models or the full tree (default), breadth first
+			 * Stop when the callback returns false
+			 * nodeModels: array of nodes
+			 */
 			traverseModels: function (cb, nodeModels = rootGetters.getTreeModel) {
 				let shouldStop = false
 				function traverse(cb, nodeModels) {
@@ -170,19 +166,19 @@ const actions = {
 			},
 
 			/*
-			* returns 1 if path1 > path2
-			* returns -1 if path1 < path2
-			* returns 0 if path1 === path2
-			*
-			* examples
-			*
-			* [1, 2, 3] < [1, 2, 4]
-			* [1, 1, 3] < [1, 2, 3]
-			* [1, 2, 3] > [1, 2, 0]
-			* [1, 2, 3] > [1, 1, 3]
-			* [1, 2] < [1, 2, 0]
-			*
-			*/
+			 * returns 1 if path1 > path2
+			 * returns -1 if path1 < path2
+			 * returns 0 if path1 === path2
+			 *
+			 * examples
+			 *
+			 * [1, 2, 3] < [1, 2, 4]
+			 * [1, 1, 3] < [1, 2, 3]
+			 * [1, 2, 3] > [1, 2, 0]
+			 * [1, 2, 3] > [1, 1, 3]
+			 * [1, 2] < [1, 2, 0]
+			 *
+			 */
 			comparePaths(path1, path2) {
 				for (let i = 0; i < path1.length; i++) {
 					if (path2[i] === undefined) return 1
@@ -244,7 +240,7 @@ const actions = {
 					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
 					rootState.helpersRef.showPathToNode(v.depNode, { doWarn: true })
 					rootState.helpersRef.traverseModels((nm) => {
-						if ((rootState.helpersRef.comparePaths(v.depNode.path, nm.path) !== 1) && (rootState.helpersRef.comparePaths(nm.path, v.condNode.path) !== 1)) {
+						if (rootState.helpersRef.comparePaths(v.depNode.path, nm.path) !== 1 && rootState.helpersRef.comparePaths(nm.path, v.condNode.path) !== 1) {
 							if (nm.tmp.markedViolations) {
 								nm.tmp.markedViolations.push(column)
 							} else nm.tmp.markedViolations = [column]
@@ -260,10 +256,10 @@ const actions = {
 			},
 
 			/*
-			* Find and show dependency violations in the current product (details view) or all products (coarse view).
-			* Undo the tree expansion from a previous scan on violations if no violations are found.
-			* Return true if violations are found, false otherwise.
-			*/
+			 * Find and show dependency violations in the current product (details view) or all products (coarse view).
+			 * Undo the tree expansion from a previous scan on violations if no violations are found.
+			 * Return true if violations are found, false otherwise.
+			 */
 			dependencyViolationsFound() {
 				let violationsWereFound = false
 				const violations = rootState.helpersRef.findDependencyViolations(rootGetters.isOverviewSelected)
@@ -303,9 +299,9 @@ const actions = {
 			},
 
 			/*
-				* Update the descendants of the source (removal) or destination (insert) node with new position data and (if passed) new parentId and productId
-				* Pass an insertInd as the lowest index of any insert to gain performance.
-				*/
+			 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if passed) new parentId and productId
+			 * Pass an insertInd as the lowest index of any insert to gain performance.
+			 */
 			updatePaths: function (parentPath, siblings, insertInd = 0, parentId, productId) {
 				for (let i = insertInd; i < siblings.length; i++) {
 					const sibling = siblings[i]
@@ -318,7 +314,7 @@ const actions = {
 					sibling.pathStr = JSON.stringify(newPath)
 					sibling.ind = i
 					sibling.level = newPath.length
-					sibling.isLeaf = !((sibling.level < rootGetters.leafLevel))
+					sibling.isLeaf = !(sibling.level < rootGetters.leafLevel)
 					if (sibling.children && sibling.children.length > 0) {
 						rootState.helpersRef.updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
 					}
@@ -360,7 +356,7 @@ const actions = {
 				const rootChildren = rootState.helpersRef.getRootNode().children
 				const productNodes = []
 				for (const child of rootChildren) {
-					if (child.productId !== "requirement-areas") {
+					if (child.productId !== 'requirement-areas') {
 						productNodes.push(child)
 					}
 				}
@@ -422,23 +418,26 @@ const actions = {
 				const initLevel = node.level
 				let count = 0
 				let maxDepth = node.level
-				rootState.helpersRef.traverseModels((nm) => {
-					if (rootState.helpersRef.comparePaths(nm.path, node.path) === 1) {
-						ids.push(nm._id)
-						descendants.push(nm)
-						if (nm.data.sprintId && !sprintIds.includes(nm.data.sprintId)) sprintIds.push(nm.data.sprintId)
-						if (nm.data.team && !teams.includes(nm.data.team)) teams.push(nm.data.team)
-						count++
-						if (nm.level > maxDepth) maxDepth = nm.level
-					}
-				}, [node])
+				rootState.helpersRef.traverseModels(
+					(nm) => {
+						if (rootState.helpersRef.comparePaths(nm.path, node.path) === 1) {
+							ids.push(nm._id)
+							descendants.push(nm)
+							if (nm.data.sprintId && !sprintIds.includes(nm.data.sprintId)) sprintIds.push(nm.data.sprintId)
+							if (nm.data.team && !teams.includes(nm.data.team)) teams.push(nm.data.team)
+							count++
+							if (nm.level > maxDepth) maxDepth = nm.level
+						}
+					},
+					[node],
+				)
 				return {
 					ids,
 					descendants,
 					sprintIds,
 					teams,
 					count,
-					depth: maxDepth - initLevel
+					depth: maxDepth - initLevel,
 				}
 			},
 
@@ -452,25 +451,29 @@ const actions = {
 				const node = rootState.helpersRef.getNodeById(parentId)
 				if (node !== null) {
 					return rootState.helpersRef.getDescendantsInfo(node)
-				} else return {
-					ids: [],
-					descendants: [],
-					sprintIds: [],
-					teams: [],
-					count: 0,
-					depth: 0
-				}
+				} else
+					return {
+						ids: [],
+						descendants: [],
+						sprintIds: [],
+						teams: [],
+						count: 0,
+						depth: 0,
+					}
 			},
 
 			/* Check for descendants selected by a filter */
 			checkForFilteredDescendants(node) {
 				let result = false
-				rootState.helpersRef.traverseModels((nm) => {
-					if (nm.tmp.isHighlighted_1) {
-						result = true
-						return false
-					}
-				}, [node])
+				rootState.helpersRef.traverseModels(
+					(nm) => {
+						if (nm.tmp.isHighlighted_1) {
+							result = true
+							return false
+						}
+					},
+					[node],
+				)
 				return result
 			},
 
@@ -598,7 +601,8 @@ const actions = {
 				for (const n of nodes) {
 					if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
 						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log(`insertNodes: Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
+						if (rootState.debug)
+							console.log(`insertNodes: Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
 						n.product_id = n._id
 					}
 				}
@@ -651,14 +655,17 @@ const actions = {
 
 			/* Set all nodes of the branch to be not selectable including the branchRoot itself */
 			setBranchUnselectable(branchRoot) {
-				rootState.helpersRef.traverseModels((nm) => {
-					nm.isSelectable = false
-				}, [branchRoot])
-			}
+				rootState.helpersRef.traverseModels(
+					(nm) => {
+						nm.isSelectable = false
+					},
+					[branchRoot],
+				)
+			},
 		}
-	}
+	},
 }
 
 export default {
-	actions
+	actions,
 }

@@ -11,7 +11,8 @@
             </BRow>
           </BCardBody>
           <BCardBody class="list-body">
-            <BRow v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserCommentedAfterme(comment, getFilteredComments)">
+            <BRow
+              v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserCommentedAfterme(comment, getFilteredComments)">
               <BCol cols="11">
                 <div v-html="prepCommentsText(getEvent(comment), getEventValue(comment))"></div>
               </BCol>

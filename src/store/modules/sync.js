@@ -7,22 +7,17 @@ const SPECIAL_TEXT = true
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
 /*
-* Listen for any changes in the user subscribed products made by other users and update the products tree view.
-* - Select from the changes in documents of type 'backlogItem' the items with a history and a first entry tagged for distribution (exluding config, log and possibly others)
-* - When a user starts multiple sessions each session has a different sessionId. These sessions are synced also.
-* - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone.
-* After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
-*/
+ * Listen for any changes in the user subscribed products made by other users and update the products tree view.
+ * - Select from the changes in documents of type 'backlogItem' the items with a history and a first entry tagged for distribution (exluding config, log and possibly others)
+ * - When a user starts multiple sessions each session has a different sessionId. These sessions are synced also.
+ * - Only updates for products the user is subscribed to are processed and those products which were remotely deleted so that these deletetions can be remotely undone.
+ * After sign-in an up-to-date state of the database is loaded. Any pending sync request are ignored once.
+ */
 
 const actions = {
-	processDoc({
-		rootState,
-		rootGetters,
-		commit,
-		dispatch
-	}, doc) {
+	processDoc({ rootState, rootGetters, commit, dispatch }, doc) {
 		function pad(num, size) {
-			var s = "000" + num
+			var s = '000' + num
 			return s.substring(s.length - size)
 		}
 
@@ -39,7 +34,8 @@ const actions = {
 					item level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}\n\
 					title = '${doc.title}'\n\
 					updateThisBoard = ${updateThisBoard}\n\
-					sprintId = ${doc.sprintId}`)
+					sprintId = ${doc.sprintId}`,
+				)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
 			setTimeout(function () {
@@ -78,9 +74,9 @@ const actions = {
 		}
 
 		/*
-		* Return false if there are no affected items.
-		* Return true if at least one combination of sprintId and team matches with the current board in view.
-		*/
+		 * Return false if there are no affected items.
+		 * Return true if at least one combination of sprintId and team matches with the current board in view.
+		 */
 		function mustUpdateThisBoard(affectedItems) {
 			if (rootState.currentView !== 'planningBoard' || !affectedItems) return false
 
@@ -117,7 +113,7 @@ const actions = {
 				dependencies: doc.dependencies || [],
 				conditionalFor: doc.conditionalFor || [],
 				title: doc.title,
-				isLeaf: !((locationInfo.newPath.length < rootGetters.leafLevel)),
+				isLeaf: !(locationInfo.newPath.length < rootGetters.leafLevel),
 				children: [],
 				isSelected: false,
 				isExpanded: true,
@@ -136,14 +132,17 @@ const actions = {
 					lastCommentAddition: 0,
 					lastAttachmentAddition: 0,
 					lastCommentToHistory: 0,
-					lastChange: lastHistoryTimestamp
+					lastChange: lastHistoryTimestamp,
 				},
-				tmp: {}
+				tmp: {},
 			}
-			rootState.helpersRef.insertNodes({
-				nodeModel: locationInfo.prevNode,
-				placement: locationInfo.newInd === 0 ? 'inside' : 'after'
-			}, [node])
+			rootState.helpersRef.insertNodes(
+				{
+					nodeModel: locationInfo.prevNode,
+					placement: locationInfo.newInd === 0 ? 'inside' : 'after',
+				},
+				[node],
+			)
 			// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
 		}
 
@@ -169,16 +168,24 @@ const actions = {
 				node.data.priority = newPriority
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
-					rootState.helpersRef.insertNodes({
-						nodeModel: locationInfo.prevNode,
-						placement: 'inside'
-					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
+					rootState.helpersRef.insertNodes(
+						{
+							nodeModel: locationInfo.prevNode,
+							placement: 'inside',
+						},
+						[node],
+						{ calculatePrios: false, skipUpdateProductId: isProductMoved },
+					)
 				} else {
 					// insert after prevNode
-					rootState.helpersRef.insertNodes({
-						nodeModel: locationInfo.prevNode,
-						placement: 'after'
-					}, [node], { calculatePrios: false, skipUpdateProductId: isProductMoved })
+					rootState.helpersRef.insertNodes(
+						{
+							nodeModel: locationInfo.prevNode,
+							placement: 'after',
+						},
+						[node],
+						{ calculatePrios: false, skipUpdateProductId: isProductMoved },
+					)
 				}
 				if (moveType === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
 				if (moveType === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange })
@@ -190,8 +197,10 @@ const actions = {
 				doBlinck(doc)
 				const node = rootState.helpersRef.getNodeById(doc._id)
 				// check for exception 'node not found'; skip the check for events that do not map to a node
-				if (node === null && !(histEvent === 'createItemEvent' || histEvent === 'createTaskEvent' ||
-					histEvent === 'changeReqAreaColorEvent' || histEvent === 'teamChangeEvent')) {
+				if (
+					node === null &&
+					!(histEvent === 'createItemEvent' || histEvent === 'createTaskEvent' || histEvent === 'changeReqAreaColorEvent' || histEvent === 'teamChangeEvent')
+				) {
 					showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 					dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
 					return
@@ -247,7 +256,7 @@ const actions = {
 							// does also update the board
 							dispatch('syncRestoreBranch', {
 								histArray: lastHistObj.undoBranchRemovalEvent,
-								restoreReqArea: true
+								restoreReqArea: true,
 							})
 							break
 					}
@@ -416,7 +425,11 @@ const actions = {
 										commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
 									}
 									rootState.helpersRef.removeNodes([node])
-									showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, SPECIAL_TEXT)
+									showSyncMessage(
+										`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
+										SEV.INFO,
+										SPECIAL_TEXT,
+									)
 								}
 							}
 							break
@@ -431,7 +444,7 @@ const actions = {
 								isSameUserInDifferentSession,
 								updateThisBoard,
 								sprintId: rootState.loadedSprintId,
-								team: rootState.userData.myTeam
+								team: rootState.userData.myTeam,
 							})
 							break
 						case 'uploadAttachmentEvent':
@@ -774,22 +787,21 @@ const actions = {
 		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
 		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
 
-		/* 
-		* Process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products, 
-		*	or the item is a requirement area item and the overview is in view 
-		*/
-		if (rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
+		/*
+		 * Process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products,
+		 *	or the item is a requirement area item and the overview is in view
+		 */
+		if (
+			rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||
 			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
-			(rootGetters.isOverviewSelected && isReqAreaItem)) doProc(doc)
+			(rootGetters.isOverviewSelected && isReqAreaItem)
+		)
+			doProc(doc)
 	},
 
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
-	listenForChanges({
-		rootState,
-		dispatch,
-		commit
-	}) {
+	listenForChanges({ rootState, dispatch, commit }) {
 		const listenForChangesWasRunning = rootState.listenForChangesRunning
 		if (rootState.stopListeningForChanges) {
 			rootState.listenForChangesRunning = false
@@ -808,60 +820,62 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			// the sync filter selects docs with a history of events, the event is NOT 'ignoreEvent' and the event has the 'distributeEvent===true' property
-			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now'
-		}).then(res => {
-			// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
-			dispatch('listenForChanges')
-			const data = res.data
-			if (data.results.length > 0) {
-				// only process events with included documents
-				for (const r of data.results) {
-					// skip consecutive changes with the same sequence number (Couchdb bug?)
-					if (r.seq === lastSeq) break
-
-					lastSeq = r.seq
-					const doc = r.doc
-
-					if (doc.history[0].sessionId === rootState.mySessionId) {
-						// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
-						continue
-					}
-
-					if (rootState.currentView === 'coarseProduct' && doc.level > LEVEL.FEATURE) {
-						// cannot update documents and nodes that are not loaded in the Products overview
-						continue
-					}
-
-					if (doc._id === 'messenger') {
-						// eslint-disable-next-line no-console
-						if (rootState.debug) console.log('MESSENGER DOC received')
-					}
-					// process a history event on backlog items received from other sessions (not the session that created the event)
-					dispatch('processDoc', doc)
-				}
-			}
-		}).catch(error => {
-			rootState.listenForChangesRunning = false
-			if (rootState.stopListeningForChanges) {
-				return
-			}
-			if (error.response && error.response.status === 404) {
-				// database not found; cannot log; possible cause is that the server admin is restoring the current database
-				commit('endSession', 'listenForChanges: catch:error.response.status === 404')
-				return
-			}
-			if (error.message === 'Request aborted') {
-				// the user typed F5 or Ctrl-F5
-				if (!rootState.signedOut) {
-					commit('endSession', 'listenForChanges: catch:Request aborted')
-				}
-			} else {
-				dispatch('doLog', { event: `Listening for changes made by other users failed. ${error}`, level: SEV.WARNING })
-			}
+			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now',
 		})
-	}
+			.then((res) => {
+				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
+				dispatch('listenForChanges')
+				const data = res.data
+				if (data.results.length > 0) {
+					// only process events with included documents
+					for (const r of data.results) {
+						// skip consecutive changes with the same sequence number (Couchdb bug?)
+						if (r.seq === lastSeq) break
+
+						lastSeq = r.seq
+						const doc = r.doc
+
+						if (doc.history[0].sessionId === rootState.mySessionId) {
+							// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
+							continue
+						}
+
+						if (rootState.currentView === 'coarseProduct' && doc.level > LEVEL.FEATURE) {
+							// cannot update documents and nodes that are not loaded in the Products overview
+							continue
+						}
+
+						if (doc._id === 'messenger') {
+							// eslint-disable-next-line no-console
+							if (rootState.debug) console.log('MESSENGER DOC received')
+						}
+						// process a history event on backlog items received from other sessions (not the session that created the event)
+						dispatch('processDoc', doc)
+					}
+				}
+			})
+			.catch((error) => {
+				rootState.listenForChangesRunning = false
+				if (rootState.stopListeningForChanges) {
+					return
+				}
+				if (error.response && error.response.status === 404) {
+					// database not found; cannot log; possible cause is that the server admin is restoring the current database
+					commit('endSession', 'listenForChanges: catch:error.response.status === 404')
+					return
+				}
+				if (error.message === 'Request aborted') {
+					// the user typed F5 or Ctrl-F5
+					if (!rootState.signedOut) {
+						commit('endSession', 'listenForChanges: catch:Request aborted')
+					}
+				} else {
+					dispatch('doLog', { event: `Listening for changes made by other users failed. ${error}`, level: SEV.WARNING })
+				}
+			})
+	},
 }
 
 export default {
-	actions
+	actions,
 }

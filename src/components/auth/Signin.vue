@@ -31,7 +31,8 @@
           MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu when signed-in
         </div>
         <div v-if="store.state.demo" class="text-left">
-          <p>This is a demo instance of the application. Your changes can be overridden by others or by a database restore. Please leave your findings in this applications register or raise an issue
+          <p>This is a demo instance of the application. Your changes can be overridden by others or by a database restore. Please leave your findings in this
+            applications register or raise an issue
             at <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a></p>
           <p class="text-center">Signin with <b>demoUser</b> and password <b>demoUser</b></p>
           <p>Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest"

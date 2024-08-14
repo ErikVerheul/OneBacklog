@@ -26,8 +26,7 @@ const methods = {
 		this.getUserFirst = true
 		this.isUserDbSelected = false
 		this.canRemoveLastProduct = true
-		this.canRemoveDatabase = true,
-		this.localMessage = ''
+		;(this.canRemoveDatabase = true), (this.localMessage = '')
 		store.state.backendMessages = []
 		store.state.isUserFound = false
 		store.state.areDatabasesFound = false
@@ -84,10 +83,12 @@ const methods = {
 			description: uniTob64('<p><br></p>'),
 			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
 			priority,
-			comments: [{
-				ignoreEvent: 'comments initiated',
-				timestamp: Date.now()
-			}]
+			comments: [
+				{
+					ignoreEvent: 'comments initiated',
+					timestamp: Date.now(),
+				},
+			],
 		}
 		// update the database, insert the new node below the last product and add the product to this admin's subscriptions and productsRoles
 		store.dispatch('createProductAction', { dbName: store.state.selectedDatabaseName, newProduct, lastProductNode })
@@ -100,5 +101,5 @@ const methods = {
 
 export default {
 	extends: common_admin,
-	methods
+	methods,
 }

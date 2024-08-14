@@ -14,7 +14,8 @@
           <slot></slot>
           <BNavItemDropdown text="Select your view" right>
             <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
-            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products overview</BDropdownItem>
+            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
+              overview</BDropdownItem>
             <BDropdownItem to="../../board">Planning board</BDropdownItem>
             <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
             <BDropdownItem v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</BDropdownItem>
@@ -105,7 +106,8 @@
 
     <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded">
       <BContainer align-v="true">
-        <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length"></BFormSelect>
+        <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length">
+        </BFormSelect>
       </BContainer>
     </BModal>
 
@@ -119,7 +121,8 @@
       <BContainer align-v="true">
         <BRow class="my-1">
           <BCard bg-variant="light">
-            <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
+            <BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0"
+              class="mb-0">
               <BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
                 <BFormInput v-model="oldPassword" id="currentPW" type="password"></BFormInput>
               </BFormGroup>
@@ -140,7 +143,8 @@
       <BContainer align-v="true">
         <BRow class="my-1">
           <BCard bg-variant="light">
-            <BFormGroup label-cols-lg="5" label="Change notices are send to this email address" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
+            <BFormGroup label-cols-lg="5" label="Change notices are send to this email address" label-size="lg" label-class="font-weight-bold pt-0"
+              class="mb-0">
               <BFormGroup label-cols-sm="5" label="Current email:" label-align-sm="right" label-for="currentEmail">
                 <BCardText id="currentEmail">{{ store.state.userData.email }}</BCardText>
               </BFormGroup>
@@ -214,7 +218,8 @@
       </BFormCheckbox>
 
       <h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
-      <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants" unchecked-value="do_not_subscribe_descendants">
+      <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants"
+        unchecked-value="do_not_subscribe_descendants">
         Also subscribe to the change notices of all descendants of the selected item
       </BFormCheckbox>
       <BFormCheckbox v-model="store.state.userData.myOptions.doNotMessageMyself" value="true" unchecked-value="false">

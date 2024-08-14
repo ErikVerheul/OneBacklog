@@ -42,33 +42,33 @@ function data() {
 			{ color: 'yellow', hexCode: '#FFFF00' },
 			{ color: 'green', hexCode: '#008000' },
 			{ color: 'blue', hexCode: '#0000ff' },
-			{ color: 'other color', hexCode: 'user choice' }
+			{ color: 'other color', hexCode: 'user choice' },
 		],
 		colorSelectShow: false,
 		userReqAreaItemcolor: '#567cd6',
 		setReqAreaShow: false,
 		selReqAreaId: undefined,
-		selReqAreaColor: undefined
+		selReqAreaColor: undefined,
 	}
 }
 
 const computed = {
 	/*
-	* Check for a valid color hex code:
-	* #          -> a hash
-	* [0-9A-F]   -> any integer from 0 to 9 and any letter from A to F
-	* {6}        -> the previous group appears exactly 6 times
-	* $          -> match end
-	* i          -> ignore case
-	*/
+	 * Check for a valid color hex code:
+	 * #          -> a hash
+	 * [0-9A-F]   -> any integer from 0 to 9 and any letter from A to F
+	 * {6}        -> the previous group appears exactly 6 times
+	 * $          -> match end
+	 * i          -> ignore case
+	 */
 	colorState() {
 		return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
 	},
 
 	// return true if a requirements area item is selected or false if another or no node is selected
 	isReqAreaItemSelected() {
-		return !!this.getLastSelectedNode && this.getLastSelectedNode._id === MISC.AREA_PRODUCTID || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
-	}
+		return (!!this.getLastSelectedNode && this.getLastSelectedNode._id === MISC.AREA_PRODUCTID) || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
+	},
 }
 
 const methods = {
@@ -117,10 +117,13 @@ const methods = {
 		}
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		if (this.isDescriptionEdited) { this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
-			if (this.isAcceptanceEdited) { this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback }) } else
-				// load the selected document
-				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+		if (this.isDescriptionEdited) {
+			this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		} else if (this.isAcceptanceEdited) {
+			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		}
+		// load the selected document
+		else store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
@@ -167,7 +170,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = (targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth) > LEVEL.PBI
+				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.PBI
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
@@ -191,14 +194,19 @@ const methods = {
 			if (!areAlldependenciesFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
 					this.showLastEvent('Cannot move the item as it has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
-				} else this.showLastEvent('Cannot move these items as one of them has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				} else
+					this.showLastEvent(
+						'Cannot move these items as one of them has dependencies on a PBI or task level. Use the Product details view instead.',
+						SEV.WARNING,
+					)
 				cancel(true)
 			}
 
 			if (!areAllConditionsFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
 					this.showLastEvent('Cannot move the item as it has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
-				} else this.showLastEvent('Cannot move these items as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+				} else
+					this.showLastEvent('Cannot move these items as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
 				cancel(true)
 			}
 		} else cancel(true)
@@ -236,7 +244,7 @@ const methods = {
 	/* Update the req area of the item (null for no req area set) */
 	doSetReqArea() {
 		store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
-	}
+	},
 }
 
 const components = {
@@ -246,7 +254,7 @@ const components = {
 	slVueTree,
 	CcontextMenu,
 	Filters,
-	Listings
+	Listings,
 }
 
 export default {
@@ -256,5 +264,5 @@ export default {
 	data,
 	computed,
 	methods,
-	components
+	components,
 }
