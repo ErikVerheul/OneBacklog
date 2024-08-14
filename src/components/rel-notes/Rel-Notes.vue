@@ -16,8 +16,8 @@
             <li>Make the mailing app ES6 module system compatible </li>
             <li>Prettier formatter added and applied to all files</li>
           </ul>
-          <p>Note for the users</p>
-          <h3>You must unsubsribe your change notices and subscribe agail for the email service to work</h3>
+          <p>Note for the users:</p>
+          <p>You must unsubsribe your change notices and subscribe again for the email service to work</p>
           <h3>v.2.3.0 - 13 August 2024 Bug fixex, refactoring, vulnerability fix</h3>
           <p>Bug fixes:</p>
           <ul>
