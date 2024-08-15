@@ -136,9 +136,7 @@ const computed = {
 		}
 		return filteredHistory
 	},
-}
 
-const methods = {
 	getAttachments() {
 		if (store.state.currentDoc._attachments) {
 			const titles = Object.keys(store.state.currentDoc._attachments)
@@ -149,7 +147,9 @@ const methods = {
 			return attachmentObjects
 		} else return []
 	},
+}
 
+const methods = {
 	getNrOfTitles() {
 		return store.state.currentDoc._attachments ? Object.keys(store.state.currentDoc._attachments).length : 0
 	},

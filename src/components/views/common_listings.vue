@@ -35,7 +35,7 @@
     </div>
     <ul v-else-if="store.state.selectedForView === 'attachments'">
       <div v-if="!isUploadDone">loading...</div>
-      <div v-for="(attach, index) in getAttachments()" :key="attach.title + attach.data.digest">
+      <div v-for="(attach, index) in getAttachments" :key="attach.title + attach.data.digest">
         <span>
           <template v-if="getNrOfTitles() > 1">
             {{ index + 1 }}/{{ getNrOfTitles() }}
