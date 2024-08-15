@@ -221,6 +221,10 @@ const methods = {
 		if (key === 'uploadAttachmentEvent') return this.mkUploadAttachmentEvent(value)
 	},
 
+	mkCommentFooter(commentItem) {
+		return `${this.mkTimestamp(commentItem.timestamp)}`
+	},
+
 	mkHistFooter(histItem) {
 		return `${this.mkTimestamp(histItem.timestamp)}`
 	},

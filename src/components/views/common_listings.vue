@@ -27,7 +27,7 @@
             </BRow>
           </BCardBody>
           <BCardFooter class="list-footer">
-            {{ mkHistFooter(comment) }}
+            {{ mkCommentFooter(comment) }}
           </BCardFooter>
         </BCard>
         <br>
