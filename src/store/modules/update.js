@@ -904,7 +904,11 @@ const actions = {
 				let amendedCommentIdx
 				for (let i = 0; i < tmpDoc.comments.length; i++) {
 					const uneditedCommentObj = tmpDoc.comments[i]
-					if (Object.keys(uneditedCommentObj)[0] === 'addCommentEvent' && uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
+					const eventName = Object.keys(uneditedCommentObj)[0]
+					if (
+						(eventName === 'addCommentEvent' || eventName === 'replaceCommentEvent') &&
+						uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp
+					) {
 						originalTimestamp = tmpDoc.comments[i].timestamp
 						// replace the comment with the amended version and a new timestamp
 						tmpDoc.comments[i] = {
