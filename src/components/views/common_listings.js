@@ -73,21 +73,8 @@ const computed = {
 	getFilteredHistory() {
 		const filteredHistory = []
 		for (const histItem of store.state.currentDoc.history) {
-			// skip events created in version 2.3.0 and later and not designated to be listed
-			if (histItem.timestamp > 1723314712647 && !histItem.isListed) continue
-
 			const event = Object.keys(histItem)[0]
-			// for compatibility reasons for data created in versions before 2.3.0
-			if (
-				event === 'ignoreEvent' ||
-				event === 'updateTaskOrderEvent' ||
-				event === 'changeReqAreaColorEvent' ||
-				event === 'removeItemsFromSprintEvent' ||
-				event === 'itemToNewTeamEvent'
-			)
-				continue
-			// for compatibility reasons for data created in versions before 2.3.0
-			if (event === 'addCommentEvent' || event === 'replaceCommentEvent' || event === 'resetCommentsEvent' || event === 'resetHistoryEvent') continue
+			if (event === 'ignoreEvent' || !histItem.isListed) continue
 
 			let allText = ''
 			if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
