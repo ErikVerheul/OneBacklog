@@ -313,7 +313,7 @@ const actions = {
 							rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
 							break
 						case 'removeAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, lastAttachmentAddition: doc.lastAttachmentAddition })
+							commit('updateNodesAndCurrentDoc', { node, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
@@ -442,7 +442,7 @@ const actions = {
 							})
 							break
 						case 'uploadAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
+							commit('updateNodesAndCurrentDoc', { node, title: doc.title, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
 							showSyncMessage(`uploaded an attachment to`, SEV.INFO)
 							break
 						case 'updateReqAreaEvent':
