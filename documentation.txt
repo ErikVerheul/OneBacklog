@@ -305,7 +305,7 @@ Y			  			Y	     Y    addSprintIdsEvent								planningboard.js
 Y			  			N	     N    boardReloadEvent								planningboard.js
 Y             N	     N    changeReqAreaColorEvent         update.js
 N             N	     Y    clonedBranchEvent	              clone.js
-Y							Y			 N 		commentAmendedEvent							update.js
+Y							Y			 Y 		commentAmendedEvent							update.js
 Y             Y	     Y    conditionRemovedEvent	        	update.js
 N             Y	     Y    copyItemEvent                  	common.context.js
 Y             Y	     Y    createItemEvent 	              common.context.js
@@ -316,7 +316,7 @@ Y             Y	     Y    descriptionEvent	            	update.js
 N             N      Y    importToSprintEvent             planningboard.js
 N			  			N	     Y    itemRestoredEvent								undo.js
 Y			  			N	     N		itemToNewTeamEvent							update.js
-Y			  			Y	     N    newCommentEvent									update.js
+Y			  			Y	     Y    newCommentEvent									update.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
 Y             Y	     Y    removeAttachmentEvent	        	attachments.js

@@ -82,8 +82,6 @@ const computed = {
 				event === 'ignoreEvent' ||
 				event === 'updateTaskOrderEvent' ||
 				event === 'changeReqAreaColorEvent' ||
-				event === 'commentAmendedEvent' ||
-				event === 'newCommentEvent' ||
 				event === 'removeItemsFromSprintEvent' ||
 				event === 'itemToNewTeamEvent'
 			)
@@ -188,6 +186,7 @@ const methods = {
 		if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
 		if (key === 'addSprintIdsEvent') return this.mkAddSprintIdsEvent(value)
 		if (key === 'clonedBranchEvent') return this.mkClonedBranchEvent(value)
+		if (key === 'commentAmendedEvent') return this.mkCommentAmendedEvent(value)
 		if (key === 'conditionRemovedEvent') return this.mkConditionRemovedEvent(value)
 		if (key === 'copyItemEvent') return this.mkCopyItemEvent(value)
 		if (key === 'createItemEvent') return this.mkCreateItemEvent(value)
@@ -198,6 +197,7 @@ const methods = {
 		if (key === 'importToSprintEvent') return this.mkImportToSprintEvent(value)
 		if (key === 'itemRestoredEvent') return this.mkItemRestoredEvent(value)
 		if (key === 'newChildEvent') return this.mkNewChildEvent(value)
+		if (key === 'newCommentEvent') return this.mkNewCommentEvent(value)
 		if (key === 'nodeMovedEvent') return this.mkNodeMovedEvent(value)
 		if (key === 'removeAttachmentEvent') return this.mkRemoveAttachmentEvent(value)
 		if (key === 'removeSprintIdsEvent') return this.mkRemoveSprintIdsEvent(value)
@@ -252,6 +252,10 @@ const methods = {
 		return `<h6>This ${this.getLevelText(value[0], value[1])} and its descendants have been cloned.</h6>`
 	},
 
+	mkCommentAmendedEvent(value) {
+		return `<h6>The user changed his comment. See the contents for the new version at the same timestamp.</h6>`
+	},
+
 	mkConditionRemovedEvent(value) {
 		let s
 		if (value[1]) {
@@ -302,6 +306,10 @@ const methods = {
 
 	mkNewChildEvent(value) {
 		return `<h6>A ${this.getLevelText(value[0])} was created as a child of this item at position ${value[1]}.</h6>`
+	},
+
+	mkNewCommentEvent(value) {
+		return `<h6>The user created a new comment. See the comments for the content.</h6>`
 	},
 
 	mkNodeMovedEvent(value) {
