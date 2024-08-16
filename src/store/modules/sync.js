@@ -189,23 +189,27 @@ const actions = {
 		function doProc(doc) {
 			try {
 				doBlinck(doc)
-				const node = rootState.helpersRef.getNodeById(doc._id)
-				// check for exception 'node not found'; skip the check for events that do not map to a node
+				let node
 				if (
-					node === null &&
-					!(
-						histEvent === 'addItemsToSprintEvent' ||
-						histEvent === 'boardReloadEvent' ||
-						histEvent === 'createItemEvent' ||
-						histEvent === 'createTaskEvent' ||
-						histEvent === 'changeReqAreaColorEvent' ||
-						histEvent === 'removeItemsFromSprintEvent' ||
-						histEvent === 'teamChangeEvent'
-					)
+					// these events do not map to a node
+					histEvent === 'addItemsToSprintEvent' ||
+					histEvent === 'boardReloadEvent' ||
+					histEvent === 'createItemEvent' ||
+					histEvent === 'createTaskEvent' ||
+					histEvent === 'changeReqAreaColorEvent' ||
+					histEvent === 'removeItemsFromSprintEvent' ||
+					histEvent === 'teamChangeEvent'
 				) {
-					showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
-					dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
-					return
+					node = null
+				} else {
+					// all other events should map to a node
+					node = rootState.helpersRef.getNodeById(doc._id)
+					// check for exception 'node not found'
+					if (node === null) {
+						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
+						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
+						return
+					}
 				}
 
 				const isCurrentDocument = doc._id === rootState.currentDoc._id
@@ -313,6 +317,9 @@ const actions = {
 							// show the comments update
 							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
 							showSyncMessage(`added a comment to item`, SEV.INFO)
+							break
+						case 'newChildEvent':
+							// do nothing
 							break
 						case 'nodeMovedEvent':
 							moveNode(node, doc.parentId)
@@ -781,7 +788,7 @@ const actions = {
 		}
 
 		const lastHistObj = doc.history[0]
-		console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
+		// console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
@@ -791,7 +798,7 @@ const actions = {
 
 		/*
 		 * Process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products,
-		 *	or the item is a requirement area item and the overview is in view
+		 * or the item is a requirement area item and the overview is in view
 		 */
 		if (
 			rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
