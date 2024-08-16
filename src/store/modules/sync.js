@@ -193,7 +193,15 @@ const actions = {
 				// check for exception 'node not found'; skip the check for events that do not map to a node
 				if (
 					node === null &&
-					!(histEvent === 'createItemEvent' || histEvent === 'createTaskEvent' || histEvent === 'changeReqAreaColorEvent' || histEvent === 'teamChangeEvent')
+					!(
+						histEvent === 'addItemsToSprintEvent' ||
+						histEvent === 'boardReloadEvent' ||
+						histEvent === 'createItemEvent' ||
+						histEvent === 'createTaskEvent' ||
+						histEvent === 'changeReqAreaColorEvent' ||
+						histEvent === 'removeItemsFromSprintEvent' ||
+						histEvent === 'teamChangeEvent'
+					)
 				) {
 					showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
 					dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
