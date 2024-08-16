@@ -6,6 +6,18 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.3.2 - 16 August 2024 Bug fixes, refactoring</h3>
+          <p>Bug fix:</p>
+          <ul>
+            <li>On creating new items content from previous item is inserted in edit fields, fixed</li>
+            <li>Cannot edit an already edited comment, fixed</li>
+            <li>Warning message on certain events, fixed</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Make localTimeAndMilis more generic and use it everywhere</li>
+            <li>Prettier formatter added and applied to all files</li>
+          </ul>
           <h3>v.2.3.1 - 14 August 2024 Bug fix, refactoring + NOTE</h3>
           <p>Bug fix:</p>
           <ul>
