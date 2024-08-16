@@ -487,6 +487,7 @@ const actions = {
 					dispatch('updateDoc', {
 						dbName: rootState.userData.currentDb,
 						updatedDoc: tmpDoc,
+						caller: 'assignToMyTeam',
 						toDispatch,
 						caller: 'assignToMyTeam',
 						onSuccessCallback: () => {
@@ -1017,7 +1018,7 @@ const actions = {
 	updateDoc({ rootState, dispatch }, payload) {
 		const id = payload.updatedDoc._id
 		// eslint-disable-next-line no-console
-		if (rootState.debug) console.log('updateDoc: updating document with _id = ' + id + ' in database ' + payload.dbName)
+		if (rootState.debug) console.log(`'updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + id,
@@ -1152,6 +1153,7 @@ const actions = {
 						updateDoc: {
 							dbName: rootState.userData.currentDb,
 							updatedDoc: payload.newDoc,
+							caller: 'createDocWithParentHist',
 							onSuccessCallback: () => {
 								// insert the new node in the tree and set the path and ind
 								rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode])[0]

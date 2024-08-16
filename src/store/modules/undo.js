@@ -65,11 +65,11 @@ const actions = {
 				dispatch('updateDoc', {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: updatedParentDoc,
+					caller: 'undoRemovedBranch',
 					toDispatch: [{ restoreDescendants: { parentId: globalEntry.removedNode._id } }],
 					onFailureCallback: () => {
 						rootState.busyWithLastUndo = false
 					},
-					caller: 'undoRemovedBranch',
 				})
 			})
 			.catch((error) => {

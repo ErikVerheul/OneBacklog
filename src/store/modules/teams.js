@@ -341,6 +341,7 @@ const actions = {
 								updateDoc: {
 									dbName,
 									updatedDoc: newTeamDoc,
+									caller: 'updateTeamsInDb',
 									toDispatch: toDispatch2,
 									onSuccessCallback: () => {
 										// update the team list in memory
