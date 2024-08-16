@@ -14,7 +14,7 @@
             <BRow
               v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserCommentedAfterme(comment, getFilteredComments)">
               <BCol cols="11">
-                <div v-html="prepCommentsText(getEvent(comment), getEventValue(comment))"></div>
+                <div v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
               </BCol>
               <BCol cols="1">
                 <font-awesome-icon icon="edit" @click="startEditMyComment(comment)" />
@@ -22,7 +22,7 @@
             </BRow>
             <BRow v-else>
               <BCol cols="12">
-                <div v-html="prepCommentsText(getEvent(comment), getEventValue(comment))"></div>
+                <div v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
               </BCol>
             </BRow>
           </BCardBody>
@@ -58,7 +58,7 @@
           <BCardBody class="list-body">
             <BRow>
               <BCol cols="12">
-                <div v-html="prepHistoryText(getEvent(histItem), getEventValue(histItem))"></div>
+                <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem))"></div>
               </BCol>
             </BRow>
           </BCardBody>

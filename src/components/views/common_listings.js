@@ -135,6 +135,14 @@ const computed = {
 }
 
 const methods = {
+	getEventName(event) {
+		return Object.keys(event)[0]
+	},
+
+	getEventValue(event) {
+		return event[Object.keys(event)[0]]
+	},
+
 	getNrOfTitles() {
 		return store.state.currentDoc._attachments ? Object.keys(store.state.currentDoc._attachments).length : 0
 	},
@@ -426,14 +434,6 @@ const methods = {
 
 	// ======================== methods for editing my last comment(s) ===============================
 
-	getEvent(comment) {
-		return Object.keys(comment)[0]
-	},
-
-	getEventValue(comment) {
-		return comment[Object.keys(comment)[0]]
-	},
-
 	otherUserCommentedAfterme(comment, allItems) {
 		let otherUserFound = false
 		for (let c of allItems) {
@@ -448,7 +448,7 @@ const methods = {
 	},
 
 	isMyAddition(comment, eventName) {
-		return comment.by === store.state.userData.user && Object.keys(comment)[0] === eventName
+		return comment.by === store.state.userData.user && this.getEventName(comment) === eventName
 	},
 
 	startEditMyComment(comment) {
