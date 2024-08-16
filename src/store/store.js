@@ -961,9 +961,6 @@ const store = createStore({
 							case '_attachments':
 								// not stored in the node
 								break
-							case '_rev':
-								// not stored in the node
-								break
 							case 'acceptanceCriteria':
 								// not stored in the node
 								break
@@ -1131,9 +1128,6 @@ const store = createStore({
 							switch (k) {
 								case '_attachments':
 									state.currentDoc._attachments = payload._attachments
-									break
-								case '_rev':
-									state.currentDoc._rev = payload._rev
 									break
 								case 'acceptanceCriteria':
 									state.currentDoc.acceptanceCriteria = payload.acceptanceCriteria
