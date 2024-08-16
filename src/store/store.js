@@ -143,6 +143,8 @@ const store = createStore({
 			keyword: '',
 			lastTreeView: undefined,
 			moveOngoing: false,
+			newAcceptanceCriteria: '<p><br></p>',
+			newDescription: '<p><br></p>',
 			newEventKey: 0,
 			progressMessage: '',
 			searchOn: false,
@@ -949,6 +951,9 @@ const store = createStore({
 				payload.newDoc.acceptanceCriteria = b64ToUni(payload.newDoc.acceptanceCriteria)
 				// replace the currently loaded document
 				state.currentDoc = cleanHistory(payload.newDoc)
+				// initiate vars for updating
+				state.newDescription = payload.newDoc.description
+				state.newAcceptanceCriteria = payload.newDoc.acceptanceCriteria
 			}
 
 			if (!payload.newNode && !payload.newDoc) {

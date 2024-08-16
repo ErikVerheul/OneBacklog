@@ -236,7 +236,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="description" contentType="html" @update:content="initNewDescription"
+            <QuillEditor v-model:content="store.state.newDescription" contentType="html" @update:content="initNewDescription"
               @blur="updateDescription({ node: getLastSelectedNode, cb: null })">
             </QuillEditor>
           </div>
@@ -247,7 +247,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="acceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
+            <QuillEditor v-model:content="store.state.newAcceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
               @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>

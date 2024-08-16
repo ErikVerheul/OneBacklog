@@ -14,8 +14,6 @@ function data() {
 		spikeSubtype: 1,
 		defectSubtype: 2,
 		docToUpdate: null,
-		newDescription: '<p><br></p>',
-		newAcceptance: '<p><br></p>',
 		editorToolbar: [
 			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
 			['bold', 'italic', 'underline', 'strike'],
@@ -140,34 +138,6 @@ const computed = {
 
 	uploadTooLarge() {
 		return this.fileInfo !== null && this.fileInfo.size > MAXUPLOADSIZE
-	},
-
-	description: {
-		get: () => {
-			let retVal = store.state.currentDoc.description
-			if (retVal === '') {
-				// correct empty field
-				retVal = '<p><br></p>'
-			}
-			return retVal
-		},
-		set(newDescription) {
-			this.newDescription = newDescription
-		},
-	},
-
-	acceptanceCriteria: {
-		get: () => {
-			let retVal = store.state.currentDoc.acceptanceCriteria
-			if (retVal === '') {
-				// correct empty field
-				retVal = '<p><br></p>'
-			}
-			return retVal
-		},
-		set(newAcceptanceCriteria) {
-			this.newAcceptance = newAcceptanceCriteria
-		},
 	},
 
 	// return true if the root node is selected or false if another or no node is selected
@@ -554,7 +524,7 @@ const methods = {
 		// node is either the current node (descripton changed and a click outside description and not on a node) or
 		// the previous selected node (description changed and clicked on a node)
 		const node = payload.node
-		if (areStringsEqual(store.state.currentDoc.description, this.newDescription)) {
+		if (areStringsEqual(store.state.newDescription, store.state.currentDoc.description)) {
 			// update skipped when not changed; load the doc of last clicked node
 			this.isDescriptionEdited = false
 			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
@@ -563,7 +533,7 @@ const methods = {
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 				store.dispatch('saveDescription', {
 					node,
-					newDescription: this.newDescription,
+					newDescription: store.state.newDescription,
 					timestamp: Date.now(),
 					toDispatch,
 				})
@@ -576,16 +546,17 @@ const methods = {
 		// the previous selected node (description changed and clicked on a node)
 		const node = payload.node
 		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
-			if (areStringsEqual(store.state.currentDoc.acceptanceCriteria, this.newAcceptance)) {
+			if (areStringsEqual(store.state.newAcceptanceCriteria, store.state.currentDoc.acceptanceCriteria)) {
 				// update skipped when not changed; load the doc of last clicked node
 				this.isAcceptanceEdited = false
 				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
 			} else {
+				console.log('updateAcceptance: store.state.currentDoc.acceptanceCriteria = ' + store.state.currentDoc.acceptanceCriteria)
 				const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
 				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 					store.dispatch('saveAcceptance', {
 						node,
-						newAcceptance: this.newAcceptance,
+						newAcceptance: store.state.newAcceptanceCriteria,
 						timestamp: Date.now(),
 						toDispatch,
 					})
