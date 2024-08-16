@@ -551,7 +551,6 @@ const methods = {
 				this.isAcceptanceEdited = false
 				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
 			} else {
-				console.log('updateAcceptance: store.state.currentDoc.acceptanceCriteria = ' + store.state.currentDoc.acceptanceCriteria)
 				const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
 				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 					store.dispatch('saveAcceptance', {
