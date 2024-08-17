@@ -261,7 +261,9 @@ function listenForChanges(dbName) {
       for (let r of results) {
         let doc = r.doc
         const event = doc.history[0]
-        const eventType = Object.keys(event)[0]
+        const eventName = Object.keys(event)[0]
+        // eslint-disable-next-line no-console
+        console.log('listenForChanges: process doc with _id: ' + doc._id + ' for event: ' + eventName)
         if (event.email && doc.followers) {
           // process new event in history; comment additions and changes are also registered in history. However, the content is not.
           for (let fObj of doc.followers) {
@@ -270,8 +272,8 @@ function listenForChanges(dbName) {
             const data = {
               from: 'no-reply@onebacklog.net',
               to: fObj.email,
-              subject: 'Event ' + eventType + ' occurred',
-              html: mkHtml(dbName, eventType, event[eventType], event, doc),
+              subject: 'Event ' + eventName + ' occurred',
+              html: mkHtml(dbName, eventName, event[eventName], event, doc),
             }
             mailgun.messages().send(data, (error, body) => {
               // eslint-disable-next-line no-console
@@ -345,7 +347,7 @@ function getAllDataBases() {
       body.forEach((dbName) => {
         if (!dbName.startsWith('_') && !dbName.includes('backup')) {
           // eslint-disable-next-line no-console
-          console.log('Listening to database = ' + dbName)
+          console.log('Load config data from database = ' + dbName)
           db = nano.use(dbName)
           runData[dbName] = { listening: true }
           getConfig(dbName)
