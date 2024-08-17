@@ -262,7 +262,6 @@ function listenForChanges(dbName) {
         let doc = r.doc
         const event = doc.history[0]
         const eventName = Object.keys(event)[0]
-        // eslint-disable-next-line no-console
         console.log('listenForChanges: process doc with _id: ' + doc._id + ' for event: ' + eventName)
         if (event.email && doc.followers) {
           // process new event in history; comment additions and changes are also registered in history. However, the content is not.
@@ -276,14 +275,11 @@ function listenForChanges(dbName) {
               html: mkHtml(dbName, eventName, event[eventName], event, doc),
             }
             mailgun.messages().send(data, (error, body) => {
-              // eslint-disable-next-line no-console
               console.log(body)
             })
           }
         }
       }
-      checkForNewDataBases()
-      // eslint-disable-next-line no-console
       console.log('listenForChanges: listening to database ' + dbName)
       listenForChanges(dbName)
     })
@@ -291,12 +287,9 @@ function listenForChanges(dbName) {
       if (err.code === 'ESOCKETTIMEDOUT') {
         listenForChanges(dbName)
       } else if (err.statusCode === 404) {
-        // eslint-disable-next-line no-console
         console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
         runData[dbName].listening = false
-      }
-      // eslint-disable-next-line no-console
-      else console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
+      } else console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
     })
 }
 
@@ -307,37 +300,41 @@ function getConfig(dbName) {
       listenForChanges(dbName)
     })
     .catch((err) => {
-      // eslint-disable-next-line no-console
       console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2))
     })
 }
 
+/* Check every minute */
 function checkForNewDataBases() {
-  nano.db
-    .list()
-    .then((body) => {
-      body.forEach((dbName) => {
-        if (!dbName.startsWith('_') && !dbName.includes('backup')) {
-          if (Object.keys(runData).includes(dbName)) {
-            if (runData[dbName].listening === false) {
-              // database returned from being absent
+  console.log('checkForNewDataBases: check for new databases coming available')
+  setInterval(() => {
+    nano.db
+      .list()
+      .then((body) => {
+        body.forEach((dbName) => {
+          if (!dbName.startsWith('_') && !dbName.includes('backup')) {
+            if (Object.keys(runData).includes(dbName)) {
+              if (runData[dbName].listening === false) {
+                // database returned from being absent
+                db = nano.use(dbName)
+                runData[dbName].listening = true
+                getConfig(dbName)
+                console.log(`checkForNewDataBases: restart listening to database ${dbName}`)
+              }
+            } else {
+              // new database
               db = nano.use(dbName)
-              runData[dbName].listening = true
+              runData[dbName] = { listening: true }
               getConfig(dbName)
+              console.log(`checkForNewDataBases: start listening to newly detected database ${dbName}`)
             }
-          } else {
-            // new database
-            db = nano.use(dbName)
-            runData[dbName] = { listening: true }
-            getConfig(dbName)
           }
-        }
+        })
       })
-    })
-    .catch((err) => {
-      // eslint-disable-next-line no-console
-      console.log('checkForNewDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
-    })
+      .catch((err) => {
+        console.log('checkForNewDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
+      })
+  }, 60000)
 }
 
 function getAllDataBases() {
@@ -346,16 +343,16 @@ function getAllDataBases() {
     .then((body) => {
       body.forEach((dbName) => {
         if (!dbName.startsWith('_') && !dbName.includes('backup')) {
-          // eslint-disable-next-line no-console
           console.log('Load config data from database = ' + dbName)
           db = nano.use(dbName)
           runData[dbName] = { listening: true }
           getConfig(dbName)
         }
       })
+      // check for changes in available databases in its own thread
+      checkForNewDataBases()
     })
     .catch((err) => {
-      // eslint-disable-next-line no-console
       console.log('getAllDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
     })
 }
