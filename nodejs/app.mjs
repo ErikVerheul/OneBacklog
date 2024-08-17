@@ -306,8 +306,8 @@ function getConfig(dbName) {
 
 /* Check every minute */
 function checkForNewDataBases() {
-  console.log('checkForNewDataBases: check for new databases coming available')
   setInterval(() => {
+    console.log('checkForNewDataBases: check for new databases coming available every minute')
     nano.db
       .list()
       .then((body) => {
