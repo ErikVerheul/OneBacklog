@@ -289,7 +289,10 @@ function listenForChanges(dbName) {
       } else if (err.statusCode === 404) {
         console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
         runData[dbName].listening = false
-      } else console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
+      } else {
+        console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
+        runData[dbName].listening = false
+      }
     })
 }
 
