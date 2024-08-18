@@ -155,7 +155,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
       return createEmail(`<h3>${txt}</h3>`)
     }
     case 'createItemEvent':
-      return createEmail(`<h3>This ${this.getLevelText(value[0])} was created under parent '${value[1]}' at position ${value[2]}</h3>`)
+      return createEmail(`<h3>This ${this.getLevelText(dbName, value[0])} was created under parent '${value[1]}' at position ${value[2]}</h3>`)
     case 'createTaskEvent':
       return createEmail(`<h3>This task was created under parent '${value[0]}'</h3>`)
     case 'copyItemEvent':
@@ -182,7 +182,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
       return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
     case 'undoBranchRemovalEvent':
       return createEmail(
-        `<h3>The ${this.getLevelText(value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`,
+        `<h3>The ${this.getLevelText(dbName, value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`,
       )
     case 'newChildEvent':
       return createEmail(`<h3>A ${getLevelText(dbName, value[0])} was created as a child of this item at position ${value[1]}</h3>`)
@@ -206,7 +206,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'removeAttachmentEvent':
       return createEmail(`<h3>Attachment with title '${value[0]}' is removed from this item</h3>`)
     case 'removeSprintIdsEvent':
-      return createEmail(`<h3>This ${this.getLevelText(value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
+      return createEmail(`<h3>This ${this.getLevelText(dbName, value[0], value[1])} is removed from sprint '${value[2]}</h3>`)
     case 'removedWithDescendantsEvent':
       return createEmail(`<h3>This item and ${value[1] - 1} descendants are removed</h3>
           <p>From the descendants ${value[2]} external dependencies and ${value[3]} external conditions were removed</p>`)
