@@ -307,12 +307,13 @@ function getConfig(dbName) {
 /* Check every minute */
 function checkForNewDataBases() {
   setInterval(() => {
-    console.log('checkForNewDataBases: check for new databases coming available every minute')
+    console.log('checkForNewDataBases: check for new databases coming available')
     nano.db
       .list()
       .then((body) => {
         body.forEach((dbName) => {
           if (!dbName.startsWith('_') && !dbName.includes('backup')) {
+            console.log('checkForNewDataBases: dbName = ' + dbName + ', Object.keys(runData).includes(dbName) = ' + Object.keys(runData).includes(dbName))
             if (Object.keys(runData).includes(dbName)) {
               if (runData[dbName].listening === false) {
                 // database returned from being absent
