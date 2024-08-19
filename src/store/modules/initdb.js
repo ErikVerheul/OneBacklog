@@ -244,16 +244,16 @@ const actions = {
 			_id: 'config',
 			type: 'config',
 			changedBy: 'Erik',
-			changeDate: 1594020747501,
+			changeDate: 1724012868428,
 
-			itemType: ['RequirementArea', 'Database', 'Product', 'Epic', 'Feature', 'PBI', 'Task'],
+			itemType: ['RequirementArea', 'Database', 'Product', 'Epic', 'Feature', 'User story', 'Task'],
 
 			ItemTypeDefinitions: [
 				'A requirement area is a categorization of the requirements leading to a different view of the Product Backlog',
 				'Teams work on products rather than projects. A product has a life cycle from creation to eventually replacement',
 				'An Epic is a major contribution to the product realisation and usually far to big to do in one sprint',
 				'A Feature is a product enhancement usually recognizable and appricated bij the customer or user',
-				'A Product Backlog Item is any piece of work which can be done within one sprint by one team. See also the subtypes',
+				'A User story is any piece of work which can be done within one sprint by one team. See also the subtypes',
 				'A task is a piece of work to get the PBI done. Tasks are defined at the start of a sprint.',
 			],
 
