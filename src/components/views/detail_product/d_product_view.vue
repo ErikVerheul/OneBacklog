@@ -237,8 +237,7 @@
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <QuillEditor v-model:content="store.state.newDescription" contentType="html" @update:content="initNewDescription"
-              @blur="updateDescription({ node: getLastSelectedNode, cb: null })">
-            </QuillEditor>
+              @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
