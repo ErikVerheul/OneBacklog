@@ -32,7 +32,7 @@ const actions = {
 				)
 			}
 			rootState.eventSyncColor = '#e6f7ff'
-			setTimeout(function () {
+			setTimeout(() => {
 				rootState.eventSyncColor = '#004466'
 			}, 1000)
 		}
