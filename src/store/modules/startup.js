@@ -115,6 +115,7 @@ const actions = {
 						if (rootState.debug) console.log('getOtherUserData: Server admin logged in but has no profile in users database. Start init')
 						rootState.showHeaderDropDowns = false
 						rootState.backendMessages = []
+						// ToDo: couses: ReferenceError: can't access lexical declaration 'InitPage' before initialization when Vite auto-reloads
 						router.push('/init')
 					}
 				} else {
