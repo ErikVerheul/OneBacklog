@@ -560,6 +560,26 @@ const actions = {
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
+
+	saveMyLastTreeView({ rootState, dispatch, commit }, lastTreeView) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+		})
+			.then((res) => {
+				const tmpUserData = res.data
+				tmpUserData.lastTreeView = lastTreeView
+				dispatch('updateUserDb', {
+					data: tmpUserData,
+					onSuccessCallback: () => commit('addToEventList', { txt: 'Your tree view have been saved', severity: SEV.INFO }),
+				})
+			})
+			.catch((error) => {
+				commit('addToEventList', { txt: 'Your tree view has NOT been saved', severity: SEV.ERROR })
+				const msg = `saveMyLastTreeView: Could not update the last tree view for user '${rootState.userData.user}', ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
 }
 
 export default {

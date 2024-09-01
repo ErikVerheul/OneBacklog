@@ -36,6 +36,10 @@ function mounted() {
 	}
 }
 
+function beforeUnmount() {
+	console.log('beforeUnmount is called')
+}
+
 function data() {
 	return {
 		returning: false,
@@ -204,6 +208,7 @@ export default {
 	extends: commonView,
 	created,
 	mounted,
+	beforeUnmount,
 	data,
 	watch,
 	methods,
