@@ -874,7 +874,7 @@ const actions = {
 					return
 				}
 				if (error.message === 'Request aborted') {
-					// the user typed F5 or Ctrl-F5
+					// the user typed F5 or Ctrl-F5 or Vite reloaded
 					if (!rootState.signedOut) {
 						commit('endSession', 'listenForChanges: catch:Request aborted')
 					}
