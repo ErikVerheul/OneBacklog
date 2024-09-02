@@ -120,6 +120,7 @@ const store = createStore({
 			signedOut: true,
 			// tree loading
 			allTeams: {},
+			myTeamId: null,
 			loadedTreeDepth: undefined,
 			productTitlesMap: {},
 			treeNodes: [],
@@ -155,6 +156,7 @@ const store = createStore({
 			resetSearchOnTitle: null,
 			selectedNodes: [],
 			selectNodeOngoing: false,
+			showGoMessaging: false,
 			showProgress: false,
 			uploadDone: true,
 			// utilities for server Admin and admin
