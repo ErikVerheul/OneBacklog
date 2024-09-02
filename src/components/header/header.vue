@@ -81,26 +81,20 @@
 
     <BModal size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
       <BContainer align-v="true">
-        <p v-if="!store.state.areTeamsFound"> No teams found</p>
-        <div v-else>
-          <h5>The members of my team '{{ myTeam }}'</h5>
-          <div v-for="m of getMyTeamRecord(myTeam).members" :key="m">
-            <i v-if="m === store.state.userData.user">I ({{ m }}) am member of this team</i>
-            <i v-else>'{{ m }}' is member of this team</i>
-          </div>
-          <hr>
-          <h5>All teams working on products managed in database '{{ store.state.selectedDatabaseName }}'</h5>
-          <div v-for="team in store.state.fetchedTeams" :key="team.teamName">
-            <template v-if="team.hasTeamCalendar">
-              <b>Team '{{ team.teamName }}'</b> (has its own team sprint calendar)
-            </template>
-            <template v-else>
-              <b>Team '{{ team.teamName }}'</b> (uses the default sprint calendar)
-            </template>
-            <div v-for="m of team.members" :key="m">
-              <i>'{{ m }}' is member of this team</i>
-            </div>
-          </div>
+        <h5>The members of my team '{{ myTeam }}'</h5>
+        <div v-for="m of store.state.allTeams[myTeam].members" :key="m">
+          <i v-if="m === store.state.userData.user">I ({{ m }}) am member of this team</i>
+          <i v-else>'{{ m }}' is member of my team</i>
+        </div>
+        <hr>
+        <h5>All teams working on products managed in database '{{ store.state.selectedDatabaseName }}'</h5>
+        <div v-for="teamName of Object.keys(store.state.allTeams)" :key="teamName">
+          <template v-if="store.state.allTeams[teamName].hasTeamCalendar">
+            <b>Team '{{ teamName }}'</b> {{ store.state.allTeams[teamName].members.length }} members (has its own team sprint calendar)
+          </template>
+          <template v-else>
+            <b>Team '{{ teamName }}'</b> {{ store.state.allTeams[teamName].members.length }} members (uses the default sprint calendar)
+          </template>
         </div>
       </BContainer>
     </BModal>

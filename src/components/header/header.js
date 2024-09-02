@@ -87,7 +87,6 @@ const methods = {
 
 	showMyTeam() {
 		this.selectedTeam = this.myTeam
-		this.doShowTeam()
 		this.$refs.showTeamRef.show()
 	},
 
@@ -126,16 +125,6 @@ const methods = {
 			oldTeam: store.state.userData.myTeam,
 			newTeam: this.selectedTeam,
 		})
-	},
-
-	doShowTeam() {
-		store.dispatch('fetchTeamsAction', { dbName: store.state.selectedDatabaseName })
-	},
-
-	getMyTeamRecord(myTeam) {
-		for (const rec of store.state.fetchedTeams) {
-			if (rec.teamName === myTeam) return rec
-		}
 	},
 
 	setDefaultProductOptions() {
