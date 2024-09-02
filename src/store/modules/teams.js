@@ -347,6 +347,8 @@ const actions = {
 										// update the team list in memory
 										rootState.allTeams[payload.oldTeam].members = oldTeamDoc.members
 										rootState.allTeams[payload.newTeam].members = newTeamDoc.members
+										// update the reference to myTeam document
+										rootState.myTeamId = newTeamDoc._id
 										// update the team calendar
 										if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
 											// eslint-disable-next-line no-console
