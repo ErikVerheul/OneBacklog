@@ -309,6 +309,8 @@ const actions = {
 						userInATeam = true
 						// save the id of myTeam document
 						rootState.myTeamId = teamId
+						// save the messages of my team
+						rootState.myTeamMessages = t.value[2]
 						// load team calendar if present
 						if (hasTeamCalendar) {
 							dispatch('loadTeamCalendarAtStartup', teamId)

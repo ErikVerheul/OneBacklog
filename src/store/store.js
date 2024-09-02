@@ -121,6 +121,7 @@ const store = createStore({
 			// tree loading
 			allTeams: {},
 			myTeamId: null,
+			myTeamMessages: [],
 			loadedTreeDepth: undefined,
 			productTitlesMap: {},
 			treeNodes: [],
