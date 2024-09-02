@@ -28,9 +28,10 @@
             <template slot="button-content"></template>
 
             <template v-if="isAuthenticated">
-              <BDropdownItem v-if="canChangeDb" @click="changeDatabase">Change database</BDropdownItem>
+              <BDropdownItem v-if="canMessage" @click="goMessage">View/send messages</BDropdownItem>
               <BDropdownItem @click="showMyTeam">My team</BDropdownItem>
               <BDropdownItem @click="changeTeam">Change team</BDropdownItem>
+              <BDropdownItem v-if="canChangeDb" @click="changeDatabase">Change database</BDropdownItem>
               <BDropdownItem v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</BDropdownItem>
               <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyPassword">Change password</BDropdownItem>
               <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyEmail">Change my email</BDropdownItem>
@@ -205,6 +206,7 @@
         </p>
       </BContainer>
     </BModal>
+
     <!-- when userData not initialized do not show the options -->
     <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
       <h5>If you manage large complex products</h5>
@@ -235,6 +237,11 @@
       <BButton class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
     </BModal>
   </div>
+
+  <BModal size="lg" v-model="store.state.showGoMessaging" hide-footer title="View and send messages">
+
+
+  </BModal>
 </template>
 
 <script src="./header.js"></script>

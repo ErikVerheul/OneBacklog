@@ -7,6 +7,7 @@ const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
+const SQUAREBGNDCOLOR = '#004466'
 
 function data() {
 	return {
@@ -38,6 +39,9 @@ function data() {
 		// move data
 		movePreflightData: {},
 		warnForMoveToOtherLevel: false,
+		// messaging
+		msgBlinkId: null,
+		messSquareColor: SQUAREBGNDCOLOR,
 	}
 }
 
@@ -111,16 +115,13 @@ const computed = {
 		return `Welcome '${store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${store.state.userData.currentDb}'.` + msg_4
 	},
 
-	squareText() {
-		if (store.state.online) {
-			return 'sync'
-		} else {
-			return 'offline'
-		}
+	syncSquareText() {
+		if (store.state.online) return 'sync'
+		return 'offl'
 	},
 
-	squareColor() {
-		return store.state.online ? store.state.eventSyncColor : '#ff0000'
+	syncSquareColor() {
+		return store.state.online ? SQUAREBGNDCOLOR : '#ff0000'
 	},
 
 	getSubscribeButtonTxt() {
@@ -181,6 +182,23 @@ const watch = {
 }
 
 const methods = {
+	startMsgSquareBlink() {
+		const color = 'yellow'
+		const backGround = SQUAREBGNDCOLOR
+		let col = color
+		this.msgBlinkId = setInterval(() => {
+			if (col === color) {
+				col = backGround
+			} else col = color
+			this.messSquareColor = col
+		}, 1000)
+	},
+
+	stopMsgSquareBlink() {
+		if (this.msgBlinkId) clearInterval(this.msgBlinkId)
+		this.messSquareColor = SQUAREBGNDCOLOR
+	},
+
 	initNewDescription() {
 		this.isDescriptionEdited = true
 		this.isAcceptanceEdited = false

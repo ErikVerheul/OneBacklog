@@ -101,7 +101,9 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <div class="square" :style="{ 'background-color': squareColor }">{{ squareText }}</div>
+        <div class="messSquare" v-b-popover.hover.bottomright="'Click to view and send messages'" :style="{ 'background-color': this.messSquareColor }"
+          @click="store.state.showGoMessaging = true">mess</div>
+        <div class="syncSquare" :style="{ 'background-color': syncSquareColor }">{{ syncSquareText }}</div>
         <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages"
           :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
@@ -463,7 +465,7 @@ label {
   text-align: left;
   color: white;
   padding: 9px;
-  padding-right: 55px;
+  padding-right: 90px;
   border-radius: 2px;
 }
 
@@ -488,7 +490,14 @@ h3 {
   background: #eee;
 }
 
-.square {
+.messSquare {
+  position: absolute;
+  right: 50px;
+  padding: 5px;
+  margin: 5px;
+}
+
+.syncSquare {
   position: absolute;
   right: 3px;
   padding: 5px;

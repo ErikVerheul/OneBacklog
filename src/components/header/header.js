@@ -33,6 +33,10 @@ function data() {
 }
 
 const computed = {
+	canMessage() {
+		return true
+	},
+
 	canChangeDb() {
 		return store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true' && store.state.myAssignedDatabases.length > 1
 	},
@@ -57,6 +61,10 @@ const methods = {
 
 	showOptions() {
 		this.showOptionsModal = true
+	},
+
+	goMessage() {
+		store.state.showGoMessaging = true
 	},
 
 	changeDatabase() {
