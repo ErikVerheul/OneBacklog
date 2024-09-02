@@ -308,7 +308,7 @@ const actions = {
 					if (rootState.userData.myTeam === teamName) {
 						userInATeam = true
 						// save the id of myTeam document
-						rootstore.myTeamId = teamId
+						rootState.myTeamId = teamId
 						// load team calendar if present
 						if (hasTeamCalendar) {
 							dispatch('loadTeamCalendarAtStartup', teamId)
