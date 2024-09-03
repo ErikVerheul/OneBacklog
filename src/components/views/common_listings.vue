@@ -73,9 +73,7 @@
 
   <template>
     <BModal size="lg" v-model="editMyComment" scrollable @ok="replaceEditedComment" title="Edit your comment">
-      <BFormGroup>
-        <QuillEditor v-model:content=myLastCommentText contentType="html"></QuillEditor>
-      </BFormGroup>
+      <QuillEditor v-model:content=myLastCommentText contentType="html"></QuillEditor>
     </BModal>
   </template>
 </template>
