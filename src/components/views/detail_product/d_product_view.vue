@@ -301,7 +301,7 @@
     </BModal>
 
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-      <QuillEditor v-model:content=newComment contentType="html" id="newComment"></QuillEditor>
+      <QuillEditor v-model:content=newComment contentType="html"></QuillEditor>
     </BModal>
 
     <BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
