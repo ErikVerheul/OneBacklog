@@ -102,17 +102,17 @@ const computed = {
 	},
 
 	welcomeMessage() {
-		let msg_2
+		let msg1
 		if (this.myTeam === 'not assigned yet') {
-			msg_2 = ' You are not a team member.'
-		} else msg_2 = ` You are member of team '${this.myTeam}'.`
+			msg1 = 'You are not a team member.'
+		} else msg1 = `You are member of team '${this.myTeam}'.`
 
-		let msg_4
+		let msg2
 		if (this.getMyAssignedProductIds.length === 1) {
-			msg_4 = ` You have 1 product.`
-		} else msg_4 = ` You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
+			msg2 = `You have 1 product.`
+		} else msg2 = `You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
 
-		return `Welcome '${store.state.userData.user}'.` + msg_2 + ` Your current database is set to '${store.state.userData.currentDb}'.` + msg_4
+		return `Welcome '${store.state.userData.user}'. ${msg1} Your current database is set to '${store.state.userData.currentDb}'. ${msg2}`
 	},
 
 	syncSquareText() {
