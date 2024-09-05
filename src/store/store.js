@@ -121,7 +121,6 @@ const store = createStore({
 			// tree loading
 			allTeams: {},
 			myTeamId: null,
-			myTeamMessages: [],
 			loadedTreeDepth: undefined,
 			productTitlesMap: {},
 			treeNodes: [],
@@ -160,6 +159,10 @@ const store = createStore({
 			showGoMessaging: false,
 			showProgress: false,
 			uploadDone: true,
+			// view and send messages
+			myB64TeamMessages: [],
+			myNewMessage: '<p><br></p>',
+			newMsgTitle: '',
 			// utilities for server Admin and admin
 			areDatabasesFound: false,
 			areProductsFound: false,

@@ -199,6 +199,12 @@ const methods = {
 		this.messSquareColor = SQUAREBGNDCOLOR
 	},
 
+	goMessaging() {
+		store.state.myNewMessage = '<p><br></p>'
+		store.state.newMsgTitle = ''
+		store.state.showGoMessaging = true
+	},
+
 	initNewDescription() {
 		this.isDescriptionEdited = true
 		this.isAcceptanceEdited = false

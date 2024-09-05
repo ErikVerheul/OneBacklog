@@ -1,4 +1,5 @@
 import { SEV } from '../../constants.js'
+import { uniTob64, b64ToUni } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -310,7 +311,6 @@ const actions = {
 							by: rootState.userData.user,
 							email: rootState.userData.email,
 							timestamp: now,
-							distributeEvent: false,
 						}
 						oldTeamDoc.history.unshift(leaveHist)
 						// Note: this event is not a regular history event
@@ -319,7 +319,6 @@ const actions = {
 							by: rootState.userData.user,
 							email: rootState.userData.email,
 							timestamp: now,
-							distributeEvent: false,
 						}
 						newTeamDoc.history.unshift(joinHist)
 
@@ -387,6 +386,54 @@ const actions = {
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				})
 		}
+	},
+
+	/* Refresh the loaded messages of my team */
+	getMyTeamMessagesAction({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'GET',
+			url: `${payload.dbName}/${rootState.myTeamId}`,
+		})
+			.then((res) => {
+				const teamDoc = res.data
+				rootState.myB64TeamMessages = teamDoc.messages
+			})
+			.catch((error) => {
+				const msg = `getMyTeamMessagesAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	/* Refresh the loaded messages of my team and add the new message */
+	saveMyTeamMessageAction({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'GET',
+			url: `${payload.dbName}/${rootState.myTeamId}`,
+		})
+			.then((res) => {
+				const teamDoc = res.data
+				const newMessage = {
+					title: payload.newTitle,
+					b64Msg: uniTob64(payload.newMessage),
+					from: rootState.userData.user,
+					timestamp: Date.now(),
+				}
+				// initiate array if non-existant
+				if (!teamDoc.messages) teamDoc.messages = []
+				// add new message
+				teamDoc.messages.unshift(newMessage)
+				dispatch('updateDoc', {
+					dbName: payload.dbName,
+					updatedDoc: teamDoc,
+					caller: 'saveMyTeamMessageAction',
+				})
+				// refresh my team messages
+				rootState.myB64TeamMessages = teamDoc.messages
+			})
+			.catch((error) => {
+				const msg = `saveMyTeamMessageAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
 	},
 }
 

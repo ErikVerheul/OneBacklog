@@ -83,7 +83,7 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <div class="messSquare" v-b-popover.hover.bottomright="'Click to view and send messages'" :style="{ 'background-color': this.messSquareColor }"
-          @click="store.state.showGoMessaging = true">mess</div>
+          @click="goMessaging">mess</div>
         <div class="syncSquare" :style="{ 'background-color': syncSquareColor }">{{ syncSquareText }}</div>
         <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages"
           :style="{ 'background-color': getLastEventColor }">

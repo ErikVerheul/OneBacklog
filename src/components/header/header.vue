@@ -231,11 +231,7 @@
       <BButton class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
     </BModal>
   </div>
-
-  <BModal size="lg" v-model="store.state.showGoMessaging" hide-footer title="View and send messages">
-
-
-  </BModal>
+  <Messaging></Messaging>
 </template>
 
 <script src="./header.js"></script>

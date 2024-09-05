@@ -346,6 +346,16 @@ Y             N	     N    updateReqAreaEvent	        		update_reqarea.js
 Y             N	     N    updateTaskOrderEvent	        	planningboard.js
 Y             Y	     Y    updateTaskOwnerEvent	        	planningboard.js
 
+TEAM documents
+--------------
+Documents of type "team" store information about a team:
+const newMessage = {
+	b64Msg: uniTob64(payload.newMessage),
+	from: rootState.userData.user,
+	timestamp: Date.now(),
+}
+These messages are stored in an array with name 'messages'.
+
 KNOWN ERRORS:
 
 CouchDB issue in version 2.3:
