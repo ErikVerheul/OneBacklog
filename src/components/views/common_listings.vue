@@ -2,14 +2,8 @@
   <div>
     <div v-if="store.state.selectedForView === 'comments'">
       <div v-for="comment in getFilteredComments" :key="comment.timestamp">
-        <BCard class="card border-primary">
-          <BCardBody class="list-header">
-            <BRow>
-              <BCol cols="12">
-                {{ mkCommentHeader(comment) }}
-              </BCol>
-            </BRow>
-          </BCardBody>
+        <BCard border-variant="primary" :header="mkCommentHeader(comment)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
+          align="center">
           <BCardBody class="list-body">
             <BRow
               v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserCommentedAfterme(comment, getFilteredComments)">
@@ -20,15 +14,11 @@
                 <font-awesome-icon icon="edit" @click="startEditMyComment(comment)" />
               </BCol>
             </BRow>
-            <BRow v-else>
-              <BCol cols="12">
-                <div v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
-              </BCol>
-            </BRow>
+            <div v-else v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
           </BCardBody>
-          <BCardFooter class="list-footer">
-            {{ mkCommentFooter(comment) }}
-          </BCardFooter>
+          <template #footer>
+            <em>{{ mkCommentFooter(comment) }}</em>
+          </template>
         </BCard>
         <br>
       </div>
@@ -47,24 +37,13 @@
     </ul>
     <div v-else-if="store.state.selectedForView === 'history'">
       <div v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
-        <BCard class="card border-primary">
-          <BCardBody class="list-header">
-            <BRow>
-              <BCol cols="12">
-                {{ mkHistHeader(histItem) }}
-              </BCol>
-            </BRow>
-          </BCardBody>
+        <BCard border-variant="primary" :header="mkHistHeader(histItem)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer">
           <BCardBody class="list-body">
-            <BRow>
-              <BCol cols="12">
-                <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem))"></div>
-              </BCol>
-            </BRow>
+            <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem))"></div>
           </BCardBody>
-          <BCardFooter class="list-footer">
-            {{ mkHistFooter(histItem) }}
-          </BCardFooter>
+          <template #footer>
+            <em>{{ mkHistFooter(histItem) }}</em>
+          </template>
         </BCard>
         <br>
       </div>
@@ -104,26 +83,10 @@ export default {
   font-size: 12px;
 }
 
-.list-header {
-  background-color: #408fae;
-  padding: 10px 0px 10px 0px;
-  text-align: center;
-  color: white;
-  font-size: 18px;
-}
-
 .list-body {
   padding: 10px 0px 10px 0px;
   text-align: left;
   font-size: 16px;
   line-height: 1.6;
-}
-
-.list-footer {
-  background-color: #333333;
-  padding: 10px 0px 10px 0px;
-  text-align: center;
-  color: white;
-  font-size: 14px;
 }
 </style>
