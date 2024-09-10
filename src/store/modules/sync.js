@@ -208,7 +208,7 @@ const actions = {
 					// check for exception 'node not found'
 					if (node === null) {
 						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
-						dispatch('doLog', { event: 'sync: cannot find node with id = ' + doc._id, level: SEV.WARNING })
+						dispatch('doLog', { event: `sync: event ${histEvent} cannot find node with id = ${doc._id}`, level: SEV.WARNING })
 						return
 					}
 				}
