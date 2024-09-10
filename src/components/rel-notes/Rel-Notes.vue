@@ -6,6 +6,22 @@
         <BCol cols="12" class="left-column">
           <h1>RELEASE NOTES</h1>
           <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+          <h3>v.2.3.3 - 10 September 2024 New Feature, bug fixes, refactoring</h3>
+          <p>New feature</p>
+          <ul>
+            <li>Users can now send messages to their team members. A blincking light indicates an incoming message</li>
+            <li>User guide update</li>
+          </ul>
+          <p>Bug fixes:</p>
+          <ul>
+            <li>Route back to sign-in when restarting the app from the user guide, fixed</li>
+            <li>Update the reference to myTeam document when changing team, fixed</li>
+          </ul>
+          <p>Refactoring</p>
+          <ul>
+            <li>Improve the layout of comment and history events</li>
+            <li>Mail server: Log message at every start of the callback</li>
+          </ul>
           <h3>v.2.3.2 - 16 August 2024 Bug fixes, refactoring</h3>
           <p>Bug fixes:</p>
           <ul>

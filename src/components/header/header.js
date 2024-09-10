@@ -1,7 +1,6 @@
 import Licence from './licence.vue'
 import { isValidEmail } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
-import Messaging from './messaging.vue'
 import logo from '../../assets/logo.png'
 import store from '../../store/store.js'
 
@@ -30,6 +29,7 @@ function data() {
 		teamOptions: [],
 		newDefaultProductId: undefined,
 		showOptionsModal: false,
+		showUserguide: false,
 	}
 }
 
