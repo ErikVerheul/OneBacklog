@@ -191,6 +191,8 @@ const actions = {
 				doBlinck(doc)
 				let node
 				if (
+					// events passed via the 'messenger' dummy backlogitem have no associated node
+					doc._id === 'messenger' ||
 					// these events do not map to a node
 					histEvent === 'addItemsToSprintEvent' ||
 					histEvent === 'boardReloadEvent' ||
