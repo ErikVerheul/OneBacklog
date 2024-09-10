@@ -58,6 +58,7 @@
 				<BImg :src="getImgUrl('img/user-dropdown.png')" alt="User dropdown" />
 				<ul>
 					<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
+					<li>View/send messages: With this option you can view and send messages to your team members.</li>
 					<li>Change team: Its the user and only the user who can switch between teams *.</li>
 					<li>Select products: If multiple products are assigned to you, you can choose the products to be displayed.
 						You also select which is the default product. On the next sign-in this products loads first and opens on top
@@ -78,6 +79,8 @@
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user
 						with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This
 						is your main tool. What you can do depends on your assigned roles.</p>
+					<p>On top of the tree structure is the event bar with to the right two small squares which start bincking when a new message comes in and when another
+						user made a change to the tree structure.</p>
 					<p>You can have multiple products. Each of them consists of:
 					<ul>
 						<li>epics which consists of</li>
