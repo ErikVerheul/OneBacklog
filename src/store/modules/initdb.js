@@ -597,7 +597,7 @@ const actions = {
 			reqarea: null,
 			title,
 			followers: [],
-			description: uniTob64('<p><br></p>'),
+			description: uniTob64(MISC.EMPTYQUILL),
 			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
 			priority: 0,
 			comments: [
@@ -636,7 +636,7 @@ const actions = {
 
 	/*
 	 * A dummy backlogIten to pass messages to other users. The first element of the history array is used to pass the event to all other open sessions.
-	 * Usage: Load this ducument, add the field "productId" with value currentProductId and replace the history with the event you want to distribute.
+	 * Usage: Load this document, add the field "productId" with value currentProductId and replace the history with the event you want to distribute.
 	 */
 	createMessenger({ rootState }, dbName) {
 		const _id = 'messenger'

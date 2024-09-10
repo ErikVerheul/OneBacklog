@@ -9,6 +9,8 @@ calling btoa on a string will cause a "Character Out Of Range" exception if a ch
 For use cases where you need to encode arbitrary Unicode text, 
 it is necessary to first convert the string to its constituent bytes in UTF-8, and then encode the bytes.*/
 
+import { MISC } from './constants.js'
+
 function base64ToBytes(base64) {
 	const binString = window.atob(base64)
 	return Uint8Array.from(binString, (m) => m.codePointAt(0))
@@ -190,6 +192,19 @@ export function isValidEmail(email) {
 	return re.test(email)
 }
 
+export function startMsgSquareBlink(rootState) {
+	const color = 'yellow'
+	const backGround = MISC.SQUAREBGNDCOLOR
+	let col = color
+	const blickId = setInterval(() => {
+		if (col === color) {
+			col = backGround
+		} else col = color
+		rootState.messSquareColor = col
+	}, 500)
+	rootState.msgBlinkIds.push(blickId)
+}
+
 export default {
 	uniTob64,
 	b64ToUni,
@@ -208,4 +223,5 @@ export default {
 	localTimeAndMilis,
 	removeFromArray,
 	isValidEmail,
+	startMsgSquareBlink,
 }

@@ -1,4 +1,4 @@
-import { STATE, LEVEL } from '../../constants.js'
+import { STATE, LEVEL, MISC } from '../../constants.js'
 import { uniTob64, createId } from '../../common_functions.js'
 import common_admin from './common_admin'
 import store from '../../store/store.js'
@@ -80,7 +80,7 @@ const methods = {
 			reqarea: null,
 			title: this.productTitle,
 			followers: [],
-			description: uniTob64('<p><br></p>'),
+			description: uniTob64(MISC.EMPTYQUILL),
 			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
 			priority,
 			comments: [

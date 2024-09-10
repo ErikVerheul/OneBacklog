@@ -1,5 +1,5 @@
 import { SEV } from '../../constants.js'
-import { b64ToUni, createId } from '../../common_functions.js'
+import { createId, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -95,6 +95,10 @@ const actions = {
 						showOnHold: 'do_not_show_on_hold',
 					}
 				}
+
+				const myTeam = allUserData.myDatabases[rootState.userData.currentDb].myTeam
+				// store the number of messages the user has received in his last session with this database
+				rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb][myTeam] || 0
 
 				// start the watchdog
 				dispatch('watchdog')
@@ -306,11 +310,22 @@ const actions = {
 					// collect all available team names
 					rootState.allTeams[teamName] = { id: teamId, members, hasTeamCalendar }
 					if (rootState.userData.myTeam === teamName) {
+						// my team
 						userInATeam = true
 						// save the id of myTeam document
 						rootState.myTeamId = teamId
 						// save the messages of my team
 						rootState.myB64TeamMessages = t.value[2]
+						// warn the user if more messages have arrived
+						console.log(
+							'Startup: rootState.myB64TeamMessages.length = ' +
+								rootState.myB64TeamMessages.length +
+								', rootState.myLastSessionMessagesCount = ' +
+								rootState.myLastSessionMessagesCount,
+						)
+						if (rootState.myB64TeamMessages.length > rootState.myLastSessionMessagesCount) {
+							startMsgSquareBlink(rootState)
+						}
 						// load team calendar if present
 						if (hasTeamCalendar) {
 							dispatch('loadTeamCalendarAtStartup', teamId)

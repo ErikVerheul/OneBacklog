@@ -49,6 +49,11 @@ const mutations = {
 			const lastStateChange = item.value[17] || 0
 			const followers = item.value[18] || []
 
+			if (_id === 'messenger') {
+				// skip messenger document
+				continue
+			}
+
 			// initialize with the root document
 			if (itemLevel === LEVEL.DATABASE) {
 				rootState.treeNodes = [

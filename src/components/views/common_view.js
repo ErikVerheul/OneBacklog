@@ -1,4 +1,4 @@
-import { SEV, LEVEL, STATE } from '../../constants.js'
+import { SEV, MISC, STATE } from '../../constants.js'
 import { areStringsEqual } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
@@ -7,7 +7,6 @@ const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
-const SQUAREBGNDCOLOR = '#004466'
 
 function data() {
 	return {
@@ -31,17 +30,14 @@ function data() {
 		isAcceptanceEdited: false,
 		isCommentsFilterActive: false,
 		isHistoryFilterActive: false,
-		newComment: '<p><br></p>',
+		newComment: MISC.EMPTYQUILL,
 		fileInfo: null,
-		newHistory: '<p><br></p>',
+		newHistory: MISC.EMPTYQUILL,
 		filterForCommentPrep: '',
 		filterForHistoryPrep: '',
 		// move data
 		movePreflightData: {},
 		warnForMoveToOtherLevel: false,
-		// messaging
-		msgBlinkId: null,
-		messSquareColor: SQUAREBGNDCOLOR,
 	}
 }
 
@@ -121,7 +117,8 @@ const computed = {
 	},
 
 	syncSquareColor() {
-		return store.state.online ? SQUAREBGNDCOLOR : '#ff0000'
+		if (store.state.online) return MISC.SQUAREBGNDCOLOR
+		return '#ff0000'
 	},
 
 	getSubscribeButtonTxt() {
@@ -157,7 +154,7 @@ const watch = {
 			}
 			if (store.state.selectedForView === 'comments') {
 				if (this.canCreateComments) {
-					this.newComment = '<p><br></p>'
+					this.newComment = MISC.EMPTYQUILL
 					this.$refs.commentsEditorRef.show()
 				} else {
 					this.showLastEvent('Sorry, your assigned role(s) disallow you to create comments', SEV.WARNING)
@@ -182,26 +179,17 @@ const watch = {
 }
 
 const methods = {
-	startMsgSquareBlink() {
-		const color = 'yellow'
-		const backGround = SQUAREBGNDCOLOR
-		let col = color
-		this.msgBlinkId = setInterval(() => {
-			if (col === color) {
-				col = backGround
-			} else col = color
-			this.messSquareColor = col
-		}, 1000)
-	},
-
-	stopMsgSquareBlink() {
-		if (this.msgBlinkId) clearInterval(this.msgBlinkId)
-		this.messSquareColor = SQUAREBGNDCOLOR
-	},
-
 	goMessaging() {
-		store.state.myNewMessage = '<p><br></p>'
+		if (store.state.msgBlinkIds) {
+			for (let id of store.state.msgBlinkIds) clearInterval(id)
+			// clear the array
+			store.state.msgBlinkIds = []
+		}
+		store.state.messSquareColor = MISC.SQUAREBGNDCOLOR
+		store.state.myNewMessage = MISC.EMPTYQUILL
 		store.state.newMsgTitle = ''
+		// save the current number of messages in my profile
+		store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length })
 		store.state.showGoMessaging = true
 	},
 

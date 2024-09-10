@@ -101,12 +101,12 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <div class="messSquare" v-b-popover.hover.bottomright="'Click to view and send messages'" :style="{ 'background-color': this.messSquareColor }"
-          @click="goMessaging">mess</div>
-        <div class="syncSquare" :style="{ 'background-color': syncSquareColor }">{{ syncSquareText }}</div>
         <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages"
           :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
+        <span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
+          @click="goMessaging">mess</span>
+        <span class="syncSquare" :style="{ 'background-color': syncSquareColor }">{{ syncSquareText }}</span>
 
         <div class="tree-container">
           <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
@@ -233,7 +233,7 @@
               <h5 class="title">Description</h5>
               <div v-if="store.state.currentDoc.history[0]" class="d-table-cell tar">
                 <p class="title"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new
-            Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+                  Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
           </div>
@@ -490,7 +490,6 @@ h3 {
 
 .messSquare {
   position: absolute;
-  width: 42px;
   right: 50px;
   padding: 5px;
   margin: 5px;

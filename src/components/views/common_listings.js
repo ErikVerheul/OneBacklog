@@ -3,7 +3,7 @@
  * When the 'History' radio button is clicked the same happens to the accumulated events saved in history.
  * When the 'Attachments" radio button is clicked the attachments to this item are listed. These can be removed. New attchments can be oploaded.
  */
-
+import { MISC } from '../../constants.js'
 import { utilities } from '../mixins/generic.js'
 import { b64ToUni } from '../../common_functions.js'
 import store from '../../store/store.js'
@@ -33,7 +33,7 @@ function removeImages(html) {
 }
 
 function replaceEmpty(text) {
-	if (text === '' || text === '<p></p>' || text === '<p><br></p>') return 'EMPTY TEXT'
+	if (text === '' || text === '<p></p>' || text === MISC.EMPTYQUILL) return 'EMPTY TEXT'
 	return text
 }
 

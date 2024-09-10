@@ -1,5 +1,5 @@
-import { SEV } from '../../constants.js'
-import { uniTob64, b64ToUni } from '../../common_functions.js'
+import { MISC, SEV } from '../../constants.js'
+import { uniTob64 } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -298,6 +298,9 @@ const actions = {
 							}
 						}
 
+						// update the received messages from the new team
+						rootState.myB64TeamMessages = newTeamDoc.messages
+
 						const oldTeamDocNewMembers = []
 						for (const m of oldTeamDoc.members) {
 							if (m !== payload.userName) oldTeamDocNewMembers.push(m)
@@ -388,15 +391,19 @@ const actions = {
 		}
 	},
 
-	/* Refresh the loaded messages of my team */
-	getMyTeamMessagesAction({ rootState, dispatch }, payload) {
+	/* Refresh the loaded team messages and the message count */
+	getMyTeamMessagesAction({ rootState, commit, dispatch }) {
 		globalAxios({
 			method: 'GET',
-			url: `${payload.dbName}/${rootState.myTeamId}`,
+			url: `${rootState.userData.currentDb}/${rootState.myTeamId}`,
 		})
 			.then((res) => {
 				const teamDoc = res.data
-				rootState.myB64TeamMessages = teamDoc.messages
+				rootState.myB64TeamMessages = teamDoc.messages || []
+				commit('addToEventList', {
+					txt: `You have received '${rootState.msgBlinkIds.length}' new message(s)`,
+					severity: SEV.INFO,
+				})
 			})
 			.catch((error) => {
 				const msg = `getMyTeamMessagesAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
@@ -422,9 +429,27 @@ const actions = {
 				if (!teamDoc.messages) teamDoc.messages = []
 				// add new message
 				teamDoc.messages.unshift(newMessage)
+				// create a trigger to warn my team members that a new message is received
+				const newHist = {
+					messageReceivedEvent: [],
+					by: rootState.userData.user,
+					timestamp: Date.now(),
+					sessionId: rootState.mySessionId,
+					distributeEvent: true,
+				}
+				// sending this trigger must be the last action in the chain of events and save the current number of messages in my profile
+				const toDispatch = [
+					{ sendMessageAsync: newHist },
+					{ saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } },
+				]
 				dispatch('updateDoc', {
 					dbName: payload.dbName,
 					updatedDoc: teamDoc,
+					toDispatch,
+					onSuccessCallback: () => {
+						rootState.newMsgTitle = ''
+						rootState.myNewMessage = MISC.EMPTYQUILL
+					},
 					caller: 'saveMyTeamMessageAction',
 				})
 				// refresh my team messages

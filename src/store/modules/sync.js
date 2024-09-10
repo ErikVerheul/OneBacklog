@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { b64ToUni, getLocationInfo, localTimeAndMilis } from '../../common_functions.js'
+import { b64ToUni, getLocationInfo, localTimeAndMilis, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -197,6 +197,7 @@ const actions = {
 					histEvent === 'createItemEvent' ||
 					histEvent === 'createTaskEvent' ||
 					histEvent === 'changeReqAreaColorEvent' ||
+					histEvent === 'messageReceivedEvent' ||
 					histEvent === 'removeItemsFromSprintEvent' ||
 					histEvent === 'teamChangeEvent'
 				) {
@@ -317,6 +318,11 @@ const actions = {
 							// show the comments update
 							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
 							showSyncMessage(`added a comment to item`, SEV.INFO)
+							break
+						case 'messageReceivedEvent':
+							startMsgSquareBlink(rootState)
+							// load new messages
+							dispatch('getMyTeamMessagesAction')
 							break
 						case 'newChildEvent':
 							// do nothing
@@ -751,7 +757,7 @@ const actions = {
 							}
 							break
 						case 'teamChangeEvent':
-							// this event is passed via the 'messenger' dummy backlogitem, the new team name is in the message not in the doc
+							// this event is passed via the 'messenger' dummy backlogitem, the new team name is in the message, not in the doc
 							const newTeam = lastHistObj.teamChangeEvent[1]
 							rootState.userData.myTeam = newTeam
 							break

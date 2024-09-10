@@ -272,7 +272,7 @@ const methods = {
 				conditionalFor: [],
 				title: newNode.title,
 				followers: newNode.data.followers,
-				description: uniTob64('<p><br></p>'),
+				description: uniTob64(MISC.EMPTYQUILL),
 				acceptanceCriteria:
 					newNode.level < this.TASKLEVEL ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,

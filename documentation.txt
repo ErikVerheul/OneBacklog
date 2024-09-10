@@ -316,6 +316,7 @@ Y             Y	     Y    descriptionEvent	            	update.js
 N             N      Y    importToSprintEvent             planningboard.js
 N			  			N	     Y    itemRestoredEvent								undo.js
 Y			  			N	     N		itemToNewTeamEvent							update.js
+Y							N 		 N		messageReceivedEvent						teams.js			// updates the special Messenger doc
 Y			  			Y	     Y    newCommentEvent									update.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js
@@ -348,13 +349,15 @@ Y             Y	     Y    updateTaskOwnerEvent	        	planningboard.js
 
 TEAM documents
 --------------
-Documents of type "team" store information about a team:
+Documents of type "team" store information about a team.
+
+The history array stores joiningTeamEvent and leavingTeamEvent events.
+The messages array stores inter team messages:
 const newMessage = {
 	b64Msg: uniTob64(payload.newMessage),
 	from: rootState.userData.user,
 	timestamp: Date.now(),
 }
-These messages are stored in an array with name 'messages'.
 
 KNOWN ERRORS:
 

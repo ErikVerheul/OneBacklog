@@ -19,7 +19,7 @@ const actions = {
 	 * Load the user's profile in state.fetchedUserData and set several global variables
 	 * Set the user's generic roles in state.userIsAdmin and state.userIsAPO
 	 * Preset the selected database to the user's current database
-	 * If justCheck === true return with rootState.isUserFound = false and no error message
+	 * If justCheck === true return with rootState.isUserFound = false if the user is not found and no error message
 	 */
 	loadUserData({ rootState, state, dispatch }, payload) {
 		rootState.backendMessages = []
@@ -144,6 +144,22 @@ const actions = {
 			})
 			.catch((error) => {
 				const msg = `saveMyFilterSettingsAction: User '${rootState.userData.user}' cannot save the product filter settings, ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	saveMyMessagesNumberAction({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'GET',
+			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+		})
+			.then((res) => {
+				const tmpUserData = res.data
+				tmpUserData.myDatabases[rootState.userData.currentDb][payload.teamName] = payload.currentNumberOfMessages
+				dispatch('updateUserDb', { data: tmpUserData })
+			})
+			.catch((error) => {
+				const msg = `saveMyMessagesNumberAction: User '${rootState.userData.user}' cannot save the current number of messages of his current team '${payload.teamName}', ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

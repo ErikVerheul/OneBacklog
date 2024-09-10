@@ -1,9 +1,9 @@
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other (async) database updates are done.
+import { SEV, LEVEL, MISC } from '../constants.js'
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
 import { b64ToUni, expandNode, collapseNode, addToArray, localTimeAndMilis, removeFromArray } from '../common_functions.js'
-import { SEV, LEVEL, MISC } from '../constants.js'
 import attachments from './modules/attachments'
 import authentication from './modules/authentication'
 import calendars from './modules/calendars'
@@ -116,6 +116,7 @@ const store = createStore({
 			iAmAdmin: false,
 			iAmAssistAdmin: false,
 			iAmServerAdmin: false,
+			myLastSessionMessagesCount: 0,
 			myAssignedDatabases: [],
 			signedOut: true,
 			// tree loading
@@ -144,8 +145,8 @@ const store = createStore({
 			keyword: '',
 			lastTreeView: undefined,
 			moveOngoing: false,
-			newAcceptanceCriteria: '<p><br></p>',
-			newDescription: '<p><br></p>',
+			newAcceptanceCriteria: MISC.EMPTYQUILL,
+			newDescription: MISC.EMPTYQUILL,
 			newEventKey: 0,
 			progressMessage: '',
 			searchOn: false,
@@ -160,8 +161,10 @@ const store = createStore({
 			showProgress: false,
 			uploadDone: true,
 			// view and send messages
+			messSquareColor: MISC.SQUAREBGNDCOLOR,
+			msgBlinkIds: [],
 			myB64TeamMessages: [],
-			myNewMessage: '<p><br></p>',
+			myNewMessage: MISC.EMPTYQUILL,
 			newMsgTitle: '',
 			// utilities for server Admin and admin
 			areDatabasesFound: false,

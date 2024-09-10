@@ -31,11 +31,13 @@ const LEVEL = Object.freeze({
 
 // Miscellaneous constants
 const MISC = Object.freeze({
-	AREA_PRODUCTID: 'requirement-areas',
-	BACKUPSONLY: 1,
 	ALLBUTSYSTEM: 2,
 	ALLBUTSYSTEMANDBACKUPS: 3,
 	ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS: 4,
+	AREA_PRODUCTID: 'requirement-areas',
+	BACKUPSONLY: 1,
+	EMPTYQUILL: '<p><br></p>',
+	SQUAREBGNDCOLOR: '#004466',
 })
 
 export { SEV, STATE, LEVEL, MISC }

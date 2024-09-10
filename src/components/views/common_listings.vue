@@ -58,13 +58,14 @@
 </template>
 
 <script>
+import { MISC } from '../../constants.js'
 import commonListings from './common_listings.js'
 
 function data() {
   return {
     editMyComment: false,
     commentObjToBeReplaced: {},
-    myLastCommentText: "<p><br></p>",
+    myLastCommentText: MISC.EMPTYQUILL,
   }
 }
 

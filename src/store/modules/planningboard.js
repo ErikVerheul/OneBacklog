@@ -1,4 +1,4 @@
-import { SEV, LEVEL, STATE } from '../../constants.js'
+import { SEV, LEVEL, MISC, STATE } from '../../constants.js'
 import { expandNode, getSprintNameById, uniTob64 } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -1003,7 +1003,7 @@ const actions = {
 					conditionalFor: [],
 					title: payload.taskTitle,
 					followers: storyDoc.followers || [],
-					description: uniTob64('<p><br></p>'),
+					description: uniTob64(MISC.EMPTYQUILL),
 					acceptanceCriteria: uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 					priority: taskPriority,
 					comments: [
