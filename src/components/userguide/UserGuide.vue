@@ -81,14 +81,13 @@
 						is your main tool. What you can do depends on your assigned roles.</p>
 					<p>On top of the tree structure is the event bar with to the right two small squares which start bincking when a new message comes in and when another
 						user made a change to the tree structure.</p>
-					<p>You can have multiple products. Each of them consists of:
+					<p>You can have multiple products. Each of them consists of:</p>
 					<ul>
 						<li>epics which consists of</li>
 						<li>features which consists of</li>
 						<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
 						<li>tasks</li>
 					</ul>
-					</p>
 					<p><b>Note that a PBI can be a user story or a defect or a spike. They share the same level between feature
 							and task.</b></p>
 					<p>The authorization is set per database and product based on the following roles:<br>
@@ -182,7 +181,7 @@
 						is available when the time set is spent.
 						Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a
 						long discussion.</p>
-					<p>State: All items have a state to track their progress. Pbi/defect status values are:
+					<p>State: All items have a state to track their progress. Pbi/defect status values are:</p>
 					<ul>
 						<li>new</li>
 						<li>ready (refinement done, effort estimated)</li>
@@ -200,7 +199,6 @@
 						<li>---------------------------------------------------------------</li>
 						<li>on hold (still in the sprint, waiting to be continued)</li>
 					</ul>
-					</p>
 					<p class="pro-user">Dependencies:</p>
 					<p class="pro-user">Items with dependencies on other items are designated with a ▼ symbol in front of the
 						title name. Use the context menu to assign dependencies or to inspect or remove them.
