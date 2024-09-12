@@ -106,7 +106,7 @@
           {{ getLastEventTxt }} </BButton>
         <span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
           @click="goMessaging">mess</span>
-        <span class="syncSquare" :style="{ 'background-color': syncSquareColor }">{{ syncSquareText }}</span>
+        <span class="syncOLSquare" :style="{ 'background-color': getSquareColor }">{{ getSquareText }}</span>
 
         <div class="tree-container">
           <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
@@ -495,7 +495,7 @@ h3 {
   margin: 5px;
 }
 
-.syncSquare {
+.syncOLSquare {
   position: absolute;
   width: 42px;
   right: 3px;

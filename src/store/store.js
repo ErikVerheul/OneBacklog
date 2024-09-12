@@ -205,12 +205,13 @@ const store = createStore({
 			// app wide globals
 			configData: null,
 			demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
-			eventSyncColor: '#004466',
 			lastSelectCursorPosition: null,
 			listenForChangesRunning: false,
 			myProductOptions: [],
+			nowSyncing: false,
 			online: true,
 			showHeaderDropDowns: true,
+			syncEventColor: '#004466',
 			unsavedLogs: [],
 			userData: {},
 			// planning board

@@ -32,7 +32,9 @@
           <h5>points done: {{ getStoryPointsDone }}</h5>
         </BCol>
         <BCol cols="1">
-          <span class="square" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
+          <span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
+            @click="goMessaging">mess</span>
+          <span class="syncOLSquare" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
         </BCol>
       </BRow>
       <BRow v-else class="warning-bar">
@@ -67,6 +69,7 @@
 </template>
 
 <script>
+import { MISC } from '../../../constants.js'
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/AppHeader.vue'
@@ -191,17 +194,33 @@ export default {
     },
 
     squareText() {
-      if (store.state.online) {
-        return 'sync'
-      } else return 'offline'
+      if (store.state.online) return 'sync'
+      return 'offl'
     },
 
     squareColor() {
-      return store.state.online ? store.state.eventSyncColor : '#ff0000'
+      if (store.state.nowSyncing || !store.state.online) {
+        return '#e6f7ff'
+      }
+      return MISC.SQUAREBGNDCOLOR
     }
   },
 
   methods: {
+    goMessaging() {
+      if (store.state.msgBlinkIds) {
+        for (let id of store.state.msgBlinkIds) clearInterval(id)
+        // clear the array
+        store.state.msgBlinkIds = []
+      }
+      store.state.messSquareColor = MISC.SQUAREBGNDCOLOR
+      store.state.myNewMessage = MISC.EMPTYQUILL
+      store.state.newMsgTitle = ''
+      // save the current number of messages in my profile
+      store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length })
+      store.state.showGoMessaging = true
+    },
+
     clearWarning() {
       store.state.warningText = ''
     },
@@ -264,8 +283,16 @@ export default {
   padding-bottom: 4px;
 }
 
-.square {
+.messSquare {
+  position: absolute;
+  right: 70px;
+  padding: 5px;
+  margin-bottom: 4px;
+}
+
+.syncOLSquare {
   float: right;
+  width: 42px;
   padding: 5px;
   margin-bottom: 4px;
 }

@@ -111,14 +111,16 @@ const computed = {
 		return `Welcome '${store.state.userData.user}'. ${msg1} Your current database is set to '${store.state.userData.currentDb}'. ${msg2}`
 	},
 
-	syncSquareText() {
+	getSquareText() {
 		if (store.state.online) return 'sync'
 		return 'offl'
 	},
 
-	syncSquareColor() {
-		if (store.state.online) return MISC.SQUAREBGNDCOLOR
-		return '#ff0000'
+	getSquareColor() {
+		if (store.state.nowSyncing || !store.state.online) {
+			return '#e6f7ff'
+		}
+		return MISC.SQUAREBGNDCOLOR
 	},
 
 	getSubscribeButtonTxt() {

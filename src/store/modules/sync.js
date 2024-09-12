@@ -19,20 +19,20 @@ const actions = {
 		function doBlinck(doc) {
 			if (rootState.debug) {
 				console.log(
-					`listenForChanges @ ${localTimeAndMilis(new Date())}\n
-					document with _id ${doc._id} is processed\n				
-					current view = ${rootState.currentView}\n
-					histEvent = ${histEvent}\n
-					timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n
-					item level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}\n
-					title = '${doc.title}'\n
-					updateThisBoard = ${updateThisBoard}\n
-					sprintId = ${doc.sprintId}`,
+					`listenforChanges @${localTimeAndMilis(new Date())}` +
+						`\ndocument with _id ${doc._id} is processed` +
+						`\ncurrent view = ${rootState.currentView}` +
+						`\nhistEvent = ${histEvent}` +
+						`\ntimestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}` +
+						`\nitem level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}` +
+						`\ntitle = '${doc.title}'` +
+						`\nupdateThisBoard = ${updateThisBoard}` +
+						`\nsprintId = ${doc.sprintId}`,
 				)
 			}
-			rootState.eventSyncColor = '#e6f7ff'
+			rootState.nowSyncing = true
 			setTimeout(() => {
-				rootState.eventSyncColor = '#004466'
+				rootState.nowSyncing = false
 			}, 1000)
 		}
 

@@ -200,6 +200,7 @@ export function startMsgSquareBlink(rootState) {
 		if (col === color) {
 			col = backGround
 		} else col = color
+
 		rootState.messSquareColor = col
 	}, 500)
 	rootState.msgBlinkIds.push(blickId)
