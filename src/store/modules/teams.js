@@ -353,11 +353,11 @@ const actions = {
 										rootState.myTeamId = newTeamDoc._id
 										// update the team calendar
 										if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
-											// eslint-disable-next-line no-console
+											 
 											if (rootState.debug) console.log('updateTeamsInDb: A team calendar is found, use this sprint calendar')
 											rootState.myCurrentSprintCalendar = newTeamDoc.teamCalendar
 										} else {
-											// eslint-disable-next-line no-console
+											 
 											if (rootState.debug) console.log('updateTeamsInDb: No team calendar found, use the default sprint calendar')
 											rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 										}

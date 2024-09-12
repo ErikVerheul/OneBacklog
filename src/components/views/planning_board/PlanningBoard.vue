@@ -140,7 +140,7 @@ export default {
     ...mapState(['userData']),
 
     selectedTeam() {
-      // eslint-disable-next-line no-console
+       
       console.log('Planningboard: selectedTeam is updated to ' + this.userData.myTeam)
       return this.userData.myTeam
     },

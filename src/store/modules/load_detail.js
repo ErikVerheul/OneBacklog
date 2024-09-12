@@ -201,7 +201,7 @@ const actions = {
 				rootState.currentProductId = _id
 				rootState.currentProductTitle = res.data.title
 				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {
@@ -253,12 +253,12 @@ const actions = {
 				dispatch('createHelpers')
 				// reset load parameters
 				parentNodes = {}
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			})
 			.catch((error) => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)
 			})
 	},

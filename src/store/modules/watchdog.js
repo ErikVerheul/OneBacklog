@@ -20,7 +20,7 @@ const actions = {
 	watchdog({ rootState, state, commit, dispatch }) {
 		function consoleDebugStatus() {
 			if (rootState.debugConnectionAndLogging) {
-				// eslint-disable-next-line no-console
+				 
 				console.log(
 					'watchdog:' +
 						'\nOnline = ' +

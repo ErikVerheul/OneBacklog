@@ -38,7 +38,7 @@ const actions = {
 					if (!dbName.startsWith('_') && !dbName.includes('backup')) foundDbNames.push(dbName)
 				}
 				dispatch('getOtherUserData', foundDbNames)
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('getDatabases: The database names are loaded: ' + foundDbNames)
 			})
 			.catch((error) => {
@@ -115,7 +115,7 @@ const actions = {
 					}
 					// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
 					if (rootState.online && rootState.iAmServerAdmin) {
-						// eslint-disable-next-line no-console
+						 
 						if (rootState.debug) console.log('getOtherUserData: Server admin logged in but has no profile in users database. Start init')
 						rootState.showHeaderDropDowns = false
 						rootState.backendMessages = []
@@ -217,7 +217,7 @@ const actions = {
 		})
 			.then((res) => {
 				const configData = res.data
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('getConfig: The configuration document is loaded')
 				if (!rootState.isProductAssigned) {
 					if (rootGetters.isServerAdmin || rootGetters.isAdmin) {
@@ -324,7 +324,7 @@ const actions = {
 						if (hasTeamCalendar) {
 							dispatch('loadTeamCalendarAtStartup', teamId)
 						} else {
-							// eslint-disable-next-line no-console
+							 
 							if (rootState.debug) console.log(`getAllTeams: No team calendar defined for your team '${teamName}', the default sprint calendar will be used`)
 							// continue to load the tree model
 							dispatch('getRoot')
@@ -350,7 +350,7 @@ const actions = {
 		})
 			.then((res) => {
 				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('getRoot: The root document is read')
 				// open the products view by default
 				router.push('/detailProduct')

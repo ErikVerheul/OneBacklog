@@ -437,7 +437,7 @@ const actions = {
 				}
 			}
 		}
-		// eslint-disable-next-line no-console
+		 
 		if (rootState.debug) console.log(`updateUserDb: Users roles are: ${allRoles}`)
 		userData.roles = allRoles
 		globalAxios({
@@ -546,7 +546,7 @@ const actions = {
 		})
 			.then(() => {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `createUser: Successfully created user '${userData.name}'` })
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(`createUserAction: user '${userData.name}' is created'`)
 				rootState.isUserCreated = true
 			})

@@ -82,10 +82,10 @@ const authorization = {
 				}
 			}
 			if (this.getMyProductsRoles[productId]) {
-				// eslint-disable-next-line no-console
+				 
 				if (store.state.debug)
 					console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
-				// eslint-disable-next-line no-console
+				 
 				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
 			}
 			return levels[level]

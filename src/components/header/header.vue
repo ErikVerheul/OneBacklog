@@ -25,7 +25,7 @@
 
           <BNavItemDropdown text="User" right>
             <!-- Using button-content slot -->
-            <template slot="button-content"></template>
+            <template v-slot:button-content></template>
 
             <template v-if="isAuthenticated">
               <BDropdownItem v-if="canMessage" @click="goMessage">View/send messages</BDropdownItem>

@@ -157,7 +157,7 @@ const actions = {
 			target: payload.dbTargetName,
 		}
 		state.copyBusy = true
-		// eslint-disable-next-line no-console
+		 
 		if (rootState.debug) console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
 		globalAxios({
 			method: 'POST',
@@ -176,7 +176,7 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(error)
 				rootState.backendMessages.push({
 					seqKey: rootState.seqKey++,
@@ -196,7 +196,7 @@ const actions = {
 			url: payload.dbTargetName,
 		})
 			.then(() => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('replaceDB: ' + payload.dbTargetName + ' is deleted')
 				dispatch('copyDB', payload)
 			})
@@ -327,7 +327,7 @@ const actions = {
 				dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
 			})
 			.catch((error) => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(error)
 				state.message = error.response.data
 				state.errorMessage = error.message

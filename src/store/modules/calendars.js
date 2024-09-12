@@ -150,7 +150,7 @@ const actions = {
 			.then((res) => {
 				const doc = res.data
 				if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-					// eslint-disable-next-line no-console
+					 
 					if (rootState.debug) console.log(`loadTeamCalendarAtStartup: A team document with calendar is loaded; id = ${id}`)
 					// check if the team calendar needs to be extended
 					const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
@@ -162,7 +162,7 @@ const actions = {
 						dispatch('getRoot')
 					}
 				} else {
-					// eslint-disable-next-line no-console
+					 
 					if (rootState.debug)
 						console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
 					rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar

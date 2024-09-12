@@ -18,7 +18,7 @@ const actions = {
 	processDoc({ rootState, rootGetters, commit, dispatch }, doc) {
 		function doBlinck(doc) {
 			if (rootState.debug) {
-				// eslint-disable-next-line no-console
+				 
 				console.log(
 					`listenForChanges @ ${localTimeAndMilis(new Date())}\n\
 					document with _id ${doc._id} is processed\n\				
@@ -220,7 +220,7 @@ const actions = {
 				reportOddTimestamp(lastHistObj, doc._id)
 				// show the history update in he currently visable document
 				if (isCurrentDocument) rootState.currentDoc.history = doc.history
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 				// process requirement area items
 				if (rootGetters.isOverviewSelected && isReqAreaItem) {
@@ -513,13 +513,13 @@ const actions = {
 							showSyncMessage(`changed the task owner of`, SEV.INFO)
 							break
 						default:
-							// eslint-disable-next-line no-console
+							 
 							if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 					}
 				}
 
 				if (updateThisBoard) {
-					// eslint-disable-next-line no-console
+					 
 					if (rootState.debug) console.log('sync:update the board with event ' + histEvent)
 					reportOddTimestamp(lastHistObj, doc._id)
 
@@ -785,7 +785,7 @@ const actions = {
 							}
 							break
 						default:
-							// eslint-disable-next-line no-console
+							 
 							if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
 					}
 				}
@@ -863,7 +863,7 @@ const actions = {
 						}
 
 						if (doc._id === 'messenger') {
-							// eslint-disable-next-line no-console
+							 
 							if (rootState.debug) console.log('MESSENGER DOC received')
 						}
 						// process a history event on backlog items received from other sessions (not the session that created the event)

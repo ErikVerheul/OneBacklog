@@ -374,7 +374,7 @@ const methods = {
 		const nodesToScan = this.isOverviewSelected ? undefined : store.state.helpersRef.getCurrentProductModel()
 		store.state.helpersRef.traverseModels((nm) => {
 			if (nm.level <= toLevel) {
-				// eslint-disable-next-line no-console
+				 
 				console.log(`${caller}: level = ${nm.level}, isExpanded = ${nm.isExpanded}, doShow = ${nm.doShow}, title = ${nm.title}`)
 			}
 		}, nodesToScan)

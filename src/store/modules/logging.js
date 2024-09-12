@@ -29,7 +29,7 @@ const actions = {
 			email: rootState.userData.email,
 			timestamp: Date.now(),
 		}
-		// eslint-disable-next-line no-console
+		 
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis(new Date())}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
 		rootState.unsavedLogs.push(newLog)
@@ -45,7 +45,7 @@ const actions = {
 				})
 					.then((res) => {
 						const log = res.data
-						// eslint-disable-next-line no-console
+						 
 						if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
 						for (const logEntry of rootState.unsavedLogs) {
 							// add the save time for debugging
@@ -76,7 +76,7 @@ const actions = {
 			.then(() => {
 				// delete the logs now they are saved
 				rootState.unsavedLogs = []
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
 			})
 			.catch((error) => {

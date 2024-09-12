@@ -454,7 +454,7 @@ const store = createStore({
 			if (payload.toDispatch) {
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
-					// eslint-disable-next-line no-console
+					 
 					if (state.debug) console.log('additionalActions: dispatching ' + name)
 					dispatch(name, td[name])
 				}
@@ -560,7 +560,7 @@ const store = createStore({
 		},
 
 		resetFindOnId({ state, dispatch, commit }, payload) {
-			// eslint-disable-next-line no-console
+			 
 			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
 			if (!state.resetSearchOnId || !state.resetSearchOnId.nodeFound) {
 				// there is no pending search or the search did not find a node
@@ -591,7 +591,7 @@ const store = createStore({
 		},
 
 		resetSearchInTitles({ state, dispatch, commit }, payload) {
-			// eslint-disable-next-line no-console
+			 
 			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
 			if (!state.resetSearchOnTitle || !state.resetSearchOnTitle.savedSelectedNode) {
 				// there is no pending search on titles or the search did not find a node
@@ -618,7 +618,7 @@ const store = createStore({
 
 		/* If a filter is active reset to the tree state as before the filter was set; otherwise reset the set search (can only be one) */
 		resetFilterAndSearches({ state, dispatch, commit }, payload) {
-			// eslint-disable-next-line no-console
+			 
 			if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller}`)
 			if (state.resetFilter) {
 				const prevSelectedNode = state.resetFilter.savedSelectedNode
@@ -1131,7 +1131,7 @@ const store = createStore({
 								node.isSelected = false
 								break
 							default:
-								// eslint-disable-next-line no-console
+								 
 								if (state.debug)
 									console.log(`updateNodesAndCurrentDoc.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
@@ -1278,7 +1278,7 @@ const store = createStore({
 									// not a database field
 									break
 								default:
-									// eslint-disable-next-line no-console
+									 
 									if (state.debug)
 										console.log(
 											`updateNodesAndCurrentDoc.update currentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`,
@@ -1287,7 +1287,7 @@ const store = createStore({
 						}
 					}
 				} else {
-					// eslint-disable-next-line no-console
+					 
 					if (state.debug) console.log(`updateNodesAndCurrentDoc failed: cannot apply changes as no valid node is passed, keys are: ${keys}`)
 				}
 			}
@@ -1325,7 +1325,7 @@ const store = createStore({
 			state.signedOut = true
 			// reset the app by reloading
 			window.location.reload()
-			// eslint-disable-next-line no-console
+			 
 			if (state.debug) console.log('endSession, signedOut = ' + state.signedOut + ', caller = ' + caller)
 		},
 	},

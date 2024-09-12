@@ -204,7 +204,7 @@ const actions = {
 						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 					}
 				}
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(batch.length + ' documents are loaded')
 				// clear memory usage
 				parentNodes = {}
@@ -214,7 +214,7 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log(`loadOverview: Could not read from database ${rootState.userData.currentDb}, ${error}`)
 			})
 	},

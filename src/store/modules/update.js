@@ -1017,7 +1017,7 @@ const actions = {
 	 */
 	updateDoc({ rootState, dispatch }, payload) {
 		const id = payload.updatedDoc._id
-		// eslint-disable-next-line no-console
+		 
 		if (rootState.debug) console.log(`'updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
 		globalAxios({
 			method: 'PUT',
@@ -1094,7 +1094,7 @@ const actions = {
 			.then((res) => {
 				const rows = res.data.rows
 				if (rows.length > 0) {
-					// eslint-disable-next-line no-console
+					 
 					if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
 					// take the fist document found
 					const doc = rows[0].doc
@@ -1198,7 +1198,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + payload.id,
 		})
 			.then((res) => {
-				// eslint-disable-next-line no-console
+				 
 				if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
 				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 				// execute passed function if provided

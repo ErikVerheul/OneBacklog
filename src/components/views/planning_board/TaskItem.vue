@@ -123,10 +123,10 @@ export default {
             break
           case this.ID_TO_CLIPBOARD:
             navigator.clipboard.writeText(this.item.id.slice(-5)).then(() => {
-              // eslint-disable-next-line no-console
+               
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard successfully set')
             }, () => {
-              // eslint-disable-next-line no-console
+               
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
             })
             break
