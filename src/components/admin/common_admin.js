@@ -1,6 +1,6 @@
 import { MISC } from '../../constants.js'
 import { addToArray, removeFromArray, createId, isValidEmail } from '../../common_functions.js'
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/AppHeader.vue'
 import router from '../../router'
 import { utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'

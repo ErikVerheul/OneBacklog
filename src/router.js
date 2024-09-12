@@ -5,7 +5,7 @@ import WelcomePage from './components/welcome/Welcome-comp.vue'
 import RelNotesPage from './components/rel-notes/Rel-Notes.vue'
 import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
-import SigninPage from './components/auth/Signin.vue'
+import SigninPage from './components/auth/Sign-in.vue'
 import ProductPage from './components/views/detail_product/d_product_view.vue'
 import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
 

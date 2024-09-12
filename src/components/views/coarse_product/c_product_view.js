@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../../constants.js'
-import AppHeader from '../../header/header.vue'
+import AppHeader from '../../header/AppHeader.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
 import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'

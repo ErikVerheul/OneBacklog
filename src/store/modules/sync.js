@@ -18,16 +18,15 @@ const actions = {
 	processDoc({ rootState, rootGetters, commit, dispatch }, doc) {
 		function doBlinck(doc) {
 			if (rootState.debug) {
-				 
 				console.log(
-					`listenForChanges @ ${localTimeAndMilis(new Date())}\n\
-					document with _id ${doc._id} is processed\n\				
-					current view = ${rootState.currentView}\n\
-					histEvent = ${histEvent}\n\
-					timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n\
-					item level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}\n\
-					title = '${doc.title}'\n\
-					updateThisBoard = ${updateThisBoard}\n\
+					`listenForChanges @ ${localTimeAndMilis(new Date())}\n
+					document with _id ${doc._id} is processed\n				
+					current view = ${rootState.currentView}\n
+					histEvent = ${histEvent}\n
+					timestamp = ${String(new Date(lastHistoryTimestamp)).substring(0, 24)}\n
+					item level = ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)}\n
+					title = '${doc.title}'\n
+					updateThisBoard = ${updateThisBoard}\n
 					sprintId = ${doc.sprintId}`,
 				)
 			}
@@ -220,7 +219,7 @@ const actions = {
 				reportOddTimestamp(lastHistObj, doc._id)
 				// show the history update in he currently visable document
 				if (isCurrentDocument) rootState.currentDoc.history = doc.history
-				 
+
 				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 				// process requirement area items
 				if (rootGetters.isOverviewSelected && isReqAreaItem) {
@@ -311,10 +310,11 @@ const actions = {
 							commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the description of`, SEV.INFO)
 							break
-						case 'itemToNewTeamEvent':
+						case 'itemToNewTeamEvent': {
 							const team = lastHistObj.itemToNewTeamEvent[0]
 							commit('updateNodesAndCurrentDoc', { node, team })
 							break
+						}
 						case 'newCommentEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp
 							// show the comments update
@@ -450,10 +450,11 @@ const actions = {
 								}
 							}
 							break
-						case 'teamChangeEvent':
+						case 'teamChangeEvent': {
 							const newTeam = lastHistObj.teamChangeEvent[1]
 							rootState.userData.myTeam = newTeam
 							break
+						}
 						case 'undoBranchRemovalEvent':
 							// does also update the board
 							dispatch('syncRestoreBranch', {
@@ -513,13 +514,11 @@ const actions = {
 							showSyncMessage(`changed the task owner of`, SEV.INFO)
 							break
 						default:
-							 
 							if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
 					}
 				}
 
 				if (updateThisBoard) {
-					 
 					if (rootState.debug) console.log('sync:update the board with event ' + histEvent)
 					reportOddTimestamp(lastHistObj, doc._id)
 
@@ -648,11 +647,12 @@ const actions = {
 								}
 							}
 							break
-						case 'removedWithDescendantsEvent':
+						case 'removedWithDescendantsEvent': {
 							const delmark = lastHistObj.removedWithDescendantsEvent[5]
 							// the item and its descendants are removed, so no longer assigned to any sprint and must be removed from the board. ('*' = all sprints)
 							dispatch('syncRemoveItemsFromBoard', { doc, removedSprintId: '*', delmark })
 							break
+						}
 						case 'removeItemsFromSprintEvent':
 							{
 								const storyIdToRemove = lastHistObj.removeItemsFromSprintEvent[0]
@@ -758,11 +758,12 @@ const actions = {
 								commit('removeTaskFromBoard', { storyId, taskId, taskState })
 							}
 							break
-						case 'teamChangeEvent':
+						case 'teamChangeEvent': {
 							// this event is passed via the 'messenger' dummy backlogitem, the new team name is in the message, not in the doc
 							const newTeam = lastHistObj.teamChangeEvent[1]
 							rootState.userData.myTeam = newTeam
 							break
+						}
 						case 'updateTaskOrderEvent':
 							{
 								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates
@@ -785,7 +786,6 @@ const actions = {
 							}
 							break
 						default:
-							 
 							if (rootState.debug) console.log('sync.planningBoard: event not found, name = ' + histEvent)
 					}
 				}
@@ -863,7 +863,6 @@ const actions = {
 						}
 
 						if (doc._id === 'messenger') {
-							 
 							if (rootState.debug) console.log('MESSENGER DOC received')
 						}
 						// process a history event on backlog items received from other sessions (not the session that created the event)

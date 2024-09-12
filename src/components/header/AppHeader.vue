@@ -231,7 +231,7 @@
       <BButton class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
     </BModal>
   </div>
-  <Messaging></Messaging>
+  <TeamMessaging></TeamMessaging>
 </template>
 
 <script src="./header.js"></script>

@@ -487,7 +487,6 @@ const actions = {
 					dispatch('updateDoc', {
 						dbName: rootState.userData.currentDb,
 						updatedDoc: tmpDoc,
-						caller: 'assignToMyTeam',
 						toDispatch,
 						caller: 'assignToMyTeam',
 						onSuccessCallback: () => {
@@ -936,20 +935,18 @@ const actions = {
 					tmpDoc.history.unshift(newHist)
 					tmpDoc.lastCommentAddition = payload.timestamp
 					tmpDoc.lastChange = payload.timestamp
+					dispatch('updateDoc', {
+						dbName: rootState.userData.currentDb,
+						updatedDoc: tmpDoc,
+						caller: 'replaceComment',
+						onSuccessCallback: () => {
+							commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
+						},
+					})
 				} else {
-					const msg = `replaceComment: Could not find the comment to replace in document with id ${id}. ${error}`
+					const msg = `replaceComment: Could not find the comment to replace in document with id ${id}.`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
-					return
 				}
-
-				dispatch('updateDoc', {
-					dbName: rootState.userData.currentDb,
-					updatedDoc: tmpDoc,
-					caller: 'replaceComment',
-					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
-					},
-				})
 			})
 			.catch((error) => {
 				const msg = `replaceComment: Could not read document with id ${id}. ${error}`
@@ -1017,7 +1014,7 @@ const actions = {
 	 */
 	updateDoc({ rootState, dispatch }, payload) {
 		const id = payload.updatedDoc._id
-		 
+
 		if (rootState.debug) console.log(`'updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
 		globalAxios({
 			method: 'PUT',
@@ -1094,7 +1091,6 @@ const actions = {
 			.then((res) => {
 				const rows = res.data.rows
 				if (rows.length > 0) {
-					 
 					if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
 					// take the fist document found
 					const doc = rows[0].doc
@@ -1198,7 +1194,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + payload.id,
 		})
 			.then((res) => {
-				 
 				if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
 				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 				// execute passed function if provided

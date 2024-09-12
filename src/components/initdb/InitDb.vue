@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/AppHeader.vue'
 import store from '../../store/store.js'
 
 export default {

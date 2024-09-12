@@ -69,7 +69,7 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
-import AppHeader from '../../header/header.vue'
+import AppHeader from '../../header/AppHeader.vue'
 import StoryLane from './StoryLane.vue'
 import store from '../../../store/store.js'
 
@@ -140,7 +140,7 @@ export default {
     ...mapState(['userData']),
 
     selectedTeam() {
-       
+
       console.log('Planningboard: selectedTeam is updated to ' + this.userData.myTeam)
       return this.userData.myTeam
     },

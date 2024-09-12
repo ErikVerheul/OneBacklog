@@ -507,8 +507,8 @@ const actions = {
 					const productId = r.key[2]
 					if (isPreviousSprint(sprintId)) {
 						if (
-							rootGetters.getMyAssignedProductIds.includes(productId) &&
-							rootGetters.getMyProductsRoles[productId].includes('PO' || rootGetters.getMyProductsRoles[productId].includes('developer'))
+							(rootGetters.getMyAssignedProductIds.includes(productId) && rootGetters.getMyProductsRoles[productId].includes('PO')) ||
+							rootGetters.getMyProductsRoles[productId].includes('developer')
 						) {
 							if (r.value === LEVEL.PBI) {
 								if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)

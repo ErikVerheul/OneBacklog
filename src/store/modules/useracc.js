@@ -97,7 +97,7 @@ const actions = {
 	 * (if not found) create an empty roles array for all (other) products in the database.
 	 * The result is stored in state.dbProducts
 	 */
-	getProductsRolesAction({ rootState, rootGetters, state, dispatch }, payload) {
+	getProductsRolesAction({ rootState, state, dispatch }, payload) {
 		rootState.areProductsFound = false
 		globalAxios({
 			method: 'GET',
@@ -437,7 +437,7 @@ const actions = {
 				}
 			}
 		}
-		 
+
 		if (rootState.debug) console.log(`updateUserDb: Users roles are: ${allRoles}`)
 		userData.roles = allRoles
 		globalAxios({
@@ -546,7 +546,7 @@ const actions = {
 		})
 			.then(() => {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `createUser: Successfully created user '${userData.name}'` })
-				 
+
 				if (rootState.debug) console.log(`createUserAction: user '${userData.name}' is created'`)
 				rootState.isUserCreated = true
 			})

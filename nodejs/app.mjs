@@ -22,16 +22,6 @@ function base64ToBytes(base64) {
   return Uint8Array.from(binString, (m) => m.codePointAt(0))
 }
 
-function bytesToBase64(bytes) {
-  const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
-  return window.btoa(binString)
-}
-
-// convert unicode string to base64 encoded ascii
-function uniTob64(str) {
-  return bytesToBase64(new TextEncoder().encode(str))
-}
-
 // convert base64 encoded ascii to unicode string
 function b64ToUni(bytes) {
   return new TextDecoder().decode(base64ToBytes(bytes))

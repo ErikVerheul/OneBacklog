@@ -1,4 +1,4 @@
-import Licence from './licence.vue'
+import Licence from './AppLicence.vue'
 import { isValidEmail } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 import logo from '../../assets/logo.png'

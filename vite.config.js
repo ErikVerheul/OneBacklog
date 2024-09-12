@@ -1,20 +1,21 @@
 import { defineConfig } from 'vite'
-import vue from "@vitejs/plugin-vue"
-import { resolve } from 'path'
+import vue from '@vitejs/plugin-vue'
+import { fileURLToPath } from 'node:url'
 import Components from 'unplugin-vue-components/vite'
-import {BootstrapVueNextResolver} from 'unplugin-vue-components/resolvers'
+import { BootstrapVueNextResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineConfig({
-  resolve: {
-    alias: {
-      '@': resolve(__dirname, './src')
-    },
-  },
-  plugins: [
-    vue(),
-    Components({
-      resolvers: [BootstrapVueNextResolver()],
-    }),
-  ],
-  server: { port: 8080 }
+	resolve: {
+		alias: {
+			'@': fileURLToPath(new URL('./src', import.meta.url)),
+		},
+		extensions: ['.js', '.json', '.jsx', '.mjs', '.ts', '.tsx', '.vue'],
+	},
+	plugins: [
+		vue(),
+		Components({
+			resolvers: [BootstrapVueNextResolver()],
+		}),
+	],
+	server: { port: 8080 },
 })

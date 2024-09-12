@@ -1178,7 +1178,7 @@
 </template>
 
 <script setup>
-import AppHeader from '../header/header.vue'
+import AppHeader from '../header/AppHeader.vue'
 import { useStore } from 'vuex'
 
 const store = useStore()

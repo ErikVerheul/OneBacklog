@@ -353,11 +353,9 @@ const actions = {
 										rootState.myTeamId = newTeamDoc._id
 										// update the team calendar
 										if (newTeamDoc.teamCalendar && newTeamDoc.teamCalendar.length > 0) {
-											 
 											if (rootState.debug) console.log('updateTeamsInDb: A team calendar is found, use this sprint calendar')
 											rootState.myCurrentSprintCalendar = newTeamDoc.teamCalendar
 										} else {
-											 
 											if (rootState.debug) console.log('updateTeamsInDb: No team calendar found, use the default sprint calendar')
 											rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 										}
@@ -406,7 +404,7 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				const msg = `getMyTeamMessagesAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
+				const msg = `getMyTeamMessagesAction: Could not read the team with id ${rootState.myTeamId} in database '${rootState.userData.currentDb}'. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
