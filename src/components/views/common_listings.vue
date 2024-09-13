@@ -1,7 +1,7 @@
 <template>
-  <div>
+  <div style="height: 80vh; overflow-y: auto;">
     <div v-if="store.state.selectedForView === 'comments'">
-      <div v-for="comment in getFilteredComments" :key="comment.timestamp">
+      <div style="width: 98%;" v-for="comment in getFilteredComments" :key="comment.timestamp">
         <BCard border-variant="primary" :header="mkCommentHeader(comment)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
           align="center">
           <BCardBody class="list-body">
@@ -36,8 +36,9 @@
       </div>
     </ul>
     <div v-else-if="store.state.selectedForView === 'history'">
-      <div v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
-        <BCard border-variant="primary" :header="mkHistHeader(histItem)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer">
+      <div style="width: 98%;" v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
+        <BCard border-variant="primary" :header="mkHistHeader(histItem)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
+          align="center">
           <BCardBody class="list-body">
             <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem))"></div>
           </BCardBody>
