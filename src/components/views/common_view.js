@@ -1,5 +1,5 @@
 import { SEV, MISC, STATE } from '../../constants.js'
-import { areStringsEqual } from '../../common_functions.js'
+import { areStringsEqual, initMessaging } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
 
@@ -14,13 +14,6 @@ function data() {
 		spikeSubtype: 1,
 		defectSubtype: 2,
 		docToUpdate: null,
-		editorToolbar: [
-			[{ header: [false, 1, 2, 3, 4, 5, 6] }],
-			['bold', 'italic', 'underline', 'strike'],
-			[{ list: 'ordered' }, { list: 'bullet' }],
-			[{ indent: '-1' }, { indent: '+1' }], // outdent/indent
-			['link', 'image', 'code-block'],
-		],
 		// set to an invalid value; must be updated before use
 		selectedPbiType: '',
 		// comments, history and attachments
@@ -182,17 +175,7 @@ const watch = {
 
 const methods = {
 	goMessaging() {
-		if (store.state.msgBlinkIds) {
-			for (let id of store.state.msgBlinkIds) clearInterval(id)
-			// clear the array
-			store.state.msgBlinkIds = []
-		}
-		store.state.messSquareColor = MISC.SQUAREBGNDCOLOR
-		store.state.myNewMessage = MISC.EMPTYQUILL
-		store.state.newMsgTitle = ''
-		// save the current number of messages in my profile
-		store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length })
-		store.state.showGoMessaging = true
+		initMessaging(store)
 	},
 
 	initNewDescription() {

@@ -70,6 +70,7 @@
 
 <script>
 import { MISC } from '../../../constants.js'
+import { initMessaging } from '../../../common_functions.js'
 import { mapState, mapGetters } from 'vuex'
 import { utilities } from '../../mixins/generic.js'
 import AppHeader from '../../header/AppHeader.vue'
@@ -208,17 +209,7 @@ export default {
 
   methods: {
     goMessaging() {
-      if (store.state.msgBlinkIds) {
-        for (let id of store.state.msgBlinkIds) clearInterval(id)
-        // clear the array
-        store.state.msgBlinkIds = []
-      }
-      store.state.messSquareColor = MISC.SQUAREBGNDCOLOR
-      store.state.myNewMessage = MISC.EMPTYQUILL
-      store.state.newMsgTitle = ''
-      // save the current number of messages in my profile
-      store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length })
-      store.state.showGoMessaging = true
+      initMessaging(store)
     },
 
     clearWarning() {
