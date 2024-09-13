@@ -255,7 +255,7 @@
           </div>
           <div class="pane" :style="{ flexGrow: 1 }">
             <!-- comments, attachments, history listings -->
-            <listings></listings>
+            <listings :selectedForView="store.state.selectedForView"></listings>
           </div>
         </multipane>
       </div>

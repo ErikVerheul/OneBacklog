@@ -1,6 +1,6 @@
 <template>
   <div style="height: 80vh; overflow-y: auto;">
-    <div v-if="store.state.selectedForView === 'comments'">
+    <div v-if="selectedForView === 'comments'">
       <div style="width: 98%;" v-for="comment in getFilteredComments" :key="comment.timestamp">
         <BCard border-variant="primary" :header="mkCommentHeader(comment)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
           align="center">
@@ -23,7 +23,7 @@
         <br>
       </div>
     </div>
-    <ul v-else-if="store.state.selectedForView === 'attachments'">
+    <ul v-else-if="selectedForView === 'attachments'">
       <div v-if="!isUploadDone">loading...</div>
       <div v-for="(attach, index) in getAttachments" :key="attach.title + attach.data.digest">
         <span>
@@ -35,7 +35,7 @@
         </span>
       </div>
     </ul>
-    <div v-else-if="store.state.selectedForView === 'history'">
+    <div v-else-if="selectedForView === 'history'">
       <div style="width: 98%;" v-for="histItem in getFilteredHistory" :key="histItem.timestamp">
         <BCard border-variant="primary" :header="mkHistHeader(histItem)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
           align="center">
@@ -62,6 +62,8 @@
 import { MISC } from '../../constants.js'
 import commonListings from './common_listings.js'
 
+const props = ['selectedForView']
+
 function data() {
   return {
     editMyComment: false,
@@ -72,7 +74,8 @@ function data() {
 
 export default {
   extends: commonListings,
-  data
+  data,
+  props
 }
 </script>
 
