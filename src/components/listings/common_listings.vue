@@ -131,7 +131,6 @@ const methods = {
   },
 
   startEditMyMessText(msgEvent) {
-    console.log('startEditMyMessText is called')
     store.state.replaceMessage = true
     store.state.replaceMessageTimestamp = msgEvent.timestamp
     store.state.newMsgTitle = msgEvent.title
@@ -143,6 +142,7 @@ const methods = {
   },
 
   mkMsgFooter(msgEvent) {
+    if (Object.keys(msgEvent)[0] === 'replacedTeamMessage') return `This message was updated by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
     return `This message was send by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
   },
 }
