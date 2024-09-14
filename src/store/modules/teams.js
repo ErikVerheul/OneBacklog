@@ -326,7 +326,7 @@ const actions = {
 						newTeamDoc.history.unshift(joinHist)
 
 						// create a trigger to update any open planningboards of the old team to the new team
-						const newHist = {
+						const trigger = {
 							teamChangeEvent: [payload.oldTeam, payload.newTeam],
 							by: rootState.userData.user,
 							timestamp: Date.now(),
@@ -336,7 +336,7 @@ const actions = {
 						}
 
 						// sending this trigger must be the last action in the chain of events
-						const toDispatch2 = [{ sendMessageAsync: newHist }]
+						const toDispatch2 = [{ sendMessageAsync: trigger }]
 
 						const toDispatch = [
 							{
@@ -418,9 +418,10 @@ const actions = {
 			.then((res) => {
 				const teamDoc = res.data
 				const newMessage = {
+					teamMessage: [],
 					title: payload.newTitle,
 					b64Msg: uniTob64(payload.newMessage),
-					from: rootState.userData.user,
+					by: rootState.userData.user,
 					timestamp: Date.now(),
 				}
 				// initiate array if non-existant
@@ -428,7 +429,7 @@ const actions = {
 				// add new message
 				teamDoc.messages.unshift(newMessage)
 				// create a trigger to warn my team members that a new message is received
-				const newHist = {
+				const trigger = {
 					messageReceivedEvent: [],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
@@ -437,7 +438,7 @@ const actions = {
 				}
 				// sending this trigger must be the last action in the chain of events and save the current number of messages in my profile
 				const toDispatch = [
-					{ sendMessageAsync: newHist },
+					{ sendMessageAsync: trigger },
 					{ saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } },
 				]
 				dispatch('updateDoc', {
@@ -447,14 +448,79 @@ const actions = {
 					onSuccessCallback: () => {
 						rootState.newMsgTitle = ''
 						rootState.myNewMessage = MISC.EMPTYQUILL
+						// refresh my team messages
+						rootState.myB64TeamMessages = teamDoc.messages
 					},
 					caller: 'saveMyTeamMessageAction',
 				})
-				// refresh my team messages
-				rootState.myB64TeamMessages = teamDoc.messages
 			})
 			.catch((error) => {
 				const msg = `saveMyTeamMessageAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	updateMyTeamMessageAction({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'GET',
+			url: `${payload.dbName}/${rootState.myTeamId}`,
+		})
+			.then((res) => {
+				const teamDoc = res.data
+				const updatedMessage = {
+					replacedTeamMessage: [],
+					title: payload.newTitle,
+					b64Msg: uniTob64(payload.newMessage),
+					by: rootState.userData.user,
+					timestamp: Date.now(),
+				}
+
+				// replace the message
+				let couldReplace = false
+				for (let i = 0; i < teamDoc.messages.length; i++) {
+					if (teamDoc.messages[i].timestamp === payload.timestamp) {
+						teamDoc.messages[i] = updatedMessage
+						couldReplace = true
+						break
+					}
+				}
+				if (couldReplace) {
+					// create a trigger to warn my team members that an updated message is received
+					const trigger = {
+						messageReplacedEvent: [],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+					}
+					// sending this trigger must be the last action in the chain of events and save the current number of messages in my profile
+					const toDispatch = [
+						{ sendMessageAsync: trigger },
+						{ saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } },
+					]
+					dispatch('updateDoc', {
+						dbName: payload.dbName,
+						updatedDoc: teamDoc,
+						toDispatch,
+						onSuccessCallback: () => {
+							// reset input fields
+							rootState.newMsgTitle = ''
+							rootState.myNewMessage = MISC.EMPTYQUILL
+							// reset replace mode
+							rootState.replaceMessage = false
+							rootState.replaceMessageTimestamp = undefined
+							// refresh my team messages
+							rootState.myB64TeamMessages = teamDoc.messages
+						},
+						caller: 'updateMyTeamMessageAction',
+					})
+				} else {
+					const msg = `updateMyTeamMessageAction: Could not find the message to replace in document with id ${teamDoc._id}.`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+				}
+			})
+			.catch((error) => {
+				const msg = `updateMyTeamMessageAction: Could not read the team with id ${rootState.myTeamId} in database '${payload.dbName}'. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

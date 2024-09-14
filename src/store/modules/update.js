@@ -1166,8 +1166,7 @@ const actions = {
 									commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 								} else {
 									// the priority has changed after the preflihgt insert; revert the change in the tree and database
-									const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}.
-							The tree structure has changed while the new document was created. The insertion is undone.`
+									const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}. The tree structure has changed while the new document was created. The insertion is undone.`
 									dispatch('doLog', { event: msg, level: SEV.ERROR })
 									// note: while this action is executed the user cannot undo other actions
 									dispatch('removeBranch', { node: payload.newNode, undoOnError: true, isUndoAction: true })
@@ -1210,7 +1209,7 @@ const actions = {
 	},
 
 	/* Send a message to other users online with access to the current product */
-	sendMessageAsync({ rootState, dispatch }, newHist) {
+	sendMessageAsync({ rootState, dispatch }, trigger) {
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/messenger',
@@ -1220,7 +1219,7 @@ const actions = {
 				// add the productId this message applies to
 				tmpDoc.productId = rootState.currentProductId
 				// replace the history
-				tmpDoc.history = [newHist]
+				tmpDoc.history = [trigger]
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'sendMessageAsync' })
 			})
 			.catch((error) => {

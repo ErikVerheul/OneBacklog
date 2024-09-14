@@ -431,40 +431,6 @@ const methods = {
 	mkTimestamp(value) {
 		return 'timestamp: ' + new Date(value).toString()
 	},
-
-	// ======================== methods for editing my last comment(s) ===============================
-
-	otherUserCommentedAfterme(comment, allItems) {
-		let otherUserFound = false
-		for (let c of allItems) {
-			if (c.by !== store.state.userData.user) {
-				otherUserFound = true
-			}
-			if (c === comment) {
-				break
-			}
-		}
-		return otherUserFound
-	},
-
-	isMyAddition(comment, eventName) {
-		return comment.by === store.state.userData.user && this.getEventName(comment) === eventName
-	},
-
-	startEditMyComment(comment) {
-		this.commentObjToBeReplaced = comment
-		this.myLastCommentText = b64ToUni(this.getEventValue(comment))
-		this.editMyComment = true
-	},
-
-	replaceEditedComment() {
-		store.dispatch('replaceComment', {
-			node: this.getLastSelectedNode,
-			commentObjToBeReplaced: this.commentObjToBeReplaced,
-			editedCommentText: this.myLastCommentText,
-			timestamp: Date.now(),
-		})
-	},
 }
 
 export default {

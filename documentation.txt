@@ -317,6 +317,7 @@ N             N      Y    importToSprintEvent             planningboard.js
 N			  			N	     Y    itemRestoredEvent								undo.js
 Y			  			N	     N		itemToNewTeamEvent							update.js
 Y							N 		 N		messageReceivedEvent						teams.js			// updates the special Messenger doc
+Y							N 		 N		messageReplacedEvent						teams.js			// updates the special Messenger doc
 Y			  			Y	     Y    newCommentEvent									update.js
 N			  			Y	     Y    newChildEvent										update.js
 Y             Y	     Y    nodeMovedEvent	            		move.js

@@ -6,7 +6,7 @@ import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
 import commonView from '../common_view.js'
 import CcontextMenu from './c_context.vue'
 import Filters from './c_filters.vue'
-import Listings from '../common_listings.vue'
+import Listings from '../../listings/common_listings.vue'
 import store from '../../../store/store.js'
 
 const thisView = 'coarseProduct'

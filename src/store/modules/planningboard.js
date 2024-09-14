@@ -806,7 +806,7 @@ const actions = {
 						docs.push(doc)
 					}
 				}
-				const newHist = {
+				const trigger = {
 					addItemsToSprintEvent: [newPBI, newTasks],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
@@ -814,7 +814,7 @@ const actions = {
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [rootState.userData.myTeam] },
 				}
-				const toDispatch = [{ sendMessageAsync: newHist }]
+				const toDispatch = [{ sendMessageAsync: trigger }]
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,
 					toDispatch,
@@ -901,7 +901,7 @@ const actions = {
 					}
 				}
 
-				const newHist = {
+				const trigger = {
 					removeItemsFromSprintEvent: [storyIdToRemove, tasksToRemove],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
@@ -909,7 +909,7 @@ const actions = {
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [payload.sprintId], teamsAffected: [rootState.userData.myTeam] },
 				}
-				const toDispatch = [{ sendMessageAsync: newHist }]
+				const toDispatch = [{ sendMessageAsync: trigger }]
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,
 					docs,

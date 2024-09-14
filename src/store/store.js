@@ -166,6 +166,8 @@ const store = createStore({
 			myB64TeamMessages: [],
 			myNewMessage: MISC.EMPTYQUILL,
 			newMsgTitle: '',
+			replaceMessage: false,
+			replaceMessageTimestamp: undefined,
 			// utilities for server Admin and admin
 			areDatabasesFound: false,
 			areProductsFound: false,

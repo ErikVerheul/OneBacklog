@@ -199,6 +199,7 @@ const actions = {
 					histEvent === 'createTaskEvent' ||
 					histEvent === 'changeReqAreaColorEvent' ||
 					histEvent === 'messageReceivedEvent' ||
+					histEvent === 'messageReplacedEvent' ||
 					histEvent === 'removeItemsFromSprintEvent' ||
 					histEvent === 'teamChangeEvent'
 				) {
@@ -324,6 +325,11 @@ const actions = {
 						case 'messageReceivedEvent':
 							startMsgSquareBlink(rootState)
 							// load new messages
+							dispatch('getMyTeamMessagesAction')
+							break
+						case 'messageReplacedEvent':
+							startMsgSquareBlink(rootState)
+							// load updated messages
 							dispatch('getMyTeamMessagesAction')
 							break
 						case 'newChildEvent':
