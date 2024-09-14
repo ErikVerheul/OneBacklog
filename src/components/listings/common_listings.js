@@ -160,21 +160,21 @@ const methods = {
 
 	mkCommentHeader(comment) {
 		if (comment.addCommentEvent) {
-			return `User ${comment.by} created a comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+			return `User '${comment.by}' created a comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
 		} else {
 			if (comment.replaceCommentEvent) {
-				return `User ${comment.by} amended the comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+				return `User '${comment.by}' amended the comment to this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
 			} else {
 				if (comment.resetCommentsEvent) {
-					return `Administrator ${comment.by} did remove comments upto this items date`
+					return `Administrator '${comment.by}' did remove comments upto this items date`
 				}
 			}
 		}
 	},
 
 	mkHistHeader(histItem) {
-		if (histItem.resetHistoryEvent) return `Administrator ${histItem.by} did remove history upto this items date`
-		return `User ${histItem.by} made a change in this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
+		if (histItem.resetHistoryEvent) return `Administrator '${histItem.by}' did remove history upto this items date`
+		return `User '${histItem.by}' made a change in this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
 	},
 
 	prepHistoryText(key, value) {
