@@ -25,11 +25,11 @@
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.24.12",
+    "bootstrap-vue-next": "^0.24.13",
     "mitt": "^3.0.1",
-    "vue": "^3.5.3",
+    "vue": "^3.5.5",
     "vue-draggable-next": "^2.2.1",
-    "vue-router": "^4.4.3",
+    "vue-router": "^4.4.5",
     "vuex": "^4.1.0"
   },
   "overrides": {
@@ -43,7 +43,7 @@
     "globals": "^15.9.0",
     "prettier": "3.3.3",
     "unplugin-vue-components": "^0.27.4",
-    "vite": "^5.4.3"
+    "vite": "^5.4.5"
   },
   "eslintConfig": {
     "root": true,
