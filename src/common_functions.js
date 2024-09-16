@@ -192,6 +192,17 @@ export function isValidEmail(email) {
 	return re.test(email)
 }
 
+export function pathToJSON(pathArr) {
+	let S = '['
+	const lastIdx = pathArr.length - 1
+	for (let i = 0; i < pathArr.length; i++) {
+		S += pathArr[i].toString()
+		if (i < lastIdx) S += ','
+	}
+	S += ']'
+	return S
+}
+
 export function startMsgSquareBlink(rootState) {
 	const color = 'yellow'
 	const backGround = MISC.SQUAREBGNDCOLOR
@@ -238,6 +249,7 @@ export default {
 	localTimeAndMilis,
 	removeFromArray,
 	isValidEmail,
+	pathToJSON,
 	startMsgSquareBlink,
 	initMessaging,
 }

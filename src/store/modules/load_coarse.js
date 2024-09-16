@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText } from '../../common_functions.js'
+import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -136,7 +136,7 @@ const actions = {
 						}
 						const newNode = {
 							path,
-							pathStr: JSON.stringify(path),
+							pathStr: pathToJSON(path),
 							ind,
 							level: itemLevel,
 							productId,
@@ -204,7 +204,7 @@ const actions = {
 						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 					}
 				}
-				 
+
 				if (rootState.debug) console.log(batch.length + ' documents are loaded')
 				// clear memory usage
 				parentNodes = {}
@@ -214,7 +214,6 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				 
 				if (rootState.debug) console.log(`loadOverview: Could not read from database ${rootState.userData.currentDb}, ${error}`)
 			})
 	},

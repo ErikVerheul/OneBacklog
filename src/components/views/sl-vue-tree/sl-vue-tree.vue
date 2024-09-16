@@ -3,27 +3,27 @@
   <div class="sl-vue-tree" :class="{ 'sl-vue-tree-root': isRoot }" @mousemove.left="onMouseMoveHandler">
     <!-- traverse the filtered nodes breadth first -->
     <div v-for="(node, nodeInd) in filteredNodes" :class="{
-    'sl-vue-tree-selected': node.isSelected,
-    'sl-vue-tree-highlighted-1': !node.isSelected && node.tmp.isHighlighted_1,
-    'sl-vue-tree-highlighted-2': !node.isSelected && node.tmp.isHighlighted_2,
-    'sl-vue-tree-warnlighted': !node.isSelected && node.tmp.isWarnLighted
-  }" :key="node.pathStr">
+      'sl-vue-tree-selected': node.isSelected,
+      'sl-vue-tree-highlighted-1': !node.isSelected && node.tmp.isHighlighted_1,
+      'sl-vue-tree-highlighted-2': !node.isSelected && node.tmp.isHighlighted_2,
+      'sl-vue-tree-warnlighted': !node.isSelected && node.tmp.isWarnLighted
+    }" :key="node.pathStr">
       <div class="sl-vue-tree-cursor" :style="{
-    visibility:
-      cursorPosition &&
-        cursorPosition.nodeModel.pathStr === node.pathStr &&
-        cursorPosition.placement === 'before' ? 'visible' : 'hidden'
-  }">
+        visibility:
+          cursorPosition &&
+            cursorPosition.nodeModel.pathStr === node.pathStr &&
+            cursorPosition.placement === 'before' ? 'visible' : 'hidden'
+      }">
       </div>
 
       <template class="sl-vue-tree-node-item" @mousedown.left="onNodeMousedownHandler($event, node)" @mouseup.left="onNodeMouseupHandler($event)"
         @contextmenu="emitNodeContextMenu(node)" :path="node.pathStr">
         <div :class="{
-    'sl-vue-tree-cursor-inside':
-      cursorPosition &&
-      cursorPosition.placement === 'inside' &&
-      cursorPosition.nodeModel.pathStr === node.pathStr
-  }">
+          'sl-vue-tree-cursor-inside':
+            cursorPosition &&
+            cursorPosition.placement === 'inside' &&
+            cursorPosition.nodeModel.pathStr === node.pathStr
+        }">
           <template v-for="gapVal in gaps" :key="gapVal">
             <span class="sl-vue-tree-gap" />
           </template>

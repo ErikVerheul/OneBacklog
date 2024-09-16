@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText } from '../../common_functions.js'
+import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -59,7 +59,7 @@ const mutations = {
 				rootState.treeNodes = [
 					{
 						path: [0],
-						pathStr: '[0]',
+						pathStr: pathToJSON([0]),
 						ind: 0,
 						level: itemLevel,
 						productId: null,
@@ -129,7 +129,7 @@ const mutations = {
 				}
 				const newNode = {
 					path,
-					pathStr: JSON.stringify(path),
+					pathStr: pathToJSON(path),
 					ind,
 					level: itemLevel,
 					productId,

@@ -7,7 +7,7 @@
  */
 
 import { LEVEL, MISC, SEV, STATE } from '../../constants.js'
-import { collapseNode, expandNode, dedup, showNode } from '../../common_functions.js'
+import { collapseNode, expandNode, dedup, pathToJSON, showNode } from '../../common_functions.js'
 const actions = {
 	createHelpers({ rootState, rootGetters, commit }) {
 		rootState.helpersRef = {
@@ -54,7 +54,7 @@ const actions = {
 			createNode(doc, ind, path) {
 				const newNode = {
 					path,
-					pathStr: JSON.stringify(path),
+					pathStr: pathToJSON(path),
 					ind,
 					level: doc.level,
 					productId: doc.productId,
@@ -317,7 +317,7 @@ const actions = {
 					// if moving to another product in the context menu of the Products detail view, show the inserted nodes in the new product
 					if (productId && rootGetters.isDetailsViewSelected) showNode(sibling)
 					sibling.path = newPath
-					sibling.pathStr = JSON.stringify(newPath)
+					sibling.pathStr = pathToJSON(newPath)
 					sibling.ind = i
 					sibling.level = newPath.length
 					sibling.isLeaf = !(sibling.level < rootGetters.leafLevel)
@@ -606,7 +606,6 @@ const actions = {
 				// check and correction for error: product level items must have their own id as productId; ToDo: log this event
 				for (const n of nodes) {
 					if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
-						 
 						if (rootState.debug)
 							console.log(`insertNodes: Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
 						n.product_id = n._id

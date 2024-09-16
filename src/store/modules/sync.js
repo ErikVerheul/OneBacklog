@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { b64ToUni, getLocationInfo, localTimeAndMilis, startMsgSquareBlink } from '../../common_functions.js'
+import { b64ToUni, getLocationInfo, localTimeAndMilis, pathToJSON, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 const SPECIAL_TEXT = true
@@ -95,7 +95,7 @@ const actions = {
 			const locationInfo = getLocationInfo(doc.priority, parentNode)
 			const node = {
 				path: locationInfo.newPath,
-				pathStr: JSON.stringify(locationInfo.newPath),
+				pathStr: pathToJSON(locationInfo.newPath),
 				ind: locationInfo.newInd,
 				level: locationInfo.newPath.length,
 
