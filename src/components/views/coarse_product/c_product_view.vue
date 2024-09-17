@@ -82,10 +82,10 @@
     <multipane class="custom-resizer" layout="vertical">
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
-        <BButton block class="last-event" v-b-popover.hover.bottomright="'Click to see the event history'" @click="showMoreMessages"
+        <BButton block class="last-event" v-b-popover.hover.bottom="'Click to see the event history'" @click="showMoreMessages"
           :style="{ 'background-color': getLastEventColor }">
           {{ getLastEventTxt }} </BButton>
-        <span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
+        <span class="messSquare" v-b-popover.hover.bottom="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
           @click="goMessaging">mess</span>
         <span class="syncOLSquare" :style="{ 'background-color': getSquareColor }">{{ getSquareText }}</span>
 
