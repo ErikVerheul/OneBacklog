@@ -276,11 +276,13 @@ const store = createStore({
 
 		getLastEventTxt(state) {
 			if (state.showProgress) return state.progressMessage
-			if (getCurrentEvt(state.eventList, state.currentEventKey)) return getCurrentEvt(state.eventList, state.currentEventKey).txt
+			const currentEvt = getCurrentEvt(state.eventList, state.currentEventKey)
+			if (currentEvt !== null) return currentEvt.txt
 		},
 
 		getLastEventColor(state) {
-			if (getCurrentEvt(state.eventList, state.currentEventKey)) return getCurrentEvt(state.eventList, state.currentEventKey).color
+			const currentEvt = getCurrentEvt(state.eventList, state.currentEventKey)
+			if (currentEvt !== null) return currentEvt.color
 		},
 
 		/* Return the last selected node or undefined when no node is selected */
