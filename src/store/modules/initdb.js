@@ -169,7 +169,7 @@ const actions = {
 			})
 	},
 
-	setDatabasePermissions({ rootState, commit }, payload) {
+	setDatabasePermissions({ rootState, dispatch }, payload) {
 		// set the persmissions on the database holding the documents
 		const dbPermissions = {
 			admins: {
@@ -196,7 +196,7 @@ const actions = {
 					rootState.isRestoreReady = true
 				}
 				if (payload.autoSignOut) {
-					commit('endSession', 'initdb: setDatabasePermissions')
+					dispatch('endSession', 'initdb: setDatabasePermissions')
 				}
 			})
 			.catch((error) => {

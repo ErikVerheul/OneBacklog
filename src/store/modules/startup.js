@@ -111,7 +111,7 @@ const actions = {
 				if (error.response && error.response.status === 404) {
 					if (foundDbNames.length > 0) {
 						alert(`This CouchDb is already initiated. Cannot overwrite. The program will exit.`)
-						commit('endSession', 'startup: cannot initiate this CouchDB instance again.')
+						dispatch('endSession', 'startup: cannot initiate this CouchDB instance again.')
 					}
 					// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
 					if (rootState.online && rootState.iAmServerAdmin) {
@@ -224,7 +224,7 @@ const actions = {
 						router.replace('/admin')
 					} else {
 						alert('Error: No default product is set. Consult your administrator. The application will exit.')
-						commit('endSession', 'startup: getConfig - No default product is set')
+						dispatch('endSession', 'startup: getConfig - No default product is set')
 					}
 				} else {
 					if (configData.defaultSprintCalendar) {
@@ -275,7 +275,7 @@ const actions = {
 							dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: configData, toDispatch, caller: 'getConfig' })
 						} else {
 							alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
-							commit('endSession', 'startup: getConfig - No default sprint calendar is set')
+							commit('dispatch', 'startup: getConfig - No default sprint calendar is set')
 						}
 					}
 				}

@@ -453,7 +453,7 @@ export default {
     },
 
     signOut() {
-      store.commit('endSession', 'serveradmin')
+      store.dispatch('endSession', 'serveradmin')
     }
   },
 

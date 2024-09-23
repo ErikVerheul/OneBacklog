@@ -703,7 +703,7 @@ const store = createStore({
 						}
 						state.myProductOptions = newOptions
 						if (payload.doSignOut) {
-							commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
+							dispatch('endSession', 'removeFromMyProducts, payload.doSignOut = true')
 						}
 					}
 
@@ -746,6 +746,21 @@ const store = createStore({
 					const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				})
+		},
+
+		endSession({ state, dispatch }, caller) {
+			const onSuccessCallback = () => {
+				// stop the timers
+				if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
+				if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
+				state.signedOut = true
+				// reset the app by reloading
+				window.location.reload()
+
+				if (state.debug) console.log(`endSession: signedOut = ${state.signedOut}, caller = '${caller}'`)
+			}
+
+			dispatch('saveMyTreeViewAsync', { onSuccessCallback })
 		},
 	},
 
@@ -1315,17 +1330,6 @@ const store = createStore({
 				state.currentProductId = newProductId
 				state.currentProductTitle = newCurrentProductNode.title
 			}
-		},
-
-		endSession(state, caller) {
-			// stop the timers
-			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
-			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
-			state.signedOut = true
-			// reset the app by reloading
-			window.location.reload()
-
-			if (state.debug) console.log('endSession, signedOut = ' + state.signedOut + ', caller = ' + caller)
 		},
 	},
 

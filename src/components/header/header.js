@@ -227,7 +227,7 @@ const methods = {
 	},
 
 	onSignout() {
-		store.commit('endSession', 'header: user signed out')
+		store.dispatch('endSession', 'header: user signed out')
 	},
 }
 
