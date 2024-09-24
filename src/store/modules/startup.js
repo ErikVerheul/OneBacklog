@@ -111,7 +111,7 @@ const actions = {
 				if (error.response && error.response.status === 404) {
 					if (foundDbNames.length > 0) {
 						alert(`This CouchDb is already initiated. Cannot overwrite. The program will exit.`)
-						dispatch('endSession', 'startup: cannot initiate this CouchDB instance again.')
+						commit('endSession', 'startup: cannot initiate this CouchDB instance again.')
 					}
 					// the user profile does not exist; if online, start one time initialization of a new database if a server admin signed in
 					if (rootState.online && rootState.iAmServerAdmin) {
@@ -129,7 +129,7 @@ const actions = {
 	},
 
 	/* Get all products of the current database and correct the data from the user profile with the actual available products */
-	getAllProducts({ rootState, dispatch }, payload) {
+	getAllProducts({ rootState, dispatch, commit }, payload) {
 		const dbName = payload.allUserData.currentDb
 		globalAxios({
 			method: 'GET',
@@ -167,6 +167,15 @@ const actions = {
 						if (position !== -1) newUserData.myDatabases[newUserData.currentDb].subscriptions.splice(position, 1)
 					}
 				}
+				// set the users product options to select from
+				for (const product of currentProductsEnvelope) {
+					if (Object.keys(productsRoles).includes(product.id)) {
+						rootState.myProductOptions.push({
+							value: product.id,
+							text: product.value,
+						})
+					}
+				}
 				if (Object.keys(productsRoles).length > 0) {
 					rootState.isProductAssigned = true
 				}
@@ -177,29 +186,21 @@ const actions = {
 						currentDbSettings.subscriptions = [Object.keys(productsRoles)[0]]
 					}
 				}
-				// update user data loaded in getOtherUserData and STORE THE USER DATA in store.state.userData
-				// postpone the warning message for 'no product found' until the configuration is loaded
-				const toDispatch = [{ getConfig: null }]
-				dispatch('updateUserDb', {
-					data: newUserData,
-					toDispatch,
-					onSuccessCallback: () => {
-						// set the users product options to select from
-						for (const product of currentProductsEnvelope) {
-							if (Object.keys(productsRoles).includes(product.id)) {
-								rootState.myProductOptions.push({
-									value: product.id,
-									text: product.value,
-								})
-							}
-						}
-					},
-					caller: 'getAllProducts',
-				})
-
-				if (missingProductsRolesIds.length > 0) {
-					const msg = `getAllProducts: User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
-					dispatch('doLog', { event: msg, level: SEV.INFO })
+				if (missingProductsRolesIds.length === 0) {
+					// store the user data in store.state.userData
+					commit('setMyUserData', newUserData)
+					dispatch('getConfig')
+				} else {
+					// update the updated user data loaded in getOtherUserData and STORE THE USER DATA in store.state.userData
+					const toDispatch = [{ getConfig: null }]
+					dispatch('updateUserDb', {
+						data: newUserData,
+						toDispatch,
+						onSuccessCallback: () => {
+							const msg = `getAllProducts: User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
+							dispatch('doLog', { event: msg, level: SEV.INFO })
+						},
+					})
 				}
 			})
 			.catch((error) => {
@@ -224,7 +225,7 @@ const actions = {
 						router.replace('/admin')
 					} else {
 						alert('Error: No default product is set. Consult your administrator. The application will exit.')
-						dispatch('endSession', 'startup: getConfig - No default product is set')
+						commit('endSession', 'startup: getConfig - No default product is set')
 					}
 				} else {
 					if (configData.defaultSprintCalendar) {
