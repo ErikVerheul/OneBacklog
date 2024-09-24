@@ -883,13 +883,13 @@ const actions = {
 				}
 				if (error.response && error.response.status === 404) {
 					// database not found; cannot log; possible cause is that the server admin is restoring the current database
-					dispatch('endSession', 'listenForChanges: catch:error.response.status === 404')
+					commit('endSession', 'listenForChanges: catch:error.response.status === 404')
 					return
 				}
 				if (error.message === 'Request aborted') {
 					// the user typed F5 or Ctrl-F5 or Vite reloaded
 					if (!rootState.signedOut) {
-						dispatch('endSession', 'listenForChanges: catch:Request aborted')
+						commit('endSession', 'listenForChanges: catch:Request aborted')
 					}
 				} else {
 					dispatch('doLog', { event: `Listening for changes made by other users failed. ${error}`, level: SEV.WARNING })

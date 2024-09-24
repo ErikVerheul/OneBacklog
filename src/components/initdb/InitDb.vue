@@ -96,7 +96,7 @@ export default {
     },
 
     signOut() {
-      store.dispatch('endSession', 'initdb')
+      store.commit('endSession', 'initdb')
     }
   },
 

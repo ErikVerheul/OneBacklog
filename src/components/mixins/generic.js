@@ -172,7 +172,7 @@ const utilities = {
 				return { currentSprint, nextSprint }
 			} else {
 				alert('Error: Missing current and/or next sprint; you need to sign-in again to have the sprint calendar extended. The application will exit.')
-				store.dispatch('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
+				store.commit('endSession', 'generic: getActiveSprints - Missing current and/or next sprint')
 			}
 		},
 	},
