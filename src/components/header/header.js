@@ -30,6 +30,8 @@ function data() {
 		newDefaultProductId: undefined,
 		showOptionsModal: false,
 		showUserguide: false,
+		showSelectProducts: false,
+		showSelectDefaultProduct: false,
 	}
 }
 
@@ -94,7 +96,7 @@ const methods = {
 	selectProducts() {
 		this.newDefaultProductId = this.getCurrentDefaultProductId
 		this.selectedProducts = this.getMyAssignedProductIds
-		this.$refs.selectProductsRef.show()
+		this.showSelectProducts = true
 	},
 
 	changeMyPassword() {
@@ -138,17 +140,22 @@ const methods = {
 		this.defaultProductOptions = options
 	},
 
-	/* Return if nothing is selected; set default product if 1 is selected; call selectDefaultProductRef if > 1 is selected */
+	/* Return if nothing is selected; set default product if 1 is selected; call showSelectDefaultProduct if > 1 is selected */
 	doSelectProducts() {
 		if (this.getMyProductSubscriptions.length > 0) {
 			if (this.selectedProducts.length === 1) {
 				this.newDefaultProductId = this.selectedProducts[0]
-				this.updateProductsView([this.selectedProducts[0]])
+				store.dispatch('updateMyProductSubscriptions', { productIds: [this.selectedProducts[0]] })
 			} else {
 				this.setDefaultProductOptions()
-				this.$refs.selectDefaultProductRef.show()
+				this.showSelectDefaultProduct = true
 			}
 		}
+	},
+
+	getSelectButtonText() {
+		if (this.selectedProducts.length === 1) return 'Save and restart'
+		return 'Continue'
 	},
 
 	/* Update the subscriptions array of this user */
@@ -161,49 +168,7 @@ const methods = {
 				otherSubscriptions.push(p)
 			}
 		}
-		this.updateProductsView(myNewProductSubscriptions.concat(otherSubscriptions))
-	},
-
-	/* The default product changed, update currentProductId, load and show in the tree view and update the user's profile */
-	updateProductsView(productIds) {
-		store.dispatch('loadDoc', {
-			id: this.newDefaultProductId,
-			onSuccessCallback: () => {
-				const myOldSubscriptions = this.getMyProductSubscriptions
-				// update the user's profile; place the default productId on top in the array
-				store.dispatch('updateMyProductSubscriptions', {
-					productIds,
-					onSuccessCallback: () => {
-						if (store.state.currentProductId !== this.newDefaultProductId) {
-							// another product is selected; collapse the currently selected product and switch to the new product
-							store.commit('switchCurrentProduct', this.newDefaultProductId)
-							// select new default product node
-							store.state.helpersRef.selectNodeById(this.newDefaultProductId)
-						}
-						// remove unselected products from the tree view
-						for (const id of myOldSubscriptions) {
-							if (!productIds.includes(id)) {
-								store.state.helpersRef.removeProduct(id)
-							}
-						}
-						// load product(s) in the tree view if missing
-						const missingIds = []
-						for (const productId of productIds) {
-							if (this.getMyProductSubscriptions.includes(productId)) {
-								if (store.state.helpersRef.getNodeById(productId) === null) {
-									missingIds.push(productId)
-								}
-							}
-						}
-						if (missingIds.length > 0) {
-							store.dispatch('loadProducts', { missingIds, productIdToSelect: this.newDefaultProductId })
-						}
-						// show the event
-						this.showSelectionEvent([store.state.helpersRef.getNodeById(this.newDefaultProductId)])
-					},
-				})
-			},
-		})
+		store.dispatch('updateMyProductSubscriptions', { productIds: myNewProductSubscriptions.concat(otherSubscriptions) })
 	},
 
 	doChangeMyPassWord() {
@@ -227,7 +192,7 @@ const methods = {
 	},
 
 	onSignout() {
-		store.dispatch('endSession', 'header: user signed out')
+		store.dispatch('saveMyTreeViewAsync')
 	},
 }
 

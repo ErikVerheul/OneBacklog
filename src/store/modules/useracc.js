@@ -135,7 +135,7 @@ const actions = {
 	saveMyFilterSettingsAction({ rootState, dispatch }, newFilterSettings) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const tmpUserData = res.data
@@ -151,7 +151,7 @@ const actions = {
 	saveMyMessagesNumberAction({ rootState, dispatch }, payload) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const tmpUserData = res.data
@@ -167,7 +167,7 @@ const actions = {
 	changeMyPasswordAction({ rootState, dispatch, commit }, newPassword) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const userData = res.data
@@ -200,7 +200,7 @@ const actions = {
 	changeMyEmailAction({ rootState, dispatch }, newEmail) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const userData = res.data
@@ -267,7 +267,7 @@ const actions = {
 								// assign the new database to this user
 								rootState.myAssignedDatabases = addToArray(rootState.myAssignedDatabases, addedDb)
 							}
-							// the user gets a new product to select
+							// the user gets a new product to select from
 							rootState.myProductOptions.push(payload.newProductOption)
 							// if newly added, add the product to the available product ids
 							if (!rootState.availableProductIds.includes(productId)) rootState.availableProductIds.push(productId)
@@ -327,7 +327,7 @@ const actions = {
 		rootState.backendMessages = []
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		}).then((res) => {
 			const tmpUserData = res.data
 			if (Object.keys(tmpUserData.myDatabases).includes(payload.dbName)) {
@@ -375,7 +375,7 @@ const actions = {
 	registerMyNoSprintImport({ rootState, dispatch }, sprintId) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const tmpUserData = res.data
@@ -392,35 +392,11 @@ const actions = {
 			})
 	},
 
-	updateMyAvailableProductOpionsAction({ rootState, dispatch }, dbName) {
-		globalAxios({
-			method: 'GET',
-			url: dbName + '/_design/design1/_view/products',
-		})
-			.then((res) => {
-				const currentProductsEnvelope = res.data.rows
-				const productsRoles = rootState.userData.myDatabases[dbName].productsRoles
-				// set the users product options to select from
-				rootState.myProductOptions = []
-				for (const product of currentProductsEnvelope) {
-					if (Object.keys(productsRoles).includes(product.id)) {
-						rootState.myProductOptions.push({
-							value: product.id,
-							text: product.value,
-						})
-					}
-				}
-			})
-			.catch((error) => {
-				const msg = `updateMyAvailableProductOpionsAction: Could not update product options for user '${rootState.userData.user}' and database ${dbName}, ${error}`
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
 	/*
-	 * Update the user profile in CouchDb. If the profile of the current user is updated, the in-memory profile is updated also.
-	 * Executes a onSuccessCallback and additionalActions callback if provided in the payload.
+	 * Update the user profile in CouchDb. Update the assigned roles of the user.
+	 * If the profile of the current user is updated, the in-memory profile is updated also.
+	 * Executes a onSuccessCallback, onFailureCallback and dispatchAdditionalActions callback if provided in the payload.
+	 * Add backendMessages for feedback in the admin tools.
 	 */
 	updateUserDb({ rootState, commit, dispatch }, payload) {
 		rootState.isUserUpdated = false
@@ -449,13 +425,11 @@ const actions = {
 				if (userData.name === rootState.userData.user && userData.currentDb === rootState.userData.currentDb) {
 					// the user is updating its own profile and loaded its current database (admin is not updating another user)
 					commit('setMyUserData', payload.data)
-					// update the available product options
-					dispatch('updateMyAvailableProductOpionsAction', userData.currentDb)
 				}
 				// execute passed callback if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
-				dispatch('additionalActions', payload)
+				dispatch('dispatchAdditionalActions', payload)
 				rootState.isUserUpdated = true
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `updateUserDb: The profile of user '${userData.name}' is updated successfully` })
 			})
@@ -560,7 +534,7 @@ const actions = {
 	saveMyOptionsAsync({ rootState, dispatch, commit }) {
 		globalAxios({
 			method: 'GET',
-			url: '/_users/org.couchdb.user:' + rootState.userData.user,
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const tmpUserData = res.data
@@ -574,6 +548,33 @@ const actions = {
 				commit('addToEventList', { txt: 'Your options have NOT been saved', severity: SEV.ERROR })
 				const msg = `saveMyOptionsAsync: Could not update the options for user '${rootState.userData.user}', ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	saveMyTreeViewAsync({ rootState, dispatch, commit }) {
+		globalAxios({
+			method: 'GET',
+			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
+		})
+			.then((res) => {
+				const tmpUserData = res.data
+				globalAxios({
+					method: 'PUT',
+					url: `/_users/org.couchdb.user:${tmpUserData.name}`,
+					data: tmpUserData,
+				})
+					.then(() => {
+						if (rootState.debug) console.log('saveMyTreeViewAsync: ending the session in one second')
+						setTimeout(commit('endSession', 'saveMyTreeViewAsync'), 1000)
+					})
+					.catch((error) => {
+						const msg = `saveMyTreeViewAsync: Could not update the profile of user '${rootState.userData.user}', ${error}`
+						dispatch('doLog', { event: msg, level: SEV.ERROR })
+					})
+			})
+			.catch((error) => {
+				const msg = `saveMyTreeViewAsync: Could not update the tree view for user '${rootState.userData.user}', ${error}`
+				dispatch('doLog', { event: msg, level: SEV.WARNING })
 			})
 	},
 }

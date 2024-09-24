@@ -99,16 +99,22 @@
       </BContainer>
     </BModal>
 
-    <BModal size="lg" ref="selectProductsRef" @ok="doSelectProducts" title="Select one or more (hold shift or Ctrl) products to be loaded">
+    <BModal size="lg" v-model="showSelectProducts" hide-footer title="Select one or more (hold shift or Ctrl) products to be loaded">
       <BContainer align-v="true">
         <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length">
         </BFormSelect>
+        <hr>
+        <BButton class="m-1" @click="showSelectProducts = false">Cancel</BButton>
+        <BButton class="m-1 float-end" @click="doSelectProducts" variant="primary">{{ getSelectButtonText() }}</BButton>
       </BContainer>
     </BModal>
 
-    <BModal size="lg" ref="selectDefaultProductRef" @ok="updateProductsSubscriptions" title="Select the default product you are working on">
+    <BModal size="lg" v-model="showSelectDefaultProduct" hide-footer title="Select the default product you are working on">
       <BContainer align-v="true">
         <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></BFormSelect>
+        <hr>
+        <BButton class="m-1" @click="showSelectDefaultProduct = false">Cancel</BButton>
+        <BButton class="m-1 float-end" @click="updateProductsSubscriptions" variant="primary">Save and restart</BButton>
       </BContainer>
     </BModal>
 
@@ -226,9 +232,9 @@
       <BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
         Show the [On hold] status column on the planning board
       </BFormCheckbox>
-
-      <BButton class="m-4" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
-      <BButton class="m-4" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
+      <hr>
+      <BButton class="m-1" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
+      <BButton class="m-1 float-end" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
     </BModal>
   </div>
   <TeamMessaging></TeamMessaging>
