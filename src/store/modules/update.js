@@ -1025,7 +1025,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
-				dispatch('additionalActions', payload)
+				dispatch('dispatchAdditionalActions', payload)
 			})
 			.catch((error) => {
 				// execute passed function if provided
@@ -1038,7 +1038,7 @@ const actions = {
 
 	/*
 	 * Update or create multiple documents in bulk.
-	 * Executes a onSuccessCallback, onFailureCallback and additionalActions callback if provided in the payload.
+	 * Executes a onSuccessCallback, onFailureCallback and dispatchAdditionalActions callback if provided in the payload.
 	 */
 	updateBulk({ commit, dispatch }, payload) {
 		globalAxios({
@@ -1070,7 +1070,7 @@ const actions = {
 					// execute passed function if provided
 					if (payload.onSuccessCallback) payload.onSuccessCallback()
 					// execute passed actions if provided
-					dispatch('additionalActions', payload)
+					dispatch('dispatchAdditionalActions', payload)
 				}
 			})
 			.catch((error) => {
@@ -1198,7 +1198,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
-				dispatch('additionalActions', payload)
+				dispatch('dispatchAdditionalActions', payload)
 			})
 			.catch((error) => {
 				// execute passed function if provided

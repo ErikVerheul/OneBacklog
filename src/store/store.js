@@ -454,13 +454,13 @@ const store = createStore({
 	},
 
 	actions: {
-		/* Launch additional actions if provided in the payload */
-		additionalActions({ state, dispatch }, payload) {
+		/* Launch additional actions in parallel if provided in the payload */
+		dispatchAdditionalActions({ state, dispatch }, payload) {
 			if (payload.toDispatch) {
 				for (const td of payload.toDispatch) {
 					const name = Object.keys(td)[0]
 
-					if (state.debug) console.log('additionalActions: dispatching ' + name)
+					if (state.debug) console.log('dispatchAdditionalActions: dispatching ' + name)
 					dispatch(name, td[name])
 				}
 			}
@@ -703,7 +703,7 @@ const store = createStore({
 						}
 						state.myProductOptions = newOptions
 						if (payload.doSignOut) {
-							dispatch('endSession', 'removeFromMyProducts, payload.doSignOut = true')
+							commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
 						}
 					}
 
@@ -732,7 +732,7 @@ const store = createStore({
 				})
 		},
 
-		updateMyProductSubscriptions({ state, dispatch }, payload) {
+		updateMyProductSubscriptions({ state, dispatch, commit }, payload) {
 			globalAxios({
 				method: 'GET',
 				url: '/_users/org.couchdb.user:' + state.userData.user,
@@ -740,27 +740,12 @@ const store = createStore({
 				.then((res) => {
 					const tmpUserData = res.data
 					tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
-					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: payload.onSuccessCallback })
+					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: () => commit('endSession', 'updateMyProductSubscriptions') })
 				})
 				.catch((error) => {
 					const msg = `updateMyProductSubscriptions: User ${state.userData.user} cannot save its updated profile. ${error}`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				})
-		},
-
-		endSession({ state, dispatch }, caller) {
-			const onSuccessCallback = () => {
-				// stop the timers
-				if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
-				if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
-				state.signedOut = true
-				// reset the app by reloading
-				window.location.reload()
-
-				if (state.debug) console.log(`endSession: signedOut = ${state.signedOut}, caller = '${caller}'`)
-			}
-
-			dispatch('saveMyTreeViewAsync', { onSuccessCallback })
 		},
 	},
 
@@ -796,7 +781,7 @@ const store = createStore({
 			state.currentEventKey = state.eventList[0].eventKey
 		},
 
-		/* Store my user data in memory */
+		/* Store a subset of my user data in memory */
 		setMyUserData(state, payload) {
 			state.userData.myTeam = payload.myDatabases[payload.currentDb].myTeam
 			state.userData.currentDb = payload.currentDb
@@ -1330,6 +1315,16 @@ const store = createStore({
 				state.currentProductId = newProductId
 				state.currentProductTitle = newCurrentProductNode.title
 			}
+		},
+
+		endSession(state, caller) {
+			// stop the timers
+			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
+			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
+			state.signedOut = true
+			if (state.debug) console.log(`endSession: signedOut = ${state.signedOut}', caller = ${caller}`)
+			// reset the app by reloading
+			window.location.reload()
 		},
 	},
 

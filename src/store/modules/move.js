@@ -279,7 +279,7 @@ const actions = {
 				} else {
 					if (runningThreadsCount === 0) {
 						// db iteration ready; execute saveMovedItems that emits the nodeMovedEvent to other online users
-						dispatch('additionalActions', payload)
+						dispatch('dispatchAdditionalActions', payload)
 					}
 				}
 			})

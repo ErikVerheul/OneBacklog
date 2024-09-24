@@ -27,7 +27,7 @@ const actions = {
 					// execute passed function if provided
 					if (payload.onSuccessCallback) payload.onSuccessCallback()
 					// execute passed actions if provided
-					dispatch('additionalActions', payload)
+					dispatch('dispatchAdditionalActions', payload)
 				})
 				.catch((error) => {
 					// execute passed function if provided
@@ -92,7 +92,7 @@ const actions = {
 			})
 			.catch((error) => {
 				// cannot log failure here as the database name is unknown yet
-				 
+
 				if (rootState.debug) console.log('Sign in failed with ' + error)
 			})
 	},
