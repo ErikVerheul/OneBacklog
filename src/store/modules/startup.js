@@ -112,7 +112,7 @@ const actions = {
 					rootState.isCoarseHistLoaded = false
 					rootState.lastSessionData = {
 						detailView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
-						overView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
+						coarseView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
 					}
 				}
 				// start the watchdog
