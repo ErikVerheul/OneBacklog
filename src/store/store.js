@@ -248,7 +248,6 @@ const store = createStore({
 
 		getCurrentDefaultProductId(state) {
 			if (state.userData.myDatabases) {
-				console.log('getCurrentDefaultProductId-1')
 				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
 				if (currentDbSettings && Object.keys(currentDbSettings.productsRoles).length > 0) {
 					// the first (index 0) product in the current db subscriptions is by definition the default product
@@ -257,7 +256,6 @@ const store = createStore({
 			}
 
 			if (state.currentProductId) {
-				console.log('getCurrentDefaultProductId-2')
 				// return the opened product of the previous session
 				return state.currentProductId
 			}
