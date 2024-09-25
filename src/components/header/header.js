@@ -28,6 +28,7 @@ function data() {
 		headerDatabaseOptions: [],
 		teamOptions: [],
 		newDefaultProductId: undefined,
+		showChangeDatabase: false,
 		showOptionsModal: false,
 		showUserguide: false,
 		showSelectProducts: false,
@@ -76,7 +77,7 @@ const methods = {
 		for (const db of store.state.myAssignedDatabases) {
 			this.headerDatabaseOptions.push(db)
 		}
-		this.$refs.changeDatabaseRef.show()
+		this.showChangeDatabase = true
 	},
 
 	changeTeam() {

@@ -94,16 +94,16 @@
             @drop="nodeDropped">
             <template v-slot:title="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
+                <i class="colorSeaBlue" v-if="node.level === LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == LEVEL.PRODUCT">
+                <i class="colorBlue" v-if="node.level === LEVEL.PRODUCT">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == LEVEL.EPIC">
+                <i class="colorGreen" v-if="node.level === LEVEL.EPIC">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == LEVEL.FEATURE">
+                <i class="colorOrange" v-if="node.level === LEVEL.FEATURE">
                   <font-awesome-icon icon="file" />
                 </i>
               </span>

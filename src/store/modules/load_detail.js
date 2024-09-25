@@ -110,11 +110,12 @@ const mutations = {
 			}
 
 			state.docsCount++
-
 			const expandLevel = rootState.userData.myOptions.proUser === 'true' ? LEVEL.FEATURE : LEVEL.PBI
-			// expand the default product up to the feature level
-			const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < expandLevel : itemLevel < LEVEL.PRODUCT
-			const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= expandLevel : itemLevel <= LEVEL.PRODUCT
+			// expand the node as saved in the last session or expand the default product up to the feature level
+			const defaultExp = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < expandLevel : itemLevel < LEVEL.PRODUCT
+			const isExpanded = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : defaultExp
+			const defaultShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= expandLevel : itemLevel <= LEVEL.PRODUCT
+			const doShow = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : defaultShow
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {

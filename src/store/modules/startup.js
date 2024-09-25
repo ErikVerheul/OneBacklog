@@ -100,6 +100,21 @@ const actions = {
 				// store the number of messages the user has received in his last session with this database
 				rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb][myTeam] || 0
 
+				// store the last selected product id and the expansion state of the last viewed detail view
+				if (allUserData.lastSessionData) {
+					rootState.isDetailHistLoaded = allUserData.lastSessionData.detailView.expandedNodes.length > 0
+					rootState.isCoarseHistLoaded = allUserData.lastSessionData.coarseView.expandedNodes.length > 0
+					rootState.currentProductId = allUserData.lastSessionData.detailView.lastSelectedProductId || null
+					rootState.lastSessionData = allUserData.lastSessionData
+				} else {
+					// create a empty template for use on exit
+					rootState.isDetailHistLoaded = false
+					rootState.isCoarseHistLoaded = false
+					rootState.lastSessionData = {
+						detailView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
+						overView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
+					}
+				}
 				// start the watchdog
 				dispatch('watchdog')
 				const msg = `getOtherUserData: '${allUserData.name}' has signed-in`

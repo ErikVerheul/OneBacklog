@@ -58,14 +58,15 @@
       <slot name="licence"></slot>
     </appLicence>
 
-    <BModal size="lg" ref="changeDatabaseRef" @ok="doChangeDatabase" title="Change your database">
+    <BModal size="lg" v-model="showChangeDatabase" hide-footer title="Change your database">
       <BContainer align-v="true">
         <h5>Select another database. Your current database is '{{ store.state.userData.currentDb }}'</h5>
         <BFormGroup>
           <BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions" name="headerDatabaseOptions" />
         </BFormGroup>
-        <p>After you have changed the database you will be signed-out. Sign-in again to connect to the selected database
-        </p>
+        <hr>
+        <BButton class="m-1 float-end" @click="doChangeDatabase" variant="primary">Select and restart</BButton>
+        <BButton class="m-1 float-end" @click="showChangeDatabase = false">Cancel</BButton>
       </BContainer>
     </BModal>
 
@@ -104,8 +105,8 @@
         <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length">
         </BFormSelect>
         <hr>
-        <BButton class="m-1" @click="showSelectProducts = false">Cancel</BButton>
         <BButton class="m-1 float-end" @click="doSelectProducts" variant="primary">{{ getSelectButtonText() }}</BButton>
+        <BButton class="m-1 float-end" @click="showSelectProducts = false">Cancel</BButton>
       </BContainer>
     </BModal>
 
@@ -113,8 +114,8 @@
       <BContainer align-v="true">
         <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></BFormSelect>
         <hr>
-        <BButton class="m-1" @click="showSelectDefaultProduct = false">Cancel</BButton>
         <BButton class="m-1 float-end" @click="updateProductsSubscriptions" variant="primary">Save and restart</BButton>
+        <BButton class="m-1 float-end" @click="showSelectDefaultProduct = false">Cancel</BButton>
       </BContainer>
     </BModal>
 
@@ -233,8 +234,8 @@
         Show the [On hold] status column on the planning board
       </BFormCheckbox>
       <hr>
-      <BButton class="m-1" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
       <BButton class="m-1 float-end" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
+      <BButton class="m-1 float-end" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
     </BModal>
   </div>
   <TeamMessaging></TeamMessaging>

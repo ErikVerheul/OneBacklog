@@ -353,6 +353,8 @@ const actions = {
 					return
 				}
 			}
+			// remove the last session history data
+			delete tmpUserData['lastSessionData']
 			dispatch('updateUserDb', {
 				data: tmpUserData,
 				onSuccessCallback: () => {
@@ -552,12 +554,14 @@ const actions = {
 	},
 
 	saveMyTreeViewAsync({ rootState, dispatch, commit }) {
+		commit('saveTreeExpansionState')
 		globalAxios({
 			method: 'GET',
 			url: `/_users/org.couchdb.user:${rootState.userData.user}`,
 		})
 			.then((res) => {
 				const tmpUserData = res.data
+				tmpUserData.lastSessionData = rootState.lastSessionData
 				globalAxios({
 					method: 'PUT',
 					url: `/_users/org.couchdb.user:${tmpUserData.name}`,

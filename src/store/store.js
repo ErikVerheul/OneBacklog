@@ -98,7 +98,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '2.3.4',
+			appVersion: '2.3.5',
 			// generic helper functions
 			helpersRef: null,
 			// console log settings
@@ -121,10 +121,13 @@ const store = createStore({
 			signedOut: true,
 			// tree loading
 			allTeams: {},
-			myTeamId: null,
+			lastSessionData: {},
 			loadedTreeDepth: undefined,
+			myTeamId: null,
 			productTitlesMap: {},
 			treeNodes: [],
+			isDetailHistLoaded: false,
+			isCoarseHistLoaded: false,
 			// detail tree view
 			reqAreaMapper: {},
 			// coarse tree view
@@ -245,11 +248,18 @@ const store = createStore({
 
 		getCurrentDefaultProductId(state) {
 			if (state.userData.myDatabases) {
+				console.log('getCurrentDefaultProductId-1')
 				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
 				if (currentDbSettings && Object.keys(currentDbSettings.productsRoles).length > 0) {
 					// the first (index 0) product in the current db subscriptions is by definition the default product
 					return currentDbSettings.subscriptions[0]
 				}
+			}
+
+			if (state.currentProductId) {
+				console.log('getCurrentDefaultProductId-2')
+				// return the opened product of the previous session
+				return state.currentProductId
 			}
 		},
 
@@ -1314,6 +1324,33 @@ const store = createStore({
 				// update current product id and title
 				state.currentProductId = newProductId
 				state.currentProductTitle = newCurrentProductNode.title
+			}
+		},
+
+		saveTreeExpansionState(state) {
+			if (state.currentView === 'detailProduct') {
+				state.lastSessionData.detailView.expandedNodes = []
+				state.lastSessionData.detailView.doShowNodes = []
+				state.helpersRef.traverseModels((nm) => {
+					if (nm.isExpanded) {
+						state.lastSessionData.detailView.expandedNodes.push(nm._id)
+					}
+					if (nm.doShow) {
+						state.lastSessionData.detailView.doShowNodes.push(nm._id)
+					}
+				})
+			}
+			if (state.currentView === 'coarseProduct') {
+				state.lastSessionData.coarseView.expandedNodes = []
+				state.lastSessionData.coarseView.doShowNodes = []
+				state.helpersRef.traverseModels((nm) => {
+					if (nm.isExpanded) {
+						state.lastSessionData.coarseView.expandedNodes.push(nm._id)
+					}
+					if (nm.doShow) {
+						state.lastSessionData.coarseView.doShowNodes.push(nm._id)
+					}
+				})
 			}
 		},
 

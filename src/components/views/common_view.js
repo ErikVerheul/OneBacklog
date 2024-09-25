@@ -209,12 +209,18 @@ const methods = {
 		store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles', toDispatch: [] })
 	},
 
+	debugText(node) {
+		const t1 = node.isExpanded ? 'Y' : 'N'
+		const t2 = node.doShow ? 'Y' : 'N'
+		return '-' + t1 + t2
+	},
+
 	patchTitle(node) {
 		if (store.state.userData.myOptions.proUser === 'false') return node.title
 		let patch = ''
 		if (node.dependencies && node.dependencies.length > 0) patch = '▲ '
 		if (node.conditionalFor && node.conditionalFor.length > 0) patch = patch + '▼ '
-		return patch + node.title
+		return patch + node.title + this.debugText(node)
 	},
 
 	rowLength(violation) {

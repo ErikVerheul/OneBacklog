@@ -118,9 +118,12 @@ const actions = {
 					}
 
 					state.docsCount++
-					// expand the default product up to the feature level
-					const isExpanded = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
-					const doShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
+
+					// expand the node as saved in the last session or expand the default product up to the feature level
+					const defaultExp = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
+					const isExpanded = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.expandedNodes.includes(_id) : defaultExp
+					const defaultShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
+					const doShow = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.doShowNodes.includes(_id) : defaultShow
 					// the root cannot be dragged
 					const isDraggable = itemLevel >= LEVEL.PRODUCT
 					if (parentNodes[parentId] !== undefined) {

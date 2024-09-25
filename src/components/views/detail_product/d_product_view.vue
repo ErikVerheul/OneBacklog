@@ -113,25 +113,25 @@
             @drop="nodeDropped">
             <template v-slot:title="{ node }">
               <span class="item-icon">
-                <i class="colorSeaBlue" v-if="node.level == LEVEL.DATABASE">
+                <i class="colorSeaBlue" v-if="node.level === LEVEL.DATABASE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorBlue" v-if="node.level == LEVEL.PRODUCT">
+                <i class="colorBlue" v-if="node.level === LEVEL.PRODUCT">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorGreen" v-if="node.level == LEVEL.EPIC">
+                <i class="colorGreen" v-if="node.level === LEVEL.EPIC">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorOrange" v-if="node.level == LEVEL.FEATURE">
+                <i class="colorOrange" v-if="node.level === LEVEL.FEATURE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorYellow" v-if="node.level == LEVEL.PBI && node.data.subtype == userStorySubtype">
+                <i class="colorYellow" v-if="node.level === LEVEL.PBI && node.data.subtype === userStorySubtype">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i v-if="node.level == LEVEL.PBI && node.data.subtype == spikeSubtype">
+                <i v-if="node.level === LEVEL.PBI && node.data.subtype === spikeSubtype">
                   <font-awesome-icon icon="hourglass-start" />
                 </i>
-                <i class="colorRed" v-if="node.level == LEVEL.PBI && node.data.subtype == defectSubtype">
+                <i class="colorRed" v-if="node.level === LEVEL.PBI && node.data.subtype === defectSubtype">
                   <font-awesome-icon icon="bug" />
                 </i>
                 <i class="colorWhite" v-if="node.isLeaf">
