@@ -4,6 +4,15 @@
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
         <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+        <h3>v.2.3.5 - 25 September 2024 New Feature, performance</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Save and restore tree view between sessions</li>
+        </ul>
+        <p>Performance</p>
+        <ul>
+          <li>Skip roundtrip to users database on load when not necessary</li>
+        </ul>
         <h3>v.2.3.4 - 14 September 2024 New Features</h3>
         <p>New features</p>
         <ul>
