@@ -4,6 +4,11 @@
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
         <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+        <h3>v.2.3.6 - 26 September 2024 New Feature</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Save and restore tree view between sessions per database. When the user switches database the data are still available</li>
+        </ul>
         <h3>v.2.3.5 - 25 September 2024 New Feature, performance</h3>
         <p>New feature</p>
         <ul>
