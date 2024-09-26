@@ -353,8 +353,6 @@ const actions = {
 					return
 				}
 			}
-			// remove the last session history data
-			delete tmpUserData['lastSessionData']
 			dispatch('updateUserDb', {
 				data: tmpUserData,
 				onSuccessCallback: () => {
@@ -561,7 +559,7 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpUserData = res.data
-				tmpUserData.lastSessionData = rootState.lastSessionData
+				tmpUserData.myDatabases[rootState.userData.currentDb].lastSessionData = rootState.lastSessionData
 				globalAxios({
 					method: 'PUT',
 					url: `/_users/org.couchdb.user:${tmpUserData.name}`,

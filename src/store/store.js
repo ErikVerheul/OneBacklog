@@ -121,13 +121,13 @@ const store = createStore({
 			signedOut: true,
 			// tree loading
 			allTeams: {},
+			isDetailHistLoaded: false,
+			isCoarseHistLoaded: false,
 			lastSessionData: {},
 			loadedTreeDepth: undefined,
 			myTeamId: null,
 			productTitlesMap: {},
 			treeNodes: [],
-			isDetailHistLoaded: false,
-			isCoarseHistLoaded: false,
 			// detail tree view
 			reqAreaMapper: {},
 			// coarse tree view

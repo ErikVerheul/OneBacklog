@@ -101,11 +101,11 @@ const actions = {
 				rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb][myTeam] || 0
 
 				// store the last selected product id and the expansion state of the last viewed detail view
-				if (allUserData.lastSessionData) {
-					rootState.isDetailHistLoaded = allUserData.lastSessionData.detailView.expandedNodes.length > 0
-					rootState.isCoarseHistLoaded = allUserData.lastSessionData.coarseView.expandedNodes.length > 0
-					rootState.currentProductId = allUserData.lastSessionData.detailView.lastSelectedProductId || null
-					rootState.lastSessionData = allUserData.lastSessionData
+				if (allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData) {
+					rootState.isDetailHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.expandedNodes.length > 0
+					rootState.isCoarseHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.coarseView.expandedNodes.length > 0
+					rootState.currentProductId = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.lastSelectedProductId || null
+					rootState.lastSessionData = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData
 				} else {
 					// create a empty template for use on exit
 					rootState.isDetailHistLoaded = false
