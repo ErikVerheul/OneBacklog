@@ -97,17 +97,19 @@ const actions = {
 				}
 
 				const myTeam = allUserData.myDatabases[rootState.userData.currentDb].myTeam
-				// store the number of messages the user has received in his last session with this database
-				rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb][myTeam] || 0
-
-				// store the last selected product id and the expansion state of the last viewed detail view
+				// get the total number of messages received by this user for this team and this database
+				if (allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount) {
+					// ToDo: this check can be removed if all users have checked their messages
+					rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[myTeam] || 0
+				} else rootState.myLastSessionMessagesCount = 0
+				// get the last selected product id and the expansion state of the last viewed detail view
 				if (allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData) {
 					rootState.isDetailHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.expandedNodes.length > 0
 					rootState.isCoarseHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.coarseView.expandedNodes.length > 0
 					rootState.currentProductId = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.lastSelectedProductId || null
 					rootState.lastSessionData = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData
 				} else {
-					// create a empty template for use on exit
+					// create an empty template for use on exit
 					rootState.isDetailHistLoaded = false
 					rootState.isCoarseHistLoaded = false
 					rootState.lastSessionData = {

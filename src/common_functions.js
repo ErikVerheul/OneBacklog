@@ -227,7 +227,7 @@ export function initMessaging(store) {
 	store.state.myNewMessage = MISC.EMPTYQUILL
 	store.state.newMsgTitle = ''
 	// save the current number of messages in my profile
-	store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length })
+	store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length || 0 })
 	store.state.showGoMessaging = true
 }
 

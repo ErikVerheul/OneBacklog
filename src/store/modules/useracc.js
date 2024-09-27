@@ -148,6 +148,7 @@ const actions = {
 			})
 	},
 
+	/* Save the total number of messages received by this user for this team and this database */
 	saveMyMessagesNumberAction({ rootState, dispatch }, payload) {
 		globalAxios({
 			method: 'GET',
@@ -155,11 +156,13 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpUserData = res.data
-				tmpUserData.myDatabases[rootState.userData.currentDb][payload.teamName] = payload.currentNumberOfMessages
+				// ToDo: next line can be removed if all users have checked their messages
+				if (!tmpUserData.myDatabases[rootState.userData.currentDb].myMessagesCount) tmpUserData.myDatabases[rootState.userData.currentDb].myMessagesCount = {}
+				tmpUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[payload.teamName] = payload.currentNumberOfMessages
 				dispatch('updateUserDb', { data: tmpUserData })
 			})
 			.catch((error) => {
-				const msg = `saveMyMessagesNumberAction: User '${rootState.userData.user}' cannot save the current number of messages of his current team '${payload.teamName}', ${error}`
+				const msg = `saveMyMessagesNumberAction: User '${rootState.userData.user}' cannot save the current number of messages of current team '${payload.teamName}', ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
