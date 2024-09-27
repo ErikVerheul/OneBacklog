@@ -66,8 +66,6 @@ const actions = {
 				} else {
 					// must set currentDb early in the process
 					rootState.userData.currentDb = allUserData.currentDb
-					// preset with the current database of the user
-					rootState.selectedDatabaseName = allUserData.currentDb
 				}
 				// check if the user has productsroles defined for the default database
 				if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
@@ -76,9 +74,11 @@ const actions = {
 				}
 				// correct the profile for removed databases and renew the list of assigned databases
 				rootState.myAssignedDatabases = []
+				const missingDataBasesNames = []
 				for (const db of Object.keys(allUserData.myDatabases)) {
 					if (!foundDbNames.includes(db)) {
 						delete allUserData.myDatabases[db]
+						missingDataBasesNames.push(db)
 					} else rootState.myAssignedDatabases.push(db)
 				}
 
@@ -103,11 +103,11 @@ const actions = {
 					rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[myTeam] || 0
 				} else rootState.myLastSessionMessagesCount = 0
 				// get the last selected product id and the expansion state of the last viewed detail view
-				if (allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData) {
-					rootState.isDetailHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.expandedNodes.length > 0
-					rootState.isCoarseHistLoaded = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.coarseView.expandedNodes.length > 0
-					rootState.currentProductId = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData.detailView.lastSelectedProductId || null
-					rootState.lastSessionData = allUserData.myDatabases[rootState.selectedDatabaseName].lastSessionData
+				if (allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
+					rootState.isDetailHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.detailView.expandedNodes.length > 0
+					rootState.isCoarseHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.coarseView.expandedNodes.length > 0
+					rootState.currentProductId = allUserData.myDatabases[allUserData.currentDb].lastSessionData.detailView.lastSelectedProductId || null
+					rootState.lastSessionData = allUserData.myDatabases[allUserData.currentDb].lastSessionData
 				} else {
 					// create an empty template for use on exit
 					rootState.isDetailHistLoaded = false
@@ -122,7 +122,7 @@ const actions = {
 				const msg = `getOtherUserData: '${allUserData.name}' has signed-in`
 				// now that the database is known, the log document is available
 				dispatch('doLog', { event: msg, level: SEV.INFO })
-				dispatch('getAllProducts', { allUserData })
+				dispatch('getAllProducts', { allUserData, missingDataBasesNames })
 			})
 			.catch((error) => {
 				if (error.response && error.response.status === 404) {
@@ -203,19 +203,26 @@ const actions = {
 						currentDbSettings.subscriptions = [Object.keys(productsRoles)[0]]
 					}
 				}
-				if (missingProductsRolesIds.length === 0) {
-					// store the user data in store.state.userData
-					commit('setMyUserData', newUserData)
+				// store the user data in store.state.userData
+				commit('setMyUserData', newUserData)
+				if (payload.missingDataBasesNames.length === 0 && missingProductsRolesIds.length === 0) {
+					// continue with loading the config data
 					dispatch('getConfig')
 				} else {
-					// update the updated user data loaded in getOtherUserData and STORE THE USER DATA in store.state.userData
+					// save the updated user data loaded in getOtherUserData and continue with loading the config data
 					const toDispatch = [{ getConfig: null }]
 					dispatch('updateUserDb', {
 						data: newUserData,
 						toDispatch,
 						onSuccessCallback: () => {
-							const msg = `getAllProducts: User profile of user ${newUserData.name} is updated for missing products with ids ${missingProductsRolesIds}`
-							dispatch('doLog', { event: msg, level: SEV.INFO })
+							if (payload.missingDataBasesNames.length > 0) {
+								const msg1 = `getAllProducts: User profile of user ${newUserData.name} is updated for missing databases with names: ${payload.missingDataBasesNames}`
+								dispatch('doLog', { event: msg1, level: SEV.INFO })
+							}
+							if (missingProductsRolesIds.length > 0) {
+								const msg2 = `getAllProducts: User profile of user ${newUserData.name} is updated for missing products with ids: ${missingProductsRolesIds}`
+								dispatch('doLog', { event: msg2, level: SEV.INFO })
+							}
 						},
 					})
 				}

@@ -20,7 +20,6 @@ const actions = {
 	watchdog({ rootState, state, commit, dispatch }) {
 		function consoleDebugStatus() {
 			if (rootState.debugConnectionAndLogging) {
-				 
 				console.log(
 					'watchdog:' +
 						'\nOnline = ' +

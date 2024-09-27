@@ -1,5 +1,4 @@
 <template>
-  <p>store.state.selectedDatabaseName = {{ store.state.selectedDatabaseName }}</p>
   <div>
     <app-header></app-header>
     <BContainer>
@@ -285,9 +284,9 @@
 
               <template v-else-if="optionSelected === 'Create / Maintain a team sprint calendar'">
                 <h4 v-if="!selectedTeamName">Maintain the team sprint calendar of a team in database '{{
-    store.state.selectedDatabaseName }}'</h4>
+                  store.state.selectedDatabaseName }}'</h4>
                 <h4 v-else>Maintain the team sprint calendar of team '{{ selectedTeamName }}' in database '{{
-    store.state.selectedDatabaseName }}'</h4>
+                  store.state.selectedDatabaseName }}'</h4>
                 <template v-if="!store.state.isTeamCalendarLoaded">
                   <BFormGroup label="Select a team">
                     <BFormRadioGroup v-model="selectedTeamName" :options="teamOptions" />

@@ -330,7 +330,8 @@ const actions = {
 
 	/* Multiple calls to this action are serialized */
 	loadPlanningBoard({ rootState, state, commit, dispatch }, payload) {
-		console.log('loadPlanningBoard is called: payload.sprintId = ' + payload.sprintId + ', payload.team = ' + payload.team + ', caller = ' + payload.caller)
+		if (rootState.debug)
+			console.log(`loadPlanningBoard is called: payload.sprintId = ${payload.sprintId}, payload.team = ${payload.team}, caller = ${payload.caller}`)
 		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.myCurrentSprintCalendar) {
