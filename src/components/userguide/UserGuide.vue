@@ -66,8 +66,7 @@
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
 					<li>Change my email: Your email address is used to send you change notices, if selected. Here you can change your email address.</li>
 					<li>License information: click to see the license regarding the source code.</li>
-					<li>Sign out: Preferred way to sign out. Will stop the cookie authentication and reset the URL to sign in
-						again. When you reset your browser with F5 or Ctrl-F5 you need to reset the URL your self. <b>The tree view (what nodes are expanded, what items
+					<li>Sign out: Preferred way to sign out. <b>The tree view (what nodes are expanded, what items
 							are visible) is saved. At your next sign-in that view will be restored.</b></li>
 				</ul>
 				<p>(*) A user can be member of none or 1 team at a time. However, when another team needs help, a user can join
