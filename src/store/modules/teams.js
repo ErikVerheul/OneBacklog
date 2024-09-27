@@ -299,7 +299,7 @@ const actions = {
 						}
 
 						// update the received messages from the new team
-						rootState.myB64TeamMessages = newTeamDoc.messages
+						rootState.myB64TeamMessages = newTeamDoc.messages || []
 
 						const oldTeamDocNewMembers = []
 						for (const m of oldTeamDoc.members) {
@@ -449,7 +449,7 @@ const actions = {
 						rootState.newMsgTitle = ''
 						rootState.myNewMessage = MISC.EMPTYQUILL
 						// refresh my team messages
-						rootState.myB64TeamMessages = teamDoc.messages
+						rootState.myB64TeamMessages = teamDoc.messages || []
 					},
 					caller: 'saveMyTeamMessageAction',
 				})
@@ -510,7 +510,7 @@ const actions = {
 							rootState.replaceMessage = false
 							rootState.replaceMessageTimestamp = undefined
 							// refresh my team messages
-							rootState.myB64TeamMessages = teamDoc.messages
+							rootState.myB64TeamMessages = teamDoc.messages || []
 						},
 						caller: 'updateMyTeamMessageAction',
 					})

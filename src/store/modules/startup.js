@@ -332,7 +332,7 @@ const actions = {
 						// save the id of myTeam document
 						rootState.myTeamId = teamId
 						// save the messages of my team
-						rootState.myB64TeamMessages = t.value[2]
+						rootState.myB64TeamMessages = t.value[2] || []
 						// warn the user if more messages have arrived
 						if (rootState.myB64TeamMessages.length > rootState.myLastSessionMessagesCount) {
 							startMsgSquareBlink(rootState)
