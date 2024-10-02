@@ -11,9 +11,10 @@
 				<h5>User guide</h5>
 				<p>This text</p>
 				<h5>Professional mode and other options</h5>
+				<p>To select your options click at the cog symbol &#x2699; at the upper right of the screen.</p>
 				<BImg :src="getImgUrl('img/options-menu.png')" alt="Options menu" />
 				<p>Initially a new user starts this app in non-professional mode offering basic features. Any time the user can
-					select professional mode bij selecting the cog at the top right in the application bar.</p>
+					select professional mode.</p>
 				<p>Professional mode adds the following features:</p>
 				<ul>
 					<li>The 'Products overview', a view only available for the Area Product Owner to manage his crossover interests by
@@ -38,6 +39,7 @@
 					<li>A warning when changing the items level (eg. from task to user story) while moving an item in the tree structure. The default is
 						<strong>on</strong>.
 					</li>
+					<li>With this slider you set the time recent changes are displayed as a badge in the title of the backlog items.</li>
 					<li>Hitting the "Subscribe to change notices" button will toggle to mail all changes to this item and its descendants to your mail address. When
 						unselected it will toggle only the selected item. </li>
 					<li>For the planning board: By default items with status <strong>On hold</strong> are hidden. Select this option to show them.</li>
