@@ -3,7 +3,6 @@ import { areStringsEqual, initMessaging } from '../../common_functions.js'
 import { constants, authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
 
-const HOURINMILIS = 3600000
 const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
@@ -41,6 +40,10 @@ const computed = {
 			count = Object.keys(store.state.currentDoc._attachments).length
 		}
 		return 'Attachments (' + count + ')'
+	},
+
+	badgeShowTimeMilis() {
+		return store.state.userData.myOptions.badgeShowTime * 60000
 	},
 
 	undoTitle() {
@@ -239,27 +242,27 @@ const methods = {
 
 	/* Return true if the state of the node has changed in the last hour */
 	hasNodeMoved(node) {
-		return node.data.lastPositionChange ? Date.now() - node.data.lastPositionChange < HOURINMILIS : false
+		return node.data.lastPositionChange ? Date.now() - node.data.lastPositionChange < this.badgeShowTimeMilis : false
 	},
 
 	hasNewState(node) {
-		return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < HOURINMILIS : false
+		return node.data.lastStateChange ? Date.now() - node.data.lastStateChange < this.badgeShowTimeMilis : false
 	},
 
 	hasContentChanged(node) {
-		return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < HOURINMILIS : false
+		return node.data.lastContentChange ? Date.now() - node.data.lastContentChange < this.badgeShowTimeMilis : false
 	},
 
 	hasNewComment(node) {
-		return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < HOURINMILIS : false
+		return node.data.lastCommentAddition ? Date.now() - node.data.lastCommentAddition < this.badgeShowTimeMilis : false
 	},
 
 	isAttachmentAdded(node) {
-		return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < HOURINMILIS : false
+		return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < this.badgeShowTimeMilis : false
 	},
 
 	hasCommentToHistory(node) {
-		return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < HOURINMILIS : false
+		return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < this.badgeShowTimeMilis : false
 	},
 
 	/*
@@ -284,7 +287,7 @@ const methods = {
 	},
 
 	hasOtherUpdate(node) {
-		return node.data.lastChange ? Date.now() - node.data.lastChange < HOURINMILIS : false
+		return node.data.lastChange ? Date.now() - node.data.lastChange < this.badgeShowTimeMilis : false
 	},
 
 	getFilterButtonText() {

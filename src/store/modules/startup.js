@@ -90,6 +90,7 @@ const actions = {
 					rootState.userData.myOptions = {
 						proUser: 'false',
 						levelShiftWarning: 'do_warn',
+						badgeShowTime: 60,
 						subscribeDescendants: 'do_subscribe_descendants',
 						doNotMessageMyself: 'false',
 						showOnHold: 'do_not_show_on_hold',

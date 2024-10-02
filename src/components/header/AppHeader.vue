@@ -220,6 +220,11 @@
         Warn me when I move items to another level (eg. from task to user story)
       </BFormCheckbox>
 
+      <h5 class="spacer">When changes have been made in the tree view</h5>
+      <label for="range1">Set the time recent changes to backlog items are annotated with a badge icon:</label>
+      <BFormInput id="range-1" v-model="store.state.userData.myOptions.badgeShowTime" type="range" min="0" max="300" />
+      <div class="mt-2">Set value: {{ store.state.userData.myOptions.badgeShowTime }} minutes</div>
+
       <h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants"
         unchecked-value="do_not_subscribe_descendants">
