@@ -4,6 +4,12 @@
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
         <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+        <h3>v.2.3.7 - 2 October 2024 New Feature</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Feature to set the time recent changes to backlog items are annotated with a badge icon implemented</li>
+        </ul>
+        <p>Update user guide</p>
         <h3>v.2.3.6 - 27 September 2024 New Feature</h3>
         <p>New feature</p>
         <ul>
