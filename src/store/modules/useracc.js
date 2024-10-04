@@ -554,6 +554,7 @@ const actions = {
 			})
 	},
 
+	/* Regular sign-out: save the expansion state of the tree (detail or coarse) and sign-out */
 	saveMyTreeViewAsync({ rootState, dispatch, commit }) {
 		commit('saveTreeExpansionState')
 		globalAxios({
@@ -569,16 +570,20 @@ const actions = {
 					data: tmpUserData,
 				})
 					.then(() => {
-						if (rootState.debug) console.log('saveMyTreeViewAsync: ending the session in one second')
-						setTimeout(commit('endSession', 'saveMyTreeViewAsync'), 1000)
+						rootState.doEndSession = true
+						commit('addToEventList', { txt: 'You are signing out', severity: SEV.INFO })
+						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out`
+						dispatch('doLog', { event: msg, level: SEV.INFO, doEndSession: true })
 					})
 					.catch((error) => {
-						const msg = `saveMyTreeViewAsync: Could not update the profile of user '${rootState.userData.user}', ${error}`
+						rootState.doEndSession = true
+						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to update the profile of this user', ${error}`
 						dispatch('doLog', { event: msg, level: SEV.ERROR })
 					})
 			})
 			.catch((error) => {
-				const msg = `saveMyTreeViewAsync: Could not update the tree view for user '${rootState.userData.user}', ${error}`
+				rootState.doEndSession = true
+				const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to read the profile of this user', ${error}`
 				dispatch('doLog', { event: msg, level: SEV.WARNING })
 			})
 	},

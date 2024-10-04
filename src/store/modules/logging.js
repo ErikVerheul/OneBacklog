@@ -29,10 +29,12 @@ const actions = {
 			email: rootState.userData.email,
 			timestamp: Date.now(),
 		}
-		 
+
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis(new Date())}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
 		rootState.unsavedLogs.push(newLog)
+		// save the log immediately
+		if (rootState.endSession) dispatch('saveLog')
 	},
 
 	saveLog({ rootState, dispatch }) {
@@ -45,7 +47,7 @@ const actions = {
 				})
 					.then((res) => {
 						const log = res.data
-						 
+
 						if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
 						for (const logEntry of rootState.unsavedLogs) {
 							// add the save time for debugging
@@ -65,7 +67,7 @@ const actions = {
 		}
 	},
 
-	replaceLog({ rootState, dispatch }, log) {
+	replaceLog({ rootState, commit, dispatch }, log) {
 		// limit the number of saved log entries
 		log.entries = log.entries.slice(0, MAXLOGSIZE)
 		globalAxios({
@@ -76,8 +78,10 @@ const actions = {
 			.then(() => {
 				// delete the logs now they are saved
 				rootState.unsavedLogs = []
-				 
-				if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
+
+				if (rootState.doEndSession) {
+					commit('endSession', 'saveMyTreeViewAsync')
+				} else if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
 			})
 			.catch((error) => {
 				const msg = `replaceLog: Could not save the log. A retry is pending. ${error}`

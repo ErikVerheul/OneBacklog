@@ -361,8 +361,7 @@ const actions = {
 										}
 										// update the user data, the planningBoard.vue listens to this change and will re-render if in view
 										commit('updateTeam', payload.newTeam)
-										const msg = 'changeTeam: User ' + rootState.userData.user + ' changed to team ' + payload.newTeam
-										dispatch('doLog', { event: msg, level: SEV.INFO })
+										commit('addToEventList', { txt: `You changed to team ${payload.newTeam}`, severity: SEV.INFO })
 									},
 								},
 							},

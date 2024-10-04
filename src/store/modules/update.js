@@ -989,8 +989,7 @@ const actions = {
 					caller: 'updateTasksToNewTeam',
 					toDispatch,
 					onSuccessCallback: () => {
-						const msg = `updateTasksToNewTeam: ${docsToUpdate.length} tasks from user '${taskOwner}' are assigned to team '${payload.newTeam}'`
-						dispatch('doLog', { event: msg, level: SEV.INFO })
+						commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks are assigned to team '${payload.newTeam}'`, severity: SEV.INFO })
 						if (rootState.currentView !== 'coarseProduct') {
 							// the overview does not load the task level
 							docsToUpdate.forEach((doc) => {
@@ -1002,7 +1001,7 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				const msg = `updateTasksToNewTeam: Could not read documents. ${error}`
+				const msg = `updateTasksToNewTeam: Could not read the task backlog items for task owner ${taskOwner}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

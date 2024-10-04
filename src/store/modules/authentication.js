@@ -35,7 +35,10 @@ const actions = {
 					// stop the interval function and wait for the watchDog to start again
 					clearInterval(state.runningCookieRefreshId)
 					state.cookieAuthenticated = false
-					dispatch('doLog', { event: `Refresh of the authentication cookie failed. ${error}`, level: SEV.CRITICAL })
+					dispatch('doLog', {
+						event: `Refresh of the authentication cookie failed. Wait for the watchDog to restart authentication. ${error}`,
+						level: SEV.ERROR,
+					})
 				})
 		}
 	},
