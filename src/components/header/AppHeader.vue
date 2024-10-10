@@ -80,7 +80,7 @@
       </BContainer>
     </BModal>
 
-    <BModal size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
+    <BModal v-if="myTeam" size="lg" ref="showTeamRef" title="My team members (and an overview of all teams)">
       <BContainer align-v="true">
         <h5>The members of my team '{{ myTeam }}'</h5>
         <div v-for="m of store.state.allTeams[myTeam].members" :key="m">
