@@ -36,8 +36,9 @@
       </div>
       <div v-else>
         <h5>Success! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
-        <h5>Exit and sign-in again. The 'Admin' view will open. Create a default sprint calendar and create the first users and set their roles. Assign one or
-          more admins to take over your admin task.</h5>
+        <h5>Exit and sign-in again. Open the drop down menu under 'Select your view' in the header. 
+          Select the 'Admin' view to create the first users and set their roles. Assign one or
+          more admins to take over your admin task. You may also create a custom sprint calendar.</h5>
         <BButton class="m-1" @click="signOut" variant="outline-primary">Exit</BButton>
       </div>
       <div v-if="store.state.backendMessages.length > 0">
