@@ -200,8 +200,7 @@ The app uses a secure https connection to the hosting site and for the cookie au
 
 ## install CouchDB
 Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
-Edit the 10-admins.ini file in `< couchdb install directory >/couchdb/etc/local.d`:</br>
-Note: if this file does not exist than add/change these lines to the local.ini file.
+Add/change these lines in/to the local.ini file.
 ```
 [httpd]
 enable cors = true
@@ -211,6 +210,7 @@ origins = *
 credentials = true
 ```
 ### install CouchDB v.3.3.3 locally
+Ckeck if the _users database exists. If not, create it with curl -X PUT http://adm:pass@127.0.0.1:5984/_users where adm is repaced with your admin name and pass with the password of that admin.
 The http connection needs no certificates.
 All CouchDb customization config settings are automatically set when initializing the application.
 When starting the app the first time use the server admin credentials you created to install CouchDb.
