@@ -25,9 +25,9 @@
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.7",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.24.23",
+    "bootstrap-vue-next": "^0.25.0",
     "mitt": "^3.0.1",
-    "vue": "^3.5.10",
+    "vue": "^3.5.12",
     "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.4.5",
     "vuex": "^4.1.0"
@@ -36,11 +36,11 @@
     "quill": "^2.0.2"
   },
   "devDependencies": {
-    "@eslint/js": "^9.11.1",
+    "@eslint/js": "^9.12.0",
     "@vitejs/plugin-vue": "^5.1.4",
-    "eslint": "^9.11.1",
-    "eslint-plugin-vue": "^9.28.0",
-    "globals": "^15.10.0",
+    "eslint": "^9.12.0",
+    "eslint-plugin-vue": "^9.29.0",
+    "globals": "^15.11.0",
     "prettier": "3.3.3",
     "unplugin-vue-components": "^0.27.4",
     "vite": "^5.4.8"
