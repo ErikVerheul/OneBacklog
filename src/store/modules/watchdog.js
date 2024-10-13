@@ -69,10 +69,16 @@ const actions = {
 						clearInterval(rootState.authentication.runningCookieRefreshId)
 						dispatch('refreshCookie', { caller: 'watchdog', toDispatch: [{ refreshCookieLoop: null }] })
 					} else {
-						rootState.online = false
-						// no idea if still authenticated
-						rootState.authentication.cookieAuthenticated = undefined
-						if (!wasOffline) commit('addToEventList', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
+						if (error.response && error.response.status === 403) {
+							if (rootState.debug) console.log(`watchdog: access to log document '${LOGDOCNAME}' is forbidden, ${error}`)
+							// stop the watchdog as a retry won't fix this error
+							clearInterval(state.runningWatchdogId)
+						} else {
+							rootState.online = false
+							// no idea if still authenticated
+							rootState.authentication.cookieAuthenticated = undefined
+							if (!wasOffline) commit('addToEventList', { txt: 'You are offline. Restore the connection or wait to continue', severity: SEV.WARNING })
+						}
 					}
 					consoleDebugStatus()
 				})

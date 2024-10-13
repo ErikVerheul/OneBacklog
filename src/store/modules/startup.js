@@ -140,7 +140,7 @@ const actions = {
 						router.push('/init')
 					}
 				} else {
-					const msg = 'getOtherUserData: Could not read user date for user ' + rootState.userData.user + ', ' + error
+					const msg = `getOtherUserData: Could not read user data for user '${rootState.userData.user}', ${error}`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				}
 			})
@@ -229,8 +229,14 @@ const actions = {
 				}
 			})
 			.catch((error) => {
-				const msg = 'getAllProducts: Could not find products in database ' + dbName + ', ' + error
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
+				if (error.response && error.response.status === 403) {
+					if (rootState.debug) console.log(`getAllProducts: access to database '${dbName}' is forbidden, ${error}`)
+					// stop the watchdog as a retry won't fix this error
+					clearInterval(rootState.watchdog.runningWatchdogId)
+				} else {
+					const msg = `getAllProducts: Could not find products in database '${dbName}', ${error}`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
+				}
 			})
 	},
 
