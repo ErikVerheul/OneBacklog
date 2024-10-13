@@ -102,7 +102,7 @@
       <div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
         <h6>{{ welcomeMessage }}</h6>
         <BButton block class="last-event" v-b-popover.hover.bottom="'Click to see the event history'" @click="showMoreMessages"
-          :style="{ 'background-color': getLastEventColor }">
+          :style="{ 'background-color': getLastEventBGColor, 'color': getLastEventTextColor }">
           {{ getLastEventTxt }} </BButton>
         <span class="messSquare" v-b-popover.hover.bottom="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
           @click="goMessaging">mess</span>
@@ -325,7 +325,9 @@
     <BModal size="lg" ref="historyEventRef" title="Event history" ok-only>
       <div v-if="store.state.eventList.length > 0">
         <div v-for="item in store.state.eventList" :key="item.eventKey">
-          <p class="event-list" :style="{ 'background-color': item.color }">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
+          <p class="event-list" :style="{ 'background-color': item.backgroundColor, 'color': item.textColor }">{{ item.time }} {{ item.severity }}: {{ item.txt
+            }}
+          </p>
         </div>
       </div>
     </BModal>
@@ -461,7 +463,6 @@ label {
 .last-event {
   width: 100%;
   text-align: left;
-  color: white;
   padding: 9px;
   padding-right: 90px;
   border-radius: 2px;

@@ -32,28 +32,34 @@ import watchdog from './modules/watchdog'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEventToDisplay(payload) {
-	let color = '#408FAE'
+	let backgroundColor = '#408FAE'
+	let textColor = 'white'
 	let severityStr = 'INFO'
 	switch (payload.severity) {
 		case SEV.DEBUG:
 			severityStr = 'DEBUG'
-			color = 'yellow'
+			backgroundColor = 'yellow'
+			textColor = 'black'
 			break
 		case SEV.INFO:
 			severityStr = 'INFO'
-			color = '#408FAE'
+			backgroundColor = '#408FAE'
+			textColor = 'white'
 			break
 		case SEV.WARNING:
 			severityStr = 'WARNING'
-			color = 'orange'
+			backgroundColor = 'orange'
+			textColor = 'black'
 			break
 		case SEV.ERROR:
 			severityStr = 'ERROR'
-			color = 'red'
+			backgroundColor = 'red'
+			textColor = 'black'
 			break
 		case SEV.CRITICAL:
 			severityStr = 'CRITICAL'
-			color = '#ff5c33'
+			backgroundColor = '#ff5c33'
+			textColor = 'black'
 	}
 	let tip = ''
 	if (payload.severity > SEV.INFO) tip = ' CLICK to unlock'
@@ -63,7 +69,8 @@ function createEventToDisplay(payload) {
 		txt: payload.txt + tip,
 		sevKey: payload.severity,
 		severity: severityStr,
-		color,
+		backgroundColor,
+		textColor,
 	}
 	return newEvent
 }
@@ -289,9 +296,14 @@ const store = createStore({
 			if (currentEvt !== null) return currentEvt.txt
 		},
 
-		getLastEventColor(state) {
+		getLastEventBGColor(state) {
 			const currentEvt = getCurrentEvt(state.eventList, state.currentEventKey)
-			if (currentEvt !== null) return currentEvt.color
+			if (currentEvt !== null) return currentEvt.backgroundColor
+		},
+
+		getLastEventTextColor(state) {
+			const currentEvt = getCurrentEvt(state.eventList, state.currentEventKey)
+			if (currentEvt !== null) return currentEvt.textColor
 		},
 
 		/* Return the last selected node or undefined when no node is selected */
