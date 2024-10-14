@@ -193,6 +193,7 @@ const methods = {
 	},
 
 	onSignout() {
+		store.state.signingOut = true
 		store.dispatch('saveMyTreeViewAsync')
 	},
 }

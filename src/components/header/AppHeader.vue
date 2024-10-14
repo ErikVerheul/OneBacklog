@@ -242,6 +242,8 @@
       <BButton class="m-1 float-end" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
       <BButton class="m-1 float-end" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
     </BModal>
+
+    <BModal v-model="store.state.signingOut" title="Signing out, please wait..." hide-footer @hide.prevent></BModal>
   </div>
   <TeamMessaging></TeamMessaging>
 </template>

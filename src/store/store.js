@@ -231,6 +231,8 @@ const store = createStore({
 			loadedSprintId: null,
 			myCurrentSprintCalendar: [],
 			warningText: '',
+			// signing out
+			signingOut: false,
 		}
 	},
 
