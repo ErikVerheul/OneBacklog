@@ -157,7 +157,7 @@ const actions = {
 			target: payload.dbTargetName,
 		}
 		state.copyBusy = true
-		 
+
 		if (rootState.debug) console.log('Copy DB: from ' + payload.dbSourceName + ' to ' + payload.dbTargetName)
 		globalAxios({
 			method: 'POST',
@@ -176,7 +176,6 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				 
 				if (rootState.debug) console.log(error)
 				rootState.backendMessages.push({
 					seqKey: rootState.seqKey++,
@@ -196,7 +195,6 @@ const actions = {
 			url: payload.dbTargetName,
 		})
 			.then(() => {
-				 
 				if (rootState.debug) console.log('replaceDB: ' + payload.dbTargetName + ' is deleted')
 				dispatch('copyDB', payload)
 			})
@@ -282,7 +280,7 @@ const actions = {
 		})
 			.then(() => {
 				rootState.isPurgeReady = true
-				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Compacting the database '${payload.dbName} succeeded` })
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Compacting the database '${payload.dbName}' succeeded` })
 			})
 			.catch((error) => {
 				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: `Compacting the database '${payload.dbName}' failed, ${error}` })
@@ -327,7 +325,6 @@ const actions = {
 				dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
 			})
 			.catch((error) => {
-				 
 				if (rootState.debug) console.log(error)
 				state.message = error.response.data
 				state.errorMessage = error.message
