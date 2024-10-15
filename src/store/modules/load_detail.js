@@ -255,7 +255,7 @@ const actions = {
 				// reset load parameters
 				parentNodes = {}
 
-				if (rootState.debug) console.log(res.data.rows.length + ' documents are loaded')
+				if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			})
 			.catch((error) => {

@@ -207,8 +207,7 @@ const actions = {
 						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 					}
 				}
-
-				if (rootState.debug) console.log(batch.length + ' documents are loaded')
+				if (rootState.debug) console.log(batch.length + ' backlogItem documents are processed')
 				// clear memory usage
 				parentNodes = {}
 				// load the the default product root node
