@@ -9,6 +9,7 @@ const MAXLOGSIZE = 1000
 
 const state = {
 	logSessionSeq: 0,
+	doEndSession: false,
 }
 
 const actions = {
@@ -18,7 +19,7 @@ const actions = {
 	 */
 
 	/* Create a log entry and let watchdog save it. */
-	doLog({ rootState, state }, payload) {
+	doLog({ rootState, state, dispatch }, payload) {
 		state.logSessionSeq++
 		const newLog = {
 			sessionSeq: state.logSessionSeq,
@@ -33,8 +34,12 @@ const actions = {
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis(new Date())}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
 		rootState.unsavedLogs.push(newLog)
-		// save the log immediately
-		if (rootState.endSession) dispatch('saveLog')
+
+		if (payload.doEndSession) {
+			// save the log immediately
+			state.doEndSession = true
+			dispatch('saveLog')
+		}
 	},
 
 	saveLog({ rootState, dispatch }) {
@@ -67,7 +72,7 @@ const actions = {
 		}
 	},
 
-	replaceLog({ rootState, commit, dispatch }, log) {
+	replaceLog({ rootState, state, commit, dispatch }, log) {
 		// limit the number of saved log entries
 		log.entries = log.entries.slice(0, MAXLOGSIZE)
 		globalAxios({
@@ -79,8 +84,8 @@ const actions = {
 				// delete the logs now they are saved
 				rootState.unsavedLogs = []
 
-				if (rootState.doEndSession) {
-					commit('endSession', 'saveMyTreeViewAsync')
+				if (state.doEndSession) {
+					commit('endSession', 'replaceLog')
 				} else if (rootState.debugConnectionAndLogging) console.log(`replaceLog: The log is saved`)
 			})
 			.catch((error) => {

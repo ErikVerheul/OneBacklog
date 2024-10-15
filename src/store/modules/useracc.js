@@ -570,21 +570,18 @@ const actions = {
 					data: tmpUserData,
 				})
 					.then(() => {
-						rootState.doEndSession = true
 						commit('addToEventList', { txt: 'You are signing out', severity: SEV.INFO })
 						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out`
 						dispatch('doLog', { event: msg, level: SEV.INFO, doEndSession: true })
 					})
 					.catch((error) => {
-						rootState.doEndSession = true
 						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to update the profile of this user', ${error}`
-						dispatch('doLog', { event: msg, level: SEV.ERROR })
+						dispatch('doLog', { event: msg, level: SEV.ERROR, doEndSession: true })
 					})
 			})
 			.catch((error) => {
-				rootState.doEndSession = true
 				const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to read the profile of this user', ${error}`
-				dispatch('doLog', { event: msg, level: SEV.WARNING })
+				dispatch('doLog', { event: msg, level: SEV.WARNING, doEndSession: true })
 			})
 	},
 }

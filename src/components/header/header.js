@@ -6,6 +6,12 @@ import store from '../../store/store.js'
 
 const MINPASSWORDLENGTH = 8
 
+// show browser dependant message 'Changes you made may not be saved. Stay on page / Leave page' when exiting the app irregularly
+const beforeUnloadHandler = (event) => {
+	event.preventDefault()
+}
+window.addEventListener('beforeunload', beforeUnloadHandler)
+
 function created() {
 	// add tag when DEMO version
 	if (store.state.demo) this.appVersion = this.appVersion + ' DEMO'
@@ -116,14 +122,14 @@ const methods = {
 
 	doChangeDatabase() {
 		if (this.headerMyDatabase !== store.state.userData.currentDb) {
+			window.removeEventListener('beforeunload', beforeUnloadHandler)
 			const autoSignOut = true
 			store.dispatch('changeCurrentDb', { dbName: this.headerMyDatabase, autoSignOut })
 		}
 	},
 
+	/* Move tasks to the new team where this user is assigned to; when done other actions are started to complete the team change */
 	doChangeTeam() {
-		// Update tasks to the new team where this user is assigned to; when done other actions are started com complete the team change
-		console.log('doChangeTeam: store.state.userData.myTeam = ' + store.state.userData.myTeam + ', this.selectedTeam = ' + this.selectedTeam)
 		store.dispatch('updateTasksToNewTeam', {
 			userName: store.state.userData.user,
 			oldTeam: store.state.userData.myTeam,
@@ -144,6 +150,7 @@ const methods = {
 	/* Return if nothing is selected; set default product if 1 is selected; call showSelectDefaultProduct if > 1 is selected */
 	doSelectProducts() {
 		if (this.getMyProductSubscriptions.length > 0) {
+			window.removeEventListener('beforeunload', beforeUnloadHandler)
 			if (this.selectedProducts.length === 1) {
 				this.newDefaultProductId = this.selectedProducts[0]
 				store.dispatch('updateMyProductSubscriptions', { productIds: [this.selectedProducts[0]] })
@@ -160,7 +167,7 @@ const methods = {
 	},
 
 	/* Update the subscriptions array of this user */
-	updateProductsSubscriptions() {
+	updateMultiProductsSubscriptions() {
 		// the first (index 0) product is by definition the default product
 		const myNewProductSubscriptions = [this.newDefaultProductId]
 		const otherSubscriptions = []
@@ -193,6 +200,7 @@ const methods = {
 	},
 
 	onSignout() {
+		window.removeEventListener('beforeunload', beforeUnloadHandler)
 		store.state.signingOut = true
 		store.dispatch('saveMyTreeViewAsync')
 	},

@@ -114,7 +114,7 @@
       <BContainer align-v="true">
         <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></BFormSelect>
         <hr>
-        <BButton class="m-1 float-end" @click="updateProductsSubscriptions" variant="primary">Save and restart</BButton>
+        <BButton class="m-1 float-end" @click="updateMultiProductsSubscriptions" variant="primary">Save and restart</BButton>
         <BButton class="m-1 float-end" @click="showSelectDefaultProduct = false">Cancel</BButton>
       </BContainer>
     </BModal>
@@ -243,7 +243,7 @@
       <BButton class="m-1 float-end" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
     </BModal>
 
-    <BModal v-model="store.state.signingOut" title="Signing out, please wait..." hide-footer @hide.prevent></BModal>
+    <BModal v-model="store.state.signingOut" hide-header hide-footer @hide.prevent>Signing out, please wait...</BModal>
   </div>
   <TeamMessaging></TeamMessaging>
 </template>

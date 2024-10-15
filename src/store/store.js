@@ -217,7 +217,6 @@ const store = createStore({
 			// app wide globals
 			configData: null,
 			demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
-			doEndSession: false,
 			lastSelectCursorPosition: null,
 			listenForChangesRunning: false,
 			myProductOptions: [],
@@ -1372,9 +1371,10 @@ const store = createStore({
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
 			state.signedOut = true
+			state.signingOut = false
 			if (state.debug) console.log(`endSession: caller = ${caller}`)
-			// reset the app by reloading
-			window.location.reload()
+			// reset the app by reloading skipping the cache
+			window.location.reload(true)
 		},
 	},
 
