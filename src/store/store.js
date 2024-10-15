@@ -105,7 +105,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '2.3.7',
+			appVersion: '2.3.8',
 			// generic helper functions
 			helpersRef: null,
 			// console log settings

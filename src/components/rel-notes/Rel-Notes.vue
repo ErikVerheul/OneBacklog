@@ -4,6 +4,17 @@
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
         <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
+        <h3>v.2.3.8 - 15 October 2024 Refactoring and bug fix</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>Show a modal while signing out to prevent any user input in the process</li>
+          <li>Event history: Use different text colors depending on the background</li>
+          <li>Catch error due to unsufficient access rights seperately</li>
+        </ul>
+        <p>Bug fix</p>
+        <ul>
+          <li>Planning board: Fix bug when productId is not assigned to the user</li>
+        </ul>
         <h3>v.2.3.7 - 2 October 2024 New Feature</h3>
         <p>New feature</p>
         <ul>
