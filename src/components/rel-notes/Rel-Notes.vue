@@ -7,6 +7,7 @@
         <h3>v.2.3.8 - 15 October 2024 Refactoring and bug fix</h3>
         <p>Refactoring</p>
         <ul>
+          <li>Show warning when the user exits the app irregularly</li>
           <li>Show a modal while signing out to prevent any user input in the process</li>
           <li>Event history: Use different text colors depending on the background</li>
           <li>Catch error due to unsufficient access rights seperately</li>

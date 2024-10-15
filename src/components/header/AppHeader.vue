@@ -248,7 +248,7 @@
   <TeamMessaging></TeamMessaging>
 </template>
 
-<script src="./header.js"></script>
+<script src="./appHeader.js"></script>
 
 <style scoped>
 .cog-item {
