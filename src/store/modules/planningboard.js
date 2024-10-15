@@ -506,7 +506,7 @@ const actions = {
 					const id = r.id
 					const sprintId = r.key[1]
 					const productId = r.key[2]
-					if (isPreviousSprint(sprintId)) {
+					if (isPreviousSprint(sprintId) && rootGetters.getMyProductsRoles[productId]) {
 						if (
 							(rootGetters.getMyAssignedProductIds.includes(productId) && rootGetters.getMyProductsRoles[productId].includes('PO')) ||
 							rootGetters.getMyProductsRoles[productId].includes('developer')
