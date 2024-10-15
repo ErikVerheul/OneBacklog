@@ -437,7 +437,7 @@
   </div>
 </template>
 
-<script src="./admin.js"></script>
+<script src="./adminTool.js"></script>
 
 <style scoped>
 h4,

@@ -1,6 +1,6 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
 import { uniTob64, createId } from '../../common_functions.js'
-import common_admin from './common_admin'
+import common_admin from './common_admin.js'
 import store from '../../store/store.js'
 
 const methods = {
