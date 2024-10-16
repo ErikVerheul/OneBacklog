@@ -437,7 +437,7 @@ const methods = {
 						// update the nodes in the database
 						store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
 					} else {
-						this.showLastEvent('Undo failed. Sign out and -in again to recover.', SEV.ERROR)
+						this.showLastEvent('Undo failed. Sign-out and -in again to recover.', SEV.ERROR)
 						store.state.busyWithLastUndo = false
 					}
 				}

@@ -216,7 +216,6 @@ const store = createStore({
 			descendantIds: [],
 			// app wide globals
 			configData: null,
-			demo: import.meta.env.VITE_IS_DEMO === 'true' || false,
 			lastSelectCursorPosition: null,
 			listenForChangesRunning: false,
 			myProductOptions: [],

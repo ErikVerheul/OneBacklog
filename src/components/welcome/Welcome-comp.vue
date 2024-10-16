@@ -5,7 +5,7 @@
         <BImg :src="logo" placement="center" alt="OneBacklog logo" />
       </div>
       <div class="col-lg-12 col-sm-12 cta">
-        <router-link to="/signin">Sign In</router-link>
+        <router-link to="/signin">Sign-in</router-link>
       </div>
       <div class="col-lg-12 col-sm-12 text-center">
         <h3>Welcome to the OneBacklog single page web application</h3>

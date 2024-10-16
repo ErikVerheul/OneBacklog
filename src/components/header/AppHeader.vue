@@ -33,14 +33,14 @@
               <BDropdownItem @click="changeTeam">Change team</BDropdownItem>
               <BDropdownItem v-if="canChangeDb" @click="changeDatabase">Change database</BDropdownItem>
               <BDropdownItem v-if="getMyAssignedProductIds.length > 1" @click="selectProducts">Select products</BDropdownItem>
-              <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyPassword">Change password</BDropdownItem>
-              <BDropdownItem v-if="store.state.demo && store.state.userData.user !== 'demoUser'" @click="changeMyEmail">Change my email</BDropdownItem>
+              <BDropdownItem v-if="store.state.userData.user !== 'demoUser'" @click="changeMyPassword">Change password</BDropdownItem>
+              <BDropdownItem v-if="store.state.userData.user !== 'demoUser'" @click="changeMyEmail">Change my email</BDropdownItem>
               <BDropdownItem @click="showMyRoles">My authorizations</BDropdownItem>
             </template>
             <BDropdownItem v-else>No options here when not authenticated</BDropdownItem>
 
             <BDropdownItem v-b-modal.licence-modal>Licence information</BDropdownItem>
-            <BDropdownItem @click="onSignout">Sign Out</BDropdownItem>
+            <BDropdownItem @click="onSignout">Sign-out</BDropdownItem>
           </BNavItemDropdown>
 
           <BNavItem @click="showOptions">

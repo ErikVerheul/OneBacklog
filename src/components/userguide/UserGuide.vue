@@ -68,7 +68,7 @@
 					<li>Change password: You need to know your old password. The password of user demoUser cannot be changed.</li>
 					<li>Change my email: Your email address is used to send you change notices, if selected. Here you can change your email address.</li>
 					<li>License information: click to see the license regarding the source code.</li>
-					<li>Sign out: Preferred way to sign out. <b>The tree view (what nodes are expanded, what items
+					<li>Sign-out: Preferred way to sign-out. <b>The tree view (what nodes are expanded, what items
 							are visible) is saved. At your next sign-in that view will be restored.</b></li>
 				</ul>
 				<p>(*) A user can be member of none or 1 team at a time. However, when another team needs help, a user can join
@@ -232,7 +232,7 @@
 					<div class="indent20">
 						<h5>The Undo button</h5>
 						<p>When adding, moving, removing items in the backlog tree or changing any attribute of an item these
-							changes can be undone in reverse order. When you sign out your changes are final.</p>
+							changes can be undone in reverse order. When you sign-out your changes are final.</p>
 						<h5>Filter in tree view</h5>
 						<BImg :src="getImgUrl('img/filters.png')" alt="Example filters modal" />
 						<p class="pro-user">Only professional users can filter on requirement areas.</p>

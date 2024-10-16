@@ -96,7 +96,7 @@ const actions = {
 			.catch((error) => {
 				// cannot log failure here as the database name is unknown yet
 
-				if (rootState.debug) console.log('Sign in failed with ' + error)
+				if (rootState.debug) console.log('Sign-in failed with ' + error)
 			})
 	},
 }
