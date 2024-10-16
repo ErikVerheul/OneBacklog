@@ -23,21 +23,22 @@
             </template>
           </div>
         </div>
-        <div v-if="!store.state.demo" class="text-center mb-1">No account yet? Ask your SM or PO to create one</div>
-        <div class="text-center mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</div>
-        <div class="text-left">
-          This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
-          implied warranty of
-          MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Licence information item in the User dropdown menu when signed-in
-        </div>
-        <div v-if="store.state.demo" class="text-left">
-          <p>This is a demo instance of the application. Your changes can be overridden by others or by a database restore. Please leave your findings in this
-            applications register or raise an issue
-            at <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github</a></p>
-          <p class="text-center">Signin with <b>demoUser</b> and password <b>demoUser</b></p>
-          <p>Note that demoUser has the overall permission of Area PO and the permissions of "PO", "developer" and "guest"
-            for the 'Register your feature proposals and bug findings here' and 'Feel free
-            to play with this product'. So you can do almost everything. Please do not remove other peoples entries.</p>
+        <div class="text-center">
+          <p class="mb-1">No account yet? Ask your SM or PO to create one</p>
+          <p> or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
+          <p class="mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</p>
+          <p> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+            FITNESS FOR A PARTICULAR PURPOSE</p>
+
+          <div class="demo-user" v-if="state.name === 'demoUser'">
+            <h4>You're welcome to give this app a try</h4>
+            <p>Demo users share a database with some predefined products. Your changes can be overridden by others or by a database restore. Please leave your
+              findings
+              in
+              <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu and
+              select 'My authorizations' to see the roles that are assigned to this account.
+            </p>
+          </div>
         </div>
       </div>
     </BRow>
@@ -75,6 +76,13 @@ function onSubmit() {
   margin: 30px auto;
   border: 1px solid #eee;
   padding: 20px;
+  box-shadow: 0 2px 3px #ccc;
+}
+
+.demo-user {
+  margin: 30px auto;
+  border: 1px solid green;
+  padding: 10px;
   box-shadow: 0 2px 3px #ccc;
 }
 
