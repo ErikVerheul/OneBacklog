@@ -13,8 +13,8 @@ const beforeUnloadHandler = (event) => {
 window.addEventListener('beforeunload', beforeUnloadHandler)
 
 function created() {
-	// add tag when DEMO version
-	if (store.state.demo) this.appVersion = this.appVersion + ' DEMO'
+	// add tag when signed in as demoUser
+	if (store.state.userData.user === 'demoUser') this.appVersion = this.appVersion + ' DEMO'
 }
 
 function data() {
