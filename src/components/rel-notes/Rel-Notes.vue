@@ -3,7 +3,6 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
-        <p v-if="store.state.demo">Note: This is a demo version of the application.</p>
         <h3>v.2.3.8 - 15 October 2024 Refactoring and bug fix</h3>
         <p>Refactoring</p>
         <ul>
@@ -392,7 +391,7 @@
         </ul>
         <p>Refactoring:</p>
         <ul>
-          <li>Sign out refactored app wide to prevent the listenforchanges longpoll to continue after sign out</li>
+          <li>Sign-out refactored app wide to prevent the listenforchanges longpoll to continue after sign-out</li>
           <li>Move global functions to helpers module</li>
           <li>Redundant entries in package.json removed</li>
         </ul>
