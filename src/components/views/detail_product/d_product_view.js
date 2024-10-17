@@ -113,19 +113,11 @@ const methods = {
 	},
 
 	/* event handling */
-	onNodesSelected(fromContextMenu) {
+	onNodesSelected() {
 		const onSuccessCallback = () => {
 			this.isDescriptionEdited = false
 			this.isAcceptanceEdited = false
-			// if the user clicked on a node of another product (not root)
-			const currentProductId = store.state.currentProductId
-			if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
-				// another product is selected; reset the tree filter and Id selection or title search on the current product
-				store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
-				// collapse the currently selected product and switch and expand to the newly selected product
-				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-			}
-			if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+			this.showSelectionEvent(store.state.selectedNodes)
 		}
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
@@ -135,7 +127,17 @@ const methods = {
 			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
 		}
 		// load the selected document
-		else store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+		else {
+			// if the user clicked on a node of another product (not root)
+			const currentProductId = store.state.currentProductId
+			if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
+				// another product is selected; reset the tree filter and Id selection or title search on the current product
+				store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
+				// collapse the currently selected product and switch and expand to the newly selected product
+				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
+			}
+			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+		}
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */

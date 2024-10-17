@@ -102,17 +102,14 @@ const methods = {
 	},
 
 	/* Event handling */
-	onNodesSelected(fromContextMenu) {
+	onNodesSelected() {
 		const onSuccessCallback = () => {
+			this.isDescriptionEdited = false
+			this.isAcceptanceEdited = false
 			// preset the req area color if available
 			this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
-			// if the user clicked on a node of another product (not root)
-			if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
-				// update current productId and title
-				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-			}
 			if (this.getLastSelectedNode._id !== 'requirement-areas') {
-				if (!fromContextMenu) this.showSelectionEvent(store.state.selectedNodes)
+				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
 
@@ -121,9 +118,15 @@ const methods = {
 			this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
 		} else if (this.isAcceptanceEdited) {
 			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+			// load the selected document
+		} else {
+			// if the user clicked on a node of another product (not root)
+			if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
+				// update current productId and title
+				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
+			}
+			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 		}
-		// load the selected document
-		else store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
