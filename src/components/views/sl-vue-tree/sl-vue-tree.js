@@ -44,6 +44,10 @@ function mounted() {
 }
 
 const computed = {
+	isRoot() {
+		return this.nodeLevel === 0
+	},
+
 	cursorPosition() {
 		if (this.isRoot) return this.rootCursorPosition
 		return this.getParentComponent().cursorPosition
@@ -74,10 +78,6 @@ const computed = {
 		}
 		return gaps
 	},
-
-	isRoot() {
-		return this.nodeLevel === 0
-	},
 }
 
 const methods = {
@@ -100,6 +100,9 @@ const methods = {
 
 	// trigger the context component via the eventbus if the node is selectable (no branch removal is pending)
 	emitNodeContextMenu(event, node) {
+		// disallow selection of the root node
+		if (node.level === 1) return
+
 		// cursorPosition not available, so get it
 		const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 		if (cPos !== null && node.isSelectable) {
@@ -165,9 +168,9 @@ const methods = {
 		return true
 	},
 
-	onMouseMoveHandler(event) {
-		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected) return
-
+	onMouseMoveLeftHandler(event) {
+		// to prevent product nodes be selected for dragging on click, product nodes cannot be dragged
+		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected || store.state.selectedNodes[0].level === LEVEL.PRODUCT) return
 		const initialDraggingState = this.isDragging
 		const isDraggingLocal = this.isDragging || this.lastMousePos.y !== event.clientY
 
@@ -199,32 +202,27 @@ const methods = {
 		if (cPos !== null) this.setModelCursorPosition(cPos)
 	},
 
-	onNodeMousedownHandler(event, node) {
+	onNodeMouseDownLeftHandler(event, node) {
+		if (!this.isRoot) {
+			this.getRootComponent().onNodeMouseDownLeftHandler(event, node)
+			return
+		}
 		// disallow selection of the root node
 		if (node.level === 1) return
 
-		if (!this.isRoot) {
-			this.getRootComponent().onNodeMousedownHandler(event, node)
-			return
-		}
 		if (!this.isDragging) {
 			// cursorPosition not available, so get it
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 			if (cPos !== null) this.select(cPos, event)
 		}
-		// drag only with left mouse button down
-		if (event.button !== 0) return
 
 		this.isLeftMouseButtonDown = true
 		this.lastClickedNode = node
 	},
 
-	onNodeMouseupHandler(event) {
-		// drag only with left mouse button down
-		if (event.button !== 0) return
-
+	onNodeMouseUpLeftHandler(event) {
 		if (!this.isRoot) {
-			this.getRootComponent().onNodeMouseupHandler(event)
+			this.getRootComponent().onNodeMouseUpLeftHandler(event)
 			return
 		}
 
