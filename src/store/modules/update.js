@@ -736,7 +736,6 @@ const actions = {
 				tmpDoc.description = newEncodedDescription
 
 				const onSuccessCallback = () => {
-					rootState.isDescriptionEdited = false
 					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
