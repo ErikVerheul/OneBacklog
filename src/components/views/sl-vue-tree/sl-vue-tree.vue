@@ -17,7 +17,7 @@
       </div>
 
       <template class="sl-vue-tree-node-item" @mousedown.left="onNodeMousedownHandler($event, node)" @mouseup.left="onNodeMouseupHandler($event)"
-        @contextmenu="emitNodeContextMenu(node)" :path="node.pathStr">
+        @contextmenu="emitNodeContextMenu($event, node)" :path="node.pathStr">
         <div :class="{
           'sl-vue-tree-cursor-inside':
             cursorPosition &&

@@ -98,13 +98,23 @@ const methods = {
 		this.getRootComponent().$emit('drop', draggingNodes, position)
 	},
 
-	// trigger the context component via the eventbus if the node is selectable and no search is pending
-	emitNodeContextMenu(node) {
-		if (node.isSelectable) this.eventBus.emit('context-menu', node)
+	// trigger the context component via the eventbus if the node is selectable (no branch removal is pending)
+	emitNodeContextMenu(event, node) {
+		// cursorPosition not available, so get it
+		const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
+		if (cPos !== null && node.isSelectable) {
+			store.state.lastSelectCursorPosition = cPos
+			const selNode = cPos.nodeModel
+			// single selection mode
+			store.commit('renewSelectedNodes', selNode)
+			this.emitSelect()
+
+			this.eventBus.emit('context-menu', node)
+		}
 	},
 
-	emitSelect(fromContextMenu) {
-		this.getRootComponent().$emit('nodes-are-selected', fromContextMenu)
+	emitSelect() {
+		this.getRootComponent().$emit('nodes-are-selected')
 	},
 
 	/* Return the node closest to the current cursor position or null if not found */
@@ -210,7 +220,7 @@ const methods = {
 	},
 
 	onNodeMouseupHandler(event) {
-		// drag only with left mouse button down and no search is pending
+		// drag only with left mouse button down
 		if (event.button !== 0) return
 
 		if (!this.isRoot) {
@@ -355,9 +365,7 @@ const methods = {
 				// single selection mode
 				store.commit('renewSelectedNodes', selNode)
 			}
-			// access the selected nodes using the store: store.state.selectedNodes
-			const fromContextMenu = false
-			this.emitSelect(fromContextMenu)
+			this.emitSelect()
 		}
 	},
 
