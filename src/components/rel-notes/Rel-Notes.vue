@@ -3,6 +3,17 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.3.9 - 18 October 2024 Refactoring and bug fixes</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>Show DEMO in header only if signed-in as demoUser</li>
+          <li>Show extra info on sign-in page if signing-in as demoUser</li>
+        </ul>
+        <p>Bug fixes</p>
+        <ul>
+          <li>When another product is selected in the Details view, under conditions, the dragging mode is intiated: fixed</li>
+          <li>Node not selected when opening context menu: regression fixed</li>
+        </ul>
         <h3>v.2.3.8 - 15 October 2024 Refactoring and bug fix</h3>
         <p>Refactoring</p>
         <ul>
