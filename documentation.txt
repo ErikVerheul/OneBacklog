@@ -82,6 +82,7 @@ data: {
 	lastCommentToHistory: doc.lastCommentToHistory,
 	lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 }
+tmpPreventDrag: false // a temporary state to prevent a selected product node to enter the dragging mode after selection
 // temporary and private use, not stored, not synced with other on-line users
 tmp: {
 	isHighlighted_1: boolean // light blue

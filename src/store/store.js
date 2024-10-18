@@ -1328,8 +1328,11 @@ const store = createStore({
 			if (currentProductNode !== null && newCurrentProductNode !== null) {
 				// if the current product is not removed and the newly selected product exists
 				if (state.currentView !== 'coarseProduct') {
-					// collapse the current and expand the newly selected product branch
 					collapseNode(currentProductNode)
+					// select the product node to be expanded
+					state.helpersRef.selectNodeById(newProductId)
+					// prevent the product node to be set to the dragging state
+					newCurrentProductNode.tmpPreventDrag = true
 					expandNode(newCurrentProductNode)
 				}
 				// update current product id and title

@@ -32,6 +32,7 @@ function data() {
 			y: 0,
 		},
 		preventDrag: false,
+		preventProductDrag: false,
 		lastClickedNode: {},
 	}
 }
@@ -169,11 +170,7 @@ const methods = {
 	},
 
 	mouseMoveHandler(event) {
-		if (!this.isRoot) {
-			this.getRootComponent().mouseMoveHandler(event)
-			return
-		}
-		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected) return
+		if (!this.isLeftMouseButtonDown || this.preventDrag || this.preventProductDrag || !this.lastClickedNode.isSelected) return
 		const initialDraggingState = this.isDragging
 		const isDraggingLocal = this.isDragging || this.lastMousePos.y !== event.clientY
 
@@ -213,6 +210,9 @@ const methods = {
 		// disallow selection of the root node
 		if (node.level === 1) return
 
+		// set preventProductDrag (true if clicked on a product node and the node is not expanded)
+		this.preventProductDrag = node.tmpPreventDrag && !node.isExpanded
+
 		if (!this.isDragging) {
 			// cursorPosition not available, so get it
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
@@ -223,9 +223,9 @@ const methods = {
 		this.lastClickedNode = node
 	},
 
-	mouseUpLeftHandler(event) {
+	mouseUpLeftHandler(event, node) {
 		if (!this.isRoot) {
-			this.getRootComponent().mouseUpLeftHandler(event)
+			this.getRootComponent().mouseUpLeftHandler(event, node)
 			return
 		}
 
@@ -330,7 +330,6 @@ const methods = {
 		store.state.lastSelectCursorPosition = cursorPosition
 		const selNode = cursorPosition.nodeModel
 		if (selNode.isSelectable) {
-			this.preventDrag = false
 			const prevSelectedNode = store.state.selectedNodes.slice(-1)[0] || selNode
 			// ctrl-select or shift-select mode is allowed only if in professional mode and nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
 			if (
