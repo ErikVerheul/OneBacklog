@@ -99,7 +99,7 @@ const methods = {
 	},
 
 	// trigger the context component via the eventbus if the node is selectable (no branch removal is pending)
-	emitNodeContextMenu(event, node) {
+	contextMenuHandler(event, node) {
 		// disallow selection of the root node
 		if (node.level === 1) return
 
@@ -168,9 +168,12 @@ const methods = {
 		return true
 	},
 
-	onMouseMoveLeftHandler(event) {
-		// to prevent product nodes be selected for dragging on click, product nodes cannot be dragged
-		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected || store.state.selectedNodes[0].level === LEVEL.PRODUCT) return
+	mouseMoveHandler(event) {
+		if (!this.isRoot) {
+			this.getRootComponent().mouseMoveHandler(event)
+			return
+		}
+		if (!this.isLeftMouseButtonDown || this.preventDrag || !this.lastClickedNode.isSelected) return
 		const initialDraggingState = this.isDragging
 		const isDraggingLocal = this.isDragging || this.lastMousePos.y !== event.clientY
 
@@ -202,9 +205,9 @@ const methods = {
 		if (cPos !== null) this.setModelCursorPosition(cPos)
 	},
 
-	onNodeMouseDownLeftHandler(event, node) {
+	mouseDownLeftHandler(event, node) {
 		if (!this.isRoot) {
-			this.getRootComponent().onNodeMouseDownLeftHandler(event, node)
+			this.getRootComponent().mouseDownLeftHandler(event, node)
 			return
 		}
 		// disallow selection of the root node
@@ -220,9 +223,9 @@ const methods = {
 		this.lastClickedNode = node
 	},
 
-	onNodeMouseUpLeftHandler(event) {
+	mouseUpLeftHandler(event) {
 		if (!this.isRoot) {
-			this.getRootComponent().onNodeMouseUpLeftHandler(event)
+			this.getRootComponent().mouseUpLeftHandler(event)
 			return
 		}
 

@@ -1,6 +1,6 @@
 <!-- This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree -->
 <template>
-  <div class="sl-vue-tree" :class="{ 'sl-vue-tree-root': isRoot }" @mousemove.left="onMouseMoveLeftHandler">
+  <div class="sl-vue-tree" :class="{ 'sl-vue-tree-root': isRoot }">
     <!-- traverse the filtered nodes breadth first -->
     <div v-for="(node, nodeInd) in filteredNodes" :class="{
       'sl-vue-tree-selected': node.isSelected,
@@ -16,8 +16,8 @@
       }">
       </div>
 
-      <template class="sl-vue-tree-node-item" @mousedown.left="onNodeMouseDownLeftHandler($event, node)" @mouseup.left="onNodeMouseUpLeftHandler($event)"
-        @contextmenu="emitNodeContextMenu($event, node)" :path="node.pathStr">
+      <template class="sl-vue-tree-node-item" @mousedown.left="mouseDownLeftHandler($event, node)" @mouseup.left="mouseUpLeftHandler($event)"
+        @contextmenu="contextMenuHandler($event, node)" @mousemove="mouseMoveHandler($event)" :path="node.pathStr">
         <div :class="{
           'sl-vue-tree-cursor-inside':
             cursorPosition &&
