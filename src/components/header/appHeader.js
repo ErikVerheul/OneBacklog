@@ -29,7 +29,6 @@ function data() {
 		newEmail1: '',
 		newEmail2: '',
 		selectedProducts: [],
-		defaultProductOptions: [],
 		selectedTeam: '',
 		headerMyDatabase: '',
 		headerDatabaseOptions: [],
@@ -135,21 +134,10 @@ const methods = {
 		})
 	},
 
-	setDefaultProductOptions() {
-		const options = []
-		for (const o of store.state.myProductOptions) {
-			if (this.selectedProducts.includes(o.value)) {
-				options.push(o)
-			}
-		}
-		this.defaultProductOptions = options
-	},
-
 	/* Return if nothing is selected */
 	doSelectProducts() {
 		if (this.getMyProductSubscriptions.length > 0) {
 			window.removeEventListener('beforeunload', beforeUnloadHandler)
-			this.setDefaultProductOptions()
 			store.dispatch('updateMyProductSubscriptions', { productIds: this.selectedProducts })
 		}
 	},
