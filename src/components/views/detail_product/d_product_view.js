@@ -32,7 +32,7 @@ function mounted() {
 	if (this.returning) {
 		this.showLastEvent('Returning to the Product details', SEV.INFO)
 	} else {
-		store.dispatch('loadProductDetails')
+		store.dispatch('checkProductAndStartLoading')
 	}
 }
 
@@ -128,14 +128,6 @@ const methods = {
 		}
 		// load the selected document
 		else {
-			// if the user clicked on a node of another product (not root)
-			const currentProductId = store.state.currentProductId
-			if (this.getLastSelectedNode._id !== 'root' && currentProductId !== this.getLastSelectedNode.productId) {
-				// another product is selected; reset the tree filter and Id selection or title search on the current product
-				store.dispatch('resetFilterAndSearches', { caller: 'onNodesSelected', productModels: store.state.helpersRef.getCurrentProductModel() })
-				// collapse the currently selected product and switch and expand to the newly selected product
-				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-			}
 			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 		}
 	},

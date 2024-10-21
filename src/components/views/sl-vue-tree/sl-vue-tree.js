@@ -242,15 +242,8 @@ const methods = {
 			return
 		}
 
-		// stop drag if no nodes selected or at root level or moving an item to another product or selecting a node for registering a dependency
-		if (
-			!this.lastClickedNode.isSelected ||
-			this.cursorPosition.nodeModel.level === LEVEL.DATABASE ||
-			store.state.moveOngoing ||
-			store.state.selectNodeOngoing
-		) {
-			if (store.state.moveOngoing)
-				this.showLastEvent('Cannot drag while moving items to another product. Complete or cancel the move in context menu.', SEV.WARNING)
+		// stop drag if no nodes selected or at root level or selecting a node for registering a dependency
+		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.selectNodeOngoing) {
 			if (store.state.selectNodeOngoing)
 				this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
@@ -275,12 +268,6 @@ const methods = {
 				(this.isOverviewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.nodeModel.parentId !== 'root')
 			) {
 				this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
-				this.stopDrag()
-				return
-			}
-			// prevent dragging an item into another product when in Product details view
-			if (this.isDetailsViewSelected && dn.level !== LEVEL.PRODUCT && dn.productId !== this.cursorPosition.nodeModel.productId) {
-				this.showLastEvent('Cannot drag to another product. Use the context menu (right click)', SEV.WARNING)
 				this.stopDrag()
 				return
 			}

@@ -107,15 +107,14 @@ const actions = {
 				if (allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
 					rootState.isDetailHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.detailView.expandedNodes.length > 0
 					rootState.isCoarseHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.coarseView.expandedNodes.length > 0
-					rootState.currentProductId = allUserData.myDatabases[allUserData.currentDb].lastSessionData.detailView.lastSelectedProductId || null
 					rootState.lastSessionData = allUserData.myDatabases[allUserData.currentDb].lastSessionData
 				} else {
 					// create an empty template for use on exit
 					rootState.isDetailHistLoaded = false
 					rootState.isCoarseHistLoaded = false
 					rootState.lastSessionData = {
-						detailView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
-						coarseView: { lastSelectedProductId: null, expandedNodes: [], doShowNodes: [] },
+						detailView: { expandedNodes: [], doShowNodes: [] },
+						coarseView: { expandedNodes: [], doShowNodes: [] },
 					}
 				}
 				// start the watchdog

@@ -1,3 +1,4 @@
+import router from '../../router'
 import Licence from './AppLicence.vue'
 import { isValidEmail } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
@@ -33,12 +34,10 @@ function data() {
 		headerMyDatabase: '',
 		headerDatabaseOptions: [],
 		teamOptions: [],
-		newDefaultProductId: undefined,
 		showChangeDatabase: false,
 		showOptionsModal: false,
 		showUserguide: false,
 		showSelectProducts: false,
-		showSelectDefaultProduct: false,
 	}
 }
 
@@ -101,7 +100,6 @@ const methods = {
 	},
 
 	selectProducts() {
-		this.newDefaultProductId = this.getCurrentDefaultProductId
 		this.selectedProducts = this.getMyAssignedProductIds
 		this.showSelectProducts = true
 	},
@@ -147,36 +145,18 @@ const methods = {
 		this.defaultProductOptions = options
 	},
 
-	/* Return if nothing is selected; set default product if 1 is selected; call showSelectDefaultProduct if > 1 is selected */
+	/* Return if nothing is selected */
 	doSelectProducts() {
 		if (this.getMyProductSubscriptions.length > 0) {
 			window.removeEventListener('beforeunload', beforeUnloadHandler)
-			if (this.selectedProducts.length === 1) {
-				this.newDefaultProductId = this.selectedProducts[0]
-				store.dispatch('updateMyProductSubscriptions', { productIds: [this.selectedProducts[0]] })
-			} else {
-				this.setDefaultProductOptions()
-				this.showSelectDefaultProduct = true
-			}
+			this.setDefaultProductOptions()
+			store.dispatch('updateMyProductSubscriptions', { productIds: this.selectedProducts })
 		}
 	},
 
 	getSelectButtonText() {
 		if (this.selectedProducts.length === 1) return 'Save and restart'
 		return 'Continue'
-	},
-
-	/* Update the subscriptions array of this user */
-	updateMultiProductsSubscriptions() {
-		// the first (index 0) product is by definition the default product
-		const myNewProductSubscriptions = [this.newDefaultProductId]
-		const otherSubscriptions = []
-		for (const p of this.selectedProducts) {
-			if (p !== this.newDefaultProductId) {
-				otherSubscriptions.push(p)
-			}
-		}
-		store.dispatch('updateMyProductSubscriptions', { productIds: myNewProductSubscriptions.concat(otherSubscriptions) })
 	},
 
 	doChangeMyPassWord() {
@@ -199,10 +179,28 @@ const methods = {
 		store.dispatch('changeMyEmailAction', this.newEmail1)
 	},
 
+	switchToDetailProductView() {
+		if (store.state.lastTreeView === 'detailProduct') {
+			router.push('/detailProduct')
+		} else {
+			const onSuccessCallback = () => router.push('/detailProduct')
+			store.dispatch('saveMyTreeViewAsync', { onSuccessCallback, doEndSession: false })
+		}
+	},
+
+	switchToCoarseProductView() {
+		if (store.state.lastTreeView === 'coarseProduct') {
+			router.push('/coarseProduct')
+		} else {
+			const onSuccessCallback = () => router.push('/coarseProduct')
+			store.dispatch('saveMyTreeViewAsync', { onSuccessCallback, doEndSession: false })
+		}
+	},
+
 	onSignout() {
 		window.removeEventListener('beforeunload', beforeUnloadHandler)
 		store.state.signingOut = true
-		store.dispatch('saveMyTreeViewAsync')
+		store.dispatch('saveMyTreeViewAsync', { doEndSession: true })
 	},
 }
 

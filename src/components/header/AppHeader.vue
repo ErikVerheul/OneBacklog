@@ -13,8 +13,9 @@
           <!-- app-header additions go in this slot -->
           <slot></slot>
           <BNavItemDropdown text="Select your view" right>
-            <BDropdownItem to="../../detailProduct">Product details</BDropdownItem>
-            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'" to="../../coarseProduct">Products
+            <BDropdownItem @click="switchToDetailProductView">Product details</BDropdownItem>
+            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'"
+              @click="switchToCoarseProductView">Products
               overview</BDropdownItem>
             <BDropdownItem to="../../board">Planning board</BDropdownItem>
             <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
@@ -107,15 +108,6 @@
         <hr>
         <BButton class="m-1 float-end" @click="doSelectProducts" variant="primary">{{ getSelectButtonText() }}</BButton>
         <BButton class="m-1 float-end" @click="showSelectProducts = false">Cancel</BButton>
-      </BContainer>
-    </BModal>
-
-    <BModal size="lg" v-model="showSelectDefaultProduct" hide-footer title="Select the default product you are working on">
-      <BContainer align-v="true">
-        <BFormSelect v-model="newDefaultProductId" :options="defaultProductOptions" :select-size="defaultProductOptions.length"></BFormSelect>
-        <hr>
-        <BButton class="m-1 float-end" @click="updateMultiProductsSubscriptions" variant="primary">Save and restart</BButton>
-        <BButton class="m-1 float-end" @click="showSelectDefaultProduct = false">Cancel</BButton>
       </BContainer>
     </BModal>
 

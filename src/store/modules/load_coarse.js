@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
+import { dedup, createLoadEventText, isNodeSelected, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -21,6 +21,7 @@ const actions = {
 	 * The database is sorted by level, productId and priority or level, parentId and priority for top level product documents.
 	 * In the object parentNodes the created tree nodes are mapped to to their id's.
 	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
+	 * Items the user is not authorized or subscribed to are skipped
 	 */
 	loadOverview({ rootState, rootGetters, state, dispatch, commit }) {
 		parentNodes = {}
@@ -119,11 +120,9 @@ const actions = {
 
 					state.docsCount++
 
-					// expand the node as saved in the last session or expand the default product up to the feature level
-					const defaultExp = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < LEVEL.FEATURE : itemLevel < LEVEL.PRODUCT
-					const isExpanded = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.expandedNodes.includes(_id) : defaultExp
-					const defaultShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= LEVEL.FEATURE : itemLevel <= LEVEL.PRODUCT
-					const doShow = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.doShowNodes.includes(_id) : defaultShow
+					// expand the node as saved in the last session or expand all items up to the feature level
+					const isExpanded = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.expandedNodes.includes(_id) : itemLevel < LEVEL.FEATURE
+					const doShow = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.doShowNodes.includes(_id) : itemLevel <= LEVEL.FEATURE
 					// the root cannot be dragged
 					const isDraggable = itemLevel >= LEVEL.PRODUCT
 					if (parentNodes[parentId] !== undefined) {
@@ -153,7 +152,7 @@ const actions = {
 							isExpanded,
 							isSelectable: true,
 							isDraggable,
-							isSelected: _id === rootGetters.getCurrentDefaultProductId,
+							isSelected: isNodeSelected(rootState.lastSessionData.coarseView.lastSelectedNodeId, rootGetters.getCurrentDefaultProductId, _id),
 							doShow,
 							data: {
 								lastAttachmentAddition,
@@ -177,7 +176,7 @@ const actions = {
 
 						state.insertedCount++
 
-						if (_id === rootGetters.getCurrentDefaultProductId) {
+						if (newNode.isSelected) {
 							rootState.selectedNodes = [newNode]
 						}
 
@@ -210,9 +209,9 @@ const actions = {
 				if (rootState.debug) console.log(batch.length + ' backlogItem documents are processed')
 				// clear memory usage
 				parentNodes = {}
-				// load the the default product root node
+				// load the the selected node
 				dispatch('loadDoc', {
-					id: rootGetters.getCurrentDefaultProductId,
+					id: rootGetters.getLastSelectedNode._id,
 				})
 			})
 			.catch((error) => {

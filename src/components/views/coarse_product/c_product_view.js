@@ -120,11 +120,6 @@ const methods = {
 			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
 			// load the selected document
 		} else {
-			// if the user clicked on a node of another product (not root)
-			if (this.getLastSelectedNode._id !== 'root' && store.state.currentProductId !== this.getLastSelectedNode.productId) {
-				// update current productId and title
-				store.commit('switchCurrentProduct', this.getLastSelectedNode.productId)
-			}
 			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
 		}
 	},

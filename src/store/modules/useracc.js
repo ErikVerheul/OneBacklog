@@ -554,8 +554,8 @@ const actions = {
 			})
 	},
 
-	/* Regular sign-out: save the expansion state of the tree (detail or coarse) and sign-out */
-	saveMyTreeViewAsync({ rootState, dispatch, commit }) {
+	/* Save the expansion state of the tree (detail or coarse) and sign-out if payload.doEndSession is true */
+	saveMyTreeViewAsync({ rootState, dispatch, commit }, payload) {
 		commit('saveTreeExpansionState')
 		globalAxios({
 			method: 'GET',
@@ -570,18 +570,23 @@ const actions = {
 					data: tmpUserData,
 				})
 					.then(() => {
-						commit('addToEventList', { txt: 'You are signing out', severity: SEV.INFO })
-						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out`
-						dispatch('doLog', { event: msg, level: SEV.INFO, doEndSession: true })
+						if (payload.onSuccessCallback) payload.onSuccessCallback()
+						if (payload.doEndSession) {
+							commit('addToEventList', { txt: 'You are signing out', severity: SEV.INFO })
+							const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out`
+							dispatch('doLog', { event: msg, level: SEV.INFO, doEndSession: payload.doEndSession })
+						} else {
+							commit('addToEventList', { txt: 'You switched to another view', severity: SEV.INFO })
+						}
 					})
 					.catch((error) => {
 						const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to update the profile of this user', ${error}`
-						dispatch('doLog', { event: msg, level: SEV.ERROR, doEndSession: true })
+						dispatch('doLog', { event: msg, level: SEV.ERROR, doEndSession: payload.doEndSession })
 					})
 			})
 			.catch((error) => {
 				const msg = `saveMyTreeViewAsync: User '${rootState.userData.user}' signed out but failed to read the profile of this user', ${error}`
-				dispatch('doLog', { event: msg, level: SEV.WARNING, doEndSession: true })
+				dispatch('doLog', { event: msg, level: SEV.WARNING, doEndSession: payload.doEndSession })
 			})
 	},
 }

@@ -32,7 +32,6 @@
 					<li>The user can assign dependencies between backlog items.</li>
 					<li>The user can clone a backlog item.</li>
 					<li>The user can copy a backlog item.</li>
-					<li>The user can move a backlog item to another product.</li>
 				</ul>
 				<h5>Other options</h5>
 				<ul>

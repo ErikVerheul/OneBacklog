@@ -17,7 +17,6 @@ function created() {
 
 	this.INSERTBELOW = 0
 	this.INSERTINSIDE = 1
-	this.MOVETOPRODUCT = 2
 	this.REMOVEITEM = 3
 	this.ASIGNTOMYTEAM = 4
 	this.SETDEPENDENCY = 6

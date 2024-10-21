@@ -262,7 +262,7 @@ const store = createStore({
 					return currentDbSettings.subscriptions[0]
 				}
 			}
-
+			// ToDo: can this be removed?
 			if (state.currentProductId) {
 				// return the opened product of the previous session
 				return state.currentProductId
@@ -517,10 +517,6 @@ const store = createStore({
 								savedSelectedNode: getters.getLastSelectedNode,
 								nodeFound,
 							}
-							if (getters.isDetailsViewSelected && nodeFound.productId !== state.currentProductId) {
-								// the node is found but not in the current product; collapse the currently selected product and switch to the new product
-								commit('switchCurrentProduct', nodeFound.productId)
-							}
 							// expand the tree view up to the found item
 							state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
 							commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
@@ -599,14 +595,9 @@ const store = createStore({
 				id: prevSelectedNode._id,
 				toDispatch,
 				onSuccessCallback: () => {
-					if (state.resetSearchOnId.view === 'detailProduct' && state.resetSearchOnId.nodeFound.productId !== prevSelectedNode.productId) {
-						// the node was found in another product
-						commit('switchCurrentProduct', prevSelectedNode.productId)
-					} else {
-						if (!store.resetFilter) {
-							commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
-						} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
-					}
+					if (!store.resetFilter) {
+						commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
+					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 					state.itemId = ''
@@ -1322,27 +1313,9 @@ const store = createStore({
 			state.progressMessage = msg
 		},
 
-		switchCurrentProduct(state, newProductId) {
-			const currentProductNode = state.helpersRef.getNodeById(state.currentProductId)
-			const newCurrentProductNode = state.helpersRef.getNodeById(newProductId)
-			if (currentProductNode !== null && newCurrentProductNode !== null) {
-				// if the current product is not removed and the newly selected product exists
-				if (state.currentView !== 'coarseProduct') {
-					collapseNode(currentProductNode)
-					// select the product node to be expanded
-					state.helpersRef.selectNodeById(newProductId)
-					// prevent the product node to be set to the dragging state
-					newCurrentProductNode.tmpPreventDrag = true
-					expandNode(newCurrentProductNode)
-				}
-				// update current product id and title
-				state.currentProductId = newProductId
-				state.currentProductTitle = newCurrentProductNode.title
-			}
-		},
-
 		saveTreeExpansionState(state) {
 			if (state.currentView === 'detailProduct') {
+				state.lastSessionData.detailView.lastSelectedNodeId = state.selectedNodes.slice(-1)[0]._id
 				state.lastSessionData.detailView.expandedNodes = []
 				state.lastSessionData.detailView.doShowNodes = []
 				state.helpersRef.traverseModels((nm) => {
@@ -1355,6 +1328,7 @@ const store = createStore({
 				})
 			}
 			if (state.currentView === 'coarseProduct') {
+				state.lastSessionData.coarseView.lastSelectedNodeId = state.selectedNodes.slice(-1)[0]._id
 				state.lastSessionData.coarseView.expandedNodes = []
 				state.lastSessionData.coarseView.doShowNodes = []
 				state.helpersRef.traverseModels((nm) => {

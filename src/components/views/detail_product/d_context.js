@@ -111,12 +111,6 @@ const methods = {
 				this.assistanceText = store.state.help.insert[this.contextNodeSelected.level + 1]
 				this.listItemText = 'Insert a ' + this.contextChildType + ' inside this ' + this.contextNodeType
 				break
-			case this.MOVETOPRODUCT:
-				this.assistanceText = store.state.help.move
-				if (!store.state.moveOngoing) {
-					this.listItemText = `Item selected. Choose a ${this.getLevelText(this.contextNodeSelected.level - 1)} as drop position in any other product`
-				} else this.listItemText = 'Drop position is set'
-				break
 			case this.USTOSPRINT:
 				this.assistanceText = store.state.help.usToSprint
 				this.listItemText = `Assign this ${this.contextNodeType} to the current or next sprint`
@@ -196,9 +190,6 @@ const methods = {
 			case this.INSERTINSIDE:
 				this.doInsertNewItem(this.contextNodeSelected)
 				break
-			case this.MOVETOPRODUCT:
-				this.moveItemToOtherProduct()
-				break
 			case this.REMOVEITEM:
 				this.doRemove()
 				break
@@ -232,28 +223,6 @@ const methods = {
 			const node = this.contextNodeSelected
 			const newTeam = this.myTeam
 			store.dispatch('assignToMyTeam', { node, newTeam, timestamp: Date.now() })
-		}
-	},
-
-	moveItemToOtherProduct() {
-		if (store.state.moveOngoing) {
-			const targetPosition = store.state.lastSelectCursorPosition
-			// only allow to drop the node inside a new parent 1 level higher (lower value) than the source node
-			if (targetPosition.nodeModel.level !== this.movedNode.level - 1) {
-				this.showLastEvent('You can only drop inside a ' + this.getLevelText(this.movedNode.level - 1), SEV.WARNING)
-				return
-			}
-
-			// move the node to the new place and update the productId and parentId; movedNode is updated by this call
-			const moveDataContainer = this.moveNodes([this.movedNode], targetPosition)
-
-			// update the database
-			store.dispatch('updateMovedItemsBulk', { moveDataContainer })
-			store.state.moveOngoing = false
-		} else {
-			store.state.moveOngoing = true
-			this.moveSourceProductId = store.state.currentProductId
-			this.movedNode = this.contextNodeSelected
 		}
 	},
 

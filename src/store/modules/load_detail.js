@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
+import { dedup, createLoadEventText, isNodeSelected, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -20,6 +20,7 @@ const mutations = {
 	 * The database is sorted by level, productId and priority or level, parentId and priority for top level product documents.
 	 * In the object parentNodes the created tree nodes are mapped to to their id's.
 	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
+	 * Items the user is not authorized or subscribed to are skipped
 	 */
 	processProducts(state, payload) {
 		const rootState = payload.rootState
@@ -112,10 +113,8 @@ const mutations = {
 			state.docsCount++
 			const expandLevel = rootState.userData.myOptions.proUser === 'true' ? LEVEL.FEATURE : LEVEL.PBI
 			// expand the node as saved in the last session or expand the default product up to the feature level
-			const defaultExp = productId === rootGetters.getCurrentDefaultProductId ? itemLevel < expandLevel : itemLevel < LEVEL.PRODUCT
-			const isExpanded = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : defaultExp
-			const defaultShow = productId === rootGetters.getCurrentDefaultProductId ? itemLevel <= expandLevel : itemLevel <= LEVEL.PRODUCT
-			const doShow = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : defaultShow
+			const isExpanded = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : itemLevel < expandLevel
+			const doShow = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : itemLevel < expandLevel
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
@@ -144,7 +143,7 @@ const mutations = {
 					isExpanded,
 					isSelectable: true,
 					isDraggable,
-					isSelected: _id === rootGetters.getCurrentDefaultProductId,
+					isSelected: isNodeSelected(rootState.lastSessionData.detailView.lastSelectedNodeId, rootGetters.getCurrentDefaultProductId, _id),
 					doShow,
 					data: {
 						lastAttachmentAddition,
@@ -168,7 +167,7 @@ const mutations = {
 
 				state.insertedCount++
 
-				if (_id === rootGetters.getCurrentDefaultProductId) {
+				if (newNode.isSelected) {
 					rootState.selectedNodes = [newNode]
 				}
 
@@ -183,8 +182,8 @@ const mutations = {
 }
 
 const actions = {
-	/* Load current default user product and start loading the tree */
-	loadProductDetails({ rootState, rootGetters, state, commit, dispatch }) {
+	/* Check the presence of the default user product and start loading the tree */
+	checkProductAndStartLoading({ rootState, rootGetters, state, dispatch }) {
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
@@ -201,9 +200,8 @@ const actions = {
 				// after this assignment the access rights can be set in the store
 				rootState.currentProductId = _id
 				rootState.currentProductTitle = res.data.title
-				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
-
-				if (rootState.debug) console.log('loadProductDetails: product document with _id ' + _id + ' is loaded from database ' + rootState.userData.currentDb)
+				if (rootState.debug)
+					console.log('checkProductAndStartLoading: product document with _id ' + _id + ' is found in database ' + rootState.userData.currentDb)
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {
 						rootState.helpersRef.setDescendantsReqArea()
@@ -212,7 +210,7 @@ const actions = {
 				})
 			})
 			.catch((error) => {
-				let msg = `loadProductDetails: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
+				let msg = `checkProductAndStartLoading: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
 				if (error.response && error.response.status === 404) {
 					msg += ', is your default product deleted?'
 				}
@@ -220,7 +218,7 @@ const actions = {
 			})
 	},
 
-	/* Load the current product first */
+	/* Get all items from the current database */
 	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }, payload) {
 		globalAxios({
 			method: 'GET',
@@ -250,7 +248,7 @@ const actions = {
 					}
 				}
 
-				// all products are read; initialize the helpers functions
+				// all backlog items are read; initialize the helpers functions
 				dispatch('createHelpers')
 				// reset load parameters
 				parentNodes = {}

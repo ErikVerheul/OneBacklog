@@ -19,7 +19,7 @@
             <BListGroupItem v-if="contextNodeLevel > PBILEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)">Assign this {{ contextNodeType }} to my team</BListGroupItem>
             <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
-    contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</BListGroupItem>
+              contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</BListGroupItem>
           </template>
           <template v-else>
             <!-- cannot create a database or product here -->
@@ -50,11 +50,6 @@
               <template v-else>Select another node this item depends on</template>
             </BListGroupItem>
 
-            <BListGroupItem v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL" button
-              :active="contextOptionSelected === MOVETOPRODUCT" variant="dark" @click="showSelected(MOVETOPRODUCT)">Move this {{ contextNodeType }} to another
-              product
-            </BListGroupItem>
-
             <BListGroupItem v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel === PRODUCTLEVEL" button
               :active="contextOptionSelected === CLONEPRODUCT" variant="dark" @click="showSelected(CLONEPRODUCT)">Make a clone of this {{ contextNodeType }}
             </BListGroupItem>
@@ -69,7 +64,7 @@
 
             <BListGroupItem v-if="canAssignUsToSprint" button :active="contextOptionSelected === USTOSPRINT" variant="dark" @click="showSelected(USTOSPRINT)">
               Assing this {{
-    contextNodeType }} to a sprint</BListGroupItem>
+              contextNodeType }} to a sprint</BListGroupItem>
 
             <BListGroupItem v-if="canAssignTaskToSprint" button :active="contextOptionSelected === TASKTOSPRINT" variant="dark"
               @click="showSelected(TASKTOSPRINT)">Assing
@@ -77,7 +72,7 @@
 
             <BListGroupItem v-if="isInSprint" button :active="contextOptionSelected === FROMSPRINT" variant="dark" @click="showSelected(FROMSPRINT)">Remove this
               {{
-    contextNodeType }} from the sprint</BListGroupItem>
+              contextNodeType }} from the sprint</BListGroupItem>
 
             <BListGroupItem v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL" button :active="contextOptionSelected === REMOVEITEM" variant="danger"
               @click="showSelected(REMOVEITEM)">Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</BListGroupItem>
@@ -86,10 +81,6 @@
 
         <BListGroupItem v-if="store.state.selectNodeOngoing" button :active="contextOptionSelected === SETDEPENDENCY" variant="dark"
           @click="showSelected(SETDEPENDENCY)">Select this node as a condition for '{{ dependentOnNode.title }}'</BListGroupItem>
-
-        <BListGroupItem v-if="store.state.moveOngoing && moveSourceProductId !== store.state.currentProductId" button
-          :active="contextOptionSelected === MOVETOPRODUCT" variant="dark" @click="showSelected(MOVETOPRODUCT)">Insert the {{ getLevelText(this.movedNode.level,
-    this.movedNode.data.subtype) }} here</BListGroupItem>
       </BListGroup>
 
       <div class="text-center">
