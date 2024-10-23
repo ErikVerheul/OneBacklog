@@ -27,7 +27,7 @@
 						maintain overview on bigger products</li>
 					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
 				</ul>
-				<p>In the context menu the user has more options</p>
+				<p>In the context menu the professional user has more options</p>
 				<ul>
 					<li>The user can assign dependencies between backlog items.</li>
 					<li>The user can clone a backlog item.</li>
@@ -126,9 +126,8 @@
 						you selected a product item you can make a full clone with a copy of all descendants. See the 'Need
 						assistance?' text.</p>
 					<h4>Drag &amp; drop in the backlog item tree</h4>
-					<p>This a powerful feature of this application. <span class="pro-user">As a PO you can move complete branches
-							within one product and between products (in the Products overview). In the product detail view use the
-							context menu to move a branch to another product.</span> You can promote a branch where a feature becomes
+					<p>This a powerful feature of this application to change priorities. <span class="pro-user">As a PO you can move complete branches
+							within one product and between products.</span> You can promote a branch where a feature becomes
 						an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving
 						them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item
 						and without releasing the mouse button, drag the item to its new position. <span class="pro-user">To select
@@ -220,8 +219,7 @@
 					<h4 class="pro-user">Products overview</h4>
 					<p class="pro-user">The 'Products overview' view shows all assigned products up to the feature level. Multiple
 						or all products can be expanded. The APO can create and asign requirement areas to items. The PO can
-						drag&#38;drop items between his products and set dependencies between items in different products (not
-						recommanded).</p>
+						drag&#38;drop items between his products and set dependencies between items in different products.</p>
 					<BImg :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
 					<p class="pro-user">This view shows all products in the database up to the feature level. The requirement area
 						are color coded choosen by the APO.</p>

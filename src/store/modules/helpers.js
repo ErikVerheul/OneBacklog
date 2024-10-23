@@ -155,7 +155,7 @@ const actions = {
 			 * Stop when the callback returns false
 			 * nodeModels: array of nodes
 			 */
-			traverseModels: function (cb, nodeModels = rootGetters.getTreeModel) {
+			traverseModels: function (cb, nodesToScan = rootGetters.getTreeModel) {
 				let shouldStop = false
 				function traverse(cb, nodeModels) {
 					if (shouldStop) return
@@ -168,7 +168,7 @@ const actions = {
 						if (nm.children) traverse(cb, nm.children)
 					}
 				}
-				traverse(cb, nodeModels)
+				traverse(cb, nodesToScan)
 			},
 
 			/*
@@ -194,8 +194,7 @@ const actions = {
 				return path2[path1.length] === undefined ? 0 : -1
 			},
 
-			findDependencyViolations(allProducts) {
-				const nodesToScan = allProducts ? undefined : rootState.helpersRef.getCurrentProductModel()
+			findDependencyViolations() {
 				const violations = []
 				rootState.helpersRef.traverseModels((nm) => {
 					// remove any left dependency markers
@@ -211,7 +210,7 @@ const actions = {
 							}
 						}
 					}
-				}, nodesToScan)
+				}, rootState.helpersRef.getProductNodes())
 				return violations
 			},
 
@@ -237,10 +236,9 @@ const actions = {
 			},
 
 			/* Show the path from condNode to depNode including both nodes */
-			showDependencyViolations(violations, allProducts) {
-				const nodesToScan = allProducts ? undefined : rootState.helpersRef.getCurrentProductModel()
-				commit('saveTreeView', { nodesToScan, type: 'condition' })
-				commit('saveTreeView', { nodesToScan, type: 'dependency' })
+			showDependencyViolations(violations) {
+				commit('saveTreeView', { type: 'condition' })
+				commit('saveTreeView', { type: 'dependency' })
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
 					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
@@ -251,31 +249,29 @@ const actions = {
 								nm.tmp.markedViolations.push(column)
 							} else nm.tmp.markedViolations = [column]
 						}
-					}, nodesToScan)
+					}, rootState.helpersRef.getProductNodes())
 				}
 			},
 
-			/* Calculate and show dependency violations */
-			checkDepencyViolations(allProducts) {
-				const violations = rootState.helpersRef.findDependencyViolations(allProducts)
-				if (violations.length > 0) rootState.helpersRef.showDependencyViolations(violations, allProducts)
+			/* Check for created or resolved dependency violations */
+			checkDepencyViolations() {
+				const violations = rootState.helpersRef.findDependencyViolations()
+				if (violations.length > 0) rootState.helpersRef.showDependencyViolations(violations)
 			},
 
 			/*
-			 * Find and show dependency violations in the current product (details view) or all products (coarse view).
+			 * Find and show dependency violations in the current view.
 			 * Undo the tree expansion from a previous scan on violations if no violations are found.
 			 * Return true if violations are found, false otherwise.
 			 */
 			dependencyViolationsFound() {
 				let violationsWereFound = false
-				const violations = rootState.helpersRef.findDependencyViolations(rootGetters.isOverviewSelected)
+				const violations = rootState.helpersRef.findDependencyViolations()
 				if (violations.length > 0) {
 					violationsWereFound = true
 					commit('addToEventList', { txt: 'This product has priority inconsistencies. Undo the change or remove the dependency.', severity: SEV.WARNING })
-					rootState.helpersRef.showDependencyViolations(violations, rootGetters.isOverviewSelected)
+					rootState.helpersRef.showDependencyViolations(violations)
 				} else {
-					// reset the tree view
-					const nodesToScan = rootGetters.isOverviewSelected ? undefined : rootState.helpersRef.getCurrentProductModel()
 					// traverse the tree to reset to the tree view state
 					rootState.helpersRef.traverseModels((nm) => {
 						// skip root level
@@ -287,7 +283,7 @@ const actions = {
 						if (nm.tmp.savedIsExpandedInDependency === true) expandNode(nm)
 						// delete if set or not
 						delete nm.tmp.savedIsExpandedInDependency
-					}, nodesToScan)
+					}, rootState.helpersRef.getProductNodes())
 				}
 				return violationsWereFound
 			},

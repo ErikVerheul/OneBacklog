@@ -126,8 +126,7 @@ const methods = {
     if (store.state.resetFilter || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
     // save node display state
-    const nodesToScan = store.state.helpersRef.getCurrentProductModel()
-    store.commit('saveTreeView', { nodesToScan, type: 'filter' })
+    store.commit('saveTreeView', { type: 'filter' })
 
     const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
     let count = 0

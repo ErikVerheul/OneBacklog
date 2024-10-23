@@ -299,8 +299,7 @@ const methods = {
 	onSetMyFilters() {
 		if (store.state.resetFilter) {
 			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
-			const productModels = this.isOverviewSelected ? undefined : store.state.helpersRef.getCurrentProductModel()
-			store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters', productModels })
+			store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters' })
 		} else {
 			// this filter was not set; update the available req area options first
 			const currReqAreaIds = store.state.helpersRef.getCurrentReqAreaIds()

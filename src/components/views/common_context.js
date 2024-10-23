@@ -330,29 +330,20 @@ const methods = {
 		}
 	},
 
-	/* Return an array with the product node aNode is a descendant of, or an empty array if no parent is found */
-	getProductNode(aNode) {
-		const allProductNodes = store.state.helpersRef.getProducts()
-		for (let nm of allProductNodes) {
-			if (nm.productId === aNode.productId) return [nm]
-		}
-		return []
+	/* Undo the tree expansion and highlighting */
+	undoShowDependencies() {
+		store.commit('restoreTreeView', { type: 'dependency' })
 	},
 
 	/* Undo the tree expansion and highlighting */
-	undoShowDependencies(nodesToScan) {
-		store.commit('restoreTreeView', { type: 'dependency', nodesToScan })
-	},
-
-	/* Undo the tree expansion and highlighting */
-	undoShowConditions(nodesToScan) {
-		store.commit('restoreTreeView', { type: 'condition', nodesToScan })
+	undoShowConditions() {
+		store.commit('restoreTreeView', { type: 'condition' })
 	},
 
 	/* Remove the dependencies and the corresponding conditions in the tree model and the database. */
 	doRemoveDependencies() {
 		if (this.selectedDependencyIds && this.selectedDependencyIds.length > 0) {
-			this.undoShowDependencies(this.getProductNode(this.contextNodeSelected))
+			this.undoShowDependencies(store.state.helpersRef.getProductNodes())
 			const newDeps = []
 			for (const id of this.contextNodeSelected.dependencies) {
 				if (!this.selectedDependencyIds.includes(id)) newDeps.push(id)
@@ -364,12 +355,17 @@ const methods = {
 	/* Remove the conditions and the corresponding dependencies in the tree model and the database. */
 	doRemoveConditions() {
 		if (this.selectedConditionIds && this.selectedConditionIds.length > 0) {
-			this.undoShowConditions(this.getProductNode(this.contextNodeSelected))
-			const newCons = []
-			for (const id of this.contextNodeSelected.conditions) {
-				if (!this.selectedConditionIds.includes(id)) newCons.push(id)
+			this.undoShowConditions(store.state.helpersRef.getProductNodes())
+			const newConds = []
+			for (const id of this.contextNodeSelected.conditionalFor) {
+				if (!this.selectedConditionIds.includes(id)) newConds.push(id)
 			}
-			store.dispatch('removeConditionsAsync', { node: this.contextNodeSelected, newCons, removedIds: this.selectedConditionIds, timestamp: Date.now() })
+			store.dispatch('removeConditionsAsync', {
+				node: this.contextNodeSelected,
+				newCons: newConds,
+				removedIds: this.selectedConditionIds,
+				timestamp: Date.now(),
+			})
 		}
 	},
 
@@ -379,18 +375,17 @@ const methods = {
 		store.state.moveOngoing = false
 		store.state.selectNodeOngoing = false
 		if (this.contextOptionSelected === this.SHOWDEPENDENCIES) {
-			this.undoShowDependencies(this.getProductNode(this.contextNodeSelected))
+			this.undoShowDependencies(store.state.helpersRef.getProductNodes())
 		}
 		if (this.contextOptionSelected === this.SHOWCONDITIONS) {
-			this.undoShowConditions(this.getProductNode(this.contextNodeSelected))
+			this.undoShowConditions(store.state.helpersRef.getProductNodes())
 		}
 	},
 
 	getDependencies() {
 		this.dependenciesObjects = []
 		this.allDepenciesFound = true
-		const nodesToScan = this.getProductNode(this.contextNodeSelected)
-		store.commit('saveTreeView', { nodesToScan, type: 'dependency' })
+		store.commit('saveTreeView', { type: 'dependency' })
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = store.state.helpersRef.getNodeById(depId)
 			if (item) {
@@ -404,8 +399,7 @@ const methods = {
 	getConditions() {
 		this.conditionsObjects = []
 		this.allConditionsFound = true
-		const nodesToScan = this.getProductNode(this.contextNodeSelected)
-		store.commit('saveTreeView', { nodesToScan, type: 'condition' })
+		store.commit('saveTreeView', { type: 'condition' })
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = store.state.helpersRef.getNodeById(conId)
 			if (item) {

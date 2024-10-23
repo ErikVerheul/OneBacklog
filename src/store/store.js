@@ -105,7 +105,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '2.3.9',
+			appVersion: '2.4.0',
 			// generic helper functions
 			helpersRef: null,
 			// console log settings
@@ -488,7 +488,6 @@ const store = createStore({
 		findItemOnId({ state, dispatch, commit, getters }, payload) {
 			const SHORTKEYLENGTH = 5
 			const id = payload.id
-			const productNodes = state.helpersRef.getProductNodes()
 			// scan all items of the current products
 			const isShortId = id.length === SHORTKEYLENGTH
 			let nodeFound
@@ -498,11 +497,11 @@ const store = createStore({
 					nodeFound = nm
 					return false
 				}
-			}, productNodes)
+			}, state.helpersRef.getProductNodes())
 
 			if (nodeFound) {
 				// save display state of the current products
-				commit('saveTreeView', { productNodes, type: 'findId' })
+				commit('saveTreeView', { type: 'findId' })
 				// load and select the document if not already current
 				if (nodeFound._id !== state.currentDoc._id) {
 					// select the node after loading the document
@@ -537,7 +536,7 @@ const store = createStore({
 			const productNodes = state.helpersRef.getProductNodes()
 			const nodesFound = []
 			// save display state of the branch
-			commit('saveTreeView', { productNodes, type: 'titles' })
+			commit('saveTreeView', { type: 'titles' })
 			state.helpersRef.traverseModels((nm) => {
 				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
 					// expand the product up to the found item and highlight it
@@ -594,8 +593,8 @@ const store = createStore({
 				toDispatch,
 				onSuccessCallback: () => {
 					if (!store.resetFilter) {
-						commit('restoreTreeView', { type: 'findId', nodesToScan: undefined })
-					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
+						commit('restoreTreeView', { type: 'findId' })
+					} else commit('restoreTreeView', { type: 'filter' })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
 					state.itemId = ''
@@ -619,8 +618,8 @@ const store = createStore({
 				toDispatch,
 				onSuccessCallback: () => {
 					if (!store.resetFilter) {
-						commit('restoreTreeView', { type: 'titles', nodesToScan: state.resetSearchOnTitle.productNodes })
-					} else commit('restoreTreeView', { type: 'filter', nodesToScan: state.helpersRef.getCurrentProductModel() })
+						commit('restoreTreeView', { type: 'titles' })
+					} else commit('restoreTreeView', { type: 'filter' })
 					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
 					state.keyword = ''
@@ -643,7 +642,7 @@ const store = createStore({
 						state.resetFilter = null
 						state.resetSearchOnId = null
 						state.resetSearchOnTitle = null
-						commit('restoreTreeView', { type: 'filter', nodesToScan: payload.productModels })
+						commit('restoreTreeView', { type: 'filter' })
 						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
 						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
 					},
@@ -933,7 +932,7 @@ const store = createStore({
 				delete nm.tmp.isHighlighted_1
 				delete nm.tmp.isHighlighted_2
 				delete nm.tmp.isWarnLighted
-			}, payload.nodesToScan)
+			}, state.helpersRef.getProductNodes())
 		},
 
 		/* Traverse the tree to reset to the state before the view change */
@@ -987,7 +986,7 @@ const store = createStore({
 					delete nm.tmp.savedDoShowInTitles
 					resetHighLights(nm, nm.tmp.savedHighLigthsInTitles)
 				}
-			}, payload.nodesToScan)
+			}, state.helpersRef.getProductNodes())
 		},
 
 		/* The keys of the payload object are evaluated by key name and value */

@@ -111,8 +111,7 @@ const methods = {
     if (store.state.resetFilter || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 
     // save node display state; scan all products
-    const nodesToScan = undefined
-    store.commit('saveTreeView', { nodesToScan, type: 'filter' })
+    store.commit('saveTreeView', { type: 'filter' })
 
     let count = 0
     const unselectedNodes = []

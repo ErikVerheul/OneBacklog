@@ -324,10 +324,10 @@ const actions = {
 							for (const condId of depOnNode.conditionalFor) {
 								if (condId !== payload.node._id) conIdArray.push(id)
 							}
-							// no need to pass history as the currenly selected node is the node wth the conditions
+							// no need to pass history as the currenly selected node is the node with the conditions
 							commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
 							// check for resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
+							rootState.helpersRef.checkDepencyViolations()
 						}
 					},
 				})
@@ -440,7 +440,7 @@ const actions = {
 							// no need to pass history as the currenly selcted node is the node with the dependencies
 							commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
 							// check for resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
+							rootState.helpersRef.checkDepencyViolations()
 						}
 					},
 				})
@@ -494,53 +494,6 @@ const actions = {
 			})
 			.catch((error) => {
 				const msg = 'removeExtDependenciesAsync: Could not read batch of documents: ' + error
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
-	removeExtConditionsAsync({ rootState, dispatch }, externalConditions) {
-		function getCondItem(id) {
-			for (const item of externalConditions) {
-				for (const c of item.conditions) {
-					if (c === id) return item
-				}
-			}
-		}
-		const docsToGet = []
-		const docs = []
-		for (const c of externalConditions) {
-			for (const cc of c.conditions) {
-				docsToGet.push({ id: cc })
-			}
-		}
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
-		})
-			.then((res) => {
-				const results = res.data.results
-				for (const r of results) {
-					const doc = r.docs[0].ok
-					const condItem = getCondItem(doc._id)
-					if (doc && doc.dependencies && condItem) {
-						const newDependencies = []
-						for (const d of doc.dependencies) {
-							if (d !== condItem.id) newDependencies.push(d)
-						}
-						const newHist = {
-							ignoreEvent: ['removeExtConditionsAsync'],
-							timestamp: Date.now(),
-						}
-						doc.history.unshift(newHist)
-						doc.dependencies = newDependencies
-						docs.push(doc)
-					}
-				}
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'removeExtConditionsAsync' })
-			})
-			.catch((error) => {
-				const msg = 'removeExtConditionsAsync: Could not read batch of documents: ' + error
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

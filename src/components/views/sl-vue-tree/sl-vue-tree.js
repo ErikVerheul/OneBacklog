@@ -366,7 +366,7 @@ const methods = {
 
 	/* test code */
 	showVisibility(caller, toLevel = 3) {
-		const nodesToScan = this.isOverviewSelected ? undefined : store.state.helpersRef.getCurrentProductModel()
+		const nodesToScan = store.state.helpersRef.getProductNodes()
 		store.state.helpersRef.traverseModels((nm) => {
 			if (nm.level <= toLevel) {
 				console.log(`${caller}: level = ${nm.level}, isExpanded = ${nm.isExpanded}, doShow = ${nm.doShow}, title = ${nm.title}`)

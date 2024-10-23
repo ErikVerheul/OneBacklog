@@ -339,7 +339,7 @@ const actions = {
 							moveNode(node, doc.parentId)
 							showSyncMessage(`moved`, SEV.INFO)
 							// check for created or resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations(rootGetters.isOverviewSelected)
+							rootState.helpersRef.checkDepencyViolations()
 							break
 						case 'removeAttachmentEvent':
 							commit('updateNodesAndCurrentDoc', { node, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
