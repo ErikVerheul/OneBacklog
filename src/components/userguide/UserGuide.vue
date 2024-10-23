@@ -202,10 +202,11 @@
 					<p class="pro-user">Dependencies:</p>
 					<p class="pro-user">Items with dependencies on other items are designated with a ▼ symbol in front of the
 						title name. Use the context menu to assign dependencies or to inspect or remove them.
-						When dependencies are set the items which become conditional for the dependent items are designated with a ▲
-						symbol. Use the context menu to inspect or remove them.
-						When after dragging items in tree one or more dependencies are violated you receive an error message.
+						When dependencies are set the items which become conditional for the dependent items are designated with a ▲ symbol.
+						When after dragging items one or more dependencies are violated you receive an error message with a visual presentation. See the example
+						below.
 					</p>
+					<BImg :src="getImgUrl('img/dependency-violation.png')" alt="Dependency violation presentation example" />
 					<p>Badges:</p>
 					<BImg :src="getImgUrl('img/badges.png')" alt="Example badges" />
 					<p>Note the badges as shown in the screen dump of the product view. These badges signal a change within the
