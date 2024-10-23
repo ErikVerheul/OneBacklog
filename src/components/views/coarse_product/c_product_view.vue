@@ -450,7 +450,7 @@ label {
   width: 100%;
   text-align: left;
   padding: 9px;
-  padding-right: 90px;
+  padding-right: 100px;
   border-radius: 2px;
 }
 
