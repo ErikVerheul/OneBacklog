@@ -32,7 +32,7 @@
           </template>
           <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
             <BListGroupItem button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
-    contextNodeType }} to my team</BListGroupItem>
+              contextNodeType }} to my team</BListGroupItem>
           </template>
           <template v-else>
             <!-- cannot create a database or product here -->
@@ -55,7 +55,7 @@
 
             <BListGroupItem v-if="contextNodeLevel > PRODUCTLEVEL" button :active="contextOptionSelected === SETDEPENDENCY" variant="dark"
               @click="showSelected(SETDEPENDENCY)">
-              <template v-if="this.contextNodeSelected.dependencies.length === 0">Select a node this item depends on</template>
+              <template v-if="this.contextNodeSelected.dependencies.length === 0">Select a node this item is conditional for</template>
               <template v-else>Select another node this item depends on</template>
             </BListGroupItem>
 

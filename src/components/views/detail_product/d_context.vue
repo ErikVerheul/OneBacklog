@@ -46,7 +46,7 @@
 
             <BListGroupItem v-if="store.state.userData.myOptions.proUser === 'true' && contextNodeLevel > PRODUCTLEVEL" button
               :active="contextOptionSelected === SETDEPENDENCY" variant="dark" @click="showSelected(SETDEPENDENCY)">
-              <template v-if="this.contextNodeSelected.dependencies.length === 0">Select a node this item depends on</template>
+              <template v-if="this.contextNodeSelected.dependencies.length === 0">Select a node this item is conditional for</template>
               <template v-else>Select another node this item depends on</template>
             </BListGroupItem>
 
@@ -64,7 +64,7 @@
 
             <BListGroupItem v-if="canAssignUsToSprint" button :active="contextOptionSelected === USTOSPRINT" variant="dark" @click="showSelected(USTOSPRINT)">
               Assing this {{
-              contextNodeType }} to a sprint</BListGroupItem>
+                contextNodeType }} to a sprint</BListGroupItem>
 
             <BListGroupItem v-if="canAssignTaskToSprint" button :active="contextOptionSelected === TASKTOSPRINT" variant="dark"
               @click="showSelected(TASKTOSPRINT)">Assing
@@ -72,7 +72,7 @@
 
             <BListGroupItem v-if="isInSprint" button :active="contextOptionSelected === FROMSPRINT" variant="dark" @click="showSelected(FROMSPRINT)">Remove this
               {{
-              contextNodeType }} from the sprint</BListGroupItem>
+                contextNodeType }} from the sprint</BListGroupItem>
 
             <BListGroupItem v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL" button :active="contextOptionSelected === REMOVEITEM" variant="danger"
               @click="showSelected(REMOVEITEM)">Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</BListGroupItem>
