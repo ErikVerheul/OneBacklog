@@ -3,6 +3,22 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.4.0 - 23 October 2024 Major change due to better performance of Vue and the browsers</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Moving backlog items between products in the detail view is now possible without using the context menu</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>Allow all products to be opened in the detail view</li>
+          <li>Save and retrieve tree expansion status when switching between detail and coarse view</li>
+          <li>Adapt dependencies handling to multiple producs opened in the detail view</li>
+        </ul>
+        <p>Bug fixes</p>
+        <ul>
+          <li>When another product is selected in the Details view, under conditions, the dragging mode is intiated: fixed</li>
+          <li>Node not selected when opening context menu: regression fixed</li>
+        </ul>
         <h3>v.2.3.9 - 18 October 2024 Refactoring and bug fixes</h3>
         <p>Refactoring</p>
         <ul>
