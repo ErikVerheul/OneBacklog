@@ -128,8 +128,6 @@ const store = createStore({
 			signedOut: true,
 			// tree loading
 			allTeams: {},
-			isDetailHistLoaded: false,
-			isCoarseHistLoaded: false,
 			lastSessionData: {},
 			loadedTreeDepth: undefined,
 			myTeamId: null,
@@ -751,6 +749,36 @@ const store = createStore({
 			})
 				.then((res) => {
 					const tmpUserData = res.data
+					// update the lastSessionData
+					if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData) {
+						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView) {
+							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.lastSelectedProductId
+							if (!lastSelectedProductId || !payload.productIds.includes(lastSelectedProductId)) {
+								// the lastSelectedProductId is not available or not in the newly selected product ids
+								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView
+							} else {
+								// add all subscribed product ids (needed in case the user extended the range of subscribed products)
+								for (let productId of payload.productIds) {
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.expandedNodes.push(productId)
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.doShowNodes.push(productId)
+								}
+							}
+						}
+						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView) {
+							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.lastSelectedProductId
+
+							if (!lastSelectedProductId || (!payload.productIds.includes(lastSelectedProductId) && lastSelectedProductId !== MISC.AREA_PRODUCTID)) {
+								// the lastSelectedProductId is not available or not in the newly selected product ids
+								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView
+							} else {
+								// add all subscribed product ids (needed in case the user extended the range of subscribed products)
+								for (let productId of payload.productIds) {
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.expandedNodes.push(productId)
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.doShowNodes.push(productId)
+								}
+							}
+						}
+					}
 					tmpUserData.myDatabases[state.userData.currentDb].subscriptions = payload.productIds
 					dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: () => commit('endSession', 'updateMyProductSubscriptions') })
 				})
@@ -1314,10 +1342,11 @@ const store = createStore({
 		},
 
 		saveTreeExpansionState(state) {
+			const lastSelectedNode = state.selectedNodes.slice(-1)[0]
+			if (!state.lastSessionData) state.lastSessionData = {}
+
 			if (state.currentView === 'detailProduct') {
-				state.lastSessionData.detailView.lastSelectedNodeId = state.selectedNodes.slice(-1)[0]._id
-				state.lastSessionData.detailView.expandedNodes = []
-				state.lastSessionData.detailView.doShowNodes = []
+				state.lastSessionData.detailView = { expandedNodes: [], doShowNodes: [] }
 				state.helpersRef.traverseModels((nm) => {
 					if (nm.isExpanded) {
 						state.lastSessionData.detailView.expandedNodes.push(nm._id)
@@ -1326,11 +1355,12 @@ const store = createStore({
 						state.lastSessionData.detailView.doShowNodes.push(nm._id)
 					}
 				})
+				state.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+				state.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
 			}
+
 			if (state.currentView === 'coarseProduct') {
-				state.lastSessionData.coarseView.lastSelectedNodeId = state.selectedNodes.slice(-1)[0]._id
-				state.lastSessionData.coarseView.expandedNodes = []
-				state.lastSessionData.coarseView.doShowNodes = []
+				state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
 				state.helpersRef.traverseModels((nm) => {
 					if (nm.isExpanded) {
 						state.lastSessionData.coarseView.expandedNodes.push(nm._id)
@@ -1339,6 +1369,8 @@ const store = createStore({
 						state.lastSessionData.coarseView.doShowNodes.push(nm._id)
 					}
 				})
+				state.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+				state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
 			}
 		},
 

@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText, isNodeSelected, pathToJSON } from '../../common_functions.js'
+import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -25,6 +25,15 @@ const mutations = {
 	processProducts(state, payload) {
 		const rootState = payload.rootState
 		const rootGetters = payload.rootGetters
+		/* Return true if the id matches the id stored in the lastSessionData or, if not available, the default product id */
+		function isNodeSelected(id) {
+			const lastSelectedNodeId =
+				rootState.lastSessionData && rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.lastSelectedNodeId : undefined
+			if (lastSelectedNodeId && id === lastSelectedNodeId) return true
+			if (!lastSelectedNodeId && id === rootGetters.getCurrentDefaultProductId) return true
+			return false
+		}
+
 		for (const item of payload.batch) {
 			const _id = item.id
 			const itemLevel = item.key[0]
@@ -113,8 +122,8 @@ const mutations = {
 			state.docsCount++
 			const expandLevel = rootState.userData.myOptions.proUser === 'true' ? LEVEL.FEATURE : LEVEL.PBI
 			// expand the node as saved in the last session or expand the default product up to the feature level
-			const isExpanded = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : itemLevel < expandLevel
-			const doShow = rootState.isDetailHistLoaded ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : itemLevel < expandLevel
+			const isExpanded = rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : itemLevel < expandLevel
+			const doShow = rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : itemLevel < expandLevel
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
@@ -143,7 +152,7 @@ const mutations = {
 					isExpanded,
 					isSelectable: true,
 					isDraggable,
-					isSelected: isNodeSelected(rootState.lastSessionData.detailView.lastSelectedNodeId, rootGetters.getCurrentDefaultProductId, _id),
+					isSelected: isNodeSelected(_id),
 					doShow,
 					data: {
 						lastAttachmentAddition,
@@ -230,6 +239,10 @@ const actions = {
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}
 				commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
+				// load the the selected node
+				dispatch('loadDoc', {
+					id: rootGetters.getLastSelectedNode._id,
+				})
 				const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
 				commit('addToEventList', { txt: createLoadEventText(state), severity })
 				// log any detected orphans, if present

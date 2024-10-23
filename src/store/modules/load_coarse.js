@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { dedup, createLoadEventText, isNodeSelected, pathToJSON } from '../../common_functions.js'
+import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -24,6 +24,14 @@ const actions = {
 	 * Items the user is not authorized or subscribed to are skipped
 	 */
 	loadOverview({ rootState, rootGetters, state, dispatch, commit }) {
+		/* Return true if the id matches the id stored in the lastSessionData or, if not available, the default product id */
+		function isNodeSelected(id) {
+			const lastSelectedNodeId =
+				rootState.lastSessionData && rootState.lastSessionData.coarseView ? rootState.lastSessionData.coarseView.lastSelectedNodeId : undefined
+			if (lastSelectedNodeId && id === lastSelectedNodeId) return true
+			if (!lastSelectedNodeId && id === rootGetters.getCurrentDefaultProductId) return true
+			return false
+		}
 		parentNodes = {}
 		orphansFound = []
 		levelErrorsFound = []
@@ -121,8 +129,8 @@ const actions = {
 					state.docsCount++
 
 					// expand the node as saved in the last session or expand all items up to the feature level
-					const isExpanded = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.expandedNodes.includes(_id) : itemLevel < LEVEL.FEATURE
-					const doShow = rootState.isCoarseHistLoaded ? rootState.lastSessionData.coarseView.doShowNodes.includes(_id) : itemLevel <= LEVEL.FEATURE
+					const isExpanded = rootState.lastSessionData.coarseView ? rootState.lastSessionData.coarseView.expandedNodes.includes(_id) : itemLevel < LEVEL.FEATURE
+					const doShow = rootState.lastSessionData.coarseView ? rootState.lastSessionData.coarseView.doShowNodes.includes(_id) : itemLevel <= LEVEL.FEATURE
 					// the root cannot be dragged
 					const isDraggable = itemLevel >= LEVEL.PRODUCT
 					if (parentNodes[parentId] !== undefined) {
@@ -152,7 +160,7 @@ const actions = {
 							isExpanded,
 							isSelectable: true,
 							isDraggable,
-							isSelected: isNodeSelected(rootState.lastSessionData.coarseView.lastSelectedNodeId, rootGetters.getCurrentDefaultProductId, _id),
+							isSelected: isNodeSelected(_id),
 							doShow,
 							data: {
 								lastAttachmentAddition,

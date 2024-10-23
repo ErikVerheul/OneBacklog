@@ -103,19 +103,9 @@ const actions = {
 					// ToDo: this check can be removed if all users have checked their messages
 					rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[myTeam] || 0
 				} else rootState.myLastSessionMessagesCount = 0
-				// get the last selected product id and the expansion state of the last viewed detail view
+				// get the last selected product id and the last session data if available
 				if (allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
-					rootState.isDetailHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.detailView.expandedNodes.length > 0
-					rootState.isCoarseHistLoaded = allUserData.myDatabases[allUserData.currentDb].lastSessionData.coarseView.expandedNodes.length > 0
 					rootState.lastSessionData = allUserData.myDatabases[allUserData.currentDb].lastSessionData
-				} else {
-					// create an empty template for use on exit
-					rootState.isDetailHistLoaded = false
-					rootState.isCoarseHistLoaded = false
-					rootState.lastSessionData = {
-						detailView: { expandedNodes: [], doShowNodes: [] },
-						coarseView: { expandedNodes: [], doShowNodes: [] },
-					}
 				}
 				// start the watchdog
 				dispatch('watchdog')

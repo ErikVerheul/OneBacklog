@@ -169,12 +169,6 @@ export function getLocationInfo(newPrio, parentNode) {
 	}
 }
 
-export function isNodeSelected(lastSelectedNodeId, currentDefaultProductId, id) {
-	if (lastSelectedNodeId && id === lastSelectedNodeId) return true
-	if (!lastSelectedNodeId && id === currentDefaultProductId) return true
-	return false
-}
-
 /* Return the sprint object or null if not found */
 export function getSprintById(id, calendar) {
 	for (const s of calendar) {
@@ -252,7 +246,6 @@ export default {
 	getLocationInfo,
 	getSprintById,
 	getSprintNameById,
-	isNodeSelected,
 	localTimeAndMilis,
 	removeFromArray,
 	isValidEmail,
