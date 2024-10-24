@@ -168,7 +168,7 @@ const methods = {
 	},
 
 	switchToDetailProductView() {
-		if (store.state.lastTreeView === 'detailProduct') {
+		if (store.state.currentTreeView === 'detailProduct') {
 			router.push('/detailProduct')
 		} else {
 			const onSuccessCallback = () => router.push('/detailProduct')
@@ -177,7 +177,7 @@ const methods = {
 	},
 
 	switchToCoarseProductView() {
-		if (store.state.lastTreeView === 'coarseProduct') {
+		if (store.state.currentTreeView === 'coarseProduct') {
 			router.push('/coarseProduct')
 		} else {
 			const onSuccessCallback = () => router.push('/coarseProduct')

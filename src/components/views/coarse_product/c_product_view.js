@@ -13,7 +13,7 @@ const thisView = 'coarseProduct'
 
 function created() {
 	store.state.currentView = thisView
-	if (thisView !== store.state.lastTreeView) {
+	if (thisView !== store.state.currentTreeView) {
 		store.state.treeNodes = []
 		store.state.changeHistory = []
 		// reset filters and searches

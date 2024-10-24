@@ -151,7 +151,7 @@ const store = createStore({
 			freezeEvent: false,
 			itemId: '',
 			keyword: '',
-			lastTreeView: undefined,
+			currentTreeView: undefined,
 			moveOngoing: false,
 			newAcceptanceCriteria: MISC.EMPTYQUILL,
 			newDescription: MISC.EMPTYQUILL,
