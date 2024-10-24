@@ -634,8 +634,17 @@ const actions = {
 				if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 					assignNewPrios(nodes, predecessorNode, successorNode)
 				}
-				// return the inserted nodes
-				return nodes
+				// update the lastSessionData
+				if (rootState.lastSessionData) {
+					if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
+						for (let n of nodes) {
+							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
+							rootState.lastSessionData.detailView.doShowNodes.push(n._id)
+							if (n.level < LEVEL.FEATURE) rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
+							if (n.level <= LEVEL.FEATURE) rootState.lastSessionData.coarseView.doShowNodes.push(n._id)
+						}
+					}
+				}
 			},
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
