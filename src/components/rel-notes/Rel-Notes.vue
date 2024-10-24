@@ -3,7 +3,7 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
-        <h3>v.2.4.0 - 23 October 2024 Major change due to better performance of Vue and the browsers</h3>
+        <h3>v.2.4.0 - 24 October 2024 Major change due to better performance of Vue and the browsers</h3>
         <p>New feature</p>
         <ul>
           <li>Moving backlog items between products in the detail view is now possible without using the context menu</li>
