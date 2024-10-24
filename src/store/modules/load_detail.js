@@ -109,10 +109,10 @@ const mutations = {
 				continue
 			}
 			// skip the items of the products the user is not authorized to
-			if (!rootGetters.getMyAssignedProductIds.includes(productId)) continue
+			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
 
 			// skip the items of the products the user is not subscribed to
-			if (!rootGetters.getMyProductSubscriptions.includes(productId)) continue
+			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
 
 			// create a map with product titles
 			if (itemLevel === LEVEL.PRODUCT) {
@@ -122,8 +122,12 @@ const mutations = {
 			state.docsCount++
 			const expandLevel = rootState.userData.myOptions.proUser === 'true' ? LEVEL.FEATURE : LEVEL.PBI
 			// expand the node as saved in the last session or expand the default product up to the feature level
-			const isExpanded = rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.expandedNodes.includes(_id) : itemLevel < expandLevel
-			const doShow = rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.doShowNodes.includes(_id) : itemLevel < expandLevel
+			const isExpanded = rootState.lastSessionData.detailView
+				? rootState.lastSessionData.detailView.expandedNodes.includes(_id)
+				: productId !== MISC.AREA_PRODUCTID && itemLevel < expandLevel
+			const doShow = rootState.lastSessionData.detailView
+				? rootState.lastSessionData.detailView.doShowNodes.includes(_id)
+				: productId !== MISC.AREA_PRODUCTID && itemLevel < expandLevel
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
