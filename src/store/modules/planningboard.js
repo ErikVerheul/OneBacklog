@@ -573,7 +573,7 @@ const actions = {
 						}
 						doc.history.unshift(newHist)
 
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree view
 							const node = rootState.helpersRef.getNodeById(doc._id)
 							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
@@ -688,7 +688,7 @@ const actions = {
 					docs: newChildren,
 					toDispatch: [{ syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds } }],
 					onSuccessCallback: () => {
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// update the position of the tasks of the story and update the index and priority values in the tree
 							const storyNode = rootState.helpersRef.getNodeById(payload.storyId)
 							if (!storyNode) return
@@ -1032,7 +1032,7 @@ const actions = {
 					updatedDoc: newDoc,
 					caller: 'boardAddTask',
 					onSuccessCallback: () => {
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree data
 							const newNode = {
 								_id: payload.taskId,
@@ -1117,7 +1117,7 @@ const actions = {
 					caller: 'boardRemoveStoryFromSprint',
 					toDispatch: [{ removeSprintFromChildren: { storyId, removedSprintId } }],
 					onSuccessCallback: () => {
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// remove the sprintId from the node in the tree view
 							const node = rootState.helpersRef.getNodeById(storyId)
 							if (node) {
@@ -1214,7 +1214,7 @@ const actions = {
 					caller: 'boardRemoveTask',
 					toDispatch,
 					onSuccessCallback: () => {
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// remove the node from the tree view
 							const node = rootState.helpersRef.getNodeById(taskId)
 							if (node) rootState.helpersRef.removeNodes([node])
@@ -1303,7 +1303,7 @@ const actions = {
 								break
 							}
 						}
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree model
 							const node = rootState.helpersRef.getNodeById(payload.taskId)
 							if (node) {
@@ -1360,7 +1360,7 @@ const actions = {
 								break
 							}
 						}
-						if (rootState.currentTreeView === 'detailProduct') {
+						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree model
 							const node = rootState.helpersRef.getNodeById(payload.taskId)
 							if (node) {

@@ -45,7 +45,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/overview',
 		})
 			.then((res) => {
-				rootState.currentTreeView = 'coarseProduct'
+				rootState.lastTreeView = 'coarseProduct'
 				rootState.loadedTreeDepth = LEVEL.FEATURE
 				rootState.loadedSprintId = null
 				const batch = res.data.rows

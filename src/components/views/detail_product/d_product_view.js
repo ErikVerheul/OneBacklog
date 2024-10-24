@@ -15,7 +15,7 @@ const thisView = 'detailProduct'
 
 function created() {
 	store.state.currentView = thisView
-	if (thisView !== store.state.currentTreeView) {
+	if (thisView !== store.state.lastTreeView) {
 		store.state.treeNodes = []
 		store.state.changeHistory = []
 		// reset filters and searches

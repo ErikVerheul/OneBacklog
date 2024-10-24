@@ -238,7 +238,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/details',
 		})
 			.then((res) => {
-				rootState.currentTreeView = 'detailProduct'
+				rootState.lastTreeView = 'detailProduct'
 				rootState.loadedTreeDepth = LEVEL.TASK
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}
@@ -272,6 +272,11 @@ const actions = {
 
 				if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
+
+				if (!rootState.lastSessionData.detailView) {
+					// create lastSessionData
+					commit('saveTreeExpansionState')
+				}
 			})
 			.catch((error) => {
 				if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)

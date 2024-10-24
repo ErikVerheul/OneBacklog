@@ -636,7 +636,7 @@ const actions = {
 				}
 				// update the lastSessionData
 				if (rootState.lastSessionData) {
-					if (rootState.currentTreeView === 'detailProduct' || rootState.currentTreeView === 'coarseProduct') {
+					if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
 						for (let n of nodes) {
 							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
 							rootState.lastSessionData.detailView.doShowNodes.push(n._id)

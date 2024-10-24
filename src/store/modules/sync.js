@@ -434,7 +434,7 @@ const actions = {
 							showSyncMessage(`changed the title of`, SEV.INFO)
 							break
 						case 'taskRemovedEvent':
-							if (rootState.currentTreeView === 'detailProduct') {
+							if (rootState.lastTreeView === 'detailProduct') {
 								const taskId = lastHistObj.taskRemovedEvent[3]
 								const taskTitle = lastHistObj.taskRemovedEvent[0]
 								const team = lastHistObj.taskRemovedEvent[1]
@@ -480,7 +480,7 @@ const actions = {
 							break
 						//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'updateTaskOrderEvent':
-							if (rootState.currentTreeView === 'detailProduct') {
+							if (rootState.lastTreeView === 'detailProduct') {
 								// update the position of the tasks of the story and update the index and priority values in the tree
 								const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
 								const storyNode = rootState.helpersRef.getNodeById(doc._id)

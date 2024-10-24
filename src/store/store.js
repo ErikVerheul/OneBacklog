@@ -136,13 +136,13 @@ const store = createStore({
 			// detail tree view
 			reqAreaMapper: {},
 			// coarse tree view
-			currentView: undefined,
 			colorMapper: {},
 			reqAreaOptions: [],
 			// detail & coarse tree views
 			busyWithLastUndo: false,
 			busyChangingSubscriptions: false,
 			currentDoc: null,
+			currentView: undefined,
 			changeHistory: [],
 			currentEventKey: 0,
 			eventList: [],
@@ -151,7 +151,7 @@ const store = createStore({
 			freezeEvent: false,
 			itemId: '',
 			keyword: '',
-			currentTreeView: undefined,
+			lastTreeView: undefined,
 			moveOngoing: false,
 			newAcceptanceCriteria: MISC.EMPTYQUILL,
 			newDescription: MISC.EMPTYQUILL,
