@@ -539,7 +539,7 @@
         <p>Refactored</p>
         <ul>
           <li>Prevent dragging when no item is selected</li>
-          <li>Sprint assingment on moved items refactored</li>
+          <li>Sprint assignment on moved items refactored</li>
           <li>Improved performance when moving an item with descendant items to another level or product></li>
         </ul>
         <p>Bug fixes:</p>
@@ -1003,7 +1003,7 @@
             for use in the next session</li>
           <li>Product backlog items are now owned by a team</li>
           <li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-          <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect
+          <li>Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect
             to a different team than the team of the parent feature</li>
         </ul>
         <hr />
@@ -1023,7 +1023,7 @@
             for use in the next session</li>
           <li>Product backlog items are now owned by a team</li>
           <li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-          <li>Feature teams are encouraged. A warning is shown when a user tries to assing a user story, spike or defect
+          <li>Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect
             to a different team than the team of the parent feature</li>
         </ul>
         <hr />

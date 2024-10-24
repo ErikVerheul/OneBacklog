@@ -1,7 +1,7 @@
 <template>
   <BModal size="xl" ref="assignToSprintRef" @ok="addItemToSprint" :title="contextNodeTitle">
     <div>
-      <BFormGroup label="Assing this item to a sprint">
+      <BFormGroup label="Assign this item to a sprint">
         <BFormRadioGroup v-model="selectedSprintId" :options="sprintOptions" stacked />
       </BFormGroup>
     </div>

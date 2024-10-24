@@ -67,7 +67,7 @@ const authorization = {
 			}
 
 			if (this.getMyAssignedProductIds.includes(productId)) {
-				// assing write permissions for the product only if that product is assigned to this user
+				// assign write permissions for the product only if that product is assigned to this user
 				if (this.getMyProductsRoles[productId].includes('PO')) {
 					levels[LEVEL.PRODUCT] = true
 					levels[LEVEL.EPIC] = true
