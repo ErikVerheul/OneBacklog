@@ -1340,6 +1340,24 @@ const store = createStore({
 			state.progressMessage = msg
 		},
 
+		createDefaultCoarseSessionData(state) {
+			const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
+			// select the first (index 0) product in the current db subscriptions as the default product
+			const defaultProductId = currentDbSettings.subscriptions[0]
+
+			state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
+			state.helpersRef.traverseModels((nm) => {
+				if (nm.productId === MISC.AREA_PRODUCTID || nm.level < LEVEL.FEATURE) {
+					state.lastSessionData.coarseView.expandedNodes.push(nm._id)
+				}
+				if (nm.productId === MISC.AREA_PRODUCTID || nm.level <= LEVEL.FEATURE) {
+					state.lastSessionData.coarseView.doShowNodes.push(nm._id)
+				}
+			})
+			state.lastSessionData.coarseView.lastSelectedNodeId = defaultProductId
+			state.lastSessionData.coarseView.lastSelectedProductId = defaultProductId
+		},
+
 		saveTreeExpansionState(state) {
 			const lastSelectedNode = state.selectedNodes.slice(-1)[0]
 			if (!state.lastSessionData) state.lastSessionData = {}
@@ -1370,6 +1388,26 @@ const store = createStore({
 				})
 				state.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
 				state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+			}
+		},
+
+		restoreTreeExpansionState(state) {
+			if (state.currentView === 'detailProduct') {
+				state.helpersRef.traverseModels((nm) => {
+					nm.isExpanded = state.lastSessionData.detailView.expandedNodes.includes(nm._id)
+					nm.doShow = state.lastSessionData.detailView.doShowNodes.includes(nm._id)
+					nm.isSelected = nm._id === state.lastSessionData.detailView.lastSelectedNodeId
+				})
+				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.detailView.lastSelectedNodeId)]
+			}
+
+			if (state.currentView === 'coarseProduct') {
+				state.helpersRef.traverseModels((nm) => {
+					nm.isExpanded = state.lastSessionData.coarseView.expandedNodes.includes(nm._id) || nm.parentId === MISC.AREA_PRODUCTID
+					nm.doShow = state.lastSessionData.coarseView.doShowNodes.includes(nm._id) || nm.parentId === MISC.AREA_PRODUCTID
+					nm.isSelected = nm._id === state.lastSessionData.coarseView.lastSelectedNodeId
+				})
+				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.coarseView.lastSelectedNodeId)]
 			}
 		},
 
