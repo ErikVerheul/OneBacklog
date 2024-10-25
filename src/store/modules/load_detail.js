@@ -106,7 +106,6 @@ const mutations = {
 					rootState.reqAreaMapper[_id] = title
 					rootState.colorMapper[_id] = { reqAreaItemColor }
 				}
-				continue
 			}
 			// skip the items of the products the user is not authorized to
 			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
@@ -269,6 +268,11 @@ const actions = {
 				dispatch('createHelpers')
 				// reset load parameters
 				parentNodes = {}
+
+				if (!rootState.lastSessionData.coarseView) {
+					// no lastSessionData for the coarse view available; create a default
+					commit('createDefaultCoarseSessionData')
+				}
 
 				if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
