@@ -194,7 +194,7 @@ const mutations = {
 }
 
 const actions = {
-	/* Check the presence of the default user product and start loading the tree */
+	/* Check the presence of the current product document and start loading the tree */
 	checkProductAndStartLoading({ rootState, rootGetters, state, dispatch }) {
 		parentNodes = {}
 		orphansFound = []
@@ -213,7 +213,9 @@ const actions = {
 				rootState.currentProductId = _id
 				rootState.currentProductTitle = res.data.title
 				if (rootState.debug)
-					console.log('checkProductAndStartLoading: product document with _id ' + _id + ' is found in database ' + rootState.userData.currentDb)
+					console.log(
+						'checkProductAndStartLoading: the current product document is found. Start loading the tree from database ' + rootState.userData.currentDb,
+					)
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {
 						rootState.helpersRef.setDescendantsReqArea()
