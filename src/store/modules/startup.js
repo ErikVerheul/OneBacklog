@@ -371,8 +371,8 @@ const actions = {
 				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
 
 				if (rootState.debug) console.log('getRoot: The root document is read')
-				// open the products view by default
-				router.push('/detailProduct')
+				// start loading the tree and open the detail products view by default
+				dispatch('checkProductAndStartLoading')
 			})
 			.catch((error) => {
 				let msg = 'getRoot: Could not read the root document from database ' + rootState.userData.currentDb + '. ' + error

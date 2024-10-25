@@ -1,3 +1,4 @@
+import router from '../../router'
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { dedup, createLoadEventText, pathToJSON } from '../../common_functions.js'
 import globalAxios from 'axios'
@@ -216,10 +217,12 @@ const actions = {
 					console.log(
 						'checkProductAndStartLoading: the current product document is found. Start loading the tree from database ' + rootState.userData.currentDb,
 					)
+				// start loading the tree and open the detail products view by default
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {
 						rootState.helpersRef.setDescendantsReqArea()
 						rootState.helpersRef.dependencyViolationsFound()
+						router.push('/detailProduct')
 					},
 				})
 			})
