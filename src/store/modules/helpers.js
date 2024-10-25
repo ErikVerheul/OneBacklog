@@ -634,18 +634,62 @@ const actions = {
 				if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 					assignNewPrios(nodes, predecessorNode, successorNode)
 				}
+				// update the lastSessionData
+				if (rootState.lastSessionData) {
+					if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
+						for (let n of nodes) {
+							const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
+							if (lastSelectedNode) {
+								console.log('insertNodes: lastSelectedNode.title = ' + lastSelectedNode.title)
+							} else console.log('insertNodes: lastSelectedNode UNDEFINED')
+							if ((n._d = rootState.lastSessionData.detailView.lastSelectedNodeId)) {
+								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+							}
+							if ((n._d = rootState.lastSessionData.coarseView.lastSelectedNodeId)) {
+								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+							}
+							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
+							rootState.lastSessionData.detailView.doShowNodes.push(n._id)
+							rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
+							rootState.lastSessionData.coarseView.doShowNodes.push(n._id)
+						}
+					}
+				}
 			},
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
 			removeNodes(nodes) {
 				let success = false
-				for (const node of nodes) {
-					const siblings = rootState.helpersRef.getNodeSiblings(node.path)
+				for (const n of nodes) {
+					const siblings = rootState.helpersRef.getNodeSiblings(n.path)
 					if (siblings.length > 0) {
-						const removeInd = node.ind
-						const parentPath = node.path.slice(0, -1)
+						const removeInd = n.ind
+						const parentPath = n.path.slice(0, -1)
 						siblings.splice(removeInd, 1)
 						rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
+						// update the lastSessionData
+						if (rootState.lastSessionData) {
+							const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
+							if (lastSelectedNode) {
+								console.log('removeNodes: lastSelectedNode.title = ' + lastSelectedNode.title)
+							} else console.log('removeNodes: lastSelectedNode UNDEFINED')
+							if ((n._d = rootState.lastSessionData.detailView.lastSelectedNodeId)) {
+								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+							}
+							if ((n._d = rootState.lastSessionData.coarseView.lastSelectedNodeId)) {
+								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+							}
+							if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
+								rootState.lastSessionData.detailView.expandedNodes.filter((id) => id !== n._id)
+								rootState.lastSessionData.detailView.doShowNodes.filter((id) => id !== n._id)
+								rootState.lastSessionData.coarseView.expandedNodes.filter((id) => id !== n._id)
+								rootState.lastSessionData.coarseView.doShowNodes.filter((id) => id !== n._id)
+							}
+						}
 						success = true
 					}
 				}
