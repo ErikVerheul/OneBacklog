@@ -103,7 +103,7 @@ const actions = {
 					// ToDo: this check can be removed if all users have checked their messages
 					rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[myTeam] || 0
 				} else rootState.myLastSessionMessagesCount = 0
-				// get the last selected product id and the last session data if available
+				// get the last session data if available
 				if (allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
 					rootState.lastSessionData = allUserData.myDatabases[allUserData.currentDb].lastSessionData
 				}

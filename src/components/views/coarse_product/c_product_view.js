@@ -14,29 +14,20 @@ const thisView = 'coarseProduct'
 function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
-		store.state.treeNodes = []
-		store.state.changeHistory = []
-		// reset filters and searches
-		store.state.resetFilter = null
-		store.state.resetSearchOnId = null
-		store.state.resetSearchOnTitle = null
-		this.returning = false
-	} else this.returning = true
+		// returning from other tree view (for now 'detailView'); recreate the expansion state
+		store.commit('restoreTreeExpansionState')
+	}
 	// must reset the event listener to prevent duplication
 	this.eventBus.off('context-menu')
 }
 
 function mounted() {
-	if (this.returning) {
-		this.showLastEvent('Returning to the Products overview', SEV.INFO)
-	} else {
-		store.dispatch('loadOverview')
-	}
+	store.state.lastTreeView = thisView
+	this.showLastEvent('Returning to the Products overview', SEV.INFO)
 }
 
 function data() {
 	return {
-		returning: false,
 		colorOptions: [
 			{ color: 'red', hexCode: '#FF0000' },
 			{ color: 'yellow', hexCode: '#FFFF00' },
@@ -235,7 +226,7 @@ const methods = {
 				}
 				if (this.selReqAreaId !== null) store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
 				this.setReqAreaShow = true
-			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assing requirement areas', SEV.WARNING)
+			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assign requirement areas', SEV.WARNING)
 		}
 	},
 
