@@ -16,28 +16,25 @@ const thisView = 'detailProduct'
 function created() {
 	store.state.currentView = thisView
 	if (!store.state.lastTreeView) {
-		// initial loading of the tree
-		store.dispatch('checkProductAndStartLoading')
-		this.returning = false
-	} else {
+		// tree was loaded
 		if (thisView !== store.state.lastTreeView) {
 			// returning from other tree view (for now 'coarseView'); recreate the expansion state
 			store.commit('restoreTreeExpansionState')
-		}
-		this.returning = true
+			this.hasViewChanged = true
+		} else this.hasViewChanged = false
+		// must reset the event listener to prevent duplication
+		this.eventBus.off('context-menu')
 	}
-	// must reset the event listener to prevent duplication
-	this.eventBus.off('context-menu')
 }
 
 function mounted() {
 	store.state.lastTreeView = thisView
-	if (this.returning) this.showLastEvent('Returning to the Product details', SEV.INFO)
+	if (this.hasViewChanged) this.showLastEvent('Returning to the Product details', SEV.INFO)
 }
 
 function data() {
 	return {
-		returning: false,
+		hasViewChanged: false,
 		sprints: [],
 	}
 }
