@@ -12,8 +12,7 @@
           <BButton block @click="removeUser" variant="warning">Remove a user</BButton>
           <br />
           <BButton block @click="createProduct">Create a product</BButton>
-          <BButton block @click="removeProduct" variant="warning">Remove a product with all descendant items from a
-            database</BButton>
+          <BButton block @click="removeProduct" variant="warning">Remove a product with all descendant items from a database</BButton>
           <br />
           <BButton block @click="createTeam">Create a team</BButton>
           <BButton block @click="removeTeams">Remove teams without members</BButton>
@@ -153,9 +152,8 @@
           <div v-if="!dbIsSelected">
             <BFormGroup>
               <h5>Select a database to '{{ optionSelected }}'</h5>
-              <p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use
-                'Maintain user permissions to products' as a next step to assign the
-                product to other users.</p>
+              <p>v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use
+                'Maintain user permissions to products' as a next step to assign the product to other users.</p>
               <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked />
             </BFormGroup>
             <hr>
@@ -230,19 +228,14 @@
             </template>
 
             <template v-else-if="optionSelected === 'Create a product'">
-              <template>
-                <h2>Create a new product in the database '{{ store.state.selectedDatabaseName }}' by entering its title
-                </h2>
-                <BFormInput v-model="productTitle" placeholder="Enter the product title"></BFormInput>
-                <template v-if="!store.state.isProductCreated">
-                  <BButton v-if="productTitle !== ''" class="m-3" @click="doCreateProduct" variant="primary">Create
-                    product</BButton>
-                  <BButton class="m-3" @click="cancel()">Cancel</BButton>
-                </template>
+              <h2>Create a new product in the database '{{ store.state.selectedDatabaseName }}' by entering its title</h2>
+              <BFormInput v-model="productTitle" placeholder="Enter the product title"></BFormInput>
+              <template v-if="!store.state.isProductCreated">
+                <BButton v-if="productTitle !== ''" class="m-3" @click="doCreateProduct" variant="primary">Create product</BButton>
+                <BButton class="m-3" @click="cancel()">Cancel</BButton>
               </template>
               <template v-if="store.state.isProductCreated">
-                <h4>Note: The product is assigned to you. Use the 'Maintain user permissions to products' option to assign
-                  the new product to other users.</h4>
+                <h4>Note: The product is assigned to you. Use the 'Maintain user permissions to products' option to assign the new product to other users.</h4>
                 <hr>
                 <BButton class="m-3" @click="cancel()">Return</BButton>
               </template>
@@ -273,7 +266,7 @@
               <BButton v-else class="m-1" @click="cancel">Return</BButton>
             </template>
 
-            <template v-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
+            <template v-else-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
 
               <template v-if="optionSelected === 'Maintain the default sprint calendar'">
                 <h4>Maintain the default sprint calendar of database '{{ store.state.selectedDatabaseName }}'</h4>
