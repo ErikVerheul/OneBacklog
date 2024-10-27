@@ -49,6 +49,7 @@ const methods = {
 	},
 
 	createProduct() {
+		console.log('createProduct is called')
 		this.optionSelected = 'Create a product'
 		this.getUserFirst = false
 		this.productTitle = ''
