@@ -263,10 +263,7 @@ const methods = {
 				return
 			}
 			// prevent dragging a product into another product
-			if (
-				(this.isDetailsViewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.placement === 'inside') ||
-				(this.isOverviewSelected && dn.level === LEVEL.PRODUCT && this.cursorPosition.nodeModel.parentId !== 'root')
-			) {
+			if (dn.level === LEVEL.PRODUCT && (this.cursorPosition.placement === 'inside' || this.cursorPosition.nodeModel.parentId !== 'root')) {
 				this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
 				this.stopDrag()
 				return
