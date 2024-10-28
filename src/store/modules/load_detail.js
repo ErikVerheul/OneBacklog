@@ -10,6 +10,7 @@ var orphansFound
 var levelErrorsFound
 
 const state = {
+	currentDefaultProductNode: null,
 	docsCount: 0,
 	insertedCount: 0,
 	orphansCount: 0,
@@ -31,7 +32,7 @@ const mutations = {
 			const lastSelectedNodeId =
 				rootState.lastSessionData && rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.lastSelectedNodeId : undefined
 			if (lastSelectedNodeId && id === lastSelectedNodeId) return true
-			if (!lastSelectedNodeId && id === rootGetters.getCurrentDefaultProductId) return true
+			if (!lastSelectedNodeId && id === rootState.currentProductId) return true
 			return false
 		}
 
@@ -120,14 +121,13 @@ const mutations = {
 			}
 
 			state.docsCount++
-			const expandLevel = rootState.userData.myOptions.proUser === 'true' ? LEVEL.FEATURE : LEVEL.PBI
-			// expand the node as saved in the last session or expand the default product up to the feature level
+			// expand the node as saved in the last session or expand the default product up to the epic level
 			const isExpanded = rootState.lastSessionData.detailView
 				? rootState.lastSessionData.detailView.expandedNodes.includes(_id)
-				: productId !== MISC.AREA_PRODUCTID && itemLevel < expandLevel
+				: productId !== MISC.AREA_PRODUCTID && itemLevel < LEVEL.EPIC
 			const doShow = rootState.lastSessionData.detailView
 				? rootState.lastSessionData.detailView.doShowNodes.includes(_id)
-				: productId !== MISC.AREA_PRODUCTID && itemLevel < expandLevel
+				: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
@@ -184,6 +184,10 @@ const mutations = {
 					rootState.selectedNodes = [newNode]
 				}
 
+				if (newNode._id === rootState.currentProductId) {
+					state.currentDefaultProductNode = newNode
+				}
+
 				parentNode.children.push(newNode)
 				parentNodes[_id] = newNode
 			} else {
@@ -204,14 +208,13 @@ const actions = {
 		state.insertedCount = 0
 		state.orphansCount = 0
 		state.levelErrorCount = 0
-		const _id = rootGetters.getCurrentDefaultProductId
+		const _id = rootState.currentProductId
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/' + _id,
 		})
 			.then((res) => {
 				// after this assignment the access rights can be set in the store
-				rootState.currentProductId = _id
 				rootState.currentProductTitle = res.data.title
 				if (rootState.debug)
 					console.log(
@@ -237,6 +240,8 @@ const actions = {
 
 	/* Get all items from the current database */
 	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }, payload) {
+		// initialize the helpers functions
+		dispatch('createHelpers')
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/details',
@@ -247,6 +252,16 @@ const actions = {
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}
 				commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
+
+				// all backlog items are read and all nodes created; reset load parameters
+				parentNodes = {}
+
+				if (rootState.selectedNodes.length === 0) {
+					const msg = `No match found for the last selected node in lastSessionData; assign the current default product node`
+					dispatch('doLog', { event: msg, level: SEV.WARNING })
+					state.currentDefaultProductNode.isSelected = true
+					rootState.selectedNodes = [state.currentDefaultProductNode]
+				}
 				// load the the selected node
 				dispatch('loadDoc', {
 					id: rootGetters.getLastSelectedNode._id,
@@ -268,11 +283,6 @@ const actions = {
 						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
 					}
 				}
-
-				// all backlog items are read; initialize the helpers functions
-				dispatch('createHelpers')
-				// reset load parameters
-				parentNodes = {}
 
 				if (!rootState.lastSessionData.coarseView) {
 					// no lastSessionData for the coarse view available; create a default
