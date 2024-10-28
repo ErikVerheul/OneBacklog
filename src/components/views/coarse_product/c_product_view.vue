@@ -106,6 +106,15 @@
                 <i class="colorOrange" v-if="node.level === LEVEL.FEATURE">
                   <font-awesome-icon icon="file" />
                 </i>
+                <i class="colorYellow" v-if="node.isCoarseViewLeaf && node.data.subtype === userStorySubtype">
+                  <font-awesome-icon icon="folder" />
+                </i>
+                <i v-if="node.isCoarseViewLeaf && node.data.subtype === spikeSubtype">
+                  <font-awesome-icon icon="hourglass-start" />
+                </i>
+                <i class="colorRed" v-if="node.isCoarseViewLeaf && node.data.subtype === defectSubtype">
+                  <font-awesome-icon icon="bug" />
+                </i>
               </span>
               {{ patchTitle(node) }}
               <span v-if="!node.isSelectable" class="item-icon">
@@ -123,7 +132,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="!node.isLeaf">
+              <span v-if="!node.isCoarseViewLeaf">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
