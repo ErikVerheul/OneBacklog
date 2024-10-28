@@ -12,7 +12,6 @@ import dependencies from './modules/dependencies'
 import help from './modules/help'
 import helpers from './modules/helpers'
 import initdb from './modules/initdb'
-import loadoverview from './modules/load_coarse'
 import loadproducts from './modules/load_detail'
 import logging from './modules/logging'
 import move from './modules/move'
@@ -79,7 +78,7 @@ function createEventToDisplay(payload) {
 function renewSelection(state, node) {
 	if (node.isSelectable) {
 		state.previousSelectedNodes = state.selectedNodes || [node]
-		for (const n of state.selectedNodes) n.isSelected = false
+		for (const n of state.selectedNodes) if (n) n.isSelected = false
 		node.isSelected = true
 		state.selectedNodes = [node]
 	}
@@ -252,21 +251,6 @@ const store = createStore({
 			if (state.currentDoc) return state.currentDoc._id === MISC.AREA_PRODUCTID || state.currentDoc.productId === MISC.AREA_PRODUCTID
 		},
 
-		getCurrentDefaultProductId(state) {
-			if (state.userData.myDatabases) {
-				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
-				if (currentDbSettings && Object.keys(currentDbSettings.productsRoles).length > 0) {
-					// the first (index 0) product in the current db subscriptions is by definition the default product
-					return currentDbSettings.subscriptions[0]
-				}
-			}
-			// ToDo: can this be removed?
-			if (state.currentProductId) {
-				// return the opened product of the previous session
-				return state.currentProductId
-			}
-		},
-
 		getCurrentItemTsSize(state) {
 			if (state.configData) return state.configData.tsSize[state.currentDoc.tssize]
 		},
@@ -399,8 +383,7 @@ const store = createStore({
 		},
 
 		leafLevel(state, getters) {
-			if (getters.isDetailsViewSelected) return LEVEL.TASK
-			if (getters.isOverviewSelected) return LEVEL.FEATURE
+			if (getters.isDetailsViewSelected || getters.isOverviewSelected) return LEVEL.TASK
 			return LEVEL.PBI
 		},
 
@@ -765,7 +748,6 @@ const store = createStore({
 						}
 						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView) {
 							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.lastSelectedProductId
-
 							if (!lastSelectedProductId || (!payload.productIds.includes(lastSelectedProductId) && lastSelectedProductId !== MISC.AREA_PRODUCTID)) {
 								// the lastSelectedProductId is not available or not in the newly selected product ids
 								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView
@@ -1340,62 +1322,66 @@ const store = createStore({
 			state.progressMessage = msg
 		},
 
+		/*
+		 * Initiate lastSessionData for the coarse view from the loaded nodes
+		 * Show the nodes up to the epic level
+		 */
 		createDefaultCoarseSessionData(state) {
-			const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
-			// select the first (index 0) product in the current db subscriptions as the default product
-			const defaultProductId = currentDbSettings.subscriptions[0]
-
 			state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
 			state.helpersRef.traverseModels((nm) => {
-				if (nm.productId === MISC.AREA_PRODUCTID || nm.level < LEVEL.FEATURE) {
+				if (nm._id === MISC.AREA_PRODUCTID || (nm.productId !== MISC.AREA_PRODUCTID && nm.level < LEVEL.EPIC)) {
 					state.lastSessionData.coarseView.expandedNodes.push(nm._id)
 				}
-				if (nm.productId === MISC.AREA_PRODUCTID || nm.level <= LEVEL.FEATURE) {
+				if (nm.productId === MISC.AREA_PRODUCTID || nm.level <= LEVEL.EPIC) {
 					state.lastSessionData.coarseView.doShowNodes.push(nm._id)
 				}
 			})
-			state.lastSessionData.coarseView.lastSelectedNodeId = defaultProductId
-			state.lastSessionData.coarseView.lastSelectedProductId = defaultProductId
+			state.lastSessionData.coarseView.lastSelectedNodeId = state.currentProductId
+			state.lastSessionData.coarseView.lastSelectedProductId = 'root'
 		},
 
 		saveTreeExpansionState(state) {
 			const lastSelectedNode = state.selectedNodes.slice(-1)[0]
-			if (!state.lastSessionData) state.lastSessionData = {}
+			if (lastSelectedNode) {
+				if (!state.lastSessionData) state.lastSessionData = {}
 
-			if (state.currentView === 'detailProduct') {
-				state.lastSessionData.detailView = { expandedNodes: [], doShowNodes: [] }
-				state.helpersRef.traverseModels((nm) => {
-					if (nm.isExpanded) {
-						state.lastSessionData.detailView.expandedNodes.push(nm._id)
-					}
-					if (nm.doShow) {
-						state.lastSessionData.detailView.doShowNodes.push(nm._id)
-					}
-				})
-				state.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-				state.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
-			}
+				if (state.currentView === 'detailProduct') {
+					state.lastSessionData.detailView = { expandedNodes: [], doShowNodes: [] }
+					state.helpersRef.traverseModels((nm) => {
+						if (nm.isExpanded) {
+							state.lastSessionData.detailView.expandedNodes.push(nm._id)
+							state.lastSessionData.detailView.doShowNodes.push(nm._id)
+						} else if (nm.doShow) {
+							state.lastSessionData.detailView.doShowNodes.push(nm._id)
+						}
+					})
+					state.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+					state.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+				}
 
-			if (state.currentView === 'coarseProduct') {
-				state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
-				state.helpersRef.traverseModels((nm) => {
-					if (nm.isExpanded) {
-						state.lastSessionData.coarseView.expandedNodes.push(nm._id)
-					}
-					if (nm.doShow) {
-						state.lastSessionData.coarseView.doShowNodes.push(nm._id)
-					}
-				})
-				state.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-				state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+				if (state.currentView === 'coarseProduct') {
+					state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
+					state.helpersRef.traverseModels((nm) => {
+						if (nm.isExpanded) {
+							state.lastSessionData.coarseView.expandedNodes.push(nm._id)
+							state.lastSessionData.coarseView.doShowNodes.push(nm._id)
+						} else if (nm.doShow) {
+							state.lastSessionData.coarseView.doShowNodes.push(nm._id)
+						}
+					})
+					state.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+					state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+				}
+			} else {
+				if (state.debug) console.log(`saveTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
 			}
 		},
 
 		restoreTreeExpansionState(state) {
 			if (state.currentView === 'detailProduct') {
 				state.helpersRef.traverseModels((nm) => {
-					nm.isExpanded = state.lastSessionData.detailView.expandedNodes.includes(nm._id)
-					nm.doShow = state.lastSessionData.detailView.doShowNodes.includes(nm._id)
+					nm.isExpanded = state.lastSessionData.detailView.expandedNodes.includes(nm._id) && nm._id !== MISC.AREA_PRODUCTID
+					nm.doShow = state.lastSessionData.detailView.doShowNodes.includes(nm._id) && nm.parentId !== MISC.AREA_PRODUCTID
 					nm.isSelected = nm._id === state.lastSessionData.detailView.lastSelectedNodeId
 				})
 				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.detailView.lastSelectedNodeId)]
@@ -1403,8 +1389,8 @@ const store = createStore({
 
 			if (state.currentView === 'coarseProduct') {
 				state.helpersRef.traverseModels((nm) => {
-					nm.isExpanded = state.lastSessionData.coarseView.expandedNodes.includes(nm._id) || nm.parentId === MISC.AREA_PRODUCTID
-					nm.doShow = state.lastSessionData.coarseView.doShowNodes.includes(nm._id) || nm.parentId === MISC.AREA_PRODUCTID
+					nm.isExpanded = state.lastSessionData.coarseView.expandedNodes.includes(nm._id)
+					nm.doShow = state.lastSessionData.coarseView.doShowNodes.includes(nm._id)
 					nm.isSelected = nm._id === state.lastSessionData.coarseView.lastSelectedNodeId
 				})
 				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.coarseView.lastSelectedNodeId)]
@@ -1432,7 +1418,6 @@ const store = createStore({
 		dependencies,
 		help,
 		initdb,
-		loadoverview,
 		loadproducts,
 		logging,
 		move,
