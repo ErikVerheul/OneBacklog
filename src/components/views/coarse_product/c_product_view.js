@@ -58,7 +58,8 @@ const computed = {
 
 	// return true if a requirements area item is selected or false if another or no node is selected
 	isReqAreaItemSelected() {
-		return (!!this.getLastSelectedNode && this.getLastSelectedNode._id === MISC.AREA_PRODUCTID) || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
+		if (this.getLastSelectedNode === null) return false
+		return this.getLastSelectedNode._id === MISC.AREA_PRODUCTID || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
 	},
 }
 
@@ -159,7 +160,7 @@ const methods = {
 				if (position.placement === 'inside') targetLevel++
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
-				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.PBI
+				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
 				const dropInd = position.nodeModel.ind
 				let sourceMinInd = Number.MAX_SAFE_INTEGER
 				let sourceMaxind = 0
