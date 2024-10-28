@@ -97,6 +97,13 @@ const actions = {
 					}
 				}
 
+				// set the default productId
+				const currentDbSettings = allUserData.myDatabases[rootState.userData.currentDb]
+				if (currentDbSettings && Object.keys(currentDbSettings.productsRoles).length > 0) {
+					// the first (index 0) product in the current db subscriptions is by definition the default product
+					rootState.currentProductId = currentDbSettings.subscriptions[0]
+				}
+
 				const myTeam = allUserData.myDatabases[rootState.userData.currentDb].myTeam
 				// get the total number of messages received by this user for this team and this database
 				if (allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount) {
