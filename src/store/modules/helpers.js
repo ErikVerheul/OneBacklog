@@ -300,6 +300,21 @@ const actions = {
 				return resultNode
 			},
 
+			/* Scan the branch to find the passed id and stop scanning at the first match; return false when no match is found */
+			isIdInBranch: function (id, branchNode) {
+				let found = false
+				rootState.helpersRef.traverseModels(
+					(nm) => {
+						if (nm._id === id) {
+							found = true
+							return false
+						}
+					},
+					[branchNode],
+				)
+				return found
+			},
+
 			/*
 			 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if passed) new parentId and productId
 			 * Pass an insertInd as the lowest index of any insert to gain performance.
@@ -310,8 +325,6 @@ const actions = {
 					const newPath = parentPath.concat(i)
 					if (parentId) sibling.parentId = parentId
 					if (productId) sibling.productId = productId
-					// if moving to another product in the context menu of the Products detail view, show the inserted nodes in the new product
-					if (productId && rootGetters.isDetailsViewSelected) showNode(sibling)
 					sibling.path = newPath
 					sibling.pathStr = pathToJSON(newPath)
 					sibling.ind = i
@@ -634,26 +647,17 @@ const actions = {
 				if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 					assignNewPrios(nodes, predecessorNode, successorNode)
 				}
-				// update the lastSessionData
+				// add the node ids to the lastSessionData of the other view if not present
 				if (rootState.lastSessionData) {
-					if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
-						for (let n of nodes) {
-							const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
-							if (lastSelectedNode) {
-								console.log('insertNodes: lastSelectedNode.title = ' + lastSelectedNode.title)
-							} else console.log('insertNodes: lastSelectedNode UNDEFINED')
-							if ((n._d = rootState.lastSessionData.detailView.lastSelectedNodeId)) {
-								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
-							}
-							if ((n._d = rootState.lastSessionData.coarseView.lastSelectedNodeId)) {
-								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
-							}
-							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
-							rootState.lastSessionData.detailView.doShowNodes.push(n._id)
+					const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
+					for (let n of nodes) {
+						if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(n._id)) {
 							rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
 							rootState.lastSessionData.coarseView.doShowNodes.push(n._id)
+						}
+						if (rootState.currentView === 'coarseProduct' && !rootState.lastSessionData.detailView.expandedNodes.includes(n._id)) {
+							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
+							rootState.lastSessionData.detailView.doShowNodes.push(n._id)
 						}
 					}
 				}
@@ -661,37 +665,41 @@ const actions = {
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
 			removeNodes(nodes) {
+				const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
 				let success = false
 				for (const n of nodes) {
+					console.log('removeNodes: n.title = ' + n.title)
 					const siblings = rootState.helpersRef.getNodeSiblings(n.path)
 					if (siblings.length > 0) {
 						const removeInd = n.ind
 						const parentPath = n.path.slice(0, -1)
 						siblings.splice(removeInd, 1)
 						rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
-						// update the lastSessionData
-						if (rootState.lastSessionData) {
-							const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
-							if (lastSelectedNode) {
-								console.log('removeNodes: lastSelectedNode.title = ' + lastSelectedNode.title)
-							} else console.log('removeNodes: lastSelectedNode UNDEFINED')
-							if ((n._d = rootState.lastSessionData.detailView.lastSelectedNodeId)) {
-								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
-							}
-							if ((n._d = rootState.lastSessionData.coarseView.lastSelectedNodeId)) {
-								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
-							}
-							if (rootState.lastTreeView === 'detailProduct' || rootState.lastTreeView === 'coarseProduct') {
-								rootState.lastSessionData.detailView.expandedNodes.filter((id) => id !== n._id)
-								rootState.lastSessionData.detailView.doShowNodes.filter((id) => id !== n._id)
-								rootState.lastSessionData.coarseView.expandedNodes.filter((id) => id !== n._id)
-								rootState.lastSessionData.coarseView.doShowNodes.filter((id) => id !== n._id)
+					}
+					// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
+					if (rootState.lastSessionData) {
+						if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
+							rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+							rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
+								// if the coarseView.lastSelectedNodeId is removed assign the current default product node id
+								console.log('removeNodes: assing currentProductId to rootState.lastSessionData.coarseView')
+								rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
+								rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
 							}
 						}
-						success = true
+						if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
+							rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+							rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
+								// if the detailView.lastSelectedNodeId is removed assign the current default product node id
+								console.log('removeNodes: assing currentProductId to rootState.lastSessionData.coarseView')
+								rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
+								rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
+							}
+						}
 					}
+					success = true
 				}
 				return success
 			},
