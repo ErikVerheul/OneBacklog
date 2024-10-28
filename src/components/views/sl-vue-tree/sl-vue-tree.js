@@ -143,7 +143,10 @@ const methods = {
 		const offsetY = y - nodeItem.getBoundingClientRect().top
 
 		let placement
-		if (nodeModel.isLeaf) {
+		if (
+			(store.state.currentView === 'detailProduct' && nodeModel.isDetailViewLeaf) ||
+			(store.state.currentView === 'coarseProduct' && nodeModel.isCoarseViewLeaf)
+		) {
 			placement = offsetY >= nodeHeight / 2 ? 'after' : 'before'
 		} else {
 			if (offsetY <= edgeSize) {
@@ -302,6 +305,8 @@ const methods = {
 	},
 
 	onToggleHandler(event, node) {
+		if ((store.state.currentView === 'detailProduct' && node.isDetailViewLeaf) || (store.state.currentView === 'coarseProduct' && node.isCoarseViewLeaf)) return
+
 		if (node.isExpanded) {
 			collapseNode(node)
 		} else expandNode(node)

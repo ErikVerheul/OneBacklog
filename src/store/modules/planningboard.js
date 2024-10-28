@@ -1036,7 +1036,8 @@ const actions = {
 							// update the tree data
 							const newNode = {
 								_id: payload.taskId,
-								isLeaf: true,
+								isDetailViewLeaf: true,
+								isCoarseViewLeaf: false,
 								title: payload.taskTitle,
 								dependencies: [],
 								conditionalFor: [],

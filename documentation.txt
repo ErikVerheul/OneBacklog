@@ -56,7 +56,8 @@ _id: doc._id,
 children: [], // an array of nodes which also can have children
 
 title: doc.title, // unencoded string
-isLeaf: (level == leafLevel) ? true : false, // leafLevel is task level in details view, feature level in overview
+isDetailViewLeaf: (level == leafLevel) ? true : false, // leafLevel is task level in details view
+isCoarseViewLeaf: (level == leafLevel) ? true : false, // leafLevel is user story level in overview
 isSelectable: true || false // default is true
 isSelected: true only if isSelectable || false
 isDraggable: true || false, // depending on the user roles

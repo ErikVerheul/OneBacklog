@@ -64,7 +64,8 @@ const actions = {
 					dependencies: doc.dependencies || [],
 					conditionalFor: doc.conditionalFor || [],
 					title: doc.title,
-					isLeaf: doc.level === rootGetters.leafLevel,
+					isDetailViewLeaf: doc.level === LEVEL.TASK,
+					isCoarseViewLeaf: doc.level === LEVEL.PBI,
 					children: [],
 					isExpanded: false,
 					isSelectable: true,
@@ -329,7 +330,8 @@ const actions = {
 					sibling.pathStr = pathToJSON(newPath)
 					sibling.ind = i
 					sibling.level = newPath.length
-					sibling.isLeaf = !(sibling.level < rootGetters.leafLevel)
+					sibling.isDetailViewLeaf = sibling.level === LEVEL.TASk
+					sibling.isCoarseViewLeaf = sibling.level === LEVEL.PBI
 					if (sibling.children && sibling.children.length > 0) {
 						rootState.helpersRef.updatePaths(sibling.path, sibling.children, 0, sibling._id, productId)
 					}

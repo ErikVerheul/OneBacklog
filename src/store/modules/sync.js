@@ -106,7 +106,8 @@ const actions = {
 				dependencies: doc.dependencies || [],
 				conditionalFor: doc.conditionalFor || [],
 				title: doc.title,
-				isLeaf: !(locationInfo.newPath.length < rootGetters.leafLevel),
+				isDetailViewLeaf: !(locationInfo.newPath.length < LEVEL.TASK),
+				isCoarseViewLeaf: !(locationInfo.newPath.length < LEVEL.PBI),
 				children: [],
 				isSelected: false,
 				isExpanded: true,
@@ -480,39 +481,37 @@ const actions = {
 							break
 						//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'updateTaskOrderEvent':
-							if (rootState.lastTreeView === 'detailProduct') {
-								// update the position of the tasks of the story and update the index and priority values in the tree
-								const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
-								const storyNode = rootState.helpersRef.getNodeById(doc._id)
-								if (!storyNode) return
+							// update the position of the tasks of the story and update the index and priority values in the tree
+							const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
+							const storyNode = rootState.helpersRef.getNodeById(doc._id)
+							if (!storyNode) return
 
-								const mapper = []
-								for (const c of storyNode.children) {
-									if (afterMoveIds.includes(c._id)) {
-										mapper.push({ child: c, priority: c.data.priority, reordered: true })
-									} else mapper.push({ child: c, reordered: false })
-								}
-								const newTreeChildren = []
-								let ind = 0
-								let afterMoveIdx = 0
-								for (const m of mapper) {
-									if (!m.reordered) {
-										newTreeChildren.push(m.child)
-									} else {
-										for (const c of storyNode.children) {
-											if (c._id === afterMoveIds[afterMoveIdx]) {
-												c.ind = ind
-												c.data.priority = m.priority
-												newTreeChildren.push(c)
-												afterMoveIdx++
-												break
-											}
+							const mapper = []
+							for (const c of storyNode.children) {
+								if (afterMoveIds.includes(c._id)) {
+									mapper.push({ child: c, priority: c.data.priority, reordered: true })
+								} else mapper.push({ child: c, reordered: false })
+							}
+							const newTreeChildren = []
+							let ind = 0
+							let afterMoveIdx = 0
+							for (const m of mapper) {
+								if (!m.reordered) {
+									newTreeChildren.push(m.child)
+								} else {
+									for (const c of storyNode.children) {
+										if (c._id === afterMoveIds[afterMoveIdx]) {
+											c.ind = ind
+											c.data.priority = m.priority
+											newTreeChildren.push(c)
+											afterMoveIdx++
+											break
 										}
 									}
-									ind++
 								}
-								storyNode.children = newTreeChildren
+								ind++
 							}
+							storyNode.children = newTreeChildren
 							showSyncMessage(`changed the priority of`, SEV.INFO)
 							break
 						case 'updateTaskOwnerEvent':
@@ -860,11 +859,6 @@ const actions = {
 
 						if (doc.history[0].sessionId === rootState.mySessionId) {
 							// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
-							continue
-						}
-
-						if (rootState.currentView === 'coarseProduct' && doc.level > LEVEL.FEATURE) {
-							// cannot update documents and nodes that are not loaded in the Products overview
 							continue
 						}
 

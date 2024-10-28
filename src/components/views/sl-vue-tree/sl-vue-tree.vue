@@ -28,7 +28,7 @@
             <span class="sl-vue-tree-gap" />
           </template>
 
-          <span class="sl-vue-tree-toggle" v-if="!node.isLeaf" @click="onToggleHandler($event, node)">
+          <span class="sl-vue-tree-toggle" @click="onToggleHandler($event, node)">
             <slot name="toggle" :node="node"></slot>
           </span>
 
