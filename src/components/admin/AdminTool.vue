@@ -266,7 +266,7 @@
               <BButton v-else class="m-1" @click="cancel">Return</BButton>
             </template>
 
-            <template v-else-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
+            <template v-if="optionSelected === 'Maintain the default sprint calendar' || optionSelected === 'Create / Maintain a team sprint calendar'">
 
               <template v-if="optionSelected === 'Maintain the default sprint calendar'">
                 <h4>Maintain the default sprint calendar of database '{{ store.state.selectedDatabaseName }}'</h4>
