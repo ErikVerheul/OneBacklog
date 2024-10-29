@@ -483,30 +483,36 @@ const store = createStore({
 			}, state.helpersRef.getProductNodes())
 
 			if (nodeFound) {
+				// cannot display tasks in the coarse view
+				if (getters.isOverviewSelected && nodeFound.level === LEVEL.TASK) {
+					commit('addToEventList', {
+						txt: `The item is found but at the task level and cannot be dispayed in this view. Use the Detail view instead to find this item`,
+						severity: SEV.WARNING,
+					})
+					return
+				}
+
 				// save display state of the current products
 				commit('saveTreeView', { type: 'findId' })
-				// load and select the document if not already current
-				if (nodeFound._id !== state.currentDoc._id) {
-					// select the node after loading the document
-					dispatch('loadDoc', {
-						id: nodeFound._id,
-						onSuccessCallback: () => {
-							// create reset object
-							state.resetSearchOnId = {
-								view: state.currentView,
-								savedSelectedNode: getters.getLastSelectedNode,
-								nodeFound,
-							}
-							// expand the tree view up to the found item
-							state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
-							commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
-							commit('addToEventList', {
-								txt: `The item with full Id ${nodeFound._id} is found and selected in product '${state.currentProductTitle}'`,
-								severity: SEV.INFO,
-							})
-						},
-					})
-				}
+				// select the node after loading the document
+				dispatch('loadDoc', {
+					id: nodeFound._id,
+					onSuccessCallback: () => {
+						// create reset object
+						state.resetSearchOnId = {
+							view: state.currentView,
+							savedSelectedNode: getters.getLastSelectedNode,
+							nodeFound,
+						}
+						// expand the tree view up to the found item
+						state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
+						commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
+						commit('addToEventList', {
+							txt: `The item with full Id ${nodeFound._id} is found and selected in product '${state.currentProductTitle}'`,
+							severity: SEV.INFO,
+						})
+					},
+				})
 			} else {
 				// the node is not found in the current product selection; try to find it in the database using the short id
 				const lookUpId = isShortId ? id : id.slice(-5)
