@@ -132,7 +132,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="!node.isCoarseViewLeaf">
+              <span v-if="!node.isCoarseViewLeaf && node.parentId !== MISC.AREA_PRODUCTID">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
