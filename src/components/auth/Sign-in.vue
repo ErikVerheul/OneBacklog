@@ -16,7 +16,7 @@
           </div>
           <div class="submit">
             <template v-if="credentialsEntered">
-              <BButton @click="onSubmit">Submit</BButton>
+              <BButton @click.ctrl="state.resetLastSessionData = true" @click="onSubmit">Submit</BButton>
             </template>
             <template v-else>
               <BButton disabled>Submit</BButton>
@@ -53,7 +53,8 @@ const store = useStore()
 const state = reactive({
   logo: logo,
   name: '',
-  password: ''
+  password: '',
+  resetLastSessionData: false
 })
 
 const credentialsEntered = computed(() => {
@@ -65,7 +66,7 @@ function onSubmit() {
     name: state.name,
     password: state.password
   }
-  store.dispatch('signin', credentials)
+  store.dispatch('signin', { credentials, resetLastSessionData: state.resetLastSessionData })
 }
 
 </script>

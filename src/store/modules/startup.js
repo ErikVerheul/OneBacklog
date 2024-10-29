@@ -27,7 +27,7 @@ const actions = {
 	 * Get all non-backup and non system database names
 	 * For non-server admins the option 'admin_only_all_dbs' in [chttpd] must be set to 'false' in the CouchDb config for this call to succeed
 	 */
-	getDatabases({ rootState, dispatch }) {
+	getDatabases({ rootState, dispatch }, resetLastSessionData) {
 		globalAxios({
 			method: 'GET',
 			url: '/_all_dbs',
@@ -37,7 +37,7 @@ const actions = {
 				for (const dbName of res.data) {
 					if (!dbName.startsWith('_') && !dbName.includes('backup')) foundDbNames.push(dbName)
 				}
-				dispatch('getOtherUserData', foundDbNames)
+				dispatch('getOtherUserData', { foundDbNames, resetLastSessionData })
 
 				if (rootState.debug) console.log('getDatabases: The database names are loaded: ' + foundDbNames)
 			})
@@ -48,7 +48,8 @@ const actions = {
 	},
 
 	/* Get the current DB name etc for this user. Note that the user global roles are already fetched */
-	getOtherUserData({ rootState, dispatch, commit }, foundDbNames) {
+	getOtherUserData({ rootState, dispatch, commit }, payload) {
+		console.log('getOtherUserData: resetLastSessionData = ' + payload.resetLastSessionData)
 		globalAxios({
 			method: 'GET',
 			url: '_users/org.couchdb.user:' + rootState.userData.user,
@@ -60,7 +61,7 @@ const actions = {
 					return
 				}
 				// check if the default user database exists
-				if (!foundDbNames.includes(allUserData.currentDb)) {
+				if (!payload.foundDbNames.includes(allUserData.currentDb)) {
 					alert('FATAL ERROR - default user database ' + allUserData.currentDb + ' does not exist!')
 					return
 				} else {
@@ -76,7 +77,7 @@ const actions = {
 				rootState.myAssignedDatabases = []
 				const missingDataBasesNames = []
 				for (const db of Object.keys(allUserData.myDatabases)) {
-					if (!foundDbNames.includes(db)) {
+					if (!payload.foundDbNames.includes(db)) {
 						delete allUserData.myDatabases[db]
 						missingDataBasesNames.push(db)
 					} else rootState.myAssignedDatabases.push(db)
@@ -110,8 +111,8 @@ const actions = {
 					// ToDo: this check can be removed if all users have checked their messages
 					rootState.myLastSessionMessagesCount = allUserData.myDatabases[rootState.userData.currentDb].myMessagesCount[myTeam] || 0
 				} else rootState.myLastSessionMessagesCount = 0
-				// get the last session data if available
-				if (allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
+				// get the last session data if available unless resetLastSessionData is true
+				if (!payload.resetLastSessionData && allUserData.myDatabases[allUserData.currentDb].lastSessionData) {
 					rootState.lastSessionData = allUserData.myDatabases[allUserData.currentDb].lastSessionData
 				}
 				// start the watchdog
@@ -123,7 +124,7 @@ const actions = {
 			})
 			.catch((error) => {
 				if (error.response && error.response.status === 404) {
-					if (foundDbNames.length > 0) {
+					if (payload.foundDbNames.length > 0) {
 						alert(`This CouchDb is already initiated. Cannot overwrite. The program will exit.`)
 						commit('endSession', 'startup: cannot initiate this CouchDB instance again.')
 					}

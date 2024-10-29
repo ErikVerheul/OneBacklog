@@ -54,7 +54,7 @@ const actions = {
 	},
 
 	/* A one time password authentication creates a cookie for subsequent database calls. The cookie needs be refreshed within 10 minutes */
-	signin({ rootState, state, dispatch }, authData) {
+	signin({ rootState, state, dispatch }, payload) {
 		function create_UUID() {
 			let dt = Date.now()
 			const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -67,13 +67,13 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: '/_session',
-			data: authData,
+			data: payload.credentials,
 		})
 			.then((res) => {
 				rootState.online = true
 				rootState.signedOut = false
 				rootState.mySessionId = create_UUID()
-				state.sessionAuthData = authData
+				state.sessionAuthData = payload.credentials
 				rootState.iAmAssistAdmin = res.data.roles.includes('assistAdmin')
 				rootState.iAmAdmin = res.data.roles.includes('admin')
 				rootState.iAmAPO = res.data.roles.includes('APO')
@@ -83,14 +83,14 @@ const actions = {
 					user: res.data.name,
 					email: undefined,
 					myTeam: undefined,
-					password: authData.password,
+					password: payload.credentials.password,
 					currentDb: undefined,
 					roles: res.data.roles,
 					myDatabases: {},
 					myFilterSettings: undefined,
 				}
 				// set the session cookie and get all non-backup and non system database names
-				const toDispatch = [{ refreshCookieLoop: null }, { getDatabases: null }]
+				const toDispatch = [{ refreshCookieLoop: null }, { getDatabases: payload.resetLastSessionData }]
 				dispatch('refreshCookie', { caller: 'authentication:signin', toDispatch })
 			})
 			.catch((error) => {
