@@ -373,7 +373,7 @@ const actions = {
 				const rootChildren = rootState.helpersRef.getRootNode().children
 				const productNodes = []
 				for (const child of rootChildren) {
-					if (child.productId !== 'requirement-areas') {
+					if (child.productId !== MISC.AREA_PRODUCTID) {
 						productNodes.push(child)
 					}
 				}

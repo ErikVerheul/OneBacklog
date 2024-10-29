@@ -536,9 +536,9 @@ const actions = {
 	createReqAreasParent({ rootState }, payload) {
 		// create parent document
 		const doc = {
-			_id: 'requirement-areas',
+			_id: MISC.AREA_PRODUCTID,
 			type: 'backlogItem',
-			productId: 'requirement-areas',
+			productId: MISC.AREA_PRODUCTID,
 			parentId: 'root',
 			team: 'n/a',
 			level: 2,

@@ -71,7 +71,7 @@ const computed = {
 
 const methods = {
 	doShowState(node) {
-		return node._id !== 'root' && node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas'
+		return node._id !== 'root' && node._id !== MISC.AREA_PRODUCTID && node.parentId !== MISC.AREA_PRODUCTID
 	},
 
 	getItemInfo() {
@@ -106,7 +106,7 @@ const methods = {
 			this.isAcceptanceEdited = false
 			// preset the req area color if available
 			this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
-			if (this.getLastSelectedNode._id !== 'requirement-areas') {
+			if (this.getLastSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}

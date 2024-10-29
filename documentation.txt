@@ -16,7 +16,7 @@ Database--------- backlogItem document -------------------- node
 "state"(Integer)------------------------------------------- data.state
 "tssize"(Integer)------------------------------------------ loaded on request
 "spsize"(Integer)------------------------------------------ loaded on request
-"color"(hex)----------------------------------------------- data.reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3 Epic level)
+"color"(hex)----------------------------------------------- data.reqAreaItemColor: doc.color, // only applicable for req area documents (productId = MISC.AREA_PRODUCTID, level = 3 Epic level)
 "spikepersonhours"(Integer)-------------------------------- loaded on request
 "reqarea"(string)------------------------------------------ data.reqarea
 "dependencies": []----------------------------------------- dependencies
@@ -74,7 +74,7 @@ data: {
 	taskOwner: doc.taskOwner, // the task owner, member of the team, is responsible for having the task done but he need not to do that work him self
 	subtype: doc.subtype,
 	followers: doc.followers,
-	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = 'requirement-areas', level = 3)
+	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = MISC.AREA_PRODUCTID, level = 3)
 	lastPositionChange: doc.lastPositionChange,
 	lastStateChange: doc.lastStateChange,
 	lastContentChange: doc.lastContentChange,

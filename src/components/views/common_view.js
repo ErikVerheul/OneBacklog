@@ -270,7 +270,7 @@ const methods = {
 	 * Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
 	 */
 	hasInconsistentState(node) {
-		if (node._id === 'requirement-areas') {
+		if (node._id === MISC.AREA_PRODUCTID) {
 			// skip this dummy product
 			return false
 		}
@@ -544,7 +544,7 @@ const methods = {
 		// node is either the current node (descripton changed and a click outside description and not on a node) or
 		// the previous selected node (description changed and clicked on a node)
 		const node = payload.node
-		if (node._id !== 'requirement-areas' && node.parentId !== 'requirement-areas') {
+		if (node._id !== MISC.AREA_PRODUCTID && node.parentId !== MISC.AREA_PRODUCTID) {
 			if (areStringsEqual(store.state.newAcceptanceCriteria, store.state.currentDoc.acceptanceCriteria)) {
 				// update skipped when not changed; load the doc of last clicked node
 				this.isAcceptanceEdited = false

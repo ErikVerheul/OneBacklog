@@ -57,7 +57,7 @@
             <h3 align="center">{{ store.state.currentProductTitle }} [Overview]</h3>
           </BCol>
           <template
-            v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== 'requirement-areas' && store.state.currentDoc.parentId !== 'requirement-areas'">
+            v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
             <BCol cols="2"></BCol>
             <BCol cols="1">
               <h3 align="right">State:</h3>
