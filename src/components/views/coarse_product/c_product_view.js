@@ -14,7 +14,13 @@ const thisView = 'coarseProduct'
 function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
-		// returning from other tree view (for now 'detailView'); recreate the expansion state
+		if (store.state.lastTreeView === 'detailProduct') {
+			// reset filters and searches
+			store.state.resetFilter = null
+			store.state.resetSearchOnId = null
+			store.state.resetSearchOnTitle = null
+		}
+		// returning from other view (for now 'detailView' or 'planningBoard'); recreate the expansion state
 		store.commit('restoreTreeExpansionState')
 	}
 	// must reset the event listener to prevent duplication

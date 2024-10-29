@@ -15,16 +15,19 @@ const thisView = 'detailProduct'
 
 function created() {
 	store.state.currentView = thisView
-	if (!store.state.lastTreeView) {
-		// tree was loaded
-		if (thisView !== store.state.lastTreeView) {
-			// returning from other tree view (for now 'coarseView'); recreate the expansion state
-			store.commit('restoreTreeExpansionState')
-			this.hasViewChanged = true
-		} else this.hasViewChanged = false
-		// must reset the event listener to prevent duplication
-		this.eventBus.off('context-menu')
-	}
+	if (thisView !== store.state.lastTreeView) {
+		if (store.state.lastTreeView === 'coarseProduct') {
+			// reset filters and searches
+			store.state.resetFilter = null
+			store.state.resetSearchOnId = null
+			store.state.resetSearchOnTitle = null
+		}
+		// intial load or returning from other tree view (for now 'coarseView'); recreate the expansion state
+		store.commit('restoreTreeExpansionState')
+		this.hasViewChanged = true
+	} else this.hasViewChanged = false
+	// must reset the event listener to prevent duplication
+	this.eventBus.off('context-menu')
 }
 
 function mounted() {
