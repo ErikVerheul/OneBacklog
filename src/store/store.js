@@ -486,7 +486,7 @@ const store = createStore({
 				// cannot display tasks in the coarse view
 				if (getters.isOverviewSelected && nodeFound.level === LEVEL.TASK) {
 					commit('addToEventList', {
-						txt: `The item is found but at the task level and cannot be dispayed in this view. Use the Detail view instead to find this item`,
+						txt: `The item is found but at the task level but cannot be dispayed in this view. Use the Detail view instead to find this item`,
 						severity: SEV.WARNING,
 					})
 					return
@@ -527,7 +527,7 @@ const store = createStore({
 			// save display state of the branch
 			commit('saveTreeView', { type: 'titles' })
 			state.helpersRef.traverseModels((nm) => {
-				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
+				if (!(getters.isOverviewSelected && nm.level === LEVEL.TASK) && nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
 					// expand the product up to the found item and highlight it
 					state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
 					nodesFound.push(nm)
