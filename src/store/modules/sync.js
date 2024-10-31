@@ -482,37 +482,39 @@ const actions = {
 						//////////////////////////////// changes originating from planning board ///////////////////////////////////////////////////////
 						case 'updateTaskOrderEvent':
 							// update the position of the tasks of the story and update the index and priority values in the tree
-							const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
-							const storyNode = rootState.helpersRef.getNodeById(doc._id)
-							if (!storyNode) return
+							{
+								const afterMoveIds = lastHistObj.updateTaskOrderEvent.afterMoveIds
+								const storyNode = rootState.helpersRef.getNodeById(doc._id)
+								if (!storyNode) return
 
-							const mapper = []
-							for (const c of storyNode.children) {
-								if (afterMoveIds.includes(c._id)) {
-									mapper.push({ child: c, priority: c.data.priority, reordered: true })
-								} else mapper.push({ child: c, reordered: false })
-							}
-							const newTreeChildren = []
-							let ind = 0
-							let afterMoveIdx = 0
-							for (const m of mapper) {
-								if (!m.reordered) {
-									newTreeChildren.push(m.child)
-								} else {
-									for (const c of storyNode.children) {
-										if (c._id === afterMoveIds[afterMoveIdx]) {
-											c.ind = ind
-											c.data.priority = m.priority
-											newTreeChildren.push(c)
-											afterMoveIdx++
-											break
+								const mapper = []
+								for (const c of storyNode.children) {
+									if (afterMoveIds.includes(c._id)) {
+										mapper.push({ child: c, priority: c.data.priority, reordered: true })
+									} else mapper.push({ child: c, reordered: false })
+								}
+								const newTreeChildren = []
+								let ind = 0
+								let afterMoveIdx = 0
+								for (const m of mapper) {
+									if (!m.reordered) {
+										newTreeChildren.push(m.child)
+									} else {
+										for (const c of storyNode.children) {
+											if (c._id === afterMoveIds[afterMoveIdx]) {
+												c.ind = ind
+												c.data.priority = m.priority
+												newTreeChildren.push(c)
+												afterMoveIdx++
+												break
+											}
 										}
 									}
+									ind++
 								}
-								ind++
+								storyNode.children = newTreeChildren
+								showSyncMessage(`changed the priority of`, SEV.INFO)
 							}
-							storyNode.children = newTreeChildren
-							showSyncMessage(`changed the priority of`, SEV.INFO)
 							break
 						case 'updateTaskOwnerEvent':
 							commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })

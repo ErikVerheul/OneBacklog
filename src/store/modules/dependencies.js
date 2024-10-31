@@ -260,7 +260,7 @@ const actions = {
 	},
 
 	/* Remove one or more conditions; called by removeDependenciesAsync only */
-	alsoRemoveConditions({ rootState, rootGetters, commit, dispatch }, payload) {
+	alsoRemoveConditions({ rootState, commit, dispatch }, payload) {
 		const docsToGet = []
 		for (const id of payload.removedIds) {
 			docsToGet.push({ id: id })
@@ -376,7 +376,7 @@ const actions = {
 	},
 
 	/* Remove the dependencies; called by removeConditionsAsync only */
-	alsoRemoveDependenciesAsync({ rootState, rootGetters, commit, dispatch }, payload) {
+	alsoRemoveDependenciesAsync({ rootState, commit, dispatch }, payload) {
 		const docsToGet = []
 		for (const id of payload.removedIds) {
 			docsToGet.push({ id: id })

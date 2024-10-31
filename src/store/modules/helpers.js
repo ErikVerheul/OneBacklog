@@ -7,7 +7,7 @@
  */
 
 import { LEVEL, MISC, SEV, STATE } from '../../constants.js'
-import { collapseNode, expandNode, dedup, pathToJSON, showNode } from '../../common_functions.js'
+import { collapseNode, expandNode, dedup, pathToJSON } from '../../common_functions.js'
 const actions = {
 	createHelpers({ rootState, rootGetters, commit }) {
 		rootState.helpersRef = {
@@ -671,7 +671,6 @@ const actions = {
 				}
 				// add the node ids to the lastSessionData of the other view if not present
 				if (rootState.lastSessionData) {
-					const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
 					for (let n of nodes) {
 						if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(n._id)) {
 							rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
