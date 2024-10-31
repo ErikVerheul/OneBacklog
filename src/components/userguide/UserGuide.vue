@@ -237,30 +237,29 @@
 						<p>Set a filter in this modal and save it for use in your next session. To return to the normal view, press
 							the 'Clear filter' button.</p>
 						<p>You can filter on a combination of properties like team, item state, recent changes etc. You can use this
-							filter as pre-selection before the Id selection and search in titles, as outlined below.</p>
+							filter as pre-selection before the Id selection and search in titles, as outlined below.
+							The scope of the filter is the currently selected product (the product you selected an item in)</p>
 						<h5>Select an item on (short) Id</h5>
 						<p>You can also use the full, 18+ positions long, id. More convenient is the use of the short Id. This Id is
 							5 characters long. It is displayed in the product view right from the item title. When you enter an Id and press
 							Enter:</p>
 						<ul>
-							<li>The item is found in the currently selected and opened or expanded product. The item will be selected and
-								highlighted in the tree view.</li>
-							<li>The item is found in the currently selected product but that product is not opened. The product will
-								be opened and the item will be selected and highlighted in the tree view</li>
-							<li>The item is found in a product assigned to you which you did not select. You get a message that the item exists
-								and a hint to add all your assigned products to your selection.</li>
-							<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible
-								to you.</li>
+							<li>The item is found in any of your assigned and selected products visable in the tree view. The tree will be expanded and the item will be
+								selected and highlighted in the view.</li>
+							<li>The item is found in a product assigned, but not selected by you. You get a message to select the product and try again.</li>
+							<li>The item is found in a product NOT assigned to you. You get a message but the item is NOT accessible to you.</li>
 							<li>The item is NOT found in the database. You get a message. Check if you made a mistype.</li>
 							<li>More than one item with this Id was found. You get a message dat the first occurrence was picked. This
 								unlikely event is logged for the server admin.</li>
 						</ul>
 						<p>To return to the original view, click on the white X next to the input field or return to the tree state
-							before a filter was set by clicking the 'Clear filter and ...' button.</p>
+							before a filter was set by clicking the 'Clear filter and ...' button.
+							The scope of the id select are all items of all products.</p>
 						<h5>Search in titles</h5>
 						<p>After entering a text in this input field, press Enter. Any item of any selected product
 							wich has a (partial) match with the text in the title will be expanded and highlighted.
-							The first match will be selected. To return to the original view, click on the white X next to the input field.</p>
+							The first match will be selected. To return to the original view, click on the white X next to the input field.
+							The scope of the search is the currently selected product (the product you selected an item in)</p>
 					</div>
 				</div>
 				<div id="sp">
