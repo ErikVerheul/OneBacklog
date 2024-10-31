@@ -163,15 +163,6 @@ const methods = {
 		}
 	},
 
-	/* Returns true if the path starts with the subPath */
-	isInPath(subPath, path) {
-		if (subPath.length > path.length) return false
-		for (let i = 0; i < subPath.length; i++) {
-			if (subPath[i] !== path[i]) return false
-		}
-		return true
-	},
-
 	mouseMoveHandler(event) {
 		if (!this.isLeftMouseButtonDown || this.preventDrag || this.preventProductDrag || !this.lastClickedNode.isSelected) return
 		const initialDraggingState = this.isDragging
@@ -260,7 +251,7 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			if (this.isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
+			if (store.state.helpersRef.isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
 				this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
 				this.stopDrag()
 				return

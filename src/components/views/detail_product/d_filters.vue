@@ -122,11 +122,13 @@ import store from '../../../store/store.js'
 const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters() {
+    // filter the currently selected product (the product the last selected item belongs to)
+    const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getLastSelectedNode.productId)
     // return if a filter is already set or no filter is selected
     if (store.state.resetFilter || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
     // save node display state
-    store.commit('saveTreeView', { type: 'filter' })
+    store.commit('saveTreeView', { type: 'filter', nodesToScan })
 
     const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
     let count = 0
@@ -173,7 +175,7 @@ const methods = {
       }
     }
     // execute the callback for the current product
-    store.state.helpersRef.traverseModels(cb, store.state.helpersRef.getCurrentProductModel())
+    store.state.helpersRef.traverseModels(cb, nodesToScan)
 
     if (!onlyFilterOnDepth) {
       // hide unselected nodes with no selected descendants
@@ -186,7 +188,7 @@ const methods = {
     }
     // create reset object
     store.state.resetFilter = {
-      savedSelectedNode: this.getLastSelectedNode,
+      nodesTouched: nodesToScan
     }
   }
 }

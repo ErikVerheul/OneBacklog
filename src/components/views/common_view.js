@@ -205,11 +205,11 @@ const methods = {
 	},
 
 	resetFindId() {
-		store.dispatch('resetFindOnId', { caller: 'resetFindId' })
+		store.dispatch('resetFindOnId')
 	},
 
 	resetSearchTitles() {
-		store.dispatch('resetSearchInTitles', { caller: 'resetSearchTitles', toDispatch: [] })
+		store.dispatch('resetSearchInTitles')
 	},
 
 	patchTitle(node) {
@@ -298,8 +298,7 @@ const methods = {
 
 	onSetMyFilters() {
 		if (store.state.resetFilter) {
-			// if this filter was on, reset it after resetting any set search and reset the label of the button; pass the array of productmodels to apply the reset on
-			store.dispatch('resetFilterAndSearches', { caller: 'onSetMyFilters' })
+			store.dispatch('resetFilterAction')
 		} else {
 			// this filter was not set; update the available req area options first
 			const currReqAreaIds = store.state.helpersRef.getCurrentReqAreaIds()
@@ -335,12 +334,7 @@ const methods = {
 			// return on invalid id string
 			return
 		}
-
-		if (store.state.resetSearchOnTitle !== null) {
-			// reset the search on id first
-			const toDispatch = [{ findItemOnId: { id } }]
-			store.dispatch('resetSearchInTitles', { caller: 'doFindItemOnId', toDispatch })
-		} else store.dispatch('findItemOnId', { id })
+		store.dispatch('findItemOnId', { id })
 	},
 
 	/* Find all items with the key as a substring in their title in the current product branch */
@@ -349,12 +343,7 @@ const methods = {
 			// return on empty keyword
 			return
 		}
-
-		if (store.state.resetSearchOnId !== null) {
-			// reset the search on title first
-			const toDispatch = [{ seachOnTitle: {} }]
-			store.dispatch('resetFindOnId', { caller: 'doSeachOnTitle', toDispatch })
-		} else store.dispatch('seachOnTitle')
+		store.dispatch('seachOnTitle')
 	},
 
 	/*

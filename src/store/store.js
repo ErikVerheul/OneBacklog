@@ -468,6 +468,7 @@ const store = createStore({
 			}
 		},
 
+		/* Find a full or short id in whithin all product branches */
 		findItemOnId({ state, dispatch, commit, getters }, payload) {
 			const SHORTKEYLENGTH = 5
 			const id = payload.id
@@ -492,18 +493,17 @@ const store = createStore({
 					return
 				}
 
-				// save display state of the current products
-				commit('saveTreeView', { type: 'findId' })
 				// select the node after loading the document
 				dispatch('loadDoc', {
 					id: nodeFound._id,
 					onSuccessCallback: () => {
+						const nodesOnPath = state.helpersRef.getUnexpandedNodesOnPath(nodeFound)
 						// create reset object
 						state.resetSearchOnId = {
-							view: state.currentView,
-							savedSelectedNode: getters.getLastSelectedNode,
-							nodeFound,
+							nodesTouched: nodesOnPath,
 						}
+						// save display state of the branch up to the found node
+						commit('saveTreeView', { type: 'findId', nodesToScan: nodesOnPath })
 						// expand the tree view up to the found item
 						state.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
 						commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
@@ -520,35 +520,35 @@ const store = createStore({
 			}
 		},
 
-		/* Find all items with the key as a substring in their title in the current product branch */
+		/* Find all items with the key as a substring in their title in the currently selected branch */
 		seachOnTitle({ state, dispatch, commit, getters }) {
-			const productNodes = state.helpersRef.getProductNodes()
+			const branchHead = getters.getLastSelectedNode
 			const nodesFound = []
 			// save display state of the branch
-			commit('saveTreeView', { type: 'titles' })
-			state.helpersRef.traverseModels((nm) => {
-				if (!(getters.isOverviewSelected && nm.level === LEVEL.TASK) && nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
-					// expand the product up to the found item and highlight it
-					state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
-					nodesFound.push(nm)
-				} else {
-					// collapse nodes with no findings in their subtree
-					if (nm.level > LEVEL.PRODUCT) {
-						if (nm.isExpanded) {
-							collapseNode(nm)
+			commit('saveTreeView', { type: 'titles', nodesToScan: [branchHead] })
+			state.helpersRef.traverseModels(
+				(nm) => {
+					if (!(getters.isOverviewSelected && nm.level === LEVEL.TASK) && nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
+						// expand the product up to the found item and highlight it
+						state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+						nodesFound.push(nm)
+					} else {
+						// collapse nodes with no findings in their subtree
+						if (nm.level > LEVEL.PRODUCT) {
+							if (nm.isExpanded) {
+								collapseNode(nm)
+							}
 						}
 					}
-				}
-			}, productNodes)
+				},
+				[branchHead],
+			)
 
 			// create reset object
 			state.resetSearchOnTitle = {
-				view: state.currentView,
-				savedSelectedNode: getters.getLastSelectedNode,
-				productNodes,
+				nodesTouched: [branchHead],
 			}
 
-			const productStr = getters.isOverviewSelected ? 'all products' : ` product '${state.currentProductTitle}'`
 			if (nodesFound.length > 0) {
 				// load and select the first node found
 				dispatch('loadDoc', {
@@ -556,87 +556,46 @@ const store = createStore({
 					onSuccessCallback: () => {
 						commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
 						if (nodesFound.length === 1) {
-							commit('addToEventList', { txt: `One item title matches your search in ${productStr}. This item is selected`, severity: SEV.INFO })
+							commit('addToEventList', { txt: `One item title matches your search in branch '${branchHead.title}'. This item is selected`, severity: SEV.INFO })
 						} else
 							commit('addToEventList', {
-								txt: `${nodesFound.length} item titles match your search in ${productStr}. The first match is selected`,
+								txt: `${nodesFound.length} item titles match your search in branch '${branchHead.title}'. The first match is selected`,
 								severity: SEV.INFO,
 							})
 					},
 				})
-			} else commit('addToEventList', { txt: `No item titles match your search in ${productStr}`, severity: SEV.INFO })
+			} else commit('addToEventList', { txt: `No item titles match your search in branch '${branchHead.title}'`, severity: SEV.INFO })
 		},
 
-		resetFindOnId({ state, dispatch, commit }, payload) {
-			if (state.debug) console.log(`resetFindOnId is called by ${payload.caller}`)
-			if (!state.resetSearchOnId || !state.resetSearchOnId.nodeFound) {
+		resetFindOnId({ state, commit }) {
+			if (!state.resetSearchOnId) {
 				// there is no pending search or the search did not find a node
 				state.itemId = ''
 				return
 			}
-			const toDispatch = payload.toDispatch
-			// load and select the previous selected document
-			const prevSelectedNode = state.resetSearchOnId.savedSelectedNode
-			dispatch('loadDoc', {
-				id: prevSelectedNode._id,
-				toDispatch,
-				onSuccessCallback: () => {
-					if (!store.resetFilter) {
-						commit('restoreTreeView', { type: 'findId' })
-					} else commit('restoreTreeView', { type: 'filter' })
-					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-					commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
-					state.itemId = ''
-					state.resetSearchOnId = null
-				},
-			})
+			commit('restoreTreeView', 'findId')
+			commit('addToEventList', { txt: 'The search for an item on Id is cleared', severity: SEV.INFO })
+			state.itemId = ''
+			state.resetSearchOnId = null
 		},
 
-		resetSearchInTitles({ state, dispatch, commit }, payload) {
-			if (state.debug) console.log(`resetSearchInTitles is called by ${payload.caller}`)
-			if (!state.resetSearchOnTitle || !state.resetSearchOnTitle.savedSelectedNode) {
+		resetSearchInTitles({ state, commit }) {
+			if (!state.resetSearchOnTitle) {
 				// there is no pending search on titles or the search did not find a node
 				state.keyword = ''
 				return
 			}
-			const prevSelectedNode = state.resetSearchOnTitle.savedSelectedNode
-			const toDispatch = payload.toDispatch
-			// load and select the previous selected document
-			dispatch('loadDoc', {
-				id: prevSelectedNode._id,
-				toDispatch,
-				onSuccessCallback: () => {
-					if (!store.resetFilter) {
-						commit('restoreTreeView', { type: 'titles' })
-					} else commit('restoreTreeView', { type: 'filter' })
-					commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-					commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
-					state.keyword = ''
-					state.resetSearchOnTitle = null
-				},
-			})
+			commit('restoreTreeView', 'titles')
+			commit('addToEventList', { txt: `The search for item titles is cleared`, severity: SEV.INFO })
+			state.keyword = ''
+			state.resetSearchOnTitle = null
 		},
 
-		/* If a filter is active reset to the tree state as before the filter was set; otherwise reset the set search (can only be one) */
-		resetFilterAndSearches({ state, dispatch, commit }, payload) {
-			if (state.debug) console.log(`resetFilterAndSearches is called by ${payload.caller}`)
-			if (state.resetFilter) {
-				const prevSelectedNode = state.resetFilter.savedSelectedNode
-				// load and select the previous selected document
-				dispatch('loadDoc', {
-					id: prevSelectedNode._id,
-					onSuccessCallback: () => {
-						state.itemId = ''
-						state.keyword = ''
-						state.resetFilter = null
-						state.resetSearchOnId = null
-						state.resetSearchOnTitle = null
-						commit('restoreTreeView', { type: 'filter' })
-						commit('updateNodesAndCurrentDoc', { selectNode: prevSelectedNode })
-						commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
-					},
-				})
-			}
+		/* Reset the filter to the tree state as before the filter was set */
+		resetFilterAction({ state, commit }) {
+			commit('restoreTreeView', 'filter')
+			commit('addToEventList', { txt: `Your filter is cleared`, severity: SEV.INFO })
+			state.resetFilter = null
 		},
 
 		/* Add the product to my profile and update my available products and my product options	*/
@@ -920,11 +879,14 @@ const store = createStore({
 				delete nm.tmp.isHighlighted_1
 				delete nm.tmp.isHighlighted_2
 				delete nm.tmp.isWarnLighted
-			}, state.helpersRef.getProductNodes())
+			}, payload.nodesToScan)
 		},
 
-		/* Traverse the tree to reset to the state before the view change */
-		restoreTreeView(state, payload) {
+		/*
+		 * Traverse the tree to reset to the state before the view change
+		 * Do not hide the currently selected node
+		 */
+		restoreTreeView(state, type) {
 			function resetHighLights(node, highLights) {
 				if (highLights && Object.keys(highLights).length > 0) {
 					node.tmp.isHighlighted_1 = !!highLights.isHighlighted_1
@@ -933,48 +895,79 @@ const store = createStore({
 				}
 			}
 
+			const selectedNodePath = state.selectedNodes.slice(-1)[0].path
+			let nodesToScan = undefined
+			switch (type) {
+				case 'condition':
+					nodesToScan = state.helpersRef.getProductNodes()
+					break
+				case 'dependency':
+					nodesToScan = state.helpersRef.getProductNodes()
+					break
+				case 'findId':
+					nodesToScan = state.resetSearchOnId.nodesTouched
+					break
+				case 'filter':
+					nodesToScan = state.resetFilter.nodesTouched
+					break
+				case 'titles':
+					nodesToScan = state.resetSearchOnTitle.nodesTouched
+					break
+			}
+
 			state.helpersRef.traverseModels((nm) => {
 				// reset the view state
-				if (payload.type === 'condition') {
-					nm.isExpanded = nm.tmp.savedIsExpandedInCondition
+				if (type === 'condition') {
+					if (!state.helpersRef.isInPath(nm.path, selectedNodePath)) {
+						nm.isExpanded = nm.tmp.savedIsExpandedInCondition
+						nm.doShow = nm.tmp.savedDoShowInCondition
+					}
 					delete nm.tmp.savedIsExpandedInCondition
-					nm.doShow = nm.tmp.savedDoShowInCondition
 					delete nm.tmp.savedDoShowInCondition
 					resetHighLights(nm, nm.tmp.savedHighLigthsInCondition)
 				}
 
-				if (payload.type === 'dependency') {
-					nm.isExpanded = nm.tmp.savedIsExpandedInDependency
+				if (type === 'dependency') {
+					if (!state.helpersRef.isInPath(nm.path, selectedNodePath)) {
+						nm.isExpanded = nm.tmp.savedIsExpandedInDependency
+						nm.doShow = nm.tmp.savedDoShowInDependency
+					}
 					delete nm.tmp.savedIsExpandedInDependency
-					nm.doShow = nm.tmp.savedDoShowInDependency
 					delete nm.tmp.savedDoShowInDependency
 					resetHighLights(nm, nm.tmp.savedHighLigthsInDependency)
 				}
 
-				if (payload.type === 'findId') {
-					nm.isExpanded = nm.tmp.savedIsExpandedInFindId
+				if (type === 'findId') {
+					if (!state.helpersRef.isInPath(nm.path, selectedNodePath)) {
+						nm.isExpanded = nm.tmp.savedIsExpandedInFindId
+						nm.doShow = nm.tmp.savedDoShowInFindId
+					}
 					delete nm.tmp.savedIsExpandedInFindId
-					nm.doShow = nm.tmp.savedDoShowInFindId
 					delete nm.tmp.savedDoShowInFindId
 					resetHighLights(nm, nm.tmp.savedHighLigthsInFindId)
 				}
 
-				if (payload.type === 'filter') {
-					nm.isExpanded = nm.tmp.savedIsExpandedInFilter
+				if (type === 'filter') {
+					if (!state.helpersRef.isInPath(nm.path, selectedNodePath)) {
+						nm.isExpanded = nm.tmp.savedIsExpandedInFilter
+						nm.doShow = nm.tmp.savedDoShowInFilter
+					}
 					delete nm.tmp.savedIsExpandedInFilter
-					nm.doShow = nm.tmp.savedDoShowInFilter
 					delete nm.tmp.savedDoShowInFilter
 					resetHighLights(nm, nm.tmp.savedHighLigthsInFilter)
 				}
 
-				if (payload.type === 'titles') {
-					nm.isExpanded = nm.tmp.savedIsExpandedInTitles
+				if (type === 'titles') {
+					if (!state.helpersRef.isInPath(nm.path, selectedNodePath)) {
+						nm.isExpanded = nm.tmp.savedIsExpandedInTitles
+						nm.doShow = nm.tmp.savedDoShowInTitles
+					}
 					delete nm.tmp.savedIsExpandedInTitles
-					nm.doShow = nm.tmp.savedDoShowInTitles
 					delete nm.tmp.savedDoShowInTitles
 					resetHighLights(nm, nm.tmp.savedHighLigthsInTitles)
 				}
-			}, state.helpersRef.getProductNodes())
+				// if nodesToScan is undefined the full tree is scanned
+			}, nodesToScan)
 		},
 
 		/* The keys of the payload object are evaluated by key name and value */
@@ -1328,25 +1321,7 @@ const store = createStore({
 			state.progressMessage = msg
 		},
 
-		/*
-		 * Initiate lastSessionData for the coarse view from the loaded nodes
-		 * Show the nodes up to the epic level
-		 */
-		createDefaultCoarseSessionData(state) {
-			state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
-			state.helpersRef.traverseModels((nm) => {
-				if (nm._id === MISC.AREA_PRODUCTID || (nm.productId !== MISC.AREA_PRODUCTID && nm.level < LEVEL.EPIC)) {
-					state.lastSessionData.coarseView.expandedNodes.push(nm._id)
-				}
-				if (nm.productId === MISC.AREA_PRODUCTID || nm.level <= LEVEL.EPIC) {
-					state.lastSessionData.coarseView.doShowNodes.push(nm._id)
-				}
-			})
-			state.lastSessionData.coarseView.lastSelectedNodeId = state.currentProductId
-			state.lastSessionData.coarseView.lastSelectedProductId = 'root'
-		},
-
-		saveTreeExpansionState(state) {
+		createTreeExpansionState(state) {
 			const lastSelectedNode = state.selectedNodes.slice(-1)[0]
 			if (lastSelectedNode) {
 				if (!state.lastSessionData) state.lastSessionData = {}
@@ -1379,7 +1354,7 @@ const store = createStore({
 					state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
 				}
 			} else {
-				if (state.debug) console.log(`saveTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
+				if (state.debug) console.log(`createTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
 			}
 		},
 

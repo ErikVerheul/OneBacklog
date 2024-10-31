@@ -215,6 +215,26 @@ const actions = {
 				return violations
 			},
 
+			/* Get all unexpanded nodes in the path to the node */
+			getUnexpandedNodesOnPath(node) {
+				const maxDepth = node.path.length
+				const nodesFound = []
+				for (let i = LEVEL.PRODUCT; i <= maxDepth; i++) {
+					const nm = rootState.helpersRef.getNodeModel(node.path.slice(0, i))
+					if (!nm.isExpanded) nodesFound.push(nm)
+				}
+				return nodesFound
+			},
+
+			/* Returns true if the path starts with the subPath */
+			isInPath(subPath, path) {
+				if (subPath.length > path.length) return false
+				for (let i = 0; i < subPath.length; i++) {
+					if (subPath[i] !== path[i]) return false
+				}
+				return true
+			},
+
 			/* Show the path from PRODUCTLEVEL up to the node and highlight or warnLight the node */
 			showPathToNode(node, highLights) {
 				const maxDepth = node.path.length
@@ -238,8 +258,8 @@ const actions = {
 
 			/* Show the path from condNode to depNode including both nodes */
 			showDependencyViolations(violations) {
-				commit('saveTreeView', { type: 'condition' })
-				commit('saveTreeView', { type: 'dependency' })
+				commit('saveTreeView', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
+				commit('saveTreeView', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
 					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
@@ -381,7 +401,7 @@ const actions = {
 			},
 
 			/* Return an array with the node of the passed productId or an empty array if the product is not found */
-			getProductModel(productId) {
+			getProductModelInArray(productId) {
 				const productModels = rootState.helpersRef.getRootNode().children
 				for (const p of productModels) {
 					if (p.productId === productId) {
@@ -392,8 +412,8 @@ const actions = {
 			},
 
 			/* Return the current product node in an array */
-			getCurrentProductModel() {
-				return rootState.helpersRef.getProductModel(rootState.currentProductId)
+			getCurrentProductModelInArray() {
+				return rootState.helpersRef.getProductModelInArray(rootState.currentProductId)
 			},
 
 			/* Find the ids with a set req area in the current product */
@@ -403,7 +423,7 @@ const actions = {
 					if (nm.data.reqarea) {
 						if (!idsWithReqArea.includes(nm.data.reqarea)) idsWithReqArea.push(nm.data.reqarea)
 					}
-				}, rootState.helpersRef.getCurrentProductModel())
+				}, rootState.helpersRef.getCurrentProductModelInArray())
 				return idsWithReqArea
 			},
 
@@ -416,7 +436,7 @@ const actions = {
 							count++
 						}
 					}
-				}, rootState.helpersRef.getCurrentProductModel())
+				}, rootState.helpersRef.getCurrentProductModelInArray())
 				return count
 			},
 
@@ -541,7 +561,7 @@ const actions = {
 						}
 						nm.conditionalFor = newConditionalFor
 					}
-				}, rootState.helpersRef.getProductModel(removedNode.productId))
+				}, rootState.helpersRef.getProductModelInArray(removedNode.productId))
 			},
 
 			/* Return the productId, parentId, level, the index position, priority and parentFollowers if this node is to be inserted */
