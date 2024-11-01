@@ -43,6 +43,12 @@
 						unselected it will toggle only the selected item. </li>
 					<li>For the planning board: By default items with status <strong>On hold</strong> are hidden. Select this option to show them.</li>
 				</ul>
+				<h5>Clean load</h5>
+				<ul>
+					<li>If the loaded tree view looks odd, eg. branches are not visable, you can initiate a clean load. The saved view of your last session will then be
+						ignored. To do so hold the <strong>CTrl</strong> key down while clicking on the <strong>Submit</strong> button in the sign-in page.
+					</li>
+				</ul>
 				<p class="pro-user">In this guide the professional features are colored in gold</p>
 				<h5>Filters and searches</h5>
 				<p>To undo an action click on the Undo button which appears in the navigation bar. To select a subset of the

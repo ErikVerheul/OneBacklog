@@ -3,6 +3,21 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.4.1 - 1 November 2024 Major change due to better performance of Vue and the browsers</h3>
+        <p>New feature</p>
+        <ul>
+          <li>When signing-in with the Ctrl key down the default tree view is loaded ignoring the saved view of the users last session.</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>The tree Filter, Select on (short) id and Search in titles are refactored</li>
+          <li>Introduce a saparate isLeaf property for de coarse view</li>
+          <li>Load the tree before displaying the details view instead of doing that simultaniously</li>
+        </ul>
+        <p>Bug fixes</p>
+        <ul>
+          <li>Fix 'Create a product' option not visable due to obsolete template tags</li>
+        </ul>
         <h3>v.2.4.0 - 24 October 2024 Major change due to better performance of Vue and the browsers</h3>
         <p>New feature</p>
         <ul>
