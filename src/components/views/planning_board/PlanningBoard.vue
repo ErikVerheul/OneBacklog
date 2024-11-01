@@ -102,15 +102,6 @@ export default {
       // preset the selected sprint to the current sprint
       this.selectedSprint = this.getActiveSprints.currentSprint
     }
-
-    // reload when the user changes team
-    // const unsubscribe = store.subscribe((mutation, state) => {
-    //   if (mutation.type === 'updateTeam') {
-    //     // select and load the current sprint of the newly selected team calendar
-    //     this.selectedSprint = this.getActiveSprints.currentSprint
-    //     store.dispatch('loadPlanningBoard', { sprintId: this.selectedSprint.id, team: this.userData.myTeam, caller: 'planningboard.created' })
-    //   }
-    // })
   },
 
   data() {
