@@ -49,7 +49,6 @@ const actions = {
 
 	/* Get the current DB name etc for this user. Note that the user global roles are already fetched */
 	getOtherUserData({ rootState, dispatch, commit }, payload) {
-		console.log('getOtherUserData: resetLastSessionData = ' + payload.resetLastSessionData)
 		globalAxios({
 			method: 'GET',
 			url: '_users/org.couchdb.user:' + rootState.userData.user,

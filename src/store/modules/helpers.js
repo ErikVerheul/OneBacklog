@@ -689,7 +689,6 @@ const actions = {
 				const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
 				let success = false
 				for (const n of nodes) {
-					console.log('removeNodes: n.title = ' + n.title)
 					const siblings = rootState.helpersRef.getNodeSiblings(n.path)
 					if (siblings.length > 0) {
 						const removeInd = n.ind
@@ -704,7 +703,6 @@ const actions = {
 							rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
 							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
 								// if the coarseView.lastSelectedNodeId is removed assign the current default product node id
-								console.log('removeNodes: assing currentProductId to rootState.lastSessionData.coarseView')
 								rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
 								rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
 							}
@@ -714,7 +712,6 @@ const actions = {
 							rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
 							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
 								// if the detailView.lastSelectedNodeId is removed assign the current default product node id
-								console.log('removeNodes: assing currentProductId to rootState.lastSessionData.coarseView')
 								rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
 								rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
 							}
