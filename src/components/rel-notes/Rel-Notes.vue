@@ -3,7 +3,7 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
-        <h3>v.2.4.1 - 1 November 2024 Major change due to better performance of Vue and the browsers</h3>
+        <h3>v.2.4.1 - 1 November 2024 New feature, refactoring and bug fix</h3>
         <p>New feature</p>
         <ul>
           <li>When signing-in with the Ctrl key down the default tree view is loaded ignoring the saved view of the users last session.</li>
