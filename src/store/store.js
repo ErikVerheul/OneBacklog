@@ -779,17 +779,6 @@ const store = createStore({
 			state.userData.doNotAskForImport = payload.doNotAskForImport
 		},
 
-		/* Create or re-create the color mapper from the defined req areas (only available in Products overview) */
-		createColorMapper(state) {
-			const currReqAreaNodes = state.helpersRef.getReqAreaNodes()
-			if (currReqAreaNodes) {
-				state.colorMapper = {}
-				for (const nm of currReqAreaNodes) {
-					state.colorMapper[nm._id] = { reqAreaItemColor: nm.data.reqAreaItemColor }
-				}
-			}
-		},
-
 		/* Change or add one color; must create a new object for reactivity */
 		updateColorMapper(state, payload) {
 			const newColorMapper = {}
