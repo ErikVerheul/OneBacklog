@@ -135,8 +135,6 @@ export default {
     ...mapState(['userData']),
 
     selectedTeam() {
-
-      console.log('Planningboard: selectedTeam is updated to ' + this.userData.myTeam)
       return this.userData.myTeam
     },
 
