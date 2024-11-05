@@ -2,7 +2,6 @@ import { SEV, LEVEL, MISC } from '../../constants.js'
 import { b64ToUni, getLocationInfo, localTimeAndMilis, pathToJSON, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
-const SPECIAL_TEXT = true
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
@@ -210,7 +209,7 @@ const actions = {
 					node = rootState.helpersRef.getNodeById(doc._id)
 					// check for exception 'node not found'
 					if (node === null) {
-						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, SPECIAL_TEXT)
+						showSyncMessage(`changed item ${doc._id} which is missing in your view`, SEV.WARNING, MISC.SPECIAL_TEXT)
 						dispatch('doLog', { event: `sync: event ${histEvent} cannot find node with id = ${doc._id}`, level: SEV.WARNING })
 						return
 					}
@@ -452,7 +451,7 @@ const actions = {
 									showSyncMessage(
 										`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
 										SEV.INFO,
-										SPECIAL_TEXT,
+										MISC.SPECIAL_TEXT,
 									)
 								}
 							}
