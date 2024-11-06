@@ -37,6 +37,16 @@ export function areStringsEqual(str1, str2) {
 }
 
 //////////////// expand, collapse and show or hide the children of the node ////////////
+
+/* Returns true if the path starts with the subPath */
+export function isInPath(subPath, path) {
+	if (subPath.length > path.length) return false
+	for (let i = 0; i < subPath.length; i++) {
+		if (subPath[i] !== path[i]) return false
+	}
+	return true
+}
+
 export function showNode(node) {
 	if (node) {
 		node.doShow = true
@@ -246,6 +256,7 @@ export default {
 	getLocationInfo,
 	getSprintById,
 	getSprintNameById,
+	isInPath,
 	localTimeAndMilis,
 	removeFromArray,
 	isValidEmail,

@@ -2,7 +2,7 @@
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
 import { SEV, LEVEL } from '../../../constants.js'
-import { collapseNode, expandNode } from '../../../common_functions.js'
+import { collapseNode, expandNode, isInPath } from '../../../common_functions.js'
 import commonView from '../common_view.js'
 import store from '../../../store/store.js'
 
@@ -31,6 +31,7 @@ function data() {
 			x: 0,
 			y: 0,
 		},
+		lastSelectCursorPosition: null,
 		preventDrag: false,
 		preventProductDrag: false,
 		lastClickedNode: {},
@@ -107,7 +108,7 @@ const methods = {
 		// cursorPosition not available, so get it
 		const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
 		if (cPos !== null && node.isSelectable) {
-			store.state.lastSelectCursorPosition = cPos
+			this.lastSelectCursorPosition = cPos
 			const selNode = cPos.nodeModel
 			// single selection mode
 			store.commit('renewSelectedNodes', selNode)
@@ -251,7 +252,7 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			if (store.state.helpersRef.isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
+			if (isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
 				this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
 				this.stopDrag()
 				return
@@ -307,10 +308,10 @@ const methods = {
 
 	/* Select a node from the tree; another node must have been selected before; multiple nodes must have the same parent */
 	select(cursorPosition, event) {
-		store.state.lastSelectCursorPosition = cursorPosition
+		this.lastSelectCursorPosition = cursorPosition
+		const prevSelectedNode = store.state.selectedNodes.slice(-1)[0]
 		const selNode = cursorPosition.nodeModel
-		if (selNode.isSelectable) {
-			const prevSelectedNode = store.state.selectedNodes.slice(-1)[0] || selNode
+		if (prevSelectedNode && selNode.isSelectable) {
 			// ctrl-select or shift-select mode is allowed only if in professional mode and nodes have the same parent and are above PRODUCTLEVEL (epics, features and higher)
 			if (
 				store.state.userData.myOptions.proUser === 'true' &&

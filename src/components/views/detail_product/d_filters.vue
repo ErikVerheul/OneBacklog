@@ -125,10 +125,10 @@ const methods = {
     // filter the currently selected product (the product the last selected item belongs to)
     const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getLastSelectedNode.productId)
     // return if a filter is already set or no filter is selected
-    if (store.state.resetFilter || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+    if (store.getters.isResetFilterSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
     // save node display state
-    store.commit('saveTreeView', { type: 'filter', nodesToScan })
+    store.dispatch('saveTreeView', { type: 'filter', nodesToScan })
 
     const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
     let count = 0
@@ -187,7 +187,7 @@ const methods = {
       this.showLastEvent(`The tree is displayed up to the ${this.getLevelText(this.selectedTreeDepth)} level in product '${store.state.currentProductTitle}'`, SEV.INFO)
     }
     // create reset object
-    store.state.resetFilter = {
+    store.state.filterSelectSearch.resetFilter = {
       nodesTouched: nodesToScan
     }
   }

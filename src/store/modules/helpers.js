@@ -9,7 +9,7 @@
 import { LEVEL, MISC, SEV, STATE } from '../../constants.js'
 import { collapseNode, expandNode, dedup, pathToJSON } from '../../common_functions.js'
 const actions = {
-	createHelpers({ rootState, rootGetters, commit }) {
+	createHelpers({ rootState, dispatch, rootGetters, commit }) {
 		rootState.helpersRef = {
 			name: 'OneBacklog global helper functions',
 
@@ -226,15 +226,6 @@ const actions = {
 				return nodesFound
 			},
 
-			/* Returns true if the path starts with the subPath */
-			isInPath(subPath, path) {
-				if (subPath.length > path.length) return false
-				for (let i = 0; i < subPath.length; i++) {
-					if (subPath[i] !== path[i]) return false
-				}
-				return true
-			},
-
 			/* Show the path from PRODUCTLEVEL up to the node and highlight or warnLight the node */
 			showPathToNode(node, highLights) {
 				const maxDepth = node.path.length
@@ -258,8 +249,8 @@ const actions = {
 
 			/* Show the path from condNode to depNode including both nodes */
 			showDependencyViolations(violations) {
-				commit('saveTreeView', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
-				commit('saveTreeView', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
+				dispatch('saveTreeView', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
+				dispatch('saveTreeView', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
 					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
@@ -686,7 +677,7 @@ const actions = {
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
 			removeNodes(nodes) {
-				const lastSelectedNode = rootState.selectedNodes.slice(-1)[0]
+				const lastSelectedNode = rootGetters.getLastSelectedNode
 				let success = false
 				for (const n of nodes) {
 					const siblings = rootState.helpersRef.getNodeSiblings(n.path)

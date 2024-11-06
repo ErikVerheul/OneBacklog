@@ -555,8 +555,8 @@ const actions = {
 	},
 
 	/* Save the expansion state of the tree (detail or coarse) and sign-out if payload.doEndSession is true */
-	saveMyTreeViewAsync({ rootState, dispatch, commit }, payload) {
-		commit('createTreeExpansionState')
+	saveMyTreeViewAsync({ rootState, rootGetters, dispatch, commit }, payload) {
+		commit('createTreeExpansionState', rootGetters.getLastSelectedNode)
 		globalAxios({
 			method: 'GET',
 			url: `/_users/org.couchdb.user:${rootState.userData.user}`,

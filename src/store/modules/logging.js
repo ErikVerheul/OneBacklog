@@ -10,6 +10,7 @@ const MAXLOGSIZE = 1000
 const state = {
 	logSessionSeq: 0,
 	doEndSession: false,
+	unsavedLogs: [],
 }
 
 const actions = {
@@ -33,7 +34,7 @@ const actions = {
 
 		if (rootState.debug) console.log(`logging => ${localTimeAndMilis(new Date())}: ${payload.event}`)
 		// push the new log entry to the unsaved logs
-		rootState.unsavedLogs.push(newLog)
+		state.unsavedLogs.push(newLog)
 
 		if (payload.doEndSession) {
 			// save the log immediately
@@ -42,8 +43,8 @@ const actions = {
 		}
 	},
 
-	saveLog({ rootState, dispatch }) {
-		if (!rootState.signedOut && rootState.unsavedLogs.length > 0) {
+	saveLog({ rootState, state, dispatch }) {
+		if (!rootState.signedOut && state.unsavedLogs.length > 0) {
 			if (rootState.userData.currentDb) {
 				// try to store all unsaved logs
 				globalAxios({
@@ -54,7 +55,7 @@ const actions = {
 						const log = res.data
 
 						if (rootState.debugConnectionAndLogging) console.log(`saveLog: The log is fetched`)
-						for (const logEntry of rootState.unsavedLogs) {
+						for (const logEntry of state.unsavedLogs) {
 							// add the save time for debugging
 							logEntry.saveTime = Date.now()
 							log.entries.unshift(logEntry)
@@ -82,7 +83,7 @@ const actions = {
 		})
 			.then(() => {
 				// delete the logs now they are saved
-				rootState.unsavedLogs = []
+				state.unsavedLogs = []
 
 				if (state.doEndSession) {
 					commit('endSession', 'replaceLog')

@@ -15,10 +15,7 @@ function created() {
 	store.state.currentView = thisView
 	if (thisView !== store.state.lastTreeView) {
 		if (store.state.lastTreeView === 'detailProduct') {
-			// reset filters and searches
-			store.state.resetFilter = null
-			store.state.resetSearchOnId = null
-			store.state.resetSearchOnTitle = null
+			store.commit('resetSearchesAndFilters')
 		}
 		// returning from other view (for now 'detailView' or 'planningBoard'); recreate the expansion state
 		store.commit('restoreTreeExpansionState')

@@ -25,7 +25,7 @@ const actions = {
 						'\nOnline = ' +
 						rootState.online +
 						'\nlogsToSaveCount = ' +
-						rootState.unsavedLogs.length +
+						rootState.logging.unsavedLogs.length +
 						'\ncookieAuthenticated = ' +
 						rootState.authentication.cookieAuthenticated +
 						'\nListenForChangesRunning = ' +

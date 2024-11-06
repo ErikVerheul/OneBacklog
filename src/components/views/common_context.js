@@ -333,7 +333,7 @@ const methods = {
 
 	/* Undo the tree expansion and highlighting */
 	undoShowDependencies() {
-		store.commit('restoreTreeView', 'dependency')
+		store.dispatch('restoreTreeView', 'dependency')
 	},
 
 	/* Undo the tree expansion and highlighting */
@@ -386,7 +386,7 @@ const methods = {
 	getDependencies() {
 		this.dependenciesObjects = []
 		this.allDepenciesFound = true
-		store.commit('saveTreeView', { type: 'dependency', nodesToScan: store.state.helpersRef.getProductNodes() })
+		store.dispatch('saveTreeView', { type: 'dependency', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = store.state.helpersRef.getNodeById(depId)
 			if (item) {
@@ -400,7 +400,7 @@ const methods = {
 	getConditions() {
 		this.conditionsObjects = []
 		this.allConditionsFound = true
-		store.commit('saveTreeView', { type: 'condition', nodesToScan: store.state.helpersRef.getProductNodes() })
+		store.dispatch('saveTreeView', { type: 'condition', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = store.state.helpersRef.getNodeById(conId)
 			if (item) {

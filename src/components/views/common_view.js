@@ -291,13 +291,13 @@ const methods = {
 	},
 
 	getFilterButtonText() {
-		if (store.state.resetFilter === null) {
+		if (!store.getters.isResetFilterSet) {
 			return 'Filter in tree'
 		} else return 'Reset filter'
 	},
 
 	onSetMyFilters() {
-		if (store.state.resetFilter) {
+		if (store.getters.isResetFilterSet) {
 			store.dispatch('resetFilterAction')
 		} else {
 			// this filter was not set; update the available req area options first
@@ -339,7 +339,7 @@ const methods = {
 
 	/* Find all items with the key as a substring in their title in the current product branch */
 	doSeachOnTitle() {
-		if (store.state.keyword === '') {
+		if (store.state.filterSelectSearch.keyword === '') {
 			// return on empty keyword
 			return
 		}
