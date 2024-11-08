@@ -124,7 +124,6 @@ const actions = {
 					lastContentChange: 0,
 					lastCommentAddition: 0,
 					lastAttachmentAddition: 0,
-					lastCommentToHistory: 0,
 					lastChange: lastHistoryTimestamp,
 				},
 				tmp: {},
@@ -364,7 +363,7 @@ const actions = {
 										}
 										nowSelectedNode = nextProduct
 									}
-									commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+									commit('renewSelectedNodes', nowSelectedNode)
 									// load the new selected item
 									dispatch('loadDoc', { id: nowSelectedNode._id })
 								}
@@ -445,7 +444,7 @@ const actions = {
 										// before removal select the predecessor of the removed node (sibling or parent)
 										const prevNode = rootState.helpersRef.getPreviousNode(node.path)
 										let nowSelectedNode = prevNode
-										commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+										commit('renewSelectedNodes', nowSelectedNode)
 									}
 									rootState.helpersRef.removeNodes([node])
 									showSyncMessage(
@@ -815,7 +814,7 @@ const actions = {
 		 * or the item is a requirement area item and the overview is in view
 		 */
 		if (
-			rootGetters.getMyProductSubscriptions.includes(doc.productId) ||
+			rootGetters.getMyProductSubscriptionIds.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||
 			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
 			(rootGetters.isOverviewSelected && isReqAreaItem)

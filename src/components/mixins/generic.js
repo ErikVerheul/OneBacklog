@@ -30,7 +30,7 @@ const authorization = {
 			'getMyProductsCount',
 			'getMyGenericRoles',
 			'getMyProductsRoles',
-			'getMyProductSubscriptions',
+			'getMyProductSubscriptionIds',
 			'getMyAssignedProductIds',
 		]),
 	},
@@ -140,7 +140,7 @@ const utilities = {
 			'getCurrentItemTsSize',
 			'getItemSprintName',
 			'getPreviousNodeSelected',
-			'getLastSelectedNode',
+			'getSelectedNode',
 			'getLastEventBGColor',
 			'getLastEventTextColor',
 			'getLastEventTxt',
@@ -243,13 +243,13 @@ const utilities = {
 			}
 			// update the event message bar
 			let evt = ''
-			const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getLastSelectedNode.title)
-			const itemType = this.getLevelText(this.getLastSelectedNode.level, this.getLastSelectedNode.data.subtype)
+			const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getSelectedNode.title)
+			const itemType = this.getLevelText(this.getSelectedNode.level, this.getSelectedNode.data.subtype)
 			if (selNodes.length === 1) {
 				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
-				if (this.getLastSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getLastSelectedNode._id])}`
-				if (store.state.userData.myOptions.proUser === 'true' && this.getLastSelectedNode.data.reqarea)
-					evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getLastSelectedNode.data.reqarea]}'`
+				if (this.getSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getSelectedNode._id])}`
+				if (store.state.userData.myOptions.proUser === 'true' && this.getSelectedNode.data.reqarea)
+					evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getSelectedNode.data.reqarea]}'`
 			} else {
 				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${selNodes.length - 1} other item(s)`
 				evt = `${itemType} ${multiNodesTitle} are selected.`

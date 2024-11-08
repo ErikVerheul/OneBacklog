@@ -37,7 +37,6 @@ Database--------- backlogItem document -------------------- node
 "lastCommentAddition"-------------------------------------- data.lastCommentAddition,
 "lastAttachmentAddition"----------------------------------- data.lastAttachmentAddition,
 "lastAttachmentRemoval"------------------------------------ data.lastAttachmentRemoval,
-"lastCommentToHistory"------------------------------------- data.lastCommentToHistory,
 "lastChange"----------------------------------------------- data.lastChange:, // calculated on save on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 "_attachments": {}----------------------------------------- system field when attachments are stored; attachments are loaded on request
 
@@ -80,7 +79,6 @@ data: {
 	lastContentChange: doc.lastContentChange,
 	lastCommentAddition: doc.lastCommentAddition,
 	lastAttachmentAddition: doc.lastAttachmentAddition,
-	lastCommentToHistory: doc.lastCommentToHistory,
 	lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
 }
 tmpPreventDrag: false // a temporary state to prevent a selected product node to enter the dragging mode after selection

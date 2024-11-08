@@ -75,24 +75,18 @@ function createEventToDisplay(payload) {
 	return newEvent
 }
 
-/* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
-function renewSelection(state, node) {
-	if (node.isSelectable) {
-		state.previousSelectedNodes = state.selectedNodes || [node]
-		for (const n of state.selectedNodes) if (n) n.isSelected = false
-		node.isSelected = true
-		state.selectedNodes = [node]
-	}
-}
-
-/* Remove 'ignoreEvent' elements from history */
-function cleanHistory(doc) {
+/* Replace encoded text fields and remove 'ignoreEvent' elements from history */
+function prepareDocForPresentation(doc) {
+	let preptDoc = doc
+	// decode from base64
+	preptDoc.description = b64ToUni(doc.description)
+	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
 	const cleanedHistory = []
 	for (const h of doc.history) {
 		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
 	}
-	doc.history = cleanedHistory
-	return doc
+	preptDoc.history = cleanedHistory
+	return preptDoc
 }
 
 function getCurrentEvt(eventsArray, key) {
@@ -151,9 +145,9 @@ const store = createStore({
 			freezeEvent: false,
 			lastTreeView: undefined,
 			moveOngoing: false,
-			newAcceptanceCriteria: MISC.EMPTYQUILL,
-			newDescription: MISC.EMPTYQUILL,
 			newEventKey: 0,
+			oldAcceptance: MISC.EMPTYQUILL,
+			oldDescription: MISC.EMPTYQUILL,
 			progressMessage: '',
 			searchOn: false,
 			selectedForView: 'comments',
@@ -279,8 +273,8 @@ const store = createStore({
 			if (currentEvt !== null) return currentEvt.textColor
 		},
 
-		/* Return the last selected node or undefined when no node is selected */
-		getLastSelectedNode(state) {
+		/* Return the selected node or undefined when no node is selected */
+		getSelectedNode(state) {
 			return state.selectedNodes.slice(-1)[0]
 		},
 
@@ -308,20 +302,6 @@ const store = createStore({
 			return {}
 		},
 
-		/* Return the productIds of the products assigned to me in all my assigned databases */
-		getAllMyAssignedProductIds(state) {
-			const allIds = []
-			if (state.userData.myDatabases) {
-				for (const db of Object.values(state.userData.myDatabases)) {
-					const productsRoles = db.productsRoles
-					for (const k of Object.keys(productsRoles)) {
-						if (!allIds.includes(k)) allIds.push(k)
-					}
-				}
-			}
-			return allIds
-		},
-
 		/* Return the productIds of the products assigned to me in my current database */
 		getMyAssignedProductIds(state) {
 			if (state.userData.myDatabases) {
@@ -330,7 +310,7 @@ const store = createStore({
 			} else return []
 		},
 
-		getMyProductSubscriptions(state, getters) {
+		getMyProductSubscriptionIds(state, getters) {
 			if (state.userData.myDatabases && state.availableProductIds.length > 0) {
 				const currentDbSettings = state.userData.myDatabases[state.userData.currentDb]
 				let screenedSubscriptions = []
@@ -354,7 +334,7 @@ const store = createStore({
 		getPreviousNodeSelected(state, getters) {
 			if (state.previousSelectedNodes) {
 				return state.previousSelectedNodes.slice(-1)[0]
-			} else return getters.getLastSelectedNode
+			} else return getters.getSelectedNode
 		},
 
 		getTreeModel(state) {
@@ -534,7 +514,7 @@ const store = createStore({
 						const tmpUserData = res.data
 						// delete product from my profile
 						delete tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId]
-						if (getters.getMyProductSubscriptions.includes(payload.productId)) {
+						if (getters.getMyProductSubscriptionIds.includes(payload.productId)) {
 							// delete the id from my subscriptions
 							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(
 								tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions,
@@ -669,29 +649,23 @@ const store = createStore({
 			}
 		},
 
+		/* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 		renewSelectedNodes(state, newNode) {
-			renewSelection(state, newNode)
+			if (newNode.isSelectable) {
+				state.previousSelectedNodes = state.selectedNodes || [newNode]
+				for (const n of state.selectedNodes) if (n) n.isSelected = false
+				newNode.isSelected = true
+				state.selectedNodes = [newNode]
+			}
 		},
 
 		/* The keys of the payload object are evaluated by key name and value */
 		updateNodesAndCurrentDoc(state, payload) {
-			if (payload.newNode) {
-				renewSelection(state, payload.newNode)
-			}
-
 			if (payload.newDoc) {
-				// decode from base64 + replace the encoded data
-				payload.newDoc.description = b64ToUni(payload.newDoc.description)
-				payload.newDoc.acceptanceCriteria = b64ToUni(payload.newDoc.acceptanceCriteria)
-				// replace the currently loaded document
-				state.currentDoc = cleanHistory(payload.newDoc)
-				// initiate vars for updating
-				state.newDescription = payload.newDoc.description
-				state.newAcceptanceCriteria = payload.newDoc.acceptanceCriteria
-			}
-
-			if (!payload.newNode && !payload.newDoc) {
-				const node = payload.node || payload.selectNode
+				/* Update the currently loaded document and the description and acceptance criteria fields */
+				state.currentDoc = prepareDocForPresentation(payload.newDoc)
+			} else {
+				const node = payload.node
 				const keys = Object.keys(payload)
 				if (node) {
 					// apply changes on the nodes in the tree view
@@ -746,10 +720,6 @@ const store = createStore({
 							case 'lastCommentAddition':
 								node.data.lastCommentAddition = payload.lastCommentAddition
 								node.data.lastChange = payload.lastCommentAddition
-								break
-							case 'lastCommentToHistory':
-								node.data.lastCommentToHistory = payload.lastCommentToHistory
-								node.data.lastChange = payload.lastCommentToHistory
 								break
 							case 'lastContentChange':
 								node.data.lastContentChange = payload.lastContentChange
@@ -812,14 +782,6 @@ const store = createStore({
 							case 'reqAreaItemColor':
 								node.data.reqAreaItemColor = payload.reqAreaItemColor
 								break
-							case 'selectNode':
-								if (node.isSelectable) {
-									state.previousSelectedNodes = state.selectedNodes || [node]
-									for (const n of state.selectedNodes) n.isSelected = false
-									node.isSelected = true
-									state.selectedNodes = [node]
-								}
-								break
 							case 'spikePersonHours':
 								// not stored in the node
 								break
@@ -879,6 +841,8 @@ const store = createStore({
 									state.currentDoc.dependencies = payload.dependenciesRemoved
 									break
 								case 'description':
+									console.log('state.currentDoc.description = ' + state.currentDoc.description)
+									console.log('payload.description = ' + payload.description)
 									state.currentDoc.description = payload.description
 									break
 								case 'followers':
@@ -905,10 +869,6 @@ const store = createStore({
 									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
 									state.currentDoc.lastChange = payload.lastChange
 									break
-								case 'lastCommentToHistory':
-									state.currentDoc.lastCommentToHistory = payload.lastCommentToHistory
-									state.currentDoc.lastChange = payload.lastChange
-									break
 								case 'lastContentChange':
 									state.currentDoc.lastContentChange = payload.lastContentChange
 									state.currentDoc.lastChange = payload.lastChange
@@ -918,6 +878,8 @@ const store = createStore({
 									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastStateChange':
+									console.log('state.currentDoc.lastStateChange = ' + new Date(state.currentDoc.lastStateChange).toString())
+									console.log('state.currentDoc.lastChange = ' + new Date(state.currentDoc.lastChange).toString())
 									state.currentDoc.lastStateChange = payload.lastStateChange
 									state.currentDoc.lastChange = payload.lastChange
 									break
@@ -931,7 +893,7 @@ const store = createStore({
 									state.currentDoc.history.unshift(payload.newHist)
 									break
 								case 'node':
-									// not a database field
+									// used to pass the node
 									break
 								case 'parentId':
 									state.currentDoc.parentId = payload.parentId
@@ -959,9 +921,6 @@ const store = createStore({
 									break
 								case 'reqAreaItemColor':
 									state.currentDoc.color = payload.reqAreaItemColor
-									break
-								case 'selectNode':
-									// not a database field
 									break
 								case 'spikePersonHours':
 									state.currentDoc.spikepersonhours = payload.spikePersonHours
@@ -1073,9 +1032,9 @@ const store = createStore({
 			// stop the timers
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
-			state.signedOut = true
 			if (state.debug) console.log(`endSession: caller = ${caller}`)
-			// reset the app by reloading skipping the cache
+			state.signedOut = true
+			// reset the app by reloading and skipping the cache (Firefox only)
 			window.location.reload(true)
 		},
 	},

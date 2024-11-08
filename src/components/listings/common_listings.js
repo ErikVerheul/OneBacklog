@@ -155,7 +155,7 @@ const methods = {
 
 	removeAttachment(attachment) {
 		delete store.state.currentDoc._attachments[attachment.title]
-		store.dispatch('removeAttachmentAsync', { node: this.getLastSelectedNode, attachmentTitle: attachment.title })
+		store.dispatch('removeAttachmentAsync', { node: this.getSelectedNode, attachmentTitle: attachment.title })
 	},
 
 	mkCommentHeader(comment) {

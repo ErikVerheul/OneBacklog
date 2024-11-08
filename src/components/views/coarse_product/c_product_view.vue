@@ -128,7 +128,7 @@
               <BBadge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</BBadge>
               <BBadge v-else-if="doShowState(node)" variant="light">{{ getNodeStateText(node) }}</BBadge>
               <BBadge v-if="hasNodeMoved(node)" variant="info">Moved</BBadge>
-              <BBadge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
+              <BBadge v-if="hasContentChanged(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
               <BBadge v-if="hasNewComment(node)" variant="info">See comments</BBadge>
               <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
             </template>
@@ -225,8 +225,8 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="store.state.newDescription" contentType="html" @update:content="initNewDescription"
-              @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+            <QuillEditor v-model:content="store.state.currentDoc.description" contentType="html" @update:content="initNewDescription"
+              @blur="updateDescription({ node: getSelectedNode, cb: null })"></QuillEditor>
           </div>
           <template v-if="!isReqAreaItemSelected">
             <multipane-resizer></multipane-resizer>
@@ -237,7 +237,7 @@
             </div>
             <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
               <QuillEditor v-model:content="store.state.newAcceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
-                @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+                @blur="updateAcceptance({ node: getSelectedNode, cb: null })"></QuillEditor>
             </div>
           </template>
           <multipane-resizer></multipane-resizer>
@@ -293,7 +293,7 @@
     <!-- set req area -->
     <BModal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
       <template v-slot:modal-title>
-        {{ getLastSelectedNode.title }}
+        {{ getSelectedNode.title }}
       </template>
       <BFormGroup label="Select the requirement area this item belongs to:">
         <BFormRadioGroup v-model="selReqAreaId" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked />

@@ -82,7 +82,6 @@ const actions = {
 						subtype: doc.subtype,
 						lastAttachmentAddition: doc.lastAttachmentAddition || 0,
 						lastCommentAddition: doc.lastCommentAddition || 0,
-						lastCommentToHistory: doc.lastCommentToHistory || 0,
 						lastContentChange: doc.lastContentChange || 0,
 						lastPositionChange: doc.lastPositionChange || 0,
 						lastStateChange: doc.lastStateChange || 0,
@@ -434,7 +433,7 @@ const actions = {
 			selectNodeById(id) {
 				const selNode = rootState.helpersRef.getNodeById(id)
 				if (selNode === null) return
-				commit('updateNodesAndCurrentDoc', { selectNode: selNode })
+				commit('renewSelectedNodes', selNode)
 			},
 
 			/* Collect meta data on the descendants of the node including the assigned sprintIds */
@@ -677,7 +676,7 @@ const actions = {
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
 			removeNodes(nodes) {
-				const lastSelectedNode = rootGetters.getLastSelectedNode
+				const lastSelectedNode = rootGetters.getSelectedNode
 				let success = false
 				for (const n of nodes) {
 					const siblings = rootState.helpersRef.getNodeSiblings(n.path)

@@ -1,11 +1,11 @@
-import { MISC, SEV } from '../../constants.js'
+import { LEVEL, MISC, STATE, SEV } from '../../constants.js'
 import { uniTob64 } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 const actions = {
-	changeTeamAsync({ rootState, dispatch }, payload) {
+	changeTeamAction({ rootState, dispatch }, payload) {
 		const newTeam = payload.newTeam
 		globalAxios({
 			method: 'GET',
@@ -386,6 +386,196 @@ const actions = {
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				})
 		}
+	},
+
+	/*
+	 * Assign the item and its descendants to my team if the item is not done.
+	 * The assigned sprints, not done, are removed.
+	 * The items will be removed from the board of the 'old' team if in view.
+	 */
+	assignToMyTeam({ rootState, rootGetters, commit, dispatch }, payload) {
+		const node = payload.node
+		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
+		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + id,
+		})
+			.then((res) => {
+				const tmpDoc = res.data
+				const oldTeam = tmpDoc.team
+				if (payload.newTeam != oldTeam) {
+					let updateBoards = undefined
+					if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
+						updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
+					}
+					const newHist = {
+						setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
+						by: rootState.userData.user,
+						email: rootState.userData.email,
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						timestamp: Date.now(),
+						isListed: true,
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+						updateBoards,
+					}
+					tmpDoc.history.unshift(newHist)
+					const prevLastChange = tmpDoc.lastChange || 0
+					if (tmpDoc.state !== STATE.DONE) {
+						// set the team name and delete the spint assignment
+						tmpDoc.team = payload.newTeam
+						delete tmpDoc.sprintId
+						tmpDoc.lastChange = payload.timestamp
+					}
+					const toDispatch =
+						descendantsInfo.count > 0
+							? [{ setTeamDescendantsBulk: { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants } }]
+							: undefined
+
+					dispatch('updateDoc', {
+						dbName: rootState.userData.currentDb,
+						updatedDoc: tmpDoc,
+						toDispatch,
+						caller: 'assignToMyTeam',
+						onSuccessCallback: () => {
+							// update the tree
+							for (const d of descendantsInfo.descendants) {
+								commit('updateNodesAndCurrentDoc', { node: d, team: payload.newTeam, lastChange: payload.timestamp, newHist })
+							}
+							commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
+
+							if (!payload.isUndoAction || payload.isUndoAction === undefined) {
+								if (descendantsInfo.count === 0) {
+									commit('addToEventList', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
+								} else
+									commit('addToEventList', {
+										txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`,
+										severity: SEV.INFO,
+									})
+								// create an entry for undoing the change in a last-in first-out sequence
+								const entry = {
+									type: 'undoChangeTeam',
+									node,
+									oldTeam,
+									prevLastChange,
+								}
+								rootState.changeHistory.unshift(entry)
+							} else {
+								rootState.busyWithLastUndo = false
+								commit('addToEventList', { txt: 'Change of owning team is undone', severity: SEV.INFO })
+							}
+						},
+						onFailureCallback: () => {
+							if (payload.isUndoAction) rootState.busyWithLastUndo = false
+						},
+					})
+				}
+			})
+			.catch((error) => {
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
+				const msg = `assignToMyTeam: Could not read document with id ${id}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	/* Change the team of the descendants to the users team */
+	setTeamDescendantsBulk({ rootState, dispatch }, payload) {
+		const docsToGet = []
+		for (const desc of payload.descendants) {
+			docsToGet.push({ id: desc._id })
+		}
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { docs: docsToGet },
+		})
+			.then((res) => {
+				const results = res.data.results
+				const docs = []
+				for (const r of results) {
+					const envelope = r.docs[0]
+					if (envelope.ok) {
+						const doc = envelope.ok
+						if (doc.state !== STATE.DONE) {
+							const oldTeam = doc.team
+							if (payload.newTeam != oldTeam) {
+								const newHist = {
+									setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
+									by: rootState.userData.user,
+									timestamp: Date.now(),
+									isListed: true,
+									distributeEvent: false,
+								}
+								doc.history.unshift(newHist)
+								// set the team name and delete the spint assignment
+								doc.team = payload.newTeam
+								delete doc.sprintId
+								doc.lastChange = Date.now()
+								docs.push(doc)
+							}
+						}
+					}
+				}
+				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'setTeamDescendantsBulk' })
+			})
+			.catch((e) => {
+				const msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	/*
+	 * When a user changes team, the tasks he ownes need to be assigned to his new team also
+	 * Note that the doc's sptintId can be null if the task is removed from the sprint
+	 */
+	updateTasksToNewTeam({ rootState, commit, dispatch }, payload) {
+		const dbName = rootState.userData.currentDb
+		const taskOwner = payload.userName
+		globalAxios({
+			method: 'GET',
+			url: dbName + `/_design/design1/_view/assignedTasksToUser?startkey=["${taskOwner}"]&endkey=["${taskOwner}"]&include_docs=true`,
+		})
+			.then((res) => {
+				const results = res.data.rows
+				const docsToUpdate = []
+				for (const r of results) {
+					const tmpDoc = r.doc
+					tmpDoc.team = payload.newTeam
+					const newHist = {
+						itemToNewTeamEvent: [payload.newTeam],
+						by: rootState.userData.user,
+						timestamp: Date.now(),
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+					}
+					tmpDoc.history.unshift(newHist)
+					docsToUpdate.push(tmpDoc)
+				}
+				commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks will be reassigned to team '${payload.newTeam}'`, severity: SEV.INFO })
+				const toDispatch = [{ changeTeamAction: { newTeam: payload.newTeam } }]
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb,
+					docs: docsToUpdate,
+					caller: 'updateTasksToNewTeam',
+					toDispatch,
+					onSuccessCallback: () => {
+						commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks are assigned to team '${payload.newTeam}'`, severity: SEV.INFO })
+						if (rootState.currentView !== 'coarseProduct') {
+							// the overview does not load the task level
+							docsToUpdate.forEach((doc) => {
+								const node = rootState.helpersRef.getNodeById(doc._id)
+								commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam })
+							})
+						}
+					},
+				})
+			})
+			.catch((error) => {
+				const msg = `updateTasksToNewTeam: Could not read the task backlog items for task owner ${taskOwner}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
 	},
 
 	/* Refresh the loaded team messages and the message count */

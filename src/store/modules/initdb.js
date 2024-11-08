@@ -334,7 +334,7 @@ const actions = {
 							// negate priority to sort the highest abosolute priority value on top
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
 								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
-								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
+								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`,
 					},
 					/* Filter on parentIds to map documents to their parent */
@@ -350,18 +350,6 @@ const actions = {
 							const PBILEVEL = 5
 							const DONESTATE = 6
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= PBILEVEL && doc.sprintId && doc.state < DONESTATE) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
-						}`,
-					},
-					/* Filter up to and including the feature level */
-					overview: {
-						map: `function(doc) {
-							const PRODUCTLEVEL = 2
-							const PBILEVEL = 5
-							// negate priority to sort the highest abosolute priority value on top
-							const seq = doc.level === PRODUCTLEVEL ? null : doc.productId
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level < PBILEVEL) emit([doc.level, seq, -doc.priority],
-								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
-								doc.lastAttachmentAddition, doc.lastChange, doc.lastCommentAddition, doc.lastCommentToHistory, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`,
 					},
 					/* Filter and sort documents by team. */

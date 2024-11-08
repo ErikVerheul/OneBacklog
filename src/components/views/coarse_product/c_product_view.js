@@ -61,8 +61,8 @@ const computed = {
 
 	// return true if a requirements area item is selected or false if another or no node is selected
 	isReqAreaItemSelected() {
-		if (this.getLastSelectedNode === null) return false
-		return this.getLastSelectedNode._id === MISC.AREA_PRODUCTID || this.getLastSelectedNode.parentId === MISC.AREA_PRODUCTID
+		if (this.getSelectedNode === null) return false
+		return this.getSelectedNode._id === MISC.AREA_PRODUCTID || this.getSelectedNode.parentId === MISC.AREA_PRODUCTID
 	},
 }
 
@@ -102,8 +102,8 @@ const methods = {
 			this.isDescriptionEdited = false
 			this.isAcceptanceEdited = false
 			// preset the req area color if available
-			this.selReqAreaColor = this.getLastSelectedNode.data.reqAreaItemColor
-			if (this.getLastSelectedNode._id !== MISC.AREA_PRODUCTID) {
+			this.selReqAreaColor = this.getSelectedNode.data.reqAreaItemColor
+			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
@@ -115,7 +115,7 @@ const methods = {
 			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
 			// load the selected document
 		} else {
-			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
 		}
 	},
 
@@ -215,7 +215,7 @@ const methods = {
 	},
 
 	setUserColor(newColor) {
-		store.dispatch('updateColorDb', { node: this.getLastSelectedNode, newColor })
+		store.dispatch('updateColorDb', { node: this.getSelectedNode, newColor })
 	},
 
 	setReqArea(node) {
@@ -236,7 +236,7 @@ const methods = {
 
 	/* Update the req area of the item (null for no req area set) */
 	doSetReqArea() {
-		store.dispatch('updateReqArea', { node: this.getLastSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
+		store.dispatch('updateReqArea', { node: this.getSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
 	},
 }
 

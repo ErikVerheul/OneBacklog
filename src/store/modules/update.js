@@ -1,4 +1,4 @@
-import { SEV, STATE, LEVEL } from '../../constants.js'
+import { SEV, LEVEL } from '../../constants.js'
 import { uniTob64, b64ToUni } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -348,7 +348,7 @@ const actions = {
 	 * - the node's state cannot be done if any of its descendants is not done
 	 * note: the new state will be set irrespective of the warning
 	 * note: the node's state can be set higher than any of its ancestors without warning
-	 * When called from the planning board the tree is aldo updated with the new state
+	 * When called from the planning board the tree is also updated with the new state
 	 */
 	setState({ rootState, rootGetters, commit, dispatch }, payload) {
 		const node = payload.node
@@ -434,144 +434,6 @@ const actions = {
 			.catch((error) => {
 				if (payload.isUndoAction) rootState.busyWithLastUndo = false
 				const msg = `setState: Could not read document with id ${id}, ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
-	/*
-	 * Assign the item and its descendants to my team if the item is not done.
-	 * The assigned sprints, not done, are removed.
-	 * The items will be removed from the board of the 'old' team if in view.
-	 */
-	assignToMyTeam({ rootState, rootGetters, commit, dispatch }, payload) {
-		const node = payload.node
-		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
-		const id = node._id
-		if (payload.isUndoAction) rootState.busyWithLastUndo = true
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
-		})
-			.then((res) => {
-				const tmpDoc = res.data
-				const oldTeam = tmpDoc.team
-				if (payload.newTeam != oldTeam) {
-					let updateBoards = undefined
-					if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
-						updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
-					}
-					const newHist = {
-						setTeamOwnerEvent: [oldTeam, payload.newTeam, descendantsInfo.count],
-						by: rootState.userData.user,
-						email: rootState.userData.email,
-						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-						timestamp: Date.now(),
-						isListed: true,
-						sessionId: rootState.mySessionId,
-						distributeEvent: true,
-						updateBoards,
-					}
-					tmpDoc.history.unshift(newHist)
-					const prevLastChange = tmpDoc.lastChange || 0
-					if (tmpDoc.state !== STATE.DONE) {
-						// set the team name and delete the spint assignment
-						tmpDoc.team = payload.newTeam
-						delete tmpDoc.sprintId
-						tmpDoc.lastChange = payload.timestamp
-					}
-					const toDispatch =
-						descendantsInfo.count > 0
-							? [{ setTeamDescendantsBulk: { newTeam: payload.newTeam, parentTitle: rootState.currentDoc.title, descendants: descendantsInfo.descendants } }]
-							: undefined
-
-					dispatch('updateDoc', {
-						dbName: rootState.userData.currentDb,
-						updatedDoc: tmpDoc,
-						toDispatch,
-						caller: 'assignToMyTeam',
-						onSuccessCallback: () => {
-							// update the tree
-							for (const d of descendantsInfo.descendants) {
-								commit('updateNodesAndCurrentDoc', { node: d, team: payload.newTeam, lastChange: payload.timestamp, newHist })
-							}
-							commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
-
-							if (!payload.isUndoAction || payload.isUndoAction === undefined) {
-								if (descendantsInfo.count === 0) {
-									commit('addToEventList', { txt: `The owning team of '${node.title}' is changed to '${rootGetters.myTeam}'.`, severity: SEV.INFO })
-								} else
-									commit('addToEventList', {
-										txt: `The owning team of '${node.title}' and ${descendantsInfo.count} descendants is changed to '${rootGetters.myTeam}'.`,
-										severity: SEV.INFO,
-									})
-								// create an entry for undoing the change in a last-in first-out sequence
-								const entry = {
-									type: 'undoChangeTeam',
-									node,
-									oldTeam,
-									prevLastChange,
-								}
-								rootState.changeHistory.unshift(entry)
-							} else {
-								rootState.busyWithLastUndo = false
-								commit('addToEventList', { txt: 'Change of owning team is undone', severity: SEV.INFO })
-							}
-						},
-						onFailureCallback: () => {
-							if (payload.isUndoAction) rootState.busyWithLastUndo = false
-						},
-					})
-				}
-			})
-			.catch((error) => {
-				if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				const msg = `assignToMyTeam: Could not read document with id ${id}. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
-	/* Change the team of the descendants to the users team */
-	setTeamDescendantsBulk({ rootState, dispatch }, payload) {
-		const docsToGet = []
-		for (const desc of payload.descendants) {
-			docsToGet.push({ id: desc._id })
-		}
-		globalAxios({
-			method: 'POST',
-			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
-		})
-			.then((res) => {
-				const results = res.data.results
-				const docs = []
-				for (const r of results) {
-					const envelope = r.docs[0]
-					if (envelope.ok) {
-						const doc = envelope.ok
-						if (doc.state !== STATE.DONE) {
-							const oldTeam = doc.team
-							if (payload.newTeam != oldTeam) {
-								const newHist = {
-									setTeamEventDescendant: [oldTeam, payload.newTeam, payload.parentTitle],
-									by: rootState.userData.user,
-									timestamp: Date.now(),
-									isListed: true,
-									distributeEvent: false,
-								}
-								doc.history.unshift(newHist)
-								// set the team name and delete the spint assignment
-								doc.team = payload.newTeam
-								delete doc.sprintId
-								doc.lastChange = Date.now()
-								docs.push(doc)
-							}
-						}
-					}
-				}
-				dispatch('updateBulk', { dbName: rootState.userData.currentDb, docs, caller: 'setTeamDescendantsBulk' })
-			})
-			.catch((e) => {
-				const msg = 'setTeamDescendantsBulk: Could not read batch of documents: ' + e
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
@@ -716,7 +578,7 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = res.data
 				// decode from base64
-				const oldDescription = b64ToUni(tmpDoc.description)
+				rootState.oldDescription = b64ToUni(tmpDoc.description)
 				// encode to base64
 				const newEncodedDescription = uniTob64(payload.newDescription)
 				const newHist = {
@@ -743,7 +605,7 @@ const actions = {
 						const entry = {
 							node,
 							type: 'undoDescriptionChange',
-							oldDescription,
+							oldDescription: rootState.oldDescription,
 							prevLastContentChange,
 						}
 						rootState.changeHistory.unshift(entry)
@@ -784,7 +646,7 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = res.data
 				// decode from base64
-				const oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
+				rootState.oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
 				// encode to base64
 				const newEncodedAcceptance = uniTob64(payload.newAcceptance)
 				const newHist = {
@@ -812,7 +674,7 @@ const actions = {
 						const entry = {
 							node,
 							type: 'undoAcceptanceChange',
-							oldAcceptance,
+							oldAcceptance: rootState.oldAcceptance,
 							prevLastContentChange,
 						}
 						rootState.changeHistory.unshift(entry)
@@ -954,58 +816,6 @@ const actions = {
 	},
 
 	/*
-	 * When a user changes team, the tasks he ownes need to be assigned to his new team also
-	 * Note that the doc's sptintId can be null if the task is removed from the sprint
-	 */
-	updateTasksToNewTeam({ rootState, commit, dispatch }, payload) {
-		const dbName = rootState.userData.currentDb
-		const taskOwner = payload.userName
-		globalAxios({
-			method: 'GET',
-			url: dbName + `/_design/design1/_view/assignedTasksToUser?startkey=["${taskOwner}"]&endkey=["${taskOwner}"]&include_docs=true`,
-		})
-			.then((res) => {
-				const results = res.data.rows
-				const docsToUpdate = []
-				for (const r of results) {
-					const tmpDoc = r.doc
-					tmpDoc.team = payload.newTeam
-					const newHist = {
-						itemToNewTeamEvent: [payload.newTeam],
-						by: rootState.userData.user,
-						timestamp: Date.now(),
-						sessionId: rootState.mySessionId,
-						distributeEvent: true,
-					}
-					tmpDoc.history.unshift(newHist)
-					docsToUpdate.push(tmpDoc)
-				}
-				commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks will be reassigned to team '${payload.newTeam}'`, severity: SEV.INFO })
-				const toDispatch = [{ changeTeamAsync: { newTeam: payload.newTeam } }]
-				dispatch('updateBulk', {
-					dbName: rootState.userData.currentDb,
-					docs: docsToUpdate,
-					caller: 'updateTasksToNewTeam',
-					toDispatch,
-					onSuccessCallback: () => {
-						commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks are assigned to team '${payload.newTeam}'`, severity: SEV.INFO })
-						if (rootState.currentView !== 'coarseProduct') {
-							// the overview does not load the task level
-							docsToUpdate.forEach((doc) => {
-								const node = rootState.helpersRef.getNodeById(doc._id)
-								commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam })
-							})
-						}
-					},
-				})
-			})
-			.catch((error) => {
-				const msg = `updateTasksToNewTeam: Could not read the task backlog items for task owner ${taskOwner}. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
-	/*
 	 * Create or update an existing document by creating a new revision.
 	 * Must call loadDoc on success to update the current doc visable to the user.
 	 * Executes a onSuccessCallback and onFailureCallback if provided in the payload.
@@ -1079,47 +889,6 @@ const actions = {
 			})
 	},
 
-	/* Load a backlog item by short id */
-	loadItemByShortId({ rootState, rootGetters, dispatch, commit }, shortId) {
-		const rangeStr = `/_design/design1/_view/shortIdFilter?startkey=["${shortId}"]&endkey=["${shortId}"]&include_docs=true`
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + rangeStr,
-		})
-			.then((res) => {
-				const rows = res.data.rows
-				if (rows.length > 0) {
-					if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
-					// take the fist document found
-					const doc = rows[0].doc
-					if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
-						if (rootGetters.getMyProductSubscriptions.includes(doc.productId)) {
-							if (rows.length > 1) {
-								commit('addToEventList', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: SEV.INFO })
-								let ids = ''
-								for (let i = 0; i < rows.length; i++) {
-									ids += rows[i].doc._id + ', '
-								}
-								const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
-								dispatch('doLog', { event: msg, level: SEV.WARNING })
-							}
-							commit('updateNodesAndCurrentDoc', { newDoc: doc })
-						} else {
-							commit('addToEventList', {
-								txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`,
-								severity: SEV.INFO,
-							})
-						}
-					} else {
-						commit('addToEventList', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: SEV.WARNING })
-					}
-				} else commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
-			})
-			.catch(() => {
-				commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
-			})
-	},
-
 	/* Create the document in the database, create the node, select it and add history to the parent document */
 	createDocWithParentHist({ rootState, dispatch, commit }, payload) {
 		globalAxios({
@@ -1160,7 +929,8 @@ const actions = {
 									}
 									rootState.changeHistory.unshift(entry)
 									// select and show the new node
-									commit('updateNodesAndCurrentDoc', { newNode: payload.newNode, newDoc: payload.newDoc })
+									commit('renewSelectedNodes', payload.newNode)
+									commit('updateNodesAndCurrentDoc', { newDoc: payload.newDoc })
 									commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 								} else {
 									// the priority has changed after the preflihgt insert; revert the change in the tree and database

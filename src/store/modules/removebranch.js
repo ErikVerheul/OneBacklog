@@ -401,7 +401,7 @@ const actions = {
 								}
 								nowSelectedNode = nextProduct
 							}
-							commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+							commit('renewSelectedNodes', nowSelectedNode)
 							// load the new selected item
 							dispatch('loadDoc', {
 								id: nowSelectedNode._id,

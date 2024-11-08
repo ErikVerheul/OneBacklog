@@ -150,7 +150,7 @@
               <BBadge v-else-if="hasNewState(node)" variant="info">{{ getNodeStateText(node) }}</BBadge>
               <BBadge v-else-if="doShowState(node)" variant="light">{{ getNodeStateText(node) }}</BBadge>
               <BBadge v-if="hasNodeMoved(node)" variant="info">Moved</BBadge>
-              <BBadge v-if="hasContentChanged(node) || hasCommentToHistory(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
+              <BBadge v-if="hasContentChanged(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
               <BBadge v-if="hasNewComment(node)" variant="info">See comments</BBadge>
               <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
               <BBadge v-if="inActiveSprint(node)" variant="info">In {{ getActiveSprintText(node) }} sprint</BBadge>
@@ -240,8 +240,8 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="store.state.newDescription" contentType="html" @update:content="initNewDescription"
-              @blur="updateDescription({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+            <QuillEditor v-model:content="store.state.currentDoc.description" contentType="html" @update:content="initNewDescription"
+              @blur="updateDescription({ node: getSelectedNode, cb: null })"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
@@ -250,8 +250,8 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="store.state.newAcceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
-              @blur="updateAcceptance({ node: getLastSelectedNode, cb: null })"></QuillEditor>
+            <QuillEditor v-model:content="store.state.currentDoc.acceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
+              @blur="updateAcceptance({ node: getSelectedNode, cb: null })"></QuillEditor>
           </div>
           <multipane-resizer></multipane-resizer>
           <div class="pane" :style="{ height: '75px', top: '5px' }">

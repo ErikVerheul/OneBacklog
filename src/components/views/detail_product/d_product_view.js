@@ -43,7 +43,7 @@ const watch = {
 	selectedPbiType: function (valStr) {
 		// prevent looping
 		if (Number(valStr) !== store.state.currentDoc.subtype) {
-			const node = this.getLastSelectedNode
+			const node = this.getSelectedNode
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
 				store.dispatch('setSubType', {
 					node,
@@ -124,7 +124,7 @@ const methods = {
 		}
 		// load the selected document
 		else {
-			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback })
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
 		}
 	},
 

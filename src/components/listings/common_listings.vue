@@ -123,7 +123,7 @@ const methods = {
 
   replaceEditedComment() {
     store.dispatch('replaceComment', {
-      node: this.getLastSelectedNode,
+      node: this.getSelectedNode,
       commentObjToBeReplaced: this.commentObjToBeReplaced,
       editedCommentText: this.myLastText,
       timestamp: Date.now(),

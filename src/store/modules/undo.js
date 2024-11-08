@@ -279,7 +279,7 @@ const actions = {
 						rootState.helpersRef.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
 
 						// select the recovered node
-						commit('updateNodesAndCurrentDoc', { selectNode: globalEntry.removedNode })
+						commit('renewSelectedNodes', globalEntry.removedNode)
 						rootState.currentProductId = globalEntry.removedNode.productId
 						// restore the removed dependencies
 						for (const d of globalEntry.removedIntDependencies) {

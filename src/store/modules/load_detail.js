@@ -55,11 +55,10 @@ const mutations = {
 			const lastAttachmentAddition = item.value[11] || 0
 			const lastChange = item.value[12] || 0
 			const lastCommentAddition = item.value[13] || 0
-			const lastCommentToHistory = item.value[14] || 0
-			const lastContentChange = item.value[15] || 0
-			const lastPositionChange = item.value[16] || 0
-			const lastStateChange = item.value[17] || 0
-			const followers = item.value[18] || []
+			const lastContentChange = item.value[14] || 0
+			const lastPositionChange = item.value[15] || 0
+			const lastStateChange = item.value[16] || 0
+			const followers = item.value[17] || []
 
 			if (_id === 'messenger') {
 				// skip messenger document
@@ -114,7 +113,7 @@ const mutations = {
 			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
 
 			// skip the items of the products the user is not subscribed to
-			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptions.includes(productId)) continue
+			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyProductSubscriptionIds.includes(productId)) continue
 
 			// create a map with product titles
 			if (itemLevel === LEVEL.PRODUCT) {
@@ -164,7 +163,6 @@ const mutations = {
 						lastAttachmentAddition,
 						lastChange,
 						lastCommentAddition,
-						lastCommentToHistory,
 						lastContentChange,
 						lastPositionChange,
 						lastStateChange,
@@ -266,7 +264,7 @@ const actions = {
 				}
 				// load the the selected node
 				dispatch('loadDoc', {
-					id: rootGetters.getLastSelectedNode._id,
+					id: rootGetters.getSelectedNode._id,
 				})
 				const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
 				commit('addToEventList', { txt: createLoadEventText(state), severity })

@@ -102,7 +102,7 @@ const computed = {
 		let msg2
 		if (this.getMyAssignedProductIds.length === 1) {
 			msg2 = `You have 1 product.`
-		} else msg2 = `You selected ${this.getMyProductSubscriptions.length} from ${this.getMyAssignedProductIds.length} products.`
+		} else msg2 = `You selected ${this.getMyProductSubscriptionIds.length} from ${this.getMyAssignedProductIds.length} products.`
 
 		return `Welcome '${store.state.userData.user}'. ${msg1} Your current database is set to '${store.state.userData.currentDb}'. ${msg2}`
 	},
@@ -138,7 +138,7 @@ const computed = {
 
 	// return true if the root node is selected or false if another or no node is selected
 	isRootSelected() {
-		return !!this.getLastSelectedNode && this.getLastSelectedNode._id === 'root'
+		return !!this.getSelectedNode && this.getSelectedNode._id === 'root'
 	},
 }
 
@@ -259,10 +259,6 @@ const methods = {
 
 	isAttachmentAdded(node) {
 		return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < this.badgeShowTimeMilis : false
-	},
-
-	hasCommentToHistory(node) {
-		return node.data.lastCommentToHistory ? Date.now() - node.data.lastCommentToHistory < this.badgeShowTimeMilis : false
 	},
 
 	/*
@@ -477,9 +473,9 @@ const methods = {
 
 	subscribeClicked() {
 		if (store.state.userData.myOptions.subscribeDescendants === 'do_not_subscribe_descendants')
-			store.dispatch('changeSubsription', { node: this.getLastSelectedNode, timestamp: Date.now() })
+			store.dispatch('changeSubsription', { node: this.getSelectedNode, timestamp: Date.now() })
 		if (!store.state.busyChangingSubscriptions && store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
-			store.dispatch('changeSubsriptionsBulk', { node: this.getLastSelectedNode, timestamp: Date.now() })
+			store.dispatch('changeSubsriptionsBulk', { node: this.getSelectedNode, timestamp: Date.now() })
 	},
 
 	filterComments() {
@@ -488,7 +484,7 @@ const methods = {
 
 	uploadAttachment() {
 		store.dispatch('uploadAttachmentAsync', {
-			node: this.getLastSelectedNode,
+			node: this.getSelectedNode,
 			fileInfo: this.fileInfo,
 			currentDocId: store.state.currentDoc._id,
 			timestamp: Date.now(),
@@ -501,7 +497,7 @@ const methods = {
 
 	insertComment() {
 		store.dispatch('addComment', {
-			node: this.getLastSelectedNode,
+			node: this.getSelectedNode,
 			comment: this.newComment,
 			timestamp: Date.now(),
 		})
@@ -512,16 +508,16 @@ const methods = {
 		// node is either the current node (descripton changed and a click outside description and not on a node) or
 		// the previous selected node (description changed and clicked on a node)
 		const node = payload.node
-		if (areStringsEqual(store.state.newDescription, store.state.currentDoc.description)) {
+		if (areStringsEqual(store.state.oldDescription, store.state.currentDoc.description)) {
 			// update skipped when not changed; load the doc of last clicked node
 			this.isDescriptionEdited = false
-			store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
 		} else {
-			const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
+			const toDispatch = [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }]
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 				store.dispatch('saveDescription', {
 					node,
-					newDescription: store.state.newDescription,
+					newDescription: store.state.currentDoc.description,
 					timestamp: Date.now(),
 					toDispatch,
 				})
@@ -534,16 +530,16 @@ const methods = {
 		// the previous selected node (description changed and clicked on a node)
 		const node = payload.node
 		if (node._id !== MISC.AREA_PRODUCTID && node.parentId !== MISC.AREA_PRODUCTID) {
-			if (areStringsEqual(store.state.newAcceptanceCriteria, store.state.currentDoc.acceptanceCriteria)) {
+			if (areStringsEqual(store.state.oldAcceptance, store.state.currentDoc.acceptanceCriteria)) {
 				// update skipped when not changed; load the doc of last clicked node
 				this.isAcceptanceEdited = false
-				store.dispatch('loadDoc', { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb })
+				store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
 			} else {
-				const toDispatch = [{ loadDoc: { id: this.getLastSelectedNode._id, onSuccessCallback: payload.cb } }]
+				const toDispatch = [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }]
 				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 					store.dispatch('saveAcceptance', {
 						node,
-						newAcceptance: store.state.newAcceptanceCriteria,
+						newAcceptance: store.state.currentDoc.acceptanceCriteria,
 						timestamp: Date.now(),
 						toDispatch,
 					})
@@ -636,7 +632,7 @@ const methods = {
 	 */
 	onStateChange(newState) {
 		if (newState !== store.state.currentDoc.state) {
-			const node = this.getLastSelectedNode
+			const node = this.getSelectedNode
 			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the state of this item')) {
 				store.dispatch('setState', {
 					node,

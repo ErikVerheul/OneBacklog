@@ -136,7 +136,7 @@ const methods = {
 
 	/* Return if nothing is selected */
 	doSelectProducts() {
-		if (this.getMyProductSubscriptions.length > 0) {
+		if (this.getMyProductSubscriptionIds.length > 0) {
 			window.removeEventListener('beforeunload', beforeUnloadHandler)
 			store.dispatch('updateMyProductSubscriptions', { productIds: this.selectedProducts })
 		}

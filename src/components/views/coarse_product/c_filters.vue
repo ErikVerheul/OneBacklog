@@ -108,7 +108,7 @@ const methods = {
   /* Apply the AND logic to the included filters */
   onApplyMyFilters() {
     // filter the currently selected product (the product the last selected item belongs to)
-    const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getLastSelectedNode.productId)
+    const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getSelectedNode.productId)
     // return if a filter is already set or no filter is selected
     if (store.getters.isResetFilterSet || !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime) return
 

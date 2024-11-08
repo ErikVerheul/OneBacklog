@@ -116,7 +116,6 @@ const actions = {
 				lastCommentAddition: doc.lastCommentAddition,
 				lastAttachmentAddition: doc.lastAttachmentAddition,
 				lastAttachmentRemoval: doc.lastAttachmentRemoval,
-				lastCommentToHistory: doc.lastCommentToHistory,
 				lastChange: Date.now(),
 			}
 			const clonedNode = rootState.helpersRef.createNode(clonedDoc)
@@ -261,7 +260,7 @@ const actions = {
 		)
 		// select the cloned node
 		const nowSelectedNode = rootState.helpersRef.getNodeById(clonedRootDoc._id)
-		commit('updateNodesAndCurrentDoc', { selectNode: nowSelectedNode })
+		commit('renewSelectedNodes', nowSelectedNode)
 		// create an entry for undoing the clone in a last-in first-out sequence
 		const entry = {
 			type: 'undoBranchClone',

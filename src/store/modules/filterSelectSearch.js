@@ -2,6 +2,7 @@
 // Save the history, to trigger the distribution to other online users, when all other (async) database updates are done.
 import { SEV, LEVEL } from '../../constants.js'
 import { collapseNode, isInPath } from '../../common_functions.js'
+import globalAxios from 'axios'
 
 const state = {
 	resetFilter: null,
@@ -102,7 +103,7 @@ const actions = {
 			}
 		}
 
-		const selectedNodePath = rootGetters.getLastSelectedNode.path
+		const selectedNodePath = rootGetters.getSelectedNode.path
 		let nodesToScan = undefined
 		switch (type) {
 			case 'condition':
@@ -215,7 +216,7 @@ const actions = {
 					dispatch('saveTreeView', { type: 'findId', nodesToScan: nodesOnPath })
 					// expand the tree view up to the found item
 					rootState.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
-					commit('updateNodesAndCurrentDoc', { selectNode: nodeFound })
+					commit('renewSelectedNodes', nodeFound)
 					commit('addToEventList', {
 						txt: `The item with full Id ${nodeFound._id} is found and selected in product '${rootState.currentProductTitle}'`,
 						severity: SEV.INFO,
@@ -229,9 +230,50 @@ const actions = {
 		}
 	},
 
+	/* Load a backlog item by short id */
+	loadItemByShortId({ rootState, rootGetters, dispatch, commit }, shortId) {
+		const rangeStr = `/_design/design1/_view/shortIdFilter?startkey=["${shortId}"]&endkey=["${shortId}"]&include_docs=true`
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + rangeStr,
+		})
+			.then((res) => {
+				const rows = res.data.rows
+				if (rows.length > 0) {
+					if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
+					// take the fist document found
+					const doc = rows[0].doc
+					if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
+						if (rootGetters.getMyProductSubscriptionIds.includes(doc.productId)) {
+							if (rows.length > 1) {
+								commit('addToEventList', { txt: `${rows.length} documents with id ${shortId} are found. The first one is displayed`, severity: SEV.INFO })
+								let ids = ''
+								for (let i = 0; i < rows.length; i++) {
+									ids += rows[i].doc._id + ', '
+								}
+								const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
+								dispatch('doLog', { event: msg, level: SEV.WARNING })
+							}
+							commit('updateNodesAndCurrentDoc', { newDoc: doc })
+						} else {
+							commit('addToEventList', {
+								txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`,
+								severity: SEV.INFO,
+							})
+						}
+					} else {
+						commit('addToEventList', { txt: `The document with id ${doc._id} is found but not in your assigned products`, severity: SEV.WARNING })
+					}
+				} else commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
+			})
+			.catch(() => {
+				commit('addToEventList', { txt: `The document with short id ${shortId} is NOT found in the database`, severity: SEV.WARNING })
+			})
+	},
+
 	/* Find all items with the key as a substring in their title in the currently selected branch */
 	seachOnTitle({ rootState, dispatch, commit, rootGetters }) {
-		const branchHead = rootGetters.getLastSelectedNode
+		const branchHead = rootGetters.getSelectedNode
 		const nodesFound = []
 		// save display state of the branch
 		dispatch('saveTreeView', { type: 'titles', nodesToScan: [branchHead] })
@@ -263,7 +305,7 @@ const actions = {
 			dispatch('loadDoc', {
 				id: nodesFound[0]._id,
 				onSuccessCallback: () => {
-					commit('updateNodesAndCurrentDoc', { selectNode: nodesFound[0] })
+					commit('renewSelectedNodes', nodesFound[0])
 					if (nodesFound.length === 1) {
 						commit('addToEventList', { txt: `One item title matches your search in branch '${branchHead.title}'. This item is selected`, severity: SEV.INFO })
 					} else

@@ -19,8 +19,8 @@ function data() {
 const methods = {
 	showContextMenu(node) {
 		if (store.state.selectedNodes.length === 1) {
-			// select and load the item
-			store.commit('updateNodesAndCurrentDoc', { selectNode: node })
+			// select the item
+			store.commit('renewSelectedNodes', node)
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
