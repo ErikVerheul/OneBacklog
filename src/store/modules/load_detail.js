@@ -53,12 +53,13 @@ const mutations = {
 			const reqAreaItemColor = item.value[9] || null
 			const sprintId = item.value[10]
 			const lastAttachmentAddition = item.value[11] || 0
-			const lastChange = item.value[12] || 0
-			const lastCommentAddition = item.value[13] || 0
-			const lastContentChange = item.value[14] || 0
-			const lastPositionChange = item.value[15] || 0
-			const lastStateChange = item.value[16] || 0
-			const followers = item.value[17] || []
+			const lastAttachmentRemoval = item.value[12] || 0
+			const lastChange = item.value[13] || 0
+			const lastCommentAddition = item.value[14] || 0
+			const lastContentChange = item.value[15] || 0
+			const lastPositionChange = item.value[16] || 0
+			const lastStateChange = item.value[17] || 0
+			const followers = item.value[18] || []
 
 			if (_id === 'messenger') {
 				// skip messenger document
@@ -161,6 +162,7 @@ const mutations = {
 					doShow,
 					data: {
 						lastAttachmentAddition,
+						lastAttachmentRemoval,
 						lastChange,
 						lastCommentAddition,
 						lastContentChange,

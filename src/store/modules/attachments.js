@@ -145,7 +145,6 @@ const actions = {
 						onSuccessCallback: () => {
 							commit('updateNodesAndCurrentDoc', {
 								node: payload.node,
-								lastAttachmentAddition: 0,
 								lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval,
 								newHist,
 							})

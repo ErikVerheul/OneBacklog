@@ -709,10 +709,9 @@ const store = createStore({
 								break
 							case 'lastAttachmentAddition':
 								node.data.lastAttachmentAddition = payload.lastAttachmentAddition
-								node.data.lastChange = payload.lastAttachmentAddition
 								break
 							case 'lastAttachmentRemoval':
-								// not stored in the node
+								node.data.lastAttachmentRemoval = payload.lastAttachmentRemoval
 								break
 							case 'lastChange':
 								node.data.lastChange = payload.lastChange
@@ -856,32 +855,24 @@ const store = createStore({
 									break
 								case 'lastAttachmentAddition':
 									state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastAttachmentRemoval':
 									state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastChange':
 									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastCommentAddition':
 									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastContentChange':
 									state.currentDoc.lastContentChange = payload.lastContentChange
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastPositionChange':
 									state.currentDoc.lastPositionChange = payload.lastPositionChange
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'lastStateChange':
-									console.log('state.currentDoc.lastStateChange = ' + new Date(state.currentDoc.lastStateChange).toString())
-									console.log('state.currentDoc.lastChange = ' + new Date(state.currentDoc.lastChange).toString())
 									state.currentDoc.lastStateChange = payload.lastStateChange
-									state.currentDoc.lastChange = payload.lastChange
 									break
 								case 'level':
 									state.currentDoc.level = payload.level

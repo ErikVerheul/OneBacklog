@@ -81,6 +81,7 @@ const actions = {
 						sprintId: doc.sprintId,
 						subtype: doc.subtype,
 						lastAttachmentAddition: doc.lastAttachmentAddition || 0,
+						lastAttachmentRemoval: doc.lastAttachmentRemoval || 0,
 						lastCommentAddition: doc.lastCommentAddition || 0,
 						lastContentChange: doc.lastContentChange || 0,
 						lastPositionChange: doc.lastPositionChange || 0,

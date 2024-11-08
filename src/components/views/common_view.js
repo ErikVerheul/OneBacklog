@@ -240,7 +240,7 @@ const methods = {
 		return row
 	},
 
-	/* Return true if the state of the node has changed in the last hour */
+	/* Return true if the state of the node has changed in the last badgeShowTimeMilis */
 	hasNodeMoved(node) {
 		return node.data.lastPositionChange ? Date.now() - node.data.lastPositionChange < this.badgeShowTimeMilis : false
 	},
@@ -259,6 +259,10 @@ const methods = {
 
 	isAttachmentAdded(node) {
 		return node.data.lastAttachmentAddition ? Date.now() - node.data.lastAttachmentAddition < this.badgeShowTimeMilis : false
+	},
+
+	isAttachmentRemoved(node) {
+		return node.data.lastAttachmentRemoval ? Date.now() - node.data.lastAttachmentRemoval < this.badgeShowTimeMilis : false
 	},
 
 	/*

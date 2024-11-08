@@ -130,7 +130,7 @@
               <BBadge v-if="hasNodeMoved(node)" variant="info">Moved</BBadge>
               <BBadge v-if="hasContentChanged(node) || hasOtherUpdate(node)" variant="info">See history</BBadge>
               <BBadge v-if="hasNewComment(node)" variant="info">See comments</BBadge>
-              <BBadge v-if="isAttachmentAdded(node)" variant="info">See attachments</BBadge>
+              <BBadge v-if="isAttachmentAdded(node) || isAttachmentRemoved(node)" variant="info">See attachments</BBadge>
             </template>
 
             <template v-slot:toggle="{ node }">

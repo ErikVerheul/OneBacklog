@@ -124,6 +124,7 @@ const actions = {
 					lastContentChange: 0,
 					lastCommentAddition: 0,
 					lastAttachmentAddition: 0,
+					lastAttachmentRemoval: 0,
 					lastChange: lastHistoryTimestamp,
 				},
 				tmp: {},
@@ -341,7 +342,7 @@ const actions = {
 							rootState.helpersRef.checkDepencyViolations()
 							break
 						case 'removeAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
+							commit('updateNodesAndCurrentDoc', { node, _attachments: doc._attachments, lastAttachmentRemoval: doc.lastAttachmentRemoval })
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
