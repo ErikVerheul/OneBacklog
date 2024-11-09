@@ -1,4 +1,4 @@
-import { SEV, STATE, MISC } from '../../constants.js'
+import { LEVEL, SEV, STATE, MISC } from '../../constants.js'
 import { uniTob64, createId } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
@@ -108,8 +108,8 @@ const methods = {
 			productId: undefined,
 			parentId: undefined,
 			title: 'COPY: ' + node.title,
-			isDetailViewLeaf: node.isDetailViewLeaf,
-			isCoarseViewLeaf: node.isCoarseViewLeaf,
+			isDetailViewLeaf: undefined,
+			isCoarseViewLeaf: undefined,
 			dependencies: [],
 			conditionalFor: [],
 			children: [],
@@ -135,6 +135,8 @@ const methods = {
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
+		newNode.isDetailViewLeaf = preFligthData.level === LEVEL.TASK
+		newNode.isCoarseViewLeaf = preFligthData.level === LEVEL.PBI
 		newNode.ind = preFligthData.ind
 		newNode.data.priority = preFligthData.priority
 
@@ -214,6 +216,8 @@ const methods = {
 			conditionalFor: [],
 			children: [],
 			isExpanded: false,
+			isCoarseViewLeaf: undefined,
+			isDetailViewLeaf: undefined,
 			isDraggable: true,
 			isSelectable: true,
 			isSelected: true,
@@ -234,6 +238,8 @@ const methods = {
 		newNode.productId = preFligthData.productId
 		newNode.parentId = preFligthData.parentId
 		newNode.level = preFligthData.level
+		newNode.isDetailViewLeaf = preFligthData.level === LEVEL.TASK
+		newNode.isCoarseViewLeaf = preFligthData.level === LEVEL.PBI
 		newNode.ind = preFligthData.ind
 		newNode.data.priority = preFligthData.priority
 		// copy the parent's followers

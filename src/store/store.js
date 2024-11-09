@@ -662,7 +662,7 @@ const store = createStore({
 		/* The keys of the payload object are evaluated by key name and value */
 		updateNodesAndCurrentDoc(state, payload) {
 			if (payload.newDoc) {
-				/* Update the currently loaded document and the description and acceptance criteria fields */
+				// replace encoded text fields and remove 'ignoreEvent' elements from history
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
 			} else {
 				const node = payload.node
@@ -840,8 +840,6 @@ const store = createStore({
 									state.currentDoc.dependencies = payload.dependenciesRemoved
 									break
 								case 'description':
-									console.log('state.currentDoc.description = ' + state.currentDoc.description)
-									console.log('payload.description = ' + payload.description)
 									state.currentDoc.description = payload.description
 									break
 								case 'followers':
