@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { uniTob64, b64ToUni } from '../../common_functions.js'
+import { uniTob64, b64ToUni, prepareDocForPresentation } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -46,14 +46,14 @@ const actions = {
 				}
 				tmpDoc.followers = tmpFollowers
 				tmpDoc.history.unshift(newHist)
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				dispatch('updateDoc', {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: tmpDoc,
 					caller: 'changeSubsription',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, followers: tmpFollowers, lastChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, followers: tmpFollowers, lastOtherChange: payload.timestamp })
 					},
 				})
 			})
@@ -132,7 +132,7 @@ const actions = {
 						}
 						doc.followers = tmpFollowers
 						doc.history.unshift(newHist)
-						doc.lastChange = payload.timestamp
+						doc.lastOtherChange = payload.timestamp
 						docs.push(doc)
 					}
 				}
@@ -142,7 +142,7 @@ const actions = {
 					caller: 'changeSubsriptionsBulk',
 					onSuccessCallback: () => {
 						rootState.busyChangingSubscriptions = false
-						commit('updateNodesAndCurrentDoc', { node, followers: currentNodeFollowers, lastChange: payload.timestamp, newHist: currentNodeHist })
+						commit('updateNodewithDocChange', { node, followers: currentNodeFollowers, lastOtherChange: payload.timestamp })
 					},
 				})
 			})
@@ -175,8 +175,8 @@ const actions = {
 					distributeEvent: true,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				tmpDoc.tssize = payload.newSizeIdx
 				dispatch('updateDoc', {
@@ -184,7 +184,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setTsSize',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, tssize: payload.newSizeIdx, lastChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, tssize: payload.newSizeIdx, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -239,8 +239,8 @@ const actions = {
 					updateBoards,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				tmpDoc.spikepersonhours = payload.newHrs
 				dispatch('updateDoc', {
@@ -248,7 +248,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setPersonHours',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, spikePersonHours: payload.newHrs, lastChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, spikePersonHours: payload.newHrs, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -306,14 +306,14 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 
 				tmpDoc.spsize = payload.newPoints
-				const prevLastChange = tmpDoc.lastChange || 0
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange || 0
+				tmpDoc.lastOtherChange = payload.timestamp
 				dispatch('updateDoc', {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: tmpDoc,
 					caller: 'setStoryPoints',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, spsize: payload.newPoints, lastChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, spsize: payload.newPoints, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -380,8 +380,8 @@ const actions = {
 				tmpDoc.state = payload.newState
 				const prevLastStateChange = tmpDoc.lastStateChange
 				tmpDoc.lastStateChange = payload.timestamp
-				const prevLastChange = tmpDoc.lastChange
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				// ToDo: if newState === onHold create a toDispatch to put all descendants also on hold
 
@@ -390,7 +390,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setState',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, state: payload.newState, sprintId: tmpDoc.sprintId, lastStateChange: payload.timestamp })
 						let infoMsg = undefined
 						let warnMsg = undefined
 						// check on team
@@ -467,7 +467,6 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				const prevLastContentChange = tmpDoc.lastContentChange || 0
 				tmpDoc.lastContentChange = payload.timestamp
-				tmpDoc.lastChange = payload.timestamp
 
 				tmpDoc.title = payload.newTitle
 				dispatch('updateDoc', {
@@ -475,7 +474,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setDocTitle',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, title: payload.newTitle, lastContentChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node, title: payload.newTitle, lastContentChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The item title is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -529,8 +528,8 @@ const actions = {
 					updateBoards,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange || 0
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange || 0
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				const oldSubType = tmpDoc.subtype
 				tmpDoc.subtype = payload.newSubType
@@ -539,7 +538,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setSubType',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, subtype: payload.newSubType, lastChange: tmpDoc.lastChange, newHist })
+						commit('updateNodewithDocChange', { node, subtype: payload.newSubType, lastOtherChange: tmpDoc.lastOtherChange })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The item type is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -594,11 +593,11 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				const prevLastContentChange = tmpDoc.lastContentChange || 0
 				tmpDoc.lastContentChange = payload.timestamp
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 				tmpDoc.description = newEncodedDescription
 
 				const onSuccessCallback = () => {
-					commit('updateNodesAndCurrentDoc', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -662,12 +661,12 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 				const prevLastContentChange = tmpDoc.lastContentChange || 0
 				tmpDoc.lastContentChange = payload.timestamp
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 				tmpDoc.acceptanceCriteria = newEncodedAcceptance
 
 				const onSuccessCallback = () => {
 					rootState.isAcceptanceEdited = false
-					commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -732,14 +731,14 @@ const actions = {
 				}
 				tmpDoc.comments.unshift(newComment)
 				tmpDoc.lastCommentAddition = payload.timestamp
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				dispatch('updateDoc', {
 					dbName: rootState.userData.currentDb,
 					updatedDoc: tmpDoc,
 					caller: 'addComment',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
+						commit('updateNodewithDocChange', { node, replaceComments: tmpDoc.comments, lastOtherChange: tmpDoc.lastOtherChange })
 					},
 				})
 			})
@@ -795,13 +794,13 @@ const actions = {
 					}
 					tmpDoc.history.unshift(newHist)
 					tmpDoc.lastCommentAddition = payload.timestamp
-					tmpDoc.lastChange = payload.timestamp
+					tmpDoc.lastOtherChange = payload.timestamp
 					dispatch('updateDoc', {
 						dbName: rootState.userData.currentDb,
 						updatedDoc: tmpDoc,
 						caller: 'replaceComment',
 						onSuccessCallback: () => {
-							commit('updateNodesAndCurrentDoc', { node, replaceComments: tmpDoc.comments })
+							commit('updateNodewithDocChange', { node, replaceComments: tmpDoc.comments, lastOtherChange: tmpDoc.lastOtherChange })
 						},
 					})
 				} else {
@@ -818,6 +817,7 @@ const actions = {
 	/*
 	 * Create or update an existing document by creating a new revision.
 	 * Must call loadDoc on success to update the current doc visable to the user.
+	 * Updates the current doc if the id matches the currentlt loaded doc
 	 * Executes a onSuccessCallback and onFailureCallback if provided in the payload.
 	 */
 	updateDoc({ rootState, dispatch }, payload) {
@@ -832,6 +832,10 @@ const actions = {
 			.then(() => {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
+				if (id === rootState.currentDoc._id) {
+					// apply changes on the currently selected document
+					rootState.currentDoc = prepareDocForPresentation(payload.updatedDoc)
+				}
 				// execute passed actions if provided
 				dispatch('dispatchAdditionalActions', payload)
 			})
@@ -846,9 +850,10 @@ const actions = {
 
 	/*
 	 * Update or create multiple documents in bulk.
+	 * Updates the current doc if the id matches the currentlt loaded doc
 	 * Executes a onSuccessCallback, onFailureCallback and dispatchAdditionalActions callback if provided in the payload.
 	 */
-	updateBulk({ commit, dispatch }, payload) {
+	updateBulk({ rootState, commit, dispatch }, payload) {
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
@@ -877,6 +882,12 @@ const actions = {
 				} else {
 					// execute passed function if provided
 					if (payload.onSuccessCallback) payload.onSuccessCallback()
+					for (const doc of payload.docs) {
+						if (doc._id === rootState.currentDoc._id) {
+							// apply changes on the currently selected document
+							rootState.currentDoc = prepareDocForPresentation(doc)
+						}
+					}
 					// execute passed actions if provided
 					dispatch('dispatchAdditionalActions', payload)
 				}
@@ -908,7 +919,7 @@ const actions = {
 					sessionId: rootState.mySessionId,
 					distributeEvent: false,
 				}
-				parentDoc.lastChange = Date.now()
+				parentDoc.lastOtherChange = Date.now()
 				parentDoc.history.unshift(parentHist)
 				const toDispatch = [
 					{
@@ -930,7 +941,7 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									// select and show the new node
 									commit('renewSelectedNodes', payload.newNode)
-									commit('updateNodesAndCurrentDoc', { newDoc: payload.newDoc })
+									commit('updateNodewithDocChange', { newDoc: payload.newDoc })
 									commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 								} else {
 									// the priority has changed after the preflihgt insert; revert the change in the tree and database
@@ -962,7 +973,7 @@ const actions = {
 		})
 			.then((res) => {
 				if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
-				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
+				commit('updateNodewithDocChange', { newDoc: res.data })
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided

@@ -49,7 +49,7 @@ const actions = {
 				const node = f.node
 				if (node === null) continue
 				// set the sprintId and the <moved> badge with the lastPositionChange timestamp
-				commit('updateNodesAndCurrentDoc', { node, sprintId: f.targetSprintId, lastPositionChange: Date.now() })
+				commit('updateNodewithDocChange', { node, sprintId: f.targetSprintId, lastPositionChange: Date.now() })
 				// create item
 				const payloadItem = {
 					node,
@@ -84,7 +84,7 @@ const actions = {
 				const node = r.node
 				if (node === null) continue
 				// reset the sprintId and the <moved> badge
-				commit('updateNodesAndCurrentDoc', { node, sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
+				commit('updateNodewithDocChange', { node, sprintId: r.targetSprintId, lastPositionChange: r.lastPositionChange })
 				// create item
 				const payloadItem = {
 					node,
@@ -185,7 +185,7 @@ const actions = {
 						doc.priority = item.newlyCalculatedPriority
 						doc.history.unshift(newHist)
 						doc.lastPositionChange = item.lastPositionChange
-						doc.lastChange = item.lastPositionChange
+						doc.lastOtherChange = item.lastPositionChange
 						docs.push(doc)
 					}
 					if (envelope.error) error.push(envelope.error)
@@ -242,7 +242,7 @@ const actions = {
 			onSuccessCallback: () => {
 				for (const it of items) {
 					// update the history of the moved items in the current tree view
-					commit('updateNodesAndCurrentDoc', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
+					commit('updateNodewithDocChange', { node: it.node, sprintId: it.targetSprintId, lastPositionChange: it.lastPositionChange })
 				}
 				if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 					// create an entry for undoing the move in a last-in first-out sequence

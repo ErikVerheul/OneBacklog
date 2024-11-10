@@ -287,7 +287,7 @@ const methods = {
 	},
 
 	hasOtherUpdate(node) {
-		return node.data.lastChange ? Date.now() - node.data.lastChange < this.badgeShowTimeMilis : false
+		return node.data.lastOtherChange ? Date.now() - node.data.lastOtherChange < this.badgeShowTimeMilis : false
 	},
 
 	getFilterButtonText() {
@@ -382,7 +382,7 @@ const methods = {
 			// the node is assigned a new priority
 			store.state.helpersRef.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
 			// restore the sprintId
-			store.commit('updateNodesAndCurrentDoc', { node, sprintId: r.sprintId })
+			store.commit('updateNodewithDocChange', { node, sprintId: r.sprintId })
 		}
 		return true
 	},

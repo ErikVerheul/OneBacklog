@@ -37,7 +37,7 @@ Database--------- backlogItem document -------------------- node
 "lastCommentAddition"-------------------------------------- data.lastCommentAddition,
 "lastAttachmentAddition"----------------------------------- data.lastAttachmentAddition,
 "lastAttachmentRemoval"------------------------------------ data.lastAttachmentRemoval,
-"lastChange"----------------------------------------------- data.lastChange:, // calculated on save on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
+"lastOtherChange"-------------------------------------------data.lastOtherChange:, // last other changes of team, subtype(3x), spSize, tsSize, dependency, req area, subscription
 "_attachments": {}----------------------------------------- system field when attachments are stored; attachments are loaded on request
 
 Other document types are logging, team and config. Use Fauxton to see the field definitions. The logging and config documents are one-off-a-kind documents.
@@ -80,7 +80,7 @@ data: {
 	lastCommentAddition: doc.lastCommentAddition,
 	lastAttachmentAddition: doc.lastAttachmentAddition,
 	lastAttachmentRemoval: doc.lastAttachmentRemoval,
-	lastChange: Date.now(), // calculated on load, updated on change of title, priority, productId, parentId, state, subtype(3x), spSize, tsSize, acceptance and description
+	lastOtherChange: doc.lastOtherChange
 }
 tmpPreventDrag: false // a temporary state to prevent a selected product node to enter the dragging mode after selection
 // temporary and private use, not stored, not synced with other on-line users

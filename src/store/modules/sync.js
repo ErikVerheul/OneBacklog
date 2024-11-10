@@ -125,7 +125,7 @@ const actions = {
 					lastCommentAddition: 0,
 					lastAttachmentAddition: 0,
 					lastAttachmentRemoval: 0,
-					lastChange: lastHistoryTimestamp,
+					lastOtherChange: lastHistoryTimestamp,
 				},
 				tmp: {},
 			}
@@ -153,7 +153,8 @@ const actions = {
 				// skip items that are not available in the tree
 				return
 			}
-			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK) commit('updateNodesAndCurrentDoc', { node, sprintId: targetSprintId })
+			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK)
+				commit('updateNodewithDocChange', { node, sprintId: targetSprintId, lastOtherChange: Date.now() })
 			const locationInfo = getLocationInfo(newPriority, newParentNode)
 			if (rootState.helpersRef.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -180,8 +181,8 @@ const actions = {
 						{ calculatePrios: false, skipUpdateProductId: isProductMoved },
 					)
 				}
-				if (moveType === 'move') commit('updateNodesAndCurrentDoc', { node, lastPositionChange: lastHistoryTimestamp })
-				if (moveType === 'undoMove') commit('updateNodesAndCurrentDoc', { node, lastPositionChange })
+				if (moveType === 'move') commit('updateNodewithDocChange', { node, lastPositionChange: lastHistoryTimestamp })
+				if (moveType === 'undoMove') commit('updateNodewithDocChange', { node, lastPositionChange })
 			}
 		}
 
@@ -227,7 +228,7 @@ const actions = {
 					switch (histEvent) {
 						case 'changeReqAreaColorEvent':
 							commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-							commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: doc.color })
+							commit('updateNodewithDocChange', { node, reqAreaItemColor: doc.color })
 							showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 							break
 						case 'createItemEvent':
@@ -237,7 +238,7 @@ const actions = {
 							}
 							break
 						case 'descriptionEvent':
-							commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the description of`, SEV.INFO)
 							break
 						case 'nodeMovedEvent':
@@ -258,7 +259,7 @@ const actions = {
 							}
 							break
 						case 'setTitleEvent':
-							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the title of`, SEV.INFO)
 							break
 						case 'undoBranchRemovalEvent':
@@ -273,11 +274,11 @@ const actions = {
 					// process events for non requirement area items
 					switch (histEvent) {
 						case 'acceptanceEvent':
-							commit('updateNodesAndCurrentDoc', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
 							break
 						case 'addSprintIdsEvent':
-							commit('updateNodesAndCurrentDoc', { node, sprintId: doc.sprintId, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, sprintId: doc.sprintId, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`set the sprint for`, SEV.INFO)
 							break
 						case 'changeReqAreaColorEvent':
@@ -289,11 +290,11 @@ const actions = {
 						case 'commentAmendedEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp
 							// show the comments update
-							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+							if (isCurrentDocument) commit('updateNodewithDocChange', { node, replaceComments: doc.comments })
 							showSyncMessage(`changed a comment to item`, SEV.INFO)
 							break
 						case 'conditionRemovedEvent':
-							commit('updateNodesAndCurrentDoc', { node, conditionsremoved: doc.conditionalFor, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, conditionsremoved: doc.conditionalFor, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`removed condition`, SEV.INFO)
 							break
 						case 'createItemEvent':
@@ -304,22 +305,22 @@ const actions = {
 							}
 							break
 						case 'dependencyRemovedEvent':
-							commit('updateNodesAndCurrentDoc', { node, dependenciesRemoved: doc.dependencies, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, dependenciesRemoved: doc.dependencies, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`removed a condition for`, SEV.INFO)
 							break
 						case 'descriptionEvent':
-							commit('updateNodesAndCurrentDoc', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the description of`, SEV.INFO)
 							break
 						case 'itemToNewTeamEvent': {
 							const team = lastHistObj.itemToNewTeamEvent[0]
-							commit('updateNodesAndCurrentDoc', { node, team })
+							commit('updateNodewithDocChange', { node, team })
 							break
 						}
 						case 'newCommentEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp
 							// show the comments update
-							if (isCurrentDocument) commit('updateNodesAndCurrentDoc', { node, replaceComments: doc.comments })
+							if (isCurrentDocument) commit('updateNodewithDocChange', { node, replaceComments: doc.comments, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`added a comment to item`, SEV.INFO)
 							break
 						case 'messageReceivedEvent':
@@ -342,7 +343,7 @@ const actions = {
 							rootState.helpersRef.checkDepencyViolations()
 							break
 						case 'removeAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, _attachments: doc._attachments, lastAttachmentRemoval: doc.lastAttachmentRemoval })
+							commit('updateNodewithDocChange', { node, _attachments: doc._attachments, lastAttachmentRemoval: doc.lastAttachmentRemoval })
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
@@ -377,60 +378,60 @@ const actions = {
 							}
 							break
 						case 'removeSprintIdsEvent':
-							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, sprintId: undefined, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`removed the sprint for`, SEV.INFO)
 							break
 						case 'removeStoryEvent':
-							commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, sprintId: undefined, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`unassigned the sprint from`, SEV.INFO)
 							break
 						case 'setConditionEvent':
 							if (lastHistObj.setConditionEvent[2]) {
 								// undo single addition
-								commit('updateNodesAndCurrentDoc', { node, removeLastConditionalFor: null, lastChange: doc.lastChange })
+								commit('updateNodewithDocChange', { node, removeLastConditionalFor: null, lastOtherChange: doc.lastOtherChange })
 								showSyncMessage(`undid a dependency setting on`, SEV.INFO)
 							} else {
 								const dependentOnNodeId = lastHistObj.setConditionEvent[0]
-								commit('updateNodesAndCurrentDoc', { node, addConditionalFor: dependentOnNodeId, lastChange: doc.lastChange })
+								commit('updateNodewithDocChange', { node, addConditionalFor: dependentOnNodeId, lastOtherChange: doc.lastOtherChange })
 								showSyncMessage(`set a dependency on`, SEV.INFO)
 							}
 							break
 						case 'setDependencyEvent':
 							if (lastHistObj.setDependencyEvent[2]) {
 								// undo single addition
-								commit('updateNodesAndCurrentDoc', { node, removeLastDependencyOn: null, lastChange: doc.lastChange })
+								commit('updateNodewithDocChange', { node, removeLastDependencyOn: null, lastOtherChange: doc.lastOtherChange })
 								showSyncMessage(`undid a condition setting for`, SEV.INFO)
 							} else {
 								const conditionalForNodeId = lastHistObj.setDependencyEvent[0]
-								commit('updateNodesAndCurrentDoc', { node, addDependencyOn: conditionalForNodeId, lastChange: doc.lastChange })
+								commit('updateNodewithDocChange', { node, addDependencyOn: conditionalForNodeId, lastOtherChange: doc.lastOtherChange })
 								showSyncMessage(`set a condition for`, SEV.INFO)
 							}
 							break
 						case 'setHrsEvent':
-							commit('updateNodesAndCurrentDoc', { node, spikePersonHours: doc.spikepersonhours, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, spikePersonHours: doc.spikepersonhours, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the maximum effort of`, SEV.INFO)
 							break
 						case 'setPointsEvent':
-							commit('updateNodesAndCurrentDoc', { node, spsize: doc.spsize, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, spsize: doc.spsize, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the story points of`, SEV.INFO)
 							break
 						case 'setSizeEvent':
-							commit('updateNodesAndCurrentDoc', { node, tssize: doc.tssize, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, tssize: doc.tssize, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the T-shirt size of`, SEV.INFO)
 							break
 						case 'setStateEvent':
-							commit('updateNodesAndCurrentDoc', { node, state: doc.state, lastStateChange: doc.lastStateChange })
+							commit('updateNodewithDocChange', { node, state: doc.state, lastStateChange: doc.lastStateChange })
 							showSyncMessage(`changed the state of`, SEV.INFO)
 							break
 						case 'setSubTypeEvent':
-							commit('updateNodesAndCurrentDoc', { node, subtype: doc.subtype, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, subtype: doc.subtype, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the type of`, SEV.INFO)
 							break
 						case 'setTeamOwnerEvent':
-							commit('updateNodesAndCurrentDoc', { node, team: doc.team, lastChange: doc.lastChange })
+							commit('updateNodewithDocChange', { node, team: doc.team, lastOtherChange: doc.lastOtherChange })
 							break
 						case 'setTitleEvent':
-							commit('updateNodesAndCurrentDoc', { node, title: doc.title, lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, title: doc.title, lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the title of`, SEV.INFO)
 							break
 						case 'taskRemovedEvent':
@@ -472,7 +473,7 @@ const actions = {
 							})
 							break
 						case 'uploadAttachmentEvent':
-							commit('updateNodesAndCurrentDoc', { node, title: doc.title, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
+							commit('updateNodewithDocChange', { node, title: doc.title, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
 							showSyncMessage(`uploaded an attachment to`, SEV.INFO)
 							break
 						case 'updateReqAreaEvent':
@@ -516,7 +517,7 @@ const actions = {
 							}
 							break
 						case 'updateTaskOwnerEvent':
-							commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, taskOwner: doc.taskOwner, lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the task owner of`, SEV.INFO)
 							break
 						default:

@@ -125,7 +125,7 @@ const methods = {
 				reqAreaItemColor: node.data.reqAreaItemColor,
 				team: node.data.team,
 				subtype: node.data.subtype,
-				lastChange: now,
+				lastOtherChange: now,
 				followers: [],
 			},
 			tmp: {},
@@ -229,7 +229,7 @@ const methods = {
 				sprintId: undefined,
 				taskOwner: undefined,
 				team: undefined,
-				lastChange: now,
+				lastOtherChange: now,
 			},
 			tmp: {},
 		}

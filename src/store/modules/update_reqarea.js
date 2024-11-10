@@ -42,7 +42,7 @@ const actions = {
 					onSuccessCallback: () => {
 						state.canUpdateColor = true
 						commit('updateColorMapper', { id, newColor: payload.newColor })
-						commit('updateNodesAndCurrentDoc', { node, reqAreaItemColor: payload.newColor })
+						commit('updateNodewithDocChange', { node, reqAreaItemColor: payload.newColor })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The requirement area color indication is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -92,8 +92,8 @@ const actions = {
 					distributeEvent: true,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange
+				tmpDoc.lastOtherChange = payload.timestamp
 				// add to payload
 				payload.oldParentReqArea = oldAreaId
 				const toDispatch = [{ updateReqAreaChildren: payload }]
@@ -103,7 +103,7 @@ const actions = {
 					toDispatch,
 					caller: 'updateReqArea',
 					onSuccessCallback: () => {
-						commit('updateNodesAndCurrentDoc', { node: payload.node, reqarea: payload.reqareaId, lastChange: payload.timestamp, newHist })
+						commit('updateNodewithDocChange', { node: payload.node, reqarea: payload.reqareaId, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
@@ -221,7 +221,7 @@ const actions = {
 		const timestamp = hist.timeStamp
 		const node = rootState.helpersRef.getNodeById(parentId)
 		if (node) {
-			commit('updateNodesAndCurrentDoc', { node, reqarea: newReqAreaId, lastChange: timestamp, newHist: hist })
+			commit('updateNodewithDocChange', { node, reqarea: newReqAreaId, lastOtherChange: timestamp, newHist: hist })
 			commit('addToEventList', {
 				txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`,
 				severity: SEV.INFO,
@@ -233,13 +233,13 @@ const actions = {
 					// set: set for items which have no req area set yet
 					if (!currentReqArea || currentReqArea === oldReqArea) {
 						d.data.reqarea = newReqAreaId
-						d.data.lastChange = timestamp
+						d.data.lastOtherChange = timestamp
 					}
 				} else {
 					// remove: if reqarea was set and equal to old req area of the parent delete it
 					if (currentReqArea && currentReqArea === oldReqArea) {
 						delete d.data.reqarea
-						d.data.lastChange = timestamp
+						d.data.lastOtherChange = timestamp
 					}
 				}
 			}

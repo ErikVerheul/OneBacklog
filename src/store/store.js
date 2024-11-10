@@ -3,7 +3,7 @@
 import { SEV, LEVEL, MISC } from '../constants.js'
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
-import { b64ToUni, expandNode, collapseNode, addToArray, localTimeAndMilis, removeFromArray } from '../common_functions.js'
+import { expandNode, collapseNode, addToArray, localTimeAndMilis, prepareDocForPresentation, removeFromArray } from '../common_functions.js'
 import attachments from './modules/attachments'
 import authentication from './modules/authentication'
 import calendars from './modules/calendars'
@@ -73,20 +73,6 @@ function createEventToDisplay(payload) {
 		textColor,
 	}
 	return newEvent
-}
-
-/* Replace encoded text fields and remove 'ignoreEvent' elements from history */
-function prepareDocForPresentation(doc) {
-	let preptDoc = doc
-	// decode from base64
-	preptDoc.description = b64ToUni(doc.description)
-	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
-	const cleanedHistory = []
-	for (const h of doc.history) {
-		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
-	}
-	preptDoc.history = cleanedHistory
-	return preptDoc
 }
 
 function getCurrentEvt(eventsArray, key) {
@@ -660,9 +646,9 @@ const store = createStore({
 		},
 
 		/* The keys of the payload object are evaluated by key name and value */
-		updateNodesAndCurrentDoc(state, payload) {
+		updateNodewithDocChange(state, payload) {
 			if (payload.newDoc) {
-				// replace encoded text fields and remove 'ignoreEvent' elements from history
+				// replace encoded text fields and remove 'ignoreEvent' elements from history and update the currentDoc
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
 			} else {
 				const node = payload.node
@@ -713,24 +699,24 @@ const store = createStore({
 							case 'lastAttachmentRemoval':
 								node.data.lastAttachmentRemoval = payload.lastAttachmentRemoval
 								break
-							case 'lastChange':
-								node.data.lastChange = payload.lastChange
+							case 'lastOtherChange':
+								node.data.lastOtherChange = payload.lastOtherChange
 								break
 							case 'lastCommentAddition':
 								node.data.lastCommentAddition = payload.lastCommentAddition
-								node.data.lastChange = payload.lastCommentAddition
+								node.data.lastOtherChange = payload.lastCommentAddition
 								break
 							case 'lastContentChange':
 								node.data.lastContentChange = payload.lastContentChange
-								node.data.lastChange = payload.lastContentChange
+								node.data.lastOtherChange = payload.lastContentChange
 								break
 							case 'lastPositionChange':
 								node.data.lastPositionChange = payload.lastPositionChange
-								node.data.lastChange = payload.lastPositionChange
+								node.data.lastOtherChange = payload.lastPositionChange
 								break
 							case 'lastStateChange':
 								node.data.lastStateChange = payload.lastStateChange
-								node.data.lastChange = payload.lastStateChange
+								node.data.lastOtherChange = payload.lastStateChange
 								break
 							case 'level':
 								node.level = payload.level
@@ -810,144 +796,11 @@ const store = createStore({
 								break
 							default:
 								if (state.debug)
-									console.log(`updateNodesAndCurrentDoc.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
-						}
-					}
-					if (node._id === state.currentDoc._id) {
-						// apply changes on the currently selected document
-						for (const k of keys) {
-							switch (k) {
-								case '_attachments':
-									state.currentDoc._attachments = payload._attachments
-									break
-								case 'acceptanceCriteria':
-									state.currentDoc.acceptanceCriteria = payload.acceptanceCriteria
-									break
-								case 'addConditionalFor':
-									if (state.currentDoc.conditionalFor) {
-										if (!state.currentDoc.conditionalFor.includes(payload.addConditionalFor)) state.currentDoc.conditionalFor.push(payload.addConditionalFor)
-									} else state.currentDoc.conditionalFor = [payload.addConditionalFor]
-									break
-								case 'addDependencyOn':
-									if (state.currentDoc.dependencies) {
-										if (!state.currentDoc.dependencies.includes(payload.addDependencyOn)) state.currentDoc.dependencies.push(payload.addDependencyOn)
-									} else state.currentDoc.dependencies = [payload.addDependencyOn]
-									break
-								case 'conditionsremoved':
-									state.currentDoc.conditionalFor = payload.conditionsremoved
-									break
-								case 'dependenciesRemoved':
-									state.currentDoc.dependencies = payload.dependenciesRemoved
-									break
-								case 'description':
-									state.currentDoc.description = payload.description
-									break
-								case 'followers':
-									state.currentDoc.followers = payload.followers
-									break
-								case 'isExpanded':
-									// not a database field
-									break
-								case 'isSelected':
-									// not a database field
-									break
-								case 'lastAttachmentAddition':
-									state.currentDoc.lastAttachmentAddition = payload.lastAttachmentAddition
-									break
-								case 'lastAttachmentRemoval':
-									state.currentDoc.lastAttachmentRemoval = payload.lastAttachmentRemoval
-									break
-								case 'lastChange':
-									state.currentDoc.lastChange = payload.lastChange
-									break
-								case 'lastCommentAddition':
-									state.currentDoc.lastCommentAddition = payload.lastCommentAddition
-									break
-								case 'lastContentChange':
-									state.currentDoc.lastContentChange = payload.lastContentChange
-									break
-								case 'lastPositionChange':
-									state.currentDoc.lastPositionChange = payload.lastPositionChange
-									break
-								case 'lastStateChange':
-									state.currentDoc.lastStateChange = payload.lastStateChange
-									break
-								case 'level':
-									state.currentDoc.level = payload.level
-									break
-								case 'newComment':
-									state.currentDoc.comments.unshift(payload.newComment)
-									break
-								case 'newHist':
-									state.currentDoc.history.unshift(payload.newHist)
-									break
-								case 'node':
-									// used to pass the node
-									break
-								case 'parentId':
-									state.currentDoc.parentId = payload.parentId
-									break
-								case 'priority':
-									state.currentDoc.priority = payload.priority
-									break
-								case 'productId':
-									state.currentDoc.productId = payload.productId
-									break
-								case 'removeLastConditionalFor':
-									state.currentDoc.conditionalFor.slice(0, -1)
-									break
-								case 'removeLastDependencyOn':
-									state.currentDoc.dependencies.slice(0, -1)
-									break
-								case 'replaceComments':
-									state.currentDoc.comments = payload.replaceComments
-									break
-								case 'replaceHistory':
-									state.currentDoc.history = payload.replaceHistory
-									break
-								case 'reqarea':
-									state.currentDoc.reqarea = payload.reqarea
-									break
-								case 'reqAreaItemColor':
-									state.currentDoc.color = payload.reqAreaItemColor
-									break
-								case 'spikePersonHours':
-									state.currentDoc.spikepersonhours = payload.spikePersonHours
-									break
-								case 'sprintId':
-									state.currentDoc.sprintId = payload.sprintId
-									break
-								case 'spsize':
-									state.currentDoc.spsize = payload.spsize
-									break
-								case 'state':
-									state.currentDoc.state = payload.state
-									break
-								case 'subtype':
-									state.currentDoc.subtype = payload.subtype
-									break
-								case 'taskOwner':
-									state.currentDoc.taskOwner = payload.taskOwner
-									break
-								case 'team':
-									if (payload.team) state.currentDoc.team = payload.team
-									break
-								case 'title':
-									state.currentDoc.title = payload.title
-									break
-								case 'tssize':
-									state.currentDoc.tssize = payload.tssize
-									break
-								default:
-									if (state.debug)
-										console.log(
-											`updateNodesAndCurrentDoc.update currentDoc: property '${k}' has no matching update, currentDoc.title = ${state.currentDoc.title}, keys = ${keys}`,
-										)
-							}
+									console.log(`updateNodewithDocChange.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
 					}
 				} else {
-					if (state.debug) console.log(`updateNodesAndCurrentDoc failed: cannot apply changes as no valid node is passed, keys are: ${keys}`)
+					if (state.debug) console.log(`updateNodewithDocChange failed: cannot apply changes as no valid node is passed, keys are: ${keys}`)
 				}
 			}
 		},

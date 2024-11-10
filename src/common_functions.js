@@ -36,6 +36,20 @@ export function areStringsEqual(str1, str2) {
 	return retVal === 0
 }
 
+/* Replace encoded text fields and remove 'ignoreEvent' elements from history */
+export function prepareDocForPresentation(doc) {
+	let preptDoc = doc
+	// decode from base64
+	preptDoc.description = b64ToUni(doc.description)
+	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
+	const cleanedHistory = []
+	for (const h of doc.history) {
+		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
+	}
+	preptDoc.history = cleanedHistory
+	return preptDoc
+}
+
 //////////////// expand, collapse and show or hide the children of the node ////////////
 
 /* Returns true if the path starts with the subPath */
@@ -261,6 +275,7 @@ export default {
 	removeFromArray,
 	isValidEmail,
 	pathToJSON,
+	prepareDocForPresentation,
 	startMsgSquareBlink,
 	initMessaging,
 }

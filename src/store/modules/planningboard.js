@@ -555,7 +555,7 @@ const actions = {
 						const doc = envelope.ok
 						const oldSprintId = doc.sprintId
 						doc.sprintId = newSprintId
-						doc.lastChange = timestamp
+						doc.lastOtherChange = timestamp
 						let oldSprintName
 						for (const s of rootState.myCurrentSprintCalendar) {
 							if (s.id === oldSprintId) oldSprintName = s.name
@@ -576,7 +576,7 @@ const actions = {
 						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree view
 							const node = rootState.helpersRef.getNodeById(doc._id)
-							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: newSprintId, lastChange: timestamp, newHist })
+							if (node) commit('updateNodewithDocChange', { node, sprintId: newSprintId, lastOtherChange: timestamp, newHist })
 						}
 						docs.push(doc)
 					}
@@ -824,7 +824,7 @@ const actions = {
 						for (const d of docs) {
 							// update the tree view and show the history in the current opened item
 							const node = rootState.helpersRef.getNodeById(d._id)
-							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: d.sprintId, newHist: d.history[0] })
+							if (node) commit('updateNodewithDocChange', { node, sprintId: d.sprintId, lastOtherChange: Date.now() })
 						}
 						// show child nodes
 						const parentNode = rootState.helpersRef.getNodeById(payload.parentId)
@@ -897,7 +897,7 @@ const actions = {
 							distributeEvent: true,
 						}
 						doc.history.unshift(newHist)
-						doc.lastChange = Date.now()
+						doc.lastOtherChange = Date.now()
 						docs.push(doc)
 					}
 				}
@@ -919,7 +919,7 @@ const actions = {
 						for (const d of docs) {
 							// update the tree view
 							const node = rootState.helpersRef.getNodeById(d._id)
-							if (node) commit('updateNodesAndCurrentDoc', { node, sprintId: undefined, newHist: d.history[0] })
+							if (node) commit('updateNodewithDocChange', { node, sprintId: undefined, lastOtherChange: Date.now() })
 						}
 						// show children nodes
 						expandNode(rootState.helpersRef.getNodeById(payload.parentId))
@@ -1053,7 +1053,7 @@ const actions = {
 									sprintId: rootState.loadedSprintId,
 									team: rootState.userData.myTeam,
 									taskOwner: rootState.userData.user,
-									lastChange: Date.now(),
+									lastOtherChange: Date.now(),
 									followers: newDoc.followers,
 								},
 								tmp: {},
@@ -1109,7 +1109,7 @@ const actions = {
 					distributeEvent: true,
 					updateBoards: { sprintsAffected: [removedSprintId], teamsAffected: [storyDoc.team] },
 				}
-				storyDoc.lastChange = Date.now()
+				storyDoc.lastOtherChange = Date.now()
 				storyDoc.history.unshift(newHist)
 
 				dispatch('updateDoc', {
@@ -1365,7 +1365,7 @@ const actions = {
 							// update the tree model
 							const node = rootState.helpersRef.getNodeById(payload.taskId)
 							if (node) {
-								commit('updateNodesAndCurrentDoc', { node, taskOwner: doc.taskOwner })
+								commit('updateNodewithDocChange', { node, taskOwner: doc.taskOwner, lastOtherChange: Date.now() })
 							}
 						}
 					},

@@ -92,11 +92,10 @@ const actions = {
 						caller: 'uploadAttachmentAsync',
 						onSuccessCallback: () => {
 							rootState.uploadDone = true
-							commit('updateNodesAndCurrentDoc', {
+							commit('updateNodewithDocChange', {
 								node: payload.node,
-								_attachments: tmpDoc._attachments,
 								lastAttachmentAddition: tmpDoc.lastAttachmentAddition,
-								newHist,
+								lastOtherChange: Date.now(),
 							})
 						},
 						onFailureCallback: () => {
@@ -143,10 +142,10 @@ const actions = {
 						updatedDoc: tmpDoc,
 						caller: 'removeAttachmentAsync',
 						onSuccessCallback: () => {
-							commit('updateNodesAndCurrentDoc', {
+							commit('updateNodewithDocChange', {
 								node: payload.node,
 								lastAttachmentRemoval: tmpDoc.lastAttachmentRemoval,
-								newHist,
+								lastOtherChange: Date.now(),
 							})
 						},
 					})

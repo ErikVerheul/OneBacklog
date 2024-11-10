@@ -116,7 +116,7 @@ const actions = {
 				lastCommentAddition: doc.lastCommentAddition,
 				lastAttachmentAddition: doc.lastAttachmentAddition,
 				lastAttachmentRemoval: doc.lastAttachmentRemoval,
-				lastChange: Date.now(),
+				lastOtherChange: Date.now(),
 			}
 			const clonedNode = rootState.helpersRef.createNode(clonedDoc)
 			if (doc._id === payload.originalNode._id) {

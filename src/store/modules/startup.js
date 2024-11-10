@@ -375,7 +375,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/root',
 		})
 			.then((res) => {
-				commit('updateNodesAndCurrentDoc', { newDoc: res.data })
+				commit('updateNodewithDocChange', { newDoc: res.data })
 
 				if (rootState.debug) console.log('getRoot: The root document is read')
 				// start loading the tree and open the detail products view by default

@@ -298,7 +298,7 @@ const actions = {
 							const node = rootState.helpersRef.getNodeById(c.id)
 							if (node !== null) node.conditionalFor.push(c.conditionalFor)
 						}
-						commit('updateNodesAndCurrentDoc', { newDoc: updatedParentDoc })
+						commit('updateNodewithDocChange', { newDoc: updatedParentDoc })
 						commit('addToEventList', {
 							txt: `The ${rootState.helpersRef.getLevelText(globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`,
 							severity: SEV.INFO,

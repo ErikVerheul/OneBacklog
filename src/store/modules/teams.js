@@ -422,12 +422,12 @@ const actions = {
 						updateBoards,
 					}
 					tmpDoc.history.unshift(newHist)
-					const prevLastChange = tmpDoc.lastChange || 0
+					const prevLastChange = tmpDoc.lastOtherChange || 0
 					if (tmpDoc.state !== STATE.DONE) {
 						// set the team name and delete the spint assignment
 						tmpDoc.team = payload.newTeam
 						delete tmpDoc.sprintId
-						tmpDoc.lastChange = payload.timestamp
+						tmpDoc.lastOtherChange = payload.timestamp
 					}
 					const toDispatch =
 						descendantsInfo.count > 0
@@ -442,9 +442,9 @@ const actions = {
 						onSuccessCallback: () => {
 							// update the tree
 							for (const d of descendantsInfo.descendants) {
-								commit('updateNodesAndCurrentDoc', { node: d, team: payload.newTeam, lastChange: payload.timestamp, newHist })
+								commit('updateNodewithDocChange', { node: d, team: payload.newTeam, lastOtherChange: payload.timestamp, newHist })
 							}
-							commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam, lastChange: payload.timestamp, newHist })
+							commit('updateNodewithDocChange', { node, team: payload.newTeam, lastOtherChange: payload.timestamp, newHist })
 
 							if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 								if (descendantsInfo.count === 0) {
@@ -512,7 +512,7 @@ const actions = {
 								// set the team name and delete the spint assignment
 								doc.team = payload.newTeam
 								delete doc.sprintId
-								doc.lastChange = Date.now()
+								doc.lastOtherChange = Date.now()
 								docs.push(doc)
 							}
 						}
@@ -566,7 +566,7 @@ const actions = {
 							// the overview does not load the task level
 							docsToUpdate.forEach((doc) => {
 								const node = rootState.helpersRef.getNodeById(doc._id)
-								commit('updateNodesAndCurrentDoc', { node, team: payload.newTeam })
+								commit('updateNodewithDocChange', { node, team: payload.newTeam })
 							})
 						}
 					},

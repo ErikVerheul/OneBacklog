@@ -86,7 +86,7 @@ const actions = {
 						lastContentChange: doc.lastContentChange || 0,
 						lastPositionChange: doc.lastPositionChange || 0,
 						lastStateChange: doc.lastStateChange || 0,
-						lastChange: doc.lastChange || 0,
+						lastOtherChange: doc.lastOtherChange || 0,
 						followers: doc.followers || [],
 					},
 					tmp: {},
@@ -619,7 +619,7 @@ const actions = {
 					for (let i = 0; i < nodes.length; i++) {
 						// update the tree; timestamp is recorded in the history in the database
 						nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-						nodes[i].data.lastChange = Date.now()
+						nodes[i].data.lastOtherChange = Date.now()
 					}
 				}
 

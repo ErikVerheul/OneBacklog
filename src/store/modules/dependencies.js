@@ -25,8 +25,8 @@ const actions = {
 					distributeEvent: true,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange || 0
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange || 0
+				tmpDoc.lastOtherChange = payload.timestamp
 				payload.dependentOnPrevLastChange = prevLastChange
 
 				if (tmpDoc.dependencies) {
@@ -66,8 +66,8 @@ const actions = {
 					distributeEvent: true,
 				}
 				tmpDoc.history.unshift(newHist)
-				const prevLastChange = tmpDoc.lastChange || 0
-				tmpDoc.lastChange = payload.timestamp
+				const prevLastChange = tmpDoc.lastOtherChange || 0
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				if (tmpDoc.conditionalFor) {
 					const conds = dedup(tmpDoc.conditionalFor)
@@ -80,13 +80,15 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'alsoSetCondition',
 					onSuccessCallback: () => {
-						// no hist update for the dependentOnNode as the user selected the conditionalForNode at this time
-						commit('updateNodesAndCurrentDoc', { node: payload.dependentOnNode, addDependencyOn: payload.conditionalForNode._id, lastChange: timestamp })
-						commit('updateNodesAndCurrentDoc', {
+						commit('updateNodewithDocChange', {
+							node: payload.dependentOnNode,
+							addDependencyOn: payload.conditionalForNode._id,
+							lastOtherChange: tmpDoc.lastOtherChange,
+						})
+						commit('updateNodewithDocChange', {
 							node: payload.conditionalForNode,
 							addConditionalFor: payload.dependentOnNode._id,
-							lastChange: timestamp,
-							newHist,
+							lastOtherChange: tmpDoc.lastOtherChange,
 						})
 						rootState.selectNodeOngoing = false
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -136,7 +138,7 @@ const actions = {
 						distributeEvent: true,
 					}
 					tmpDoc.history.unshift(newHist)
-					tmpDoc.lastChange = payload.dependentOnPrevLastChange
+					tmpDoc.lastOtherChange = payload.dependentOnPrevLastChange
 
 					// add hist to payload
 					payload.hist = newHist
@@ -187,24 +189,22 @@ const actions = {
 						distributeEvent: true,
 					}
 					tmpDoc.history.unshift(newHist)
-					tmpDoc.lastChange = payload.conditionalForprevLastChange
+					tmpDoc.lastOtherChange = payload.conditionalForprevLastChange
 
 					dispatch('updateDoc', {
 						dbName,
 						updatedDoc: tmpDoc,
 						caller: 'alsoUndoSetConditionAsync',
 						onSuccessCallback: () => {
-							commit('updateNodesAndCurrentDoc', {
+							commit('updateNodewithDocChange', {
 								node: payload.dependentOnNode,
 								removeLastDependencyOn: null,
-								lastChange: payload.dependentOnPrevLastChange,
-								newHist: payload.hist,
+								lastOtherChange: payload.dependentOnPrevLastChange,
 							})
-							commit('updateNodesAndCurrentDoc', {
+							commit('updateNodewithDocChange', {
 								node: payload.conditionalForNode,
 								removeLastConditionalFor: null,
-								lastChange: payload.conditionalForprevLastChange,
-								newHist,
+								lastOtherChange: payload.conditionalForprevLastChange,
 							})
 							commit('addToEventList', { txt: 'Dependency set is undone', severity: SEV.INFO })
 							rootState.busyWithLastUndo = false
@@ -248,7 +248,7 @@ const actions = {
 				// add hist to payload
 				payload.hist = newHist
 
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				const toDispatch = [{ alsoRemoveConditions: payload }]
 				dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeDependenciesAsync' })
@@ -285,7 +285,7 @@ const actions = {
 							}
 						}
 						doc.conditionalFor = newConditions
-						doc.lastChange = payload.timestamp
+						doc.lastOtherChange = payload.timestamp
 						const newHist = {
 							conditionRemovedEvent: [[payload.node._id], payload.node.title],
 							by: rootState.userData.user,
@@ -309,11 +309,10 @@ const actions = {
 					caller: 'alsoRemoveConditions',
 					onSuccessCallback: () => {
 						// update the dependencies in the tree model
-						commit('updateNodesAndCurrentDoc', {
+						commit('updateNodewithDocChange', {
 							node: payload.node,
 							dependenciesRemoved: payload.newDeps,
-							lastChange: payload.timestamp,
-							newHist: payload.hist,
+							lastOtherChange: payload.timestamp,
 						})
 						// update the conditions in the tree model
 						for (const id of payload.removedIds) {
@@ -325,7 +324,7 @@ const actions = {
 								if (condId !== payload.node._id) conIdArray.push(id)
 							}
 							// no need to pass history as the currenly selected node is the node with the conditions
-							commit('updateNodesAndCurrentDoc', { node: depOnNode, conditionsremoved: conIdArray, lastChange: payload.timestamp })
+							commit('updateNodewithDocChange', { node: depOnNode, conditionsremoved: conIdArray, lastOtherChange: payload.timestamp })
 							// check for resolved dependency violations
 							rootState.helpersRef.checkDepencyViolations()
 						}
@@ -364,7 +363,7 @@ const actions = {
 				// add hist to payload
 				payload.hist = newHist
 
-				tmpDoc.lastChange = payload.timestamp
+				tmpDoc.lastOtherChange = payload.timestamp
 
 				const toDispatch = [{ alsoRemoveDependenciesAsync: payload }]
 				dispatch('updateDoc', { dbName, updatedDoc: tmpDoc, toDispatch, caller: 'removeConditionsAsync' })
@@ -402,8 +401,8 @@ const actions = {
 						}
 						// update the dependencies
 						doc.dependencies = newDependencies
-						// const prevLastChange = doc.lastChange || 0 --> ToDo: track last change?
-						doc.lastChange = payload.timestamp
+						// const prevLastChange = doc.lastOtherChange || 0 --> ToDo: track last change?
+						doc.lastOtherChange = payload.timestamp
 						const newHist = {
 							dependencyRemovedEvent: [[payload.node._id], payload.node.title],
 							by: rootState.userData.user,
@@ -427,7 +426,7 @@ const actions = {
 					caller: 'alsoRemoveDependenciesAsync',
 					onSuccessCallback: () => {
 						// update the conditions in the tree model
-						commit('updateNodesAndCurrentDoc', { node: payload.node, conditionsremoved: payload.newCons, lastChange: payload.timestamp, newHist: payload.hist })
+						commit('updateNodewithDocChange', { node: payload.node, conditionsremoved: payload.newCons, lastOtherChange: payload.timestamp })
 						// update the dependencies in the tree model
 						for (const id of payload.removedIds) {
 							const condForNode = rootState.helpersRef.getNodeById(id)
@@ -438,7 +437,7 @@ const actions = {
 								if (depId !== payload.node._id) depIdArray.push(id)
 							}
 							// no need to pass history as the currenly selcted node is the node with the dependencies
-							commit('updateNodesAndCurrentDoc', { node: condForNode, dependenciesRemoved: depIdArray, lastChange: payload.timestamp })
+							commit('updateNodewithDocChange', { node: condForNode, dependenciesRemoved: depIdArray, lastOtherChange: payload.timestamp })
 							// check for resolved dependency violations
 							rootState.helpersRef.checkDepencyViolations()
 						}

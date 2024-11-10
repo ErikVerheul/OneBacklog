@@ -109,16 +109,32 @@ const methods = {
 	doFilterOnTime(nm) {
 		if (nm.level <= LEVEL.PRODUCT) return true
 
+		function lastAnyChange(nm) {
+			const allChanges = [
+				nm.data.lastPositionChange,
+				nm.data.lastStateChange,
+				nm.data.lastContentChange,
+				nm.data.lastCommentAddition,
+				nm.data.lastAttachmentAddition,
+				nm.data.lastAttachmentRemoval,
+				nm.data.lastOtherChange,
+			]
+			// sort descending
+			const sortedChanges = allChanges.sort((a, b) => b - a)
+			// element 0 is most recent (highest value)
+			return sortedChanges[0]
+		}
+
 		if (this.selectedTime === '0') {
 			if (this.fromDate && this.toDate) {
 				// process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
 				const fromMilis = Date.parse(this.fromDate)
 				const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
-				return nm.data.lastChange >= fromMilis && nm.data.lastChange < endOfToMilis
+				return lastAnyChange(nm) >= fromMilis && lastAnyChange(nm) < endOfToMilis
 			}
 		} else {
 			const sinceMilis = parseInt(this.selectedTime) * 60000
-			return Date.now() - nm.data.lastChange < sinceMilis
+			return Date.now() - lastAnyChange(nm) < sinceMilis
 		}
 	},
 }

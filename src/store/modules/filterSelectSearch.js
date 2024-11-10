@@ -254,7 +254,7 @@ const actions = {
 								const msg = 'Multiple documents found for shortId ' + shortId + ' The documents ids are ' + ids
 								dispatch('doLog', { event: msg, level: SEV.WARNING })
 							}
-							commit('updateNodesAndCurrentDoc', { newDoc: doc })
+							commit('updateNodewithDocChange', { newDoc: doc })
 						} else {
 							commit('addToEventList', {
 								txt: `The document with id ${doc._id} is found but not in your selected products. Select all products and try again`,

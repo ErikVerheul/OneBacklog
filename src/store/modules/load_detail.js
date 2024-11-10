@@ -54,7 +54,7 @@ const mutations = {
 			const sprintId = item.value[10]
 			const lastAttachmentAddition = item.value[11] || 0
 			const lastAttachmentRemoval = item.value[12] || 0
-			const lastChange = item.value[13] || 0
+			const lastOtherChange = item.value[13] || 0
 			const lastCommentAddition = item.value[14] || 0
 			const lastContentChange = item.value[15] || 0
 			const lastPositionChange = item.value[16] || 0
@@ -92,7 +92,7 @@ const mutations = {
 							state: itemState,
 							team,
 							priority,
-							lastChange: 0,
+							lastOtherChange: 0,
 							followers,
 						},
 						tmp: {},
@@ -163,7 +163,7 @@ const mutations = {
 					data: {
 						lastAttachmentAddition,
 						lastAttachmentRemoval,
-						lastChange,
+						lastOtherChange,
 						lastCommentAddition,
 						lastContentChange,
 						lastPositionChange,
