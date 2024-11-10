@@ -142,7 +142,7 @@ const store = createStore({
 			selectNodeOngoing: false,
 			showGoMessaging: false,
 			showProgress: false,
-			uploadDone: false,
+			uploadDone: true,
 			// view and send messages
 			messSquareColor: MISC.SQUAREBGNDCOLOR,
 			msgBlinkIds: [],
