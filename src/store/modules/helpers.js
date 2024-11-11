@@ -54,7 +54,7 @@ const actions = {
 			createNode(doc, ind, path) {
 				const newNode = {
 					path,
-					pathStr: pathToJSON(path),
+					pathStr: path ? pathToJSON(path) : undefined,
 					ind,
 					level: doc.level,
 					productId: doc.productId,
