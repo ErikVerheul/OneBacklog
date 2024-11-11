@@ -99,7 +99,7 @@
 </style>
 
 <script>
-import { SEV, LEVEL, MISC } from '../../../constants.js'
+import { SEV, MISC } from '../../../constants.js'
 import { hideNode, isInPath } from '../../../common_functions.js'
 import commonFilters from '../common_filters.js'
 import store from '../../../store/store.js'

@@ -113,7 +113,7 @@
 </style>
 
 <script>
-import { SEV, LEVEL } from '../../../constants.js'
+import { SEV } from '../../../constants.js'
 import { collapseNode, expandNode, hideNode, isInPath } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
