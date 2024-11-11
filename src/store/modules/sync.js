@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { b64ToUni, getLocationInfo, localTimeAndMilis, pathToJSON, startMsgSquareBlink } from '../../common_functions.js'
+import { getLocationInfo, localTimeAndMilis, pathToJSON, prepareDocForPresentation, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 var lastSeq = undefined
 
@@ -140,6 +140,7 @@ const actions = {
 		}
 
 		function moveNode(node, newParentId) {
+			console.log('moveNode: node.title = ' + node.title)
 			const newParentNode = rootState.helpersRef.getNodeById(newParentId)
 			if (newParentNode === null) return
 			const item = lastHistObj.nodeMovedEvent
@@ -216,12 +217,11 @@ const actions = {
 					}
 				}
 
-				const isCurrentDocument = doc._id === rootState.currentDoc._id
-				// process the last event from the document history array (in the tree and/or board)
 				reportOddTimestamp(lastHistObj, doc._id)
-				// show the history update in he currently visable document
-				if (isCurrentDocument) rootState.currentDoc.history = doc.history
-
+				if (doc._id === rootState.currentDoc._id) {
+					// replace encoded text fields and remove 'ignoreEvent' elements from history and update the currentDoc
+					rootState.currentDoc = prepareDocForPresentation(doc)
+				}
 				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 				// process requirement area items
 				if (rootGetters.isOverviewSelected && isReqAreaItem) {
@@ -238,7 +238,7 @@ const actions = {
 							}
 							break
 						case 'descriptionEvent':
-							commit('updateNodewithDocChange', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the description of`, SEV.INFO)
 							break
 						case 'nodeMovedEvent':
@@ -274,7 +274,7 @@ const actions = {
 					// process events for non requirement area items
 					switch (histEvent) {
 						case 'acceptanceEvent':
-							commit('updateNodewithDocChange', { node, acceptanceCriteria: b64ToUni(doc.acceptanceCriteria), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the acceptance criteria for`, SEV.INFO)
 							break
 						case 'addSprintIdsEvent':
@@ -289,8 +289,6 @@ const actions = {
 							break
 						case 'commentAmendedEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp
-							// show the comments update
-							if (isCurrentDocument) commit('updateNodewithDocChange', { node, replaceComments: doc.comments })
 							showSyncMessage(`changed a comment to item`, SEV.INFO)
 							break
 						case 'conditionRemovedEvent':
@@ -309,7 +307,7 @@ const actions = {
 							showSyncMessage(`removed a condition for`, SEV.INFO)
 							break
 						case 'descriptionEvent':
-							commit('updateNodewithDocChange', { node, description: b64ToUni(doc.description), lastContentChange: doc.lastContentChange })
+							commit('updateNodewithDocChange', { node, lastContentChange: doc.lastContentChange })
 							showSyncMessage(`changed the description of`, SEV.INFO)
 							break
 						case 'itemToNewTeamEvent': {
@@ -319,8 +317,6 @@ const actions = {
 						}
 						case 'newCommentEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp
-							// show the comments update
-							if (isCurrentDocument) commit('updateNodewithDocChange', { node, replaceComments: doc.comments, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`added a comment to item`, SEV.INFO)
 							break
 						case 'messageReceivedEvent':
@@ -343,7 +339,7 @@ const actions = {
 							rootState.helpersRef.checkDepencyViolations()
 							break
 						case 'removeAttachmentEvent':
-							commit('updateNodewithDocChange', { node, _attachments: doc._attachments, lastAttachmentRemoval: doc.lastAttachmentRemoval })
+							commit('updateNodewithDocChange', { node, lastAttachmentRemoval: doc.lastAttachmentRemoval })
 							showSyncMessage(`removed an attachment from`, SEV.INFO)
 							break
 						case 'removedWithDescendantsEvent':
@@ -408,15 +404,15 @@ const actions = {
 							}
 							break
 						case 'setHrsEvent':
-							commit('updateNodewithDocChange', { node, spikePersonHours: doc.spikepersonhours, lastOtherChange: doc.lastOtherChange })
+							commit('updateNodewithDocChange', { node, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the maximum effort of`, SEV.INFO)
 							break
 						case 'setPointsEvent':
-							commit('updateNodewithDocChange', { node, spsize: doc.spsize, lastOtherChange: doc.lastOtherChange })
+							commit('updateNodewithDocChange', { node, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the story points of`, SEV.INFO)
 							break
 						case 'setSizeEvent':
-							commit('updateNodewithDocChange', { node, tssize: doc.tssize, lastOtherChange: doc.lastOtherChange })
+							commit('updateNodewithDocChange', { node, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`changed the T-shirt size of`, SEV.INFO)
 							break
 						case 'setStateEvent':
@@ -473,7 +469,7 @@ const actions = {
 							})
 							break
 						case 'uploadAttachmentEvent':
-							commit('updateNodewithDocChange', { node, title: doc.title, _attachments: doc._attachments, lastAttachmentAddition: doc.lastAttachmentAddition })
+							commit('updateNodewithDocChange', { node, title: doc.title, lastAttachmentAddition: doc.lastAttachmentAddition })
 							showSyncMessage(`uploaded an attachment to`, SEV.INFO)
 							break
 						case 'updateReqAreaEvent':
@@ -803,7 +799,7 @@ const actions = {
 		}
 
 		const lastHistObj = doc.history[0]
-		// console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
+		console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
