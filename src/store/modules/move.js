@@ -185,7 +185,6 @@ const actions = {
 						doc.priority = item.newlyCalculatedPriority
 						doc.history.unshift(newHist)
 						doc.lastPositionChange = item.lastPositionChange
-						doc.lastOtherChange = item.lastPositionChange
 						docs.push(doc)
 					}
 					if (envelope.error) error.push(envelope.error)
