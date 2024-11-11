@@ -100,7 +100,7 @@
 
 <script>
 import { SEV, LEVEL, MISC } from '../../../constants.js'
-import { hideNode } from '../../../common_functions.js'
+import { hideNode, isInPath } from '../../../common_functions.js'
 import commonFilters from '../common_filters.js'
 import store from '../../../store/store.js'
 
@@ -137,8 +137,8 @@ const methods = {
         isExcluded = !this.doFilterOnTime(nm)
       }
       if (!isExcluded) {
-        store.state.helpersRef.showPathToNode(nm, { doHighLight_1: (nm.level > LEVEL.PRODUCT) })
-        if (nm.level > LEVEL.PRODUCT) count++
+        store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+        count++
       } else {
         unselectedNodes.push(nm)
       }
@@ -146,9 +146,9 @@ const methods = {
     // execute the callback for ALL products
     store.state.helpersRef.traverseModels(cb)
 
-    // hide unselected nodes with no selected descendants
+    // hide unselected nodes with no selected descendants; do not hide the currently selected node
     for (const nm of unselectedNodes) {
-      if (!store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
+      if (!isInPath(nm.path, this.getSelectedNode.path) && !store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
     }
     this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${store.state.currentProductTitle}'`, SEV.INFO)
 

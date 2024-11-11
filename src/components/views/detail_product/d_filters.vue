@@ -114,7 +114,7 @@
 
 <script>
 import { SEV, LEVEL } from '../../../constants.js'
-import { collapseNode, expandNode, hideNode } from '../../../common_functions.js'
+import { collapseNode, expandNode, hideNode, isInPath } from '../../../common_functions.js'
 import { utilities } from '../../mixins/generic.js'
 import commonFilters from '../common_filters.js'
 import store from '../../../store/store.js'
@@ -162,12 +162,12 @@ const methods = {
         if (!isExcluded) {
           if (this.filterTreeDepth) {
             if (nm.level <= this.selectedTreeDepth) {
-              store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
-              if (nm.level > LEVEL.PRODUCT) count++
+              store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+              count++
             } else return
           } else {
-            store.state.helpersRef.showPathToNode(nm, { doHighLight_1: nm.level > LEVEL.PRODUCT })
-            if (nm.level > LEVEL.PRODUCT) count++
+            store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+            count++
           }
         } else {
           unselectedNodes.push(nm)
@@ -178,9 +178,9 @@ const methods = {
     store.state.helpersRef.traverseModels(cb, nodesToScan)
 
     if (!onlyFilterOnDepth) {
-      // hide unselected nodes with no selected descendants
+      // hide unselected nodes with no selected descendants; do not hide the currently selected node
       for (const nm of unselectedNodes) {
-        if (!store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
+        if (!isInPath(nm.path, this.getSelectedNode.path) && !store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
       }
       this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${store.state.currentProductTitle}'`, SEV.INFO)
     } else {

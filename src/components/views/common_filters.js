@@ -87,28 +87,22 @@ const methods = {
 	},
 
 	doFilterOnDependencies(nm) {
-		if (nm.level <= LEVEL.PRODUCT) return true
 		return (nm.dependencies && nm.dependencies.length > 0) || (nm.conditionalFor && nm.conditionalFor.length > 0)
 	},
 
 	doFilterOnReqAreas(nm) {
-		if (nm.level < LEVEL.PRODUCT) return true
 		return this.selectedReqAreas.includes(nm.data.reqarea)
 	},
 
 	doFilterOnTeams(nm) {
-		if (nm.level <= LEVEL.PRODUCT) return true
 		return this.selectedTeams.includes(nm.data.team)
 	},
 
 	doFilterOnState(nm) {
-		if (nm.level <= LEVEL.PRODUCT) return true
 		return this.selectedStates.includes(nm.data.state)
 	},
 
 	doFilterOnTime(nm) {
-		if (nm.level <= LEVEL.PRODUCT) return true
-
 		function lastAnyChange(nm) {
 			const allChanges = [
 				nm.data.lastPositionChange,
