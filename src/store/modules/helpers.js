@@ -619,7 +619,7 @@ const actions = {
 					for (let i = 0; i < nodes.length; i++) {
 						// update the tree; timestamp is recorded in the history in the database
 						nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-						nodes[i].data.lastOtherChange = Date.now()
+						nodes[i].data.lastPositionChange = Date.now()
 					}
 				}
 
