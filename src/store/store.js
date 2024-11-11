@@ -657,12 +657,6 @@ const store = createStore({
 					// apply changes on the nodes in the tree view
 					for (const k of keys) {
 						switch (k) {
-							case '_attachments':
-								// not stored in the node
-								break
-							case 'acceptanceCriteria':
-								// not stored in the node
-								break
 							case 'addConditionalFor':
 								if (node.conditionalFor) {
 									if (!node.conditionalFor.includes(payload.addConditionalFor)) node.conditionalFor.push(payload.addConditionalFor)
@@ -678,9 +672,6 @@ const store = createStore({
 								break
 							case 'dependenciesRemoved':
 								node.dependencies = payload.dependenciesRemoved
-								break
-							case 'description':
-								// not stored in the node
 								break
 							case 'followers':
 								node.data.followers = payload.followers
@@ -708,24 +699,15 @@ const store = createStore({
 								break
 							case 'lastContentChange':
 								node.data.lastContentChange = payload.lastContentChange
-								node.data.lastOtherChange = payload.lastContentChange
 								break
 							case 'lastPositionChange':
 								node.data.lastPositionChange = payload.lastPositionChange
-								node.data.lastOtherChange = payload.lastPositionChange
 								break
 							case 'lastStateChange':
 								node.data.lastStateChange = payload.lastStateChange
-								node.data.lastOtherChange = payload.lastStateChange
 								break
 							case 'level':
 								node.level = payload.level
-								break
-							case 'newComment':
-								// not stored in the node
-								break
-							case 'newHist':
-								// not stored in the node
 								break
 							case 'node':
 								// used to pass the node
@@ -755,26 +737,14 @@ const store = createStore({
 									node.dependencies = newDependencies
 								}
 								break
-							case 'replaceComments':
-								// not stored in the node
-								break
-							case 'replaceHistory':
-								// not stored in the node
-								break
 							case 'reqarea':
 								node.data.reqarea = payload.reqarea
 								break
 							case 'reqAreaItemColor':
 								node.data.reqAreaItemColor = payload.reqAreaItemColor
 								break
-							case 'spikePersonHours':
-								// not stored in the node
-								break
 							case 'sprintId':
 								node.data.sprintId = payload.sprintId
-								break
-							case 'spsize':
-								// not stored in the node
 								break
 							case 'state':
 								node.data.state = payload.state
@@ -790,9 +760,6 @@ const store = createStore({
 								break
 							case 'title':
 								node.title = payload.title
-								break
-							case 'tssize':
-								// not stored in the node
 								break
 							default:
 								if (state.debug)

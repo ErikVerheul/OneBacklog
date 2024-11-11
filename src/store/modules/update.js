@@ -73,7 +73,6 @@ const actions = {
 	changeSubsriptionsBulk({ rootState, commit, rootGetters, dispatch }, payload) {
 		const node = payload.node
 		let currentNodeFollowers = []
-		let currentNodeHist = {}
 		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
 		const docsToGet = [{ id: node._id }]
 		for (const id of descendantsInfo.ids) {
@@ -128,7 +127,7 @@ const actions = {
 							distributeEvent: false,
 						}
 						if (doc._id === node._id) {
-							;(currentNodeFollowers = tmpFollowers.slice()), (currentNodeHist = Object.assign({}, newHist))
+							currentNodeFollowers = tmpFollowers.slice()
 						}
 						doc.followers = tmpFollowers
 						doc.history.unshift(newHist)
@@ -184,7 +183,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setTsSize',
 					onSuccessCallback: () => {
-						commit('updateNodewithDocChange', { node, tssize: payload.newSizeIdx, lastOtherChange: payload.timestamp })
+						commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The T-shirt size of this item is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -248,7 +247,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setPersonHours',
 					onSuccessCallback: () => {
-						commit('updateNodewithDocChange', { node, spikePersonHours: payload.newHrs, lastOtherChange: payload.timestamp })
+						commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The maximum effort of this spike is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -313,7 +312,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'setStoryPoints',
 					onSuccessCallback: () => {
-						commit('updateNodewithDocChange', { node, spsize: payload.newPoints, lastOtherChange: payload.timestamp })
+						commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 							commit('addToEventList', { txt: 'The story points assigned to this item have changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
@@ -597,7 +596,7 @@ const actions = {
 				tmpDoc.description = newEncodedDescription
 
 				const onSuccessCallback = () => {
-					commit('updateNodewithDocChange', { node, description: payload.newDescription, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -666,7 +665,7 @@ const actions = {
 
 				const onSuccessCallback = () => {
 					rootState.isAcceptanceEdited = false
-					commit('updateNodewithDocChange', { node, acceptanceCriteria: payload.newAcceptance, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp, newHist })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -738,7 +737,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'addComment',
 					onSuccessCallback: () => {
-						commit('updateNodewithDocChange', { node, replaceComments: tmpDoc.comments, lastOtherChange: tmpDoc.lastOtherChange })
+						commit('updateNodewithDocChange', { node, lastOtherChange: tmpDoc.lastOtherChange })
 					},
 				})
 			})
@@ -800,7 +799,7 @@ const actions = {
 						updatedDoc: tmpDoc,
 						caller: 'replaceComment',
 						onSuccessCallback: () => {
-							commit('updateNodewithDocChange', { node, replaceComments: tmpDoc.comments, lastOtherChange: tmpDoc.lastOtherChange })
+							commit('updateNodewithDocChange', { node, lastOtherChange: tmpDoc.lastOtherChange })
 						},
 					})
 				} else {
