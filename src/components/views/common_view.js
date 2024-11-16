@@ -267,7 +267,7 @@ const methods = {
 
 	/*
 	 * Check for 'done' items with sub-items not 'done' and highlight them with a warning badge 'Done?' in the tree view.
-	 * Check for items with a higher state than any of its decendants and highlight them with a warning badge '<state?>' in the tree view.
+	 * Check for items with a higher state than any of its descendants and highlight them with a warning badge '<state?>' in the tree view.
 	 */
 	hasInconsistentState(node) {
 		if (node._id === MISC.AREA_PRODUCTID) {
@@ -346,47 +346,6 @@ const methods = {
 		store.dispatch('seachOnTitle')
 	},
 
-	/*
-	 * Restore the nodes in their previous (source) position.
-	 * Return true on success or false if the parent node does not exist or siblings have been removed (via sync by other user)
-	 */
-	moveBack(sourceParentId, targetParentId, reverseMoveMap) {
-		const parentNode = store.state.helpersRef.getNodeById(targetParentId)
-		if (parentNode === null) return false
-
-		for (const r of reverseMoveMap) {
-			const node = r.node
-			if (!node) return false
-
-			let cursorPosition
-			if (r.targetInd === 0) {
-				cursorPosition = {
-					nodeModel: parentNode,
-					placement: 'inside',
-				}
-			} else {
-				let topSibling
-				if (sourceParentId !== targetParentId) {
-					topSibling = parentNode.children[r.targetInd - 1]
-				} else {
-					topSibling = parentNode.children[r.targetInd - (r.sourceInd > r.targetInd ? 1 : 0)]
-				}
-				if (topSibling === undefined) return false
-
-				cursorPosition = {
-					nodeModel: topSibling,
-					placement: 'after',
-				}
-			}
-			store.state.helpersRef.removeNodes([node])
-			// the node is assigned a new priority
-			store.state.helpersRef.insertNodes(cursorPosition, [node], { skipUpdateProductId: node.parentId === 'root' })
-			// restore the sprintId
-			store.commit('updateNodewithDocChange', { node, sprintId: r.sprintId })
-		}
-		return true
-	},
-
 	/* Undo a change that was recorded in the change history. Pass isUndoAction: true to indicate that this is a undo operation and no new undo must be created in the change history */
 	onUndoEvent() {
 		if (store.state.busyWithLastUndo) {
@@ -412,23 +371,7 @@ const methods = {
 				store.dispatch('saveDescription', { node: entry.node, newDescription: entry.oldDescription, timestamp: entry.prevLastContentChange, isUndoAction })
 				break
 			case 'undoMove':
-				{
-					const moveDataContainer = entry.moveDataContainer
-					const reverseMoveMap = moveDataContainer.reverseMoveMap
-					// swap source and target
-					const sourceParentId = moveDataContainer.targetParentId
-					const targetParentId = moveDataContainer.sourceParentId
-					// the nodes are restored prior to the database update as we need the newly calculated priority to store
-					if (this.moveBack(sourceParentId, targetParentId, reverseMoveMap)) {
-						// show the event message before the database update is finished (a callback is not feasible as the update uses multiple parallel threads)
-						if (!store.state.helpersRef.dependencyViolationsFound()) this.showLastEvent('Item(s) move is undone', SEV.INFO)
-						// update the nodes in the database
-						store.dispatch('updateMovedItemsBulk', { moveDataContainer, isUndoAction })
-					} else {
-						this.showLastEvent('Undo failed. Sign-out and -in again to recover.', SEV.ERROR)
-						store.state.busyWithLastUndo = false
-					}
-				}
+				store.dispatch('updateMovedItemsBulk', { entry, isUndoAction })
 				break
 			case 'undoNewNode':
 				store.dispatch('removeBranch', { node: entry.newNode, undoOnError: false, isUndoAction })
@@ -686,22 +629,20 @@ const methods = {
 	 * If the move fails in the database the user must reload the tree to return to the previous state.
 	 */
 	doMove(nodes, cursorPosition) {
-		const moveDataContainer = this.moveNodes(nodes, cursorPosition)
-		// show the event message before the database update is finished
-		if (!store.state.helpersRef.dependencyViolationsFound()) {
-			// if dependency violations were found dependencyViolationsFound displayed a message; if not, display a success message
-			const clickedLevel = moveDataContainer.sourceLevel
-			const levelShift = moveDataContainer.targetLevel - moveDataContainer.sourceLevel
-			const title = this.itemTitleTrunc(60, nodes[0].title)
-			let evt
-			if (nodes.length === 1) {
-				evt = `${this.getLevelText(clickedLevel)} '${title}' is dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
-			} else
-				evt = `${this.getLevelText(clickedLevel)} '${title}' and ${nodes.length - 1} other item(s) are dropped ${cursorPosition.placement} '${cursorPosition.nodeModel.title}'`
-			if (levelShift !== 0) evt += ' as ' + this.getLevelText(moveDataContainer.targetLevel)
-			this.showLastEvent(evt, SEV.INFO)
-		}
-		store.dispatch('updateMovedItemsBulk', { moveDataContainer })
+		const dropTarget = cursorPosition.placement === 'inside' ? cursorPosition.nodeModel : store.state.helpersRef.getParentNode(cursorPosition.nodeModel)
+		const sourceLevel = nodes[0].level
+		let targetLevel = cursorPosition.nodeModel.level
+		// are we dropping 'inside' a node creating children to that node?
+		if (cursorPosition.placement === 'inside') targetLevel++
+
+		store.dispatch('updateMovedItemsBulk', {
+			cursorPosition,
+			dropTarget,
+			nodes,
+			sourceLevel,
+			targetLevel,
+			isUndoAction: false,
+		})
 	},
 
 	getViewOptions() {

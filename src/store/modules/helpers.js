@@ -624,6 +624,7 @@ const actions = {
 				}
 
 				const destNodeModel = cursorPosition.nodeModel
+				// if productId is set to undefined updatePaths(*) will not update the productId
 				const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
 				// check and correction for error: product level items must have their own id as productId; ToDo: log this event
 				for (const n of nodes) {
@@ -686,29 +687,29 @@ const actions = {
 						const parentPath = n.path.slice(0, -1)
 						siblings.splice(removeInd, 1)
 						rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
-					}
-					// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
-					if (rootState.lastSessionData) {
-						if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-							rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-							rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
-							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-								// if the coarseView.lastSelectedNodeId is removed assign the current default product node id
-								rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
-								rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
+						// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
+						if (rootState.lastSessionData) {
+							if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
+								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
+									// if the coarseView.lastSelectedNodeId is removed assign the current default product node id
+									rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
+									rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
+								}
+							}
+							if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
+								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
+								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
+									// if the detailView.lastSelectedNodeId is removed assign the current default product node id
+									rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
+									rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
+								}
 							}
 						}
-						if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-							rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-							rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
-							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-								// if the detailView.lastSelectedNodeId is removed assign the current default product node id
-								rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
-								rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
-							}
-						}
+						success = true
 					}
-					success = true
 				}
 				return success
 			},
@@ -718,6 +719,16 @@ const actions = {
 				rootState.helpersRef.traverseModels(
 					(nm) => {
 						nm.isSelectable = false
+					},
+					[branchRoot],
+				)
+			},
+
+			/* Unset all nodes of the branch to be selectable including the branchRoot itself */
+			unSetBranchUnselectable(branchRoot) {
+				rootState.helpersRef.traverseModels(
+					(nm) => {
+						nm.isSelectable = true
 					},
 					[branchRoot],
 				)
