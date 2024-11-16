@@ -44,7 +44,7 @@ Other document types are logging, team and config. Use Fauxton to see the field 
 
 The tree nodes
 =====================================================================
-path, // the access path in the tree model, is calculated rom the doc.productId, doc.level, doc.priority
+path, // the access path in the tree model, is calculated from the doc.productId, doc.level, doc.priority
 pathStr: JSON.stringify(path), // covenience string for rendering
 ind, // the index in the children array, equals path.slice(-1)
 level: path.length, // convenience integer for rendering
@@ -294,7 +294,7 @@ distributeEvent: true																																	Y
 
 Events to be ignored only need a timestamp:
 
-ignoreEvent: ['updateMovedDescendantsBulk'],
+ignoreEvent: ['removeDescendants'],
 timestamp: Date.now()
 
 distibuted	mailed	listed	event                       	file

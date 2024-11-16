@@ -318,7 +318,7 @@ const methods = {
 
 	/*
 	 * In the database both the selected node and all its descendants will be tagged with a delmark
-	 * The parent node and its decendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
+	 * The parent node and its descendants will be removed. The parent's parent, the grandparent, will get history info as well as the removed nodes.
 	 */
 	doRemove() {
 		const selectedNode = this.contextNodeSelected
@@ -344,7 +344,7 @@ const methods = {
 
 	/* Undo the tree expansion and highlighting */
 	undoShowConditions() {
-		store.commit('restoreTreeView', 'condition')
+		store.dispatch('restoreTreeView', 'condition')
 	},
 
 	/* Remove the dependencies and the corresponding conditions in the tree model and the database. */
