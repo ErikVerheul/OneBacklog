@@ -140,7 +140,6 @@ const actions = {
 		}
 
 		function moveNode(node, newParentId) {
-			console.log('moveNode: node.title = ' + node.title)
 			const newParentNode = rootState.helpersRef.getNodeById(newParentId)
 			if (newParentNode === null) return
 			const item = lastHistObj.nodeMovedEvent
@@ -799,7 +798,6 @@ const actions = {
 		}
 
 		const lastHistObj = doc.history[0]
-		console.log('sync: lastHistObj = ' + JSON.stringify(lastHistObj))
 		const lastHistoryTimestamp = lastHistObj.timestamp
 		const histEvent = Object.keys(lastHistObj)[0]
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
