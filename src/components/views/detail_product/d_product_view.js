@@ -131,31 +131,19 @@ const methods = {
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
 	beforeNodeDropped(draggingNodes, position, cancel) {
 		/*
-		 * 1. Disallow drop on node were the user has no write authority and below a parent owned by another team
+		 * 1. Disallow drop on node or between nodes with a missing parent or if the user has no write authority
 		 * 2. Disallow drop when moving over more than 1 level.
 		 * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (LEVEL.TASK).
-		 * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
 		const parentNode = position.placement === 'inside' ? position.nodeModel : store.state.helpersRef.getParentNode(position.nodeModel)
-		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
-				const levelChange = Math.abs(targetLevel - sourceLevel)
-				const failedCheck2 = levelChange > 1
+				const failedCheck2 = Math.abs(targetLevel - sourceLevel) > 1
 				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
-				const dropInd = position.nodeModel.ind
-				let sourceMinInd = Number.MAX_SAFE_INTEGER
-				let sourceMaxind = 0
-				for (const d of draggingNodes) {
-					if (d.ind < sourceMinInd) sourceMinInd = d.ind
-					if (d.ind > sourceMaxind) sourceMaxind = d.ind
-				}
-				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
 				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
-				return failedCheck2 || failedCheck3 || failedCheck4
+				return failedCheck2 || failedCheck3
 			}
 
 			const sourceLevel = draggingNodes[0].level

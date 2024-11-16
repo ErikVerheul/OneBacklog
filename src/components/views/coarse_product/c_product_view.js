@@ -164,20 +164,11 @@ const methods = {
 				const levelChange = Math.abs(targetLevel - sourceLevel)
 				const failedCheck2 = levelChange > 1
 				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
-				const dropInd = position.nodeModel.ind
-				let sourceMinInd = Number.MAX_SAFE_INTEGER
-				let sourceMaxind = 0
-				for (const d of draggingNodes) {
-					if (d.ind < sourceMinInd) sourceMinInd = d.ind
-					if (d.ind > sourceMaxind) sourceMaxind = d.ind
-				}
-				const failedCheck4 = levelChange === 0 && position.placement !== 'inside' && dropInd > sourceMinInd && dropInd < sourceMaxind
 				const failedCheck5 = node.parentId === MISC.AREA_PRODUCTID && (position.nodeModel.parentId !== MISC.AREA_PRODUCTID || position.placement === 'inside')
 				const failedCheck6 = targetProductId === MISC.AREA_PRODUCTID && sourceProductId !== MISC.AREA_PRODUCTID
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
 				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop multiple nodes within the selected range', SEV.WARNING)
-				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
+				return failedCheck2 || failedCheck3 || failedCheck5 || failedCheck6
 			}
 
 			if (checkDropNotAllowed(draggingNodes[0])) {
