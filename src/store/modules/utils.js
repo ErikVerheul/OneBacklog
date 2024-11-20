@@ -112,8 +112,6 @@ const actions = {
 						dependencies: [],
 						conditionalFor: [],
 						title: product.title,
-						isDetailViewLeaf: false,
-						isCoarseViewLeaf: false,
 						children: [],
 						isSelected: false,
 						isExpanded: true,

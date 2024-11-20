@@ -136,7 +136,7 @@
                 <i class="colorRed" v-if="node.level === LEVEL.PBI && node.data.subtype === defectSubtype">
                   <font-awesome-icon icon="bug" />
                 </i>
-                <i class="colorWhite" v-if="node.isDetailViewLeaf">
+                <i class="colorWhite" v-if="node.level === LEVEL.TASK">
                   <font-awesome-icon icon="file" />
                 </i>
               </span>
@@ -157,7 +157,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="!node.isDetailViewLeaf">
+              <span v-if="!node.level === LEVEL.TASK">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>

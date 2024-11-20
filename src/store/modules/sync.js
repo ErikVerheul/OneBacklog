@@ -105,8 +105,6 @@ const actions = {
 				dependencies: doc.dependencies || [],
 				conditionalFor: doc.conditionalFor || [],
 				title: doc.title,
-				isDetailViewLeaf: locationInfo.newPath.length === LEVEL.TASK,
-				isCoarseViewLeaf: locationInfo.newPath.length === LEVEL.PBI,
 				children: [],
 				isSelected: false,
 				isExpanded: true,
@@ -560,7 +558,6 @@ const actions = {
 						case 'undoBranchRemovalEvent':
 							break
 						case 'nodeMovedEvent':
-							// process moves initiated from the details view
 							{
 								const item = lastHistObj.nodeMovedEvent
 								const sourceLevel = item[0]
