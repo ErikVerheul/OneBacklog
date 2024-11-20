@@ -134,7 +134,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="!node.level === LEVEL.PBI && node.parentId !== MISC.AREA_PRODUCTID">
+              <span v-if="node.level !== LEVEL.PBI && node.parentId !== MISC.AREA_PRODUCTID">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>

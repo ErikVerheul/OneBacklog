@@ -157,7 +157,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="!node.level === LEVEL.TASK">
+              <span v-if="node.level !== LEVEL.TASK">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
