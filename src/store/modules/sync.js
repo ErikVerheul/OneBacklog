@@ -818,13 +818,7 @@ const actions = {
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
 	listenForChanges({ rootState, dispatch, commit }) {
 		const listenForChangesWasRunning = rootState.listenForChangesRunning
-		if (rootState.stopListeningForChanges) {
-			rootState.listenForChangesRunning = false
-			return
-		}
-		// stop listening if signed-out
-		if (rootState.signedOut) {
-			dispatch('doLog', { event: 'sync: listenForChanges is blocked as the user is signed out', level: SEV.INFO })
+		if (rootState.signedOut || rootState.stopListeningForChanges) {
 			rootState.listenForChangesRunning = false
 			return
 		}
@@ -846,15 +840,12 @@ const actions = {
 					for (const r of data.results) {
 						// skip consecutive changes with the same sequence number (Couchdb bug?)
 						if (r.seq === lastSeq) break
-
 						lastSeq = r.seq
 						const doc = r.doc
-
 						if (doc.history[0].sessionId === rootState.mySessionId) {
 							// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
 							continue
 						}
-
 						if (doc._id === 'messenger') {
 							if (rootState.debug) console.log('MESSENGER DOC received')
 						}

@@ -221,7 +221,7 @@ const actions = {
 		const timestamp = hist.timeStamp
 		const node = rootState.helpersRef.getNodeById(parentId)
 		if (node) {
-			commit('updateNodewithDocChange', { node, reqarea: newReqAreaId, lastOtherChange: timestamp, newHist: hist })
+			commit('updateNodewithDocChange', { node, reqarea: newReqAreaId, lastOtherChange: timestamp })
 			commit('addToEventList', {
 				txt: `Another user assigned the requirement area '${hist.updateReqAreaEvent[3]}' to item '${node.title}'`,
 				severity: SEV.INFO,

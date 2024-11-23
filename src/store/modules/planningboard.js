@@ -330,8 +330,6 @@ const actions = {
 
 	/* Multiple calls to this action are serialized */
 	loadPlanningBoard({ rootState, state, commit, dispatch }, payload) {
-		if (rootState.debug)
-			console.log(`loadPlanningBoard is called: payload.sprintId = ${payload.sprintId}, payload.team = ${payload.team}, caller = ${payload.caller}`)
 		state.itemIdsToImport = []
 		function isCurrentSprint(sprintId) {
 			for (const s of rootState.myCurrentSprintCalendar) {
@@ -576,7 +574,7 @@ const actions = {
 						if (rootState.lastTreeView === 'detailProduct') {
 							// update the tree view
 							const node = rootState.helpersRef.getNodeById(doc._id)
-							if (node) commit('updateNodewithDocChange', { node, sprintId: newSprintId, lastOtherChange: timestamp, newHist })
+							if (node) commit('updateNodewithDocChange', { node, sprintId: newSprintId, lastOtherChange: timestamp })
 						}
 						docs.push(doc)
 					}

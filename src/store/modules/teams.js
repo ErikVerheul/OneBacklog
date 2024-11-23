@@ -442,9 +442,9 @@ const actions = {
 						onSuccessCallback: () => {
 							// update the tree
 							for (const d of descendantsInfo.descendants) {
-								commit('updateNodewithDocChange', { node: d, team: payload.newTeam, lastOtherChange: payload.timestamp, newHist })
+								commit('updateNodewithDocChange', { node: d, team: payload.newTeam, lastOtherChange: payload.timestamp })
 							}
-							commit('updateNodewithDocChange', { node, team: payload.newTeam, lastOtherChange: payload.timestamp, newHist })
+							commit('updateNodewithDocChange', { node, team: payload.newTeam, lastOtherChange: payload.timestamp })
 
 							if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 								if (descendantsInfo.count === 0) {

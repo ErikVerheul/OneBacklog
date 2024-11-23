@@ -597,10 +597,36 @@ const actions = {
 				return { productId: destNodeModel.productId, parentId, level, ind, priority: calcNewPrio(node, predecessorNode, successorNode), parentFollowers }
 			},
 
-			/* Insert the nodeModels in the tree model inside, after or before the node at cursorposition. Use the options object to suppress productId updates and/or priority recalculation */
+			/* Insert nodemodels that are removed from the tree before. The sprintId and team need be recalculated depending on the new parent node */
+			insertMovedNodes(cursorPosition, nodes) {
+				// items are assigned a new priority; if moving a product branch skip updating the productId
+				const skipUpdateProductId = nodes[0].parentId === 'root' && cursorPosition.nodeModel.parentId === 'root'
+				rootState.helpersRef.insertNodes(cursorPosition, nodes, { calculatePrios: true, skipUpdateProductId, isMove: true })
+			},
+
+			/*
+			 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
+			 * Use the options object to suppress productId updates and/or priority recalculation.
+			 * Calculate the priorities and the item path, level and index of the inserted items.
+			 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
+			 */
 			insertNodes(cursorPosition, nodes, options) {
-				/* Recalculate the priorities of the inserted nodes. Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).*/
-				function assignNewPrios(nodes, predecessorNode, successorNode) {
+				function getMoveState(nodes) {
+					const extract = {}
+					// all items must have the same productId, parent and level
+					extract.parentId = nodes[0].parentId
+					extract.level = nodes[0].level
+					for (const nm of nodes) {
+						extract[nm._id] = {
+							sprintId: nm.data.sprintId,
+							team: nm.data.team,
+						}
+					}
+
+					return extract
+				}
+
+				function assignNewPrios(nodes, predecessorNode) {
 					let predecessorPrio
 					let successorPrio
 					if (predecessorNode !== null) {
@@ -619,17 +645,59 @@ const actions = {
 					}
 				}
 
+				function calcSprintId(movedNode, beforeMoveState) {
+					const sourceSprintId = beforeMoveState[movedNode._id].sprintId
+					const sourceLevel = beforeMoveState.level
+					const sourceParentId = beforeMoveState.parentId
+					const targetParentSprintId = rootState.helpersRef.getNodeById(movedNode.parentId).sprintId
+					const targetLevel = movedNode.level
+					const targetParentId = movedNode.parentId
+					let sprintId
+					if (sourceLevel === targetLevel) {
+						if (sourceParentId === targetParentId) {
+							sprintId = sourceSprintId
+						} else if (targetLevel === LEVEL.TASK) {
+							// if the task is moved from another PBI assign the spintId of the parent PBI to the targetSprintId
+							if (targetParentSprintId) {
+								sprintId = targetParentSprintId
+							} else {
+								sprintId = sourceSprintId
+							}
+						} else sprintId = sourceSprintId
+					} else {
+						// move to a different level
+						if (targetLevel === LEVEL.TASK) {
+							// if the node is moved from any other level to task level assign the spintId of the parent PBI to the targetSprintId
+							if (targetParentSprintId) {
+								sprintId = targetParentSprintId
+							} else {
+								sprintId = sourceSprintId
+							}
+						} else {
+							if (targetLevel === LEVEL.PBI) {
+								if (sourceLevel === LEVEL.TASK) {
+									// a task promoted to PBI preserves its sprint
+									sprintId = sourceSprintId
+								} else {
+									// items moved from feature level and above have no sprint assigned
+									sprintId = undefined
+								}
+							} else {
+								// items moved to feature level and above have no sprint assigned
+								sprintId = undefined
+							}
+						}
+					}
+
+					return sprintId
+				}
+
 				const destNodeModel = cursorPosition.nodeModel
+				let beforeMoveState = undefined
+				if (options.isMove) beforeMoveState = getMoveState(nodes)
+
 				// if productId is set to undefined updatePaths(*) will not update the productId
 				const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
-				// check and correction for error: product level items must have their own id as productId; ToDo: log this event
-				for (const n of nodes) {
-					if (n.level === LEVEL.PRODUCT && n._id !== n.productId) {
-						if (rootState.debug)
-							console.log(`insertNodes: Product item with id ${n._id} was assigned ${n.productId} as product id. Is corrected to be equal to the id`)
-						n.product_id = n._id
-					}
-				}
 				let predecessorNode
 				let successorNode
 				if (cursorPosition.placement === 'inside') {
@@ -657,7 +725,12 @@ const actions = {
 				if (!options || options.calculatePrios || options.calculatePrios === undefined) {
 					assignNewPrios(nodes, predecessorNode, successorNode)
 				}
-				// add the node ids to the lastSessionData of the other view if not present
+				// if nodes are moved recalculate the sprintId
+				if (options.isMove)
+					for (const nm of nodes) {
+						nm.sprintId = calcSprintId(nm, beforeMoveState)
+					}
+				// add the node ids to the lastSessionData of the other view (detail or coarse) if not present
 				if (rootState.lastSessionData) {
 					for (let n of nodes) {
 						if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(n._id)) {

@@ -57,7 +57,7 @@
 				<h5>Select your view</h5>
 				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a>
 					and <a href="#pb">Sprint planning board</a></p>
-				<p>In the Product details view you van assign a sprint to a PBI or task. <a href="#sp">See Sprint assignment</a>
+				<p>In the Product details view you van assign a sprint to a user story or task. <a href="#sp">See Sprint assignment</a>
 				</p>
 				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or
 					server admin.</p>
@@ -92,10 +92,10 @@
 					<ul>
 						<li>epics which consists of</li>
 						<li>features which consists of</li>
-						<li>pbi's of kind user-story/defect/spike which are realized by executing</li>
+						<li>user stories of kind user-story/defect/spike which are realized by executing</li>
 						<li>tasks</li>
 					</ul>
-					<p><b>Note that a PBI can be a user story or a defect or a spike. They share the same level between feature
+					<p><b>Note that a user story can be a user story or a defect or a spike. They share the same level between feature
 							and task.</b></p>
 					<p>The authorization is set per database and product based on the following roles:<br>
 						Three roles are set per database:
@@ -111,9 +111,9 @@
 					</ul>
 					Three roles are set per product (a product lives in a database):
 					<ul>
-						<li>'PO': Can create and maintain product, epics, features and pbi's for the assigned products. Can change
+						<li>'PO': Can create and maintain product, epics, features and user stories for the assigned products. Can change
 							priorities at all levels. Can create comments and see and upload attachments.</li>
-						<li>'developer': Can create and maintain pbi's and features for the assigned products. Can create comments
+						<li>'developer': Can create and maintain user stories and features for the assigned products. Can create comments
 							and see and upload attachments.</li>
 						<li>'guest': Can only view the items of the assigned products.</li>
 					</ul>
@@ -134,7 +134,7 @@
 					<h4>Drag &amp; drop in the backlog item tree</h4>
 					<p>This a powerful feature of this application to change priorities. <span class="pro-user">As a PO you can move complete branches
 							within one product and between products.</span> You can promote a branch where a feature becomes
-						an epic and all descendant pbi's features. Or the reverse. But usually you will prioritize items by moving
+						an epic and all descendant user stories features. Or the reverse. But usually you will prioritize items by moving
 						them up or down on the same level. To do so select the item or branch with a <b>left-click</b> on the item
 						and without releasing the mouse button, drag the item to its new position. <span class="pro-user">To select
 							multiple items select one item, then the second while pressing the <b>Ctrl key</b> and without releasing
@@ -176,11 +176,11 @@
 					<p>Product T-Shirt size indicates the input field to enter the size of the product. Other item types can have
 						different units:</p>
 					<p>Product and epic size estimate:</p>
-					<p class="indent20">Products and epics are estimated in T-shirt sizes. Features and pbi's are estimated in
+					<p class="indent20">Products and epics are estimated in T-shirt sizes. Features and user stories are estimated in
 						story points using the. A common practice is to use the Fibonacci scale. However this is not enforced.</p>
 					<p>Feature effort estimate:</p>
-					<p class="indent20">Both features and pbi's are estimated in story points. When all pbi's belonging to a
-						feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two
+					<p class="indent20">Both features and user stories are estimated in story points. When all user stories belonging to a
+						feature are refined the feature effort should be the sum of the user story efforts. The difference between the two
 						shows how well the initial estimate was done.</p>
 					<p>Spike effort estimate:</p>
 					<p class="indent20">A spike is a study, investigation or try out with a set maximum effort. The result is what
@@ -270,10 +270,9 @@
 				</div>
 				<div id="sp">
 					<h4>Sprint assignment</h4>
-					<p>A PBI can be assigned to the current or upcoming sprint. All tasks of the PBI are assigned to that sprint
-						too. Each individual task can be unassigned. New tasks are automatically assigned to the PBI's sprint.<br>
-						When a PBI has no assigned sprint but one of its tasks is assigned to a sprint that sprint the PBI is also
-						assigned to that sprint.</p>
+					<p>A user story can be assigned to the current or upcoming sprint. All tasks of the user story are assigned to that sprint
+						too. Each individual task can be unassigned. New tasks are automatically assigned to the user story's sprint.<br>
+						When a user story has no assigned sprint but one of its tasks is assigned to a sprint that user story is automatically assigned to that sprint.</p>
 				</div>
 				<div id="pb">
 					<h4>Sprint planning board</h4>

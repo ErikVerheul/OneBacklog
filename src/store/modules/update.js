@@ -822,7 +822,7 @@ const actions = {
 	updateDoc({ rootState, dispatch }, payload) {
 		const id = payload.updatedDoc._id
 
-		if (rootState.debug) console.log(`'updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
+		if (rootState.debug) console.log(`updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + id,
