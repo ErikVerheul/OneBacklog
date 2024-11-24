@@ -24,7 +24,7 @@ const actions = {
 				return s.substring(s.length - size)
 			},
 
-			/* Return the subtype description (on PBI level only) */
+			/* Return the subtype description (on user story level only) */
 			getSubType(idx) {
 				if (idx < 0 || idx >= rootState.configData.subtype.length) {
 					return 'Error: unknown subtype'
@@ -32,12 +32,12 @@ const actions = {
 				return rootState.configData.subtype[idx]
 			},
 
-			/* Return the description of the give level, or the subtype description if the level equals the PBI level */
+			/* Return the description of the give level, or the subtype description if the level equals the user story level */
 			getLevelText(level, subtype = 0) {
 				if (level < 0 || level > LEVEL.TASK) {
 					return 'Error: Level not supported'
 				}
-				if (level === LEVEL.PBI) {
+				if (level === LEVEL.US) {
 					return rootState.helpersRef.getSubType(subtype)
 				}
 				return rootState.configData.itemType[level]
@@ -419,7 +419,7 @@ const actions = {
 				let count = 0
 				rootState.helpersRef.traverseModels((nm) => {
 					if (nm.data.sprintId === sprintId) {
-						if (nm.level === LEVEL.PBI && nm.data.state === STATE.DONE) {
+						if (nm.level === LEVEL.US && nm.data.state === STATE.DONE) {
 							count++
 						}
 					}
@@ -606,11 +606,11 @@ const actions = {
 
 			/*
 			 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
-			 * Use the options object to suppress productId updates and/or priority recalculation.
+			 * Use the optional options object to move nodes, suppress productId updates and/or priority recalculation.
 			 * Calculate the priorities and the item path, level and index of the inserted items.
 			 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
 			 */
-			insertNodes(cursorPosition, nodes, options) {
+			insertNodes(cursorPosition, nodes, options = undefined) {
 				function getMoveState(nodes) {
 					const extract = {}
 					// all items must have the same productId, parent and level
@@ -657,7 +657,7 @@ const actions = {
 						if (sourceParentId === targetParentId) {
 							sprintId = sourceSprintId
 						} else if (targetLevel === LEVEL.TASK) {
-							// if the task is moved from another PBI assign the spintId of the parent PBI to the targetSprintId
+							// if the task is moved from another user story assign the spintId of the parent user story to the targetSprintId
 							if (targetParentSprintId) {
 								sprintId = targetParentSprintId
 							} else {
@@ -667,16 +667,16 @@ const actions = {
 					} else {
 						// move to a different level
 						if (targetLevel === LEVEL.TASK) {
-							// if the node is moved from any other level to task level assign the spintId of the parent PBI to the targetSprintId
+							// if the node is moved from any other level to task level assign the spintId of the parent user story to the targetSprintId
 							if (targetParentSprintId) {
 								sprintId = targetParentSprintId
 							} else {
 								sprintId = sourceSprintId
 							}
 						} else {
-							if (targetLevel === LEVEL.PBI) {
+							if (targetLevel === LEVEL.US) {
 								if (sourceLevel === LEVEL.TASK) {
-									// a task promoted to PBI preserves its sprint
+									// a task promoted to user story preserves its sprint
 									sprintId = sourceSprintId
 								} else {
 									// items moved from feature level and above have no sprint assigned
@@ -694,7 +694,7 @@ const actions = {
 
 				const destNodeModel = cursorPosition.nodeModel
 				let beforeMoveState = undefined
-				if (options.isMove) beforeMoveState = getMoveState(nodes)
+				if (options && options.isMove) beforeMoveState = getMoveState(nodes)
 
 				// if productId is set to undefined updatePaths(*) will not update the productId
 				const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
@@ -726,7 +726,7 @@ const actions = {
 					assignNewPrios(nodes, predecessorNode, successorNode)
 				}
 				// if nodes are moved recalculate the sprintId
-				if (options.isMove)
+				if (options && options.isMove)
 					for (const nm of nodes) {
 						nm.sprintId = calcSprintId(nm, beforeMoveState)
 					}
