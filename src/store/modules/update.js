@@ -926,7 +926,7 @@ const actions = {
 						updateDoc: {
 							dbName: rootState.userData.currentDb,
 							updatedDoc: payload.newDoc,
-							caller: 'createDocWithParentHist',
+							caller: 'createDocWithParentHist-2',
 							onSuccessCallback: () => {
 								// insert the new node in the tree and set the path and ind
 								rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode])
@@ -940,10 +940,9 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									// select and show the new node
 									commit('renewSelectedNodes', payload.newNode)
-									commit('updateNodewithDocChange', { newDoc: payload.newDoc })
 									commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 								} else {
-									// the priority has changed after the preflihgt insert; revert the change in the tree and database
+									// the priority has changed after the preflight insert; revert the change in the tree and database
 									const msg = `createDocWithParentHist: doc priority ${payload.newDoc.priority} of document with id ${payload.newDoc._id} does not match node priority ${payload.newNode.data.priority}. The tree structure has changed while the new document was created. The insertion is undone.`
 									dispatch('doLog', { event: msg, level: SEV.ERROR })
 									// note: while this action is executed the user cannot undo other actions
@@ -953,7 +952,7 @@ const actions = {
 						},
 					},
 				]
-				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist' })
+				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: parentDoc, toDispatch, caller: 'createDocWithParentHist-1' })
 			})
 			.catch((error) => {
 				const msg = `createDocWithParentHist: Could not read parent document with id ${payload.newDoc.parentId}. ${error}`
