@@ -288,7 +288,7 @@ const actions = {
 				// update size only
 				const oldPoints = tmpDoc.spsize
 				let updateBoards = undefined
-				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
+				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 				}
 				const newHist = {
@@ -361,7 +361,7 @@ const actions = {
 				const tmpDoc = res.data
 				const oldState = tmpDoc.state
 				let updateBoards = undefined
-				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
+				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 				}
 				const newHist = {
@@ -449,7 +449,7 @@ const actions = {
 				const tmpDoc = res.data
 				const oldTitle = tmpDoc.title
 				let updateBoards = undefined
-				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
+				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 				}
 				const newHist = {
@@ -512,7 +512,7 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = res.data
 				let updateBoards = undefined
-				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.PBI || tmpDoc.level === LEVEL.TASK)) {
+				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
 				}
 				const newHist = {
@@ -542,7 +542,7 @@ const actions = {
 							commit('addToEventList', { txt: 'The item type is changed', severity: SEV.INFO })
 							// create an entry for undoing the change in a last-in first-out sequence
 							const entry = {
-								type: 'undoSelectedPbiType',
+								type: 'undoselectedUsType',
 								node,
 								oldSubType,
 								prevLastChange,

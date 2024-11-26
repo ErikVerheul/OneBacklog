@@ -119,7 +119,7 @@ const actions = {
 
 			// save the affected items on the boards
 			if (doc.sprintId) {
-				if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+				if (doc.level === LEVEL.US || doc.level === LEVEL.TASK) {
 					if (!sprintsAffected.includes(doc.sprintId)) sprintsAffected.push(doc.sprintId)
 					if (!teamsAffected.includes(doc.team)) teamsAffected.push(doc.team)
 				}

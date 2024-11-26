@@ -16,7 +16,7 @@
       <BListGroup>
         <template v-if="!store.state.moveOngoing && !store.state.selectNodeOngoing">
           <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
-            <BListGroupItem v-if="contextNodeLevel > PBILEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
+            <BListGroupItem v-if="contextNodeLevel > USLEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)">Assign this {{ contextNodeType }} to my team</BListGroupItem>
             <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
               contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</BListGroupItem>

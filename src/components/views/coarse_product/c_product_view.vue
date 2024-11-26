@@ -45,7 +45,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
+          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype !== spikeSubtype)">
             <BCol cols="1">
               <label for="storyPointsId">Story points</label>
             </BCol>
@@ -108,13 +108,13 @@
                 <i class="colorOrange" v-if="node.level === LEVEL.FEATURE">
                   <font-awesome-icon icon="file" />
                 </i>
-                <i class="colorYellow" v-if="node.level === LEVEL.PBI && node.data.subtype === userStorySubtype">
+                <i class="colorYellow" v-if="node.level === LEVEL.US && node.data.subtype === userStorySubtype">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i v-if="node.level === LEVEL.PBI && node.data.subtype === spikeSubtype">
+                <i v-if="node.level === LEVEL.US && node.data.subtype === spikeSubtype">
                   <font-awesome-icon icon="hourglass-start" />
                 </i>
-                <i class="colorRed" v-if="node.level === LEVEL.PBI && node.data.subtype === defectSubtype">
+                <i class="colorRed" v-if="node.level === LEVEL.US && node.data.subtype === defectSubtype">
                   <font-awesome-icon icon="bug" />
                 </i>
               </span>
@@ -134,7 +134,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="node.level !== LEVEL.PBI && node.parentId !== MISC.AREA_PRODUCTID">
+              <span v-if="node.level !== LEVEL.US && node.parentId !== MISC.AREA_PRODUCTID">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>

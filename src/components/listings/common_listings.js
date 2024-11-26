@@ -239,7 +239,7 @@ const methods = {
 
 	mkAddSprintIdsEvent(value) {
 		let txt = `This ${this.getLevelText(value[0], value[1])} is assigned to sprint '${value[2]}'.`
-		if (value[3]) txt += ' The item was assigned to a sprint before.'
+		if (value[3]) txt += ` The item was assigned to sprint ${value[3]} before.`
 		return `<h6> ${txt} </h6>`
 	},
 
@@ -376,7 +376,7 @@ const methods = {
 	},
 
 	mkSetSubTypeEvent(value) {
-		return "<h6>The pbi subtype has changed from: </h6>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
+		return "<h6>The user story subtype has changed from: </h6>'" + this.getSubType(value[0]) + "' to '" + this.getSubType(value[1]) + "'."
 	},
 
 	mkSetTeamEventDescendant(value) {

@@ -11,7 +11,7 @@ var loadRequests = 0
 var busyLoading = false
 
 function composeRangeString1(id, team) {
-	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${LEVEL.PBI},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${LEVEL.TASK},${Number.MAX_SAFE_INTEGER}]`
+	return `startkey=["${id}","${team}","${MIN_ID}","${MIN_ID}",${LEVEL.US},${Number.MIN_SAFE_INTEGER}]&endkey=["${id}","${team}","${MAX_ID}","${MAX_ID}",${LEVEL.TASK},${Number.MAX_SAFE_INTEGER}]`
 }
 function composeRangeString2(team) {
 	return `startkey=["${team}","${MIN_ID}","${MIN_ID}","${MIN_ID}",${Number.MIN_SAFE_INTEGER}]&endkey=["${team}","${MAX_ID}","${MAX_ID}","${MAX_ID}",${Number.MAX_SAFE_INTEGER}]`
@@ -25,7 +25,7 @@ function composeRangeString4(delmark, id) {
 function removeFromBoard(commit, doc, removedSprintId) {
 	if (removedSprintId === '*' || doc.sprintId === undefined || doc.sprintId === removedSprintId) {
 		// remove from all sprints ('*') ELSE do not remove items assigned to other sprints (note that the sprintId might not be deleted from the document before this code is executed)
-		if (doc.level === LEVEL.PBI) commit('removeStoryFromBoard', doc._id)
+		if (doc.level === LEVEL.US) commit('removeStoryFromBoard', doc._id)
 		if (doc.level === LEVEL.TASK) commit('removeTaskFromBoard', { storyId: doc.parentId, taskId: doc._id, taskState: doc.state })
 	}
 }
@@ -48,7 +48,7 @@ function comparePriorities(a, b) {
 
 const state = {
 	itemIdsToImport: [],
-	pbiResults: [],
+	usResults: [],
 	stories: [],
 }
 
@@ -59,8 +59,8 @@ const mutations = {
 	 */
 	createSprint(state, payload) {
 		const allStories = []
-		for (const s of payload.pbiResults) {
-			// the parent is the PBI's feature
+		for (const s of payload.usResults) {
+			// the parent is the user story's feature
 			const featureId = s.key[3]
 			const storyId = s.id
 			const productId = s.key[2]
@@ -341,7 +341,7 @@ const actions = {
 		if (!busyLoading) {
 			busyLoading = true
 			state.stories = []
-			state.pbiResults = []
+			state.usResults = []
 			globalAxios({
 				method: 'GET',
 				url: rootState.userData.currentDb + '/_design/design1/_view/sprints?' + composeRangeString1(payload.sprintId, payload.team),
@@ -350,30 +350,30 @@ const actions = {
 					// save the last loaded sprintId
 					rootState.loadedSprintId = payload.sprintId
 					const results = res.data.rows
-					const foundPbiIds = []
+					const foundUsIds = []
 					const taskResults = []
-					const missingPbiIds = []
+					const missingUsIds = []
 					for (const r of results) {
 						const itemLevel = r.key[4]
-						if (itemLevel === LEVEL.PBI) {
-							const pbiId = r.id
-							if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
-							state.pbiResults.push(r)
+						if (itemLevel === LEVEL.US) {
+							const usId = r.id
+							if (!foundUsIds.includes(usId)) foundUsIds.push(usId)
+							state.usResults.push(r)
 						}
 						if (itemLevel === LEVEL.TASK) {
 							taskResults.push(r)
 							// the parent is the task's story
-							const pbiId = r.key[3]
-							if (!foundPbiIds.includes(pbiId)) {
-								foundPbiIds.push(pbiId)
+							const usId = r.key[3]
+							if (!foundUsIds.includes(usId)) {
+								foundUsIds.push(usId)
 								// the task is missing its story
-								if (!missingPbiIds.includes(pbiId)) missingPbiIds.push(pbiId)
+								if (!missingUsIds.includes(usId)) missingUsIds.push(usId)
 							}
 						}
 					}
 
 					const paintSprintLanes = () => {
-						commit('createSprint', { helpersRef: rootState.helpersRef, pbiResults: state.pbiResults, taskResults })
+						commit('createSprint', { helpersRef: rootState.helpersRef, usResults: state.usResults, taskResults })
 						busyLoading = false
 						loadRequests--
 						if (loadRequests > 0) {
@@ -382,8 +382,8 @@ const actions = {
 						} else if (isCurrentSprint(payload.sprintId)) dispatch('loadUnfinished', rootState.userData.myTeam)
 					}
 
-					if (missingPbiIds.length > 0) {
-						dispatch('loadMissingPbis', { missingPbiIds, onSuccessCallBack: paintSprintLanes })
+					if (missingUsIds.length > 0) {
+						dispatch('loadMissingUss', { missingUsIds, onSuccessCallBack: paintSprintLanes })
 					} else paintSprintLanes()
 				})
 				.catch((error) => {
@@ -394,7 +394,7 @@ const actions = {
 		loadRequests++
 	},
 
-	/* A lightweight version of loadPlanningBoard for updating the board after a change that needs a reload of the PBI level */
+	/* A lightweight version of loadPlanningBoard for updating the board after a change that needs a reload of the user story level */
 	renewPlanningBoard({ rootState, commit, dispatch }) {
 		const sprintId = rootState.loadedSprintId
 		const team = rootState.userData.myTeam
@@ -404,35 +404,35 @@ const actions = {
 		})
 			.then((res) => {
 				const results = res.data.rows
-				const foundPbiIds = []
-				const pbiResults = []
+				const foundUsIds = []
+				const usResults = []
 				const taskResults = []
-				const missingPbiIds = []
+				const missingUsIds = []
 				for (const r of results) {
 					const itemLevel = r.key[4]
-					if (itemLevel === LEVEL.PBI) {
-						const pbiId = r.id
-						if (!foundPbiIds.includes(pbiId)) foundPbiIds.push(pbiId)
-						pbiResults.push(r)
+					if (itemLevel === LEVEL.US) {
+						const usId = r.id
+						if (!foundUsIds.includes(usId)) foundUsIds.push(usId)
+						usResults.push(r)
 					}
 					if (itemLevel === LEVEL.TASK) {
 						taskResults.push(r)
 						// the parent is the task's story
-						const pbiId = r.key[3]
-						if (!foundPbiIds.includes(pbiId)) {
-							foundPbiIds.push(pbiId)
+						const usId = r.key[3]
+						if (!foundUsIds.includes(usId)) {
+							foundUsIds.push(usId)
 							// the task is missing its story
-							if (!missingPbiIds.includes(pbiId)) missingPbiIds.push(pbiId)
+							if (!missingUsIds.includes(usId)) missingUsIds.push(usId)
 						}
 					}
 				}
 
 				const paintSprintLanes = () => {
-					commit('createSprint', { helpersRef: rootState.helpersRef, pbiResults, taskResults })
+					commit('createSprint', { helpersRef: rootState.helpersRef, usResults, taskResults })
 				}
 
-				if (missingPbiIds.length > 0) {
-					dispatch('loadMissingPbis', { missingPbiIds, onSuccessCallBack: paintSprintLanes })
+				if (missingUsIds.length > 0) {
+					dispatch('loadMissingUss', { missingUsIds, onSuccessCallBack: paintSprintLanes })
 				} else paintSprintLanes()
 			})
 			.catch((error) => {
@@ -441,10 +441,10 @@ const actions = {
 			})
 	},
 
-	/* Extend pbiResults for tasks with PBIs not assigned to the sprint */
-	loadMissingPbis({ rootState, state, dispatch }, payload) {
+	/* Extend usResults for tasks with user stories not assigned to the sprint */
+	loadMissingUss({ rootState, state, dispatch }, payload) {
 		const docsToGet = []
-		for (const id of payload.missingPbiIds) {
+		for (const id of payload.missingUsIds) {
 			docsToGet.push({ id: id })
 		}
 		globalAxios({
@@ -459,28 +459,28 @@ const actions = {
 					if (envelope.ok) {
 						const doc = envelope.ok
 						// emulate a result from the sprints filter; must negate the priority
-						const newPbiResult = {
+						const newUsResult = {
 							id: doc._id,
 							key: [doc.printId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority],
 							value: [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner],
 						}
-						state.pbiResults.push(newPbiResult)
+						state.usResults.push(newUsResult)
 					}
 				}
 				payload.onSuccessCallBack()
 			})
 			.catch((error) => {
-				const msg = `loadMissingPbis: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
+				const msg = `loadMissingUss: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
 
 	/*
-	 * Select unfinished pbi's and tasks from previous sprints.
+	 * Select unfinished user stories and tasks from previous sprints.
 	 * Skip items from products not assigned to this user.
 	 * Skip items from products where the user is not the PO or developer for that product.
-	 * Select PBI's that are not Done with or without child tasks.
-	 * Select tasks that are not Done including their parent PBI.
+	 * Select user stories that are not Done with or without child tasks.
+	 * Select tasks that are not Done including their parent user story.
 	 * Return the id's in state.itemIdsToImport
 	 */
 	loadUnfinished({ rootState, rootGetters, state, dispatch }, team) {
@@ -509,7 +509,7 @@ const actions = {
 							(rootGetters.getMyAssignedProductIds.includes(productId) && rootGetters.getMyProductsRoles[productId].includes('PO')) ||
 							rootGetters.getMyProductsRoles[productId].includes('developer')
 						) {
-							if (r.value === LEVEL.PBI) {
+							if (r.value === LEVEL.US) {
 								if (!state.itemIdsToImport.includes(id)) state.itemIdsToImport.push(id)
 							}
 							if (r.value === LEVEL.TASK) {
@@ -754,7 +754,7 @@ const actions = {
 			})
 	},
 
-	/* A sprintId is assigned to a PBI, a task or a PBI and one or more tasks */
+	/* A sprintId is assigned to a user story, a task or a user story and one or more tasks */
 	addSprintIds({ rootState, commit, dispatch }, payload) {
 		if (payload.isUndoAction) rootState.busyWithLastUndo = false
 		const docsToGet = []
@@ -769,14 +769,14 @@ const actions = {
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
-				let newPBI
+				let newUS
 				const newTasks = []
 				for (const r of results) {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
 						const doc = envelope.ok
-						if (doc.level === LEVEL.PBI) {
-							newPBI = {
+						if (doc.level === LEVEL.US) {
+							newUS = {
 								parentId: doc.parentId,
 								productId: doc.productId,
 								priority: doc.priority,
@@ -789,10 +789,11 @@ const actions = {
 						if (doc.level === LEVEL.TASK) {
 							newTasks.push({ parentId: doc.parentId, state: doc.state, _id: doc._id, priority: doc.priority, taskOwner: doc.taskOwner, title: doc.title })
 						}
-						const reAssigned = doc.sprintId !== undefined
+						const prevSprintId = doc.sprintId
+						const prevSprintName = prevSprintId ? getSprintNameById(prevSprintId, rootState.myCurrentSprintCalendar) : undefined
 						doc.sprintId = payload.sprintId
 						const newHist = {
-							addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, reAssigned, payload.sprintId],
+							addSprintIdsEvent: [doc.level, doc.subtype, payload.sprintName, prevSprintName, payload.sprintId],
 							by: rootState.userData.user,
 							email: rootState.userData.email,
 							doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
@@ -806,7 +807,7 @@ const actions = {
 					}
 				}
 				const trigger = {
-					addItemsToSprintEvent: [newPBI, newTasks],
+					addItemsToSprintEvent: [newUS, newTasks],
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 					sessionId: rootState.mySessionId,
@@ -854,7 +855,7 @@ const actions = {
 			})
 	},
 
-	/* Remove a sprintId assigned to a PBI, a task or a PBI and one or more tasks */
+	/* Remove a sprintId assigned to a user story, a task or a user story and one or more tasks */
 	removeSprintIds({ rootState, commit, dispatch }, payload) {
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
 		const docsToGet = []
@@ -875,7 +876,7 @@ const actions = {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
 						const doc = envelope.ok
-						if (doc.level === LEVEL.PBI) {
+						if (doc.level === LEVEL.US) {
 							storyIdToRemove = doc._id
 						}
 						if (doc.level === LEVEL.TASK) {
@@ -1378,7 +1379,7 @@ const actions = {
 	syncRemoveItemsFromBoard({ dispatch, commit }, payload) {
 		const doc = payload.doc
 		const removedSprintId = payload.removedSprintId
-		if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+		if (doc.level === LEVEL.US || doc.level === LEVEL.TASK) {
 			// if the item is a story or task, remove it from the board
 			removeFromBoard(commit, doc, removedSprintId)
 		} else {

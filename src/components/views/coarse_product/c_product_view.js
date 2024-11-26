@@ -128,8 +128,8 @@ const methods = {
 		 * 4. Disallow the drop of multiple nodes within the range of the selected nodes.
 		 * 5. The requirement area nodes cannot be moved from their parent or inside each other (silent cancel)
 		 * 6. Cannot move regular items into the 'Requirement areas overview' dummy product (silent cancel)
-		 * 7. Cannot move nodes as one of them has dependencies on a PBI or task level
-		 * 8. Cannot move  nodes as one of them has conditions on a PBI or task level
+		 * 7. Cannot move nodes as one of them has dependencies on a user story or task level
+		 * 8. Cannot move  nodes as one of them has conditions on a user story or task level
 		 * precondition: the selected nodes have all the same parent (same level)
 		 * Area PO's need not to be member of the item's team
 		 */
@@ -167,7 +167,7 @@ const methods = {
 				const failedCheck5 = node.parentId === MISC.AREA_PRODUCTID && (position.nodeModel.parentId !== MISC.AREA_PRODUCTID || position.placement === 'inside')
 				const failedCheck6 = targetProductId === MISC.AREA_PRODUCTID && sourceProductId !== MISC.AREA_PRODUCTID
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than user story level', SEV.WARNING)
 				return failedCheck2 || failedCheck3 || failedCheck5 || failedCheck6
 			}
 
@@ -177,10 +177,10 @@ const methods = {
 
 			if (!areAlldependenciesFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
-					this.showLastEvent('Cannot move the item as it has dependencies on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+					this.showLastEvent('Cannot move the item as it has dependencies on a user story or task level. Use the Product details view instead.', SEV.WARNING)
 				} else
 					this.showLastEvent(
-						'Cannot move these items as one of them has dependencies on a PBI or task level. Use the Product details view instead.',
+						'Cannot move these items as one of them has dependencies on a user story or task level. Use the Product details view instead.',
 						SEV.WARNING,
 					)
 				cancel(true)
@@ -188,9 +188,12 @@ const methods = {
 
 			if (!areAllConditionsFound(this, draggingNodes)) {
 				if (draggingNodes.length === 1) {
-					this.showLastEvent('Cannot move the item as it has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+					this.showLastEvent('Cannot move the item as it has conditions on a user story or task level. Use the Product details view instead.', SEV.WARNING)
 				} else
-					this.showLastEvent('Cannot move these items as one of them has conditions on a PBI or task level. Use the Product details view instead.', SEV.WARNING)
+					this.showLastEvent(
+						'Cannot move these items as one of them has conditions on a user story or task level. Use the Product details view instead.',
+						SEV.WARNING,
+					)
 				cancel(true)
 			}
 		} else cancel(true)

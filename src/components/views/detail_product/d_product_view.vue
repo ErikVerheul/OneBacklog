@@ -45,7 +45,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype !== spikeSubtype)">
+          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype !== spikeSubtype)">
             <BCol cols="1">
               <label for="storyPointsId">Story points</label>
             </BCol>
@@ -55,7 +55,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.PBI && store.state.currentDoc.subtype === spikeSubtype">
+          <template v-if="getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype === spikeSubtype">
             <BCol cols="1">
               <label for="personHoursId">Person hrs</label>
             </BCol>
@@ -127,13 +127,13 @@
                 <i class="colorOrange" v-if="node.level === LEVEL.FEATURE">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i class="colorYellow" v-if="node.level === LEVEL.PBI && node.data.subtype === userStorySubtype">
+                <i class="colorYellow" v-if="node.level === LEVEL.US && node.data.subtype === userStorySubtype">
                   <font-awesome-icon icon="folder" />
                 </i>
-                <i v-if="node.level === LEVEL.PBI && node.data.subtype === spikeSubtype">
+                <i v-if="node.level === LEVEL.US && node.data.subtype === spikeSubtype">
                   <font-awesome-icon icon="hourglass-start" />
                 </i>
-                <i class="colorRed" v-if="node.level === LEVEL.PBI && node.data.subtype === defectSubtype">
+                <i class="colorRed" v-if="node.level === LEVEL.US && node.data.subtype === defectSubtype">
                   <font-awesome-icon icon="bug" />
                 </i>
                 <i class="colorWhite" v-if="node.level === LEVEL.TASK">
@@ -223,9 +223,9 @@
           <div class="pane" :style="{ height: '40px' }">
             <div class="d-table w-100">
               <div class="title"> {{ getItemInfo() }}</div>
-              <div v-if="getCurrentItemLevel == LEVEL.PBI" class="d-table-cell tar">
+              <div v-if="getCurrentItemLevel === LEVEL.US" class="d-table-cell tar">
                 <BFormGroup>
-                  <BFormRadioGroup v-model="selectedPbiType" :options="getPbiOptions()" name="pbiOptions" />
+                  <BFormRadioGroup v-model="selectedUsType" :options="getUsOptions()" name="usOptions" />
                 </BFormGroup>
               </div>
             </div>

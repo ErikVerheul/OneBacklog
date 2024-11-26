@@ -187,7 +187,7 @@
 						is available when the time set is spent.
 						Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a
 						long discussion.</p>
-					<p>State: All items have a state to track their progress. Pbi/defect status values are:</p>
+					<p>State: All items have a state to track their progress. User story/defect status values are:</p>
 					<ul>
 						<li>new</li>
 						<li>ready (refinement done, effort estimated)</li>

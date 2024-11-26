@@ -47,7 +47,7 @@ const methods = {
 				this.allowRemoval = true
 				this.isInSprint = !!node.data.sprintId
 				// can only assign user story to a sprint if not in a sprint already
-				this.canAssignUsToSprint = node.level === this.PBILEVEL && !node.data.sprintId
+				this.canAssignUsToSprint = node.level === this.USLEVEL && !node.data.sprintId
 				// can only assign tasks to a sprint if not in a sprint already
 				this.canAssignTaskToSprint = node.level === this.TASKLEVEL && !node.data.sprintId
 				if (this.$refs.d_contextMenuRef) {
@@ -94,7 +94,7 @@ const methods = {
 				this.listItemText = 'Make a clone of this item. No descendant items are copied'
 				break
 			case this.FROMSPRINT:
-				if (this.contextNodeSelected.level === LEVEL.PBI) {
+				if (this.contextNodeSelected.level === LEVEL.US) {
 					this.assistanceText = store.state.help.usFromSprint
 					this.listItemText = `Remove this User story from the assigned sprint including it's tasks`
 				}
@@ -118,9 +118,9 @@ const methods = {
 			case this.TASKTOSPRINT:
 				this.assistanceText = store.state.help.taskToSprint
 				{
-					const pbiNode = store.state.helpersRef.getParentNode(this.contextNodeSelected)
-					if (pbiNode) {
-						if (!pbiNode.data.sprintId) this.listItemText = `Assign this Task to the current or next sprint`
+					const usNode = store.state.helpersRef.getParentNode(this.contextNodeSelected)
+					if (usNode) {
+						if (!usNode.data.sprintId) this.listItemText = `Assign this Task to the current or next sprint`
 					} else this.listItemText('Cannot find the user story this task belongs to')
 				}
 				break
@@ -240,7 +240,7 @@ const methods = {
 		const node = this.contextNodeSelected
 		const sprintId = node.data.sprintId
 		const itemIds = [node._id]
-		if (node.level === LEVEL.PBI) {
+		if (node.level === LEVEL.US) {
 			for (const d of store.state.helpersRef.getDescendantsInfo(node).descendants) {
 				// only remove the sprintId of descendants with the same sprintId as the parent
 				if (d.data.sprintId === sprintId) itemIds.push(d._id)

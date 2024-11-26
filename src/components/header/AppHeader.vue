@@ -186,9 +186,9 @@
         <h3>Product specific roles :</h3>
         Three roles are set per product in a database:
         <ul>
-          <li>'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned
+          <li>'PO': Maintains product definitions, creates and maintains epics, features and user stories for the assigned
             products. Can change priorities at these levels. Must be member of a team.</li>
-          <li>'developer': Can create and maintain pbi's and features for the assigned products when team member. Must be
+          <li>'developer': Can create and maintain user stories and features for the assigned products when team member. Must be
             member of a team.</li>
           <li>'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.
           </li>

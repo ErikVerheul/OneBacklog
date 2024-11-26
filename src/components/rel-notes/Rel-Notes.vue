@@ -231,7 +231,7 @@
         <h3>v.2.2.3 - 12 June 2024 new features, fix browser support, bug fixes</h3>
         <p>New features</p>
         <ul>
-          <li>Show the PBI title in bold</li>
+          <li>Show the user story title in bold</li>
           <li>Show number of done user stories in pick list of past sprints</li>
         </ul>
         <p>Fix browser support:</p>
@@ -802,7 +802,7 @@
         <p>New features:</p>
         <ul>
           <li>Full sync from tree view to planning board</li>
-          <li>Demotion/promotion of PBI's to and from tasks with undo (causes an upwards compatibility break!)</li>
+          <li>Demotion/promotion of user story's to and from tasks with undo (causes an upwards compatibility break!)</li>
           <li>Show feature title in story card in planning board</li>
           <li>Planning bord sorted by feature (oldest on top)</li>
         </ul>
@@ -905,7 +905,7 @@
         <ul>
           <li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new
             from the database. In the products view only the selected products are loaded
-            up to the PBI level. In the requirement area view all products are loaded up to the feature level.</li>
+            up to the user story level. In the requirement area view all products are loaded up to the feature level.</li>
           <li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg.
             the description and acceptance criteria are not transferred. Also only the
             recent history is retrieved.</li>
@@ -969,7 +969,7 @@
         <hr />
         <h3>v.0.8.3 - 27 December 2019 Feature update and bug fix</h3>
         <ul>
-          <li>The context menu in the products view is extended with 'Make a copy option' for epics, features and PBI
+          <li>The context menu in the products view is extended with 'Make a copy option' for epics, features and user story
             items.</li>
           <li>The break in upwards compatibility introduced in version 0.8.0 is lifted.</li>
         </ul>
@@ -1220,7 +1220,7 @@
           <li>At sign-in the default product title is not displayed</li>
           <li>Wrong warning some times</li>
           <li>New comment is populated with content of last comment</li>
-          <li>When a PBI is dropped after its parent it becomes a feature</li>
+          <li>When a user story is dropped after its parent it becomes a feature</li>
         </ul>
         <p>Performance improvements:</p>
         <ul>

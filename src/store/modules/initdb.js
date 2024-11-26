@@ -254,7 +254,7 @@ const actions = {
 				'An Epic is a major contribution to the product realisation and usually far to big to do in one sprint',
 				'A Feature is a product enhancement usually recognizable and appricated bij the customer or user',
 				'A User story is any piece of work which can be done within one sprint by one team. See also the subtypes',
-				'A task is a piece of work to get the PBI done. Tasks are defined at the start of a sprint.',
+				'A task is a piece of work to get the user story done. Tasks are defined at the start of a sprint.',
 			],
 
 			itemState: ['state not in use', 'On hold', 'New', 'Ready', 'In progress', 'Ready for test/review', 'Done'],
@@ -279,7 +279,7 @@ const actions = {
 				'Almost none effort involved',
 			],
 
-			// For now the subtype field is used only for pbi's
+			// For now the subtype field is used only for user stories
 			subtype: ['User story', 'Spike', 'Defect'],
 			subtypeDefinitions: [
 				"The product backog item of type 'User story' is the regular type as described in the Scrum guide",
@@ -347,9 +347,9 @@ const actions = {
 					/* Filter on tasks assigned to sprints not done */
 					itemsNotDone: {
 						map: `function(doc) {
-							const PBILEVEL = 5
+							const USLEVEL = 5
 							const DONESTATE = 6
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= PBILEVEL && doc.sprintId && doc.state < DONESTATE) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= USLEVEL && doc.sprintId && doc.state < DONESTATE) emit([doc.team, doc.sprintId, doc.productId, doc.parentId, -doc.priority], doc.level)
 						}`,
 					},
 					/* Filter and sort documents by team. */
@@ -384,8 +384,8 @@ const actions = {
 					/* Filter on document type 'backlogItem', then emit sprintId, team level and (minus) priority to load the tasks in order as represented in the tree view */
 					sprints: {
 						map: `function(doc) {
-							const PBILEVEL = 5
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= PBILEVEL && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner])
+							const USLEVEL = 5
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level >= USLEVEL && doc.sprintId) emit([doc.sprintId, doc.team, doc.productId, doc.parentId, doc.level, -doc.priority], [doc.title, doc.subtype, doc.state, doc.spsize, doc.spikepersonhours, doc.taskOwner])
 						}`,
 					},
 					/* Filter on teams */

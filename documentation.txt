@@ -1,4 +1,4 @@
-Product Backlog Items (PBIs) which are stored in the database as documents and presented on screen as nodes in a tree structure.
+Product backlog items which are stored in the database as documents and presented on screen as nodes in a tree structure.
 Tip: Show object with JSON.stringify(object, null, 2)
 
 Database fields mapping to node props:
@@ -152,12 +152,12 @@ These roles are set during loading by haveWritePermission(...).
 		writeAccessLevel: 2
 	},
 	"PO": {
-		description: "Can create, maintain and remove epics, features and pbi's for the assigned products. Can change priorities at these levels. This role is set by the 'admin' at the product level.",
+		description: "Can create, maintain and remove epics, features and user stories for the assigned products. Can change priorities at these levels. This role is set by the 'admin' at the product level.",
 		products: "assigned",
 		writeAccessLevel: 2,3,4,5
 	},
 	"developer": {
-		description: "Can create and maintain pbi's and features for the assigned products. This role is set by the 'admin' at the product level.",
+		description: "Can create and maintain user stories and features for the assigned products. This role is set by the 'admin' at the product level.",
 		products: "assigned",
 		writeAccessLevel: 4,5,6
 	},
@@ -205,9 +205,9 @@ defaultSprintCalendar = [
 	...
 ]
 
-In the CONFIG document the user story (also named PBI) subtypes are defined
+In the CONFIG document the user story subtypes are defined
 "subtype": [
-    "User story",
+    "User story", (the default)
     "Spike",
     "Defect"
   ],

@@ -5,7 +5,7 @@ import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 import Mailgun from 'mailgun-js'
 const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
-const PBILEVEL = 5
+const USLEVEL = 5
 const TASKLEVEL = 6
 var db
 var configData = {}
@@ -42,7 +42,7 @@ function getSubTypeText(dbName, idx) {
 function getLevelText(dbName, level, subtype) {
   if (level < 0 || level > TASKLEVEL) return `Level not supported`
 
-  if (subtype && level === PBILEVEL) {
+  if (subtype && level === USLEVEL) {
     return getSubTypeText(dbName, subtype)
   } else return configData[dbName].itemType[level]
 }
@@ -141,7 +141,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
 			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} with short id ${doc._id.slice(-5)} to see the conversation</h3>`)
     case 'addSprintIdsEvent': {
       let txt = `This ${getLevelText(dbName, value[0], value[1])} is assigned to sprint '${value[2]}'.`
-      if (value[3]) txt += ` The item was assigned to a sprint before.`
+      if (value[3]) txt += ` The item was assigned to sprint ${value[3]} before.`
       return createEmail(`<h3>${txt}</h3>`)
     }
     case 'createItemEvent':

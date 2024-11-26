@@ -59,10 +59,10 @@ A product consists of:
 
 - <b>epics</b> which consists of
 - <b>features</b> which consists of
-- <b>pbi's</b> of kind user-story/defect/spike which are realized by executing
+- <b>user stories</b> of kind user-story/defect/spike which are realized by executing
 - <b>tasks</b>
 
-<p>All items sit in a tree structure. Epics, features and pbi's cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
+<p>All items sit in a tree structure. Epics, features and user stories cannot exist without their parent. It is impossible to create orphans. No need to fix these relationships as a afterthought.</p>
 
 <b>Security:</b><br />
 The database and the web server have secure https access.
@@ -95,8 +95,8 @@ The next role is a light version of the admin role:
 
 These three roles are set per product in a database:
 
-- 'PO': Maintains product definitions, creates and maintains epics, features and pbi's for the assigned products. Can change priorities at these levels. Must be member of a team.
-- 'developer': Can create and maintain pbi's and features for the assigned products when team member. Must be member of a team.
+- 'PO': Maintains product definitions, creates and maintains epics, features and user stories for the assigned products. Can change priorities at these levels. Must be member of a team.
+- 'developer': Can create and maintain user stories and features for the assigned products when team member. Must be member of a team.
 - 'guest': Can only view the items of the assigned products. Has no access to attachments. Cannot join a team.
 <p>Users can have multiple roles. Users can only see/access the products that are assigned to them by the admin/assistAdmin.<br />
 When a PO or developer creates an item, that item is assigned to the team of that user. Subsequent changes to these items can ony be applied by members of that team.</p>
@@ -104,40 +104,40 @@ When a PO or developer creates an item, that item is assigned to the team of tha
 <b>Other design choices:</b><br />
 The scope is the selected product. The requirement area (see https://less.works/less/less-huge/requirement-areas.html) is an attribute of an item and used for prioritization.<br />
 Epics and their underlying features have (business) value. Delivering the high priority items first is the aim of all participants.<br />
-Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its pbi's have a higher priority than any pbi in feature B. It is the PO who selects the most important epics and the features within.<br />
-The owning team is an attribute of the feature and pbi and used for filtering. A user can be member of one team only, but can switch to another team at will. The users with the \_admin or admin role and the guests are not member of a team.<br />
+Priorities are set on every level. Eg. when feature A has a higher priority than feature B all its user stories have a higher priority than any user story in feature B. It is the PO who selects the most important epics and the features within.<br />
+The owning team is an attribute of the feature and user story and used for filtering. A user can be member of one team only, but can switch to another team at will. The users with the \_admin or admin role and the guests are not member of a team.<br />
 When multiple databases are created, products defined in different databases are considered completely independent. However the user database with the authorizations is shared over all products.<br />
 
 <b>Product and epic size estimate:</b><br />
 Products and epics are estimated in T-shirt sizes.
 
 <b>Feature effort estimate:</b><br />
-Both features and pbi's are estimated in story points. A common practice is to use the Fibonacci scale. However this is not enforced. When all pbi's belonging to a feature are refined the feature effort should be the sum of the pbi efforts. The difference between the two shows how well the initial estimate was done.
+Both features and user stories are estimated in story points. A common practice is to use the Fibonacci scale. However this is not enforced. When all user stories belonging to a feature are refined the feature effort should be the sum of the user story efforts. The difference between the two shows how well the initial estimate was done.
 
 <b>Spike effort estimate:</b><br />
 A spike is a study, investigation or try out with a set maximum effort. The result is what is available when the time set is spent.
 Spikes are estimated in person hours eliminating the need to translate story points to hours which can be a long discussion.
 
-<b>Pbi's of kind Defects:</b><br />
-Note: When a defect is found before a Pbi is set to done a task is created for its resolution.<br />
-When a defect is found after a Pbi is set to done a defect Pbi is created with an estimated effort. Note that this effort was not accounted for when the pbi was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.
+<b>User stories of kind Defects:</b><br />
+Note: When a defect is found before a user story is set to done a task is created for its resolution.<br />
+When a defect is found after a user story is set to done a defect user story is created with an estimated effort. Note that this effort was not accounted for when the user story was estimated. This effort is considered as a measure of lack of quality in the refinement or the realization.
 
 <b>Backlog refinement:</b>
 
 - the preferred order for refinement is by feature. The tool supports a feature view of the backlog
-- the team that refines a pbi becomes the owner of that pbi
-- pbi's are estimated by that team
+- the team that refines a user story becomes the owner of that user story
+- user stories are estimated by that team
 
 <b>Sprint backlog and planning board:</b><br />
 The use of the electronic planning board is optional and only advised for use when team members are (need to be) remote
 
 - a sprint is dedicated to the increment of one product only; The tool should enforce this
-- the team selects the pbi's to work on
-- the team adds tasks to the pbi's
+- the team selects the user stories to work on
+- the team adds tasks to the user stories
 - a task is/will be assigned to a member of the owning team; he/she is resposible for having the task done but can involve other to do the work
 - the workflow for the tasks usually has 4 stages: to-do, in-development, ready for test/review and done
 
-<b>Pbi/defect status values:</b>
+<b>User story/defect status values:</b>
 
 - <b>new</b>
 - <b>ready</b> (refinement done, effort estimated)
@@ -162,7 +162,7 @@ Dependencies can be set and maintained. When item B is dependent on A item A is 
 When more users work on the backlog of the same product the client presentation is updated automatically (no screen refresh needed) of changes made by other users. The same is true when team members share the planning board to discuss progress or plan for the next sprint.
 <b>Role based authorization:</b><br />
 The server admin has the privileges as set by CouchDB. The product admins have all privileges for their product(s) like user assignment. Product owners have the rights to change priorities for their products. A superPO has admin rights for all products and can create new products.
-Developers can create new pbi's for their product(s) but not change priorities in the backlog.
+Developers can create new user stories for their product(s) but not change priorities in the backlog.
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
@@ -173,8 +173,8 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 ![Example products overview](https://github.com/ErikVerheul/OneBacklog/blob/master/public/img/example-screen.png)
 
 - A short key of 5 characters alphamumeric are available for the users for direct lookup and reference in communications.
-- The history of priority and attribute changes of products, epics, features, pbi's are stored and easily accessible.
-- The type of product, epic, feature, pbi and task can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a pbi can be upgraded to a feature, that feature to an epic. The reverse can also be done.
+- The history of priority and attribute changes of products, epics, features, user stories are stored and easily accessible.
+- The type of product, epic, feature, user story and task can be changed by drag & drop among each other over one level. Any descendants are also up/downgraded. In theory a user story can be upgraded to a feature, that feature to an epic. The reverse can also be done.
 - A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
@@ -190,14 +190,14 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 ![Example products overview](https://github.com/ErikVerheul/OneBacklog/blob/master/public/img/planning-board.png)
 
 <p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the boards of other users and the tree view. Touch devices are supported.</p>
-<p>From the 'Product details' view context menu features and PBI's can be selected to be assigned to the current or next sprint:</p>
+<p>From the 'Product details' view context menu features and user story's can be selected to be assigned to the current or next sprint:</p>
 <ul>
-    <li>When a feature is selected all its descendants (PBI's and tasks) are assigned</li>
-    <li>When a PBI is selected, that PBI and it descendant tasks are assigned</li>
+    <li>When a feature is selected all its descendants (user story's and tasks) are assigned</li>
+    <li>When a user story is selected, that user story and it descendant tasks are assigned</li>
     <li>individual tasks cannot be assigned to a sprint (but can on the planning board)</li>
  </ul>
 
-<p>Tasks added to a PBI later will automatically inherit the sprintId from their parent or sibling.</p>
+<p>Tasks added to a user story later will automatically inherit the sprintId from their parent or sibling.</p>
 
 <p>SprintIds are made available by the 'admin' when he generates the default sprint calendar. Sprint periods cannot overlap and need to be contiguous.
 For now the calendar is stored in de database CONFIG file. Eventually products and even teams can have their own sprint calendar.

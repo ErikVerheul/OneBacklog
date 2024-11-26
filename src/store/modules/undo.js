@@ -56,7 +56,7 @@ const actions = {
 
 				// save the affected items on the boards
 				if (updatedParentDoc.sprintId) {
-					if (updatedParentDoc.level === LEVEL.PBI || updatedParentDoc.level === LEVEL.TASK) {
+					if (updatedParentDoc.level === LEVEL.US || updatedParentDoc.level === LEVEL.TASK) {
 						if (!sprintsAffected.includes(updatedParentDoc.sprintId)) sprintsAffected.push(updatedParentDoc.sprintId)
 						if (!teamsAffected.includes(updatedParentDoc.team)) teamsAffected.push(updatedParentDoc.team)
 					}
@@ -176,7 +176,7 @@ const actions = {
 
 			// save the affected items on the boards
 			if (doc.sprintId) {
-				if (doc.level === LEVEL.PBI || doc.level === LEVEL.TASK) {
+				if (doc.level === LEVEL.US || doc.level === LEVEL.TASK) {
 					if (!sprintsAffected.includes(doc.sprintId)) sprintsAffected.push(doc.sprintId)
 					if (!teamsAffected.includes(doc.team)) teamsAffected.push(doc.team)
 				}

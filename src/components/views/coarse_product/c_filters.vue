@@ -26,7 +26,7 @@
             </BCol>
 
             <BCol sm="12">
-              <BFormCheckbox v-model="filterOnState">Filter on PBI state</BFormCheckbox>
+              <BFormCheckbox v-model="filterOnState">Filter on user story state</BFormCheckbox>
               <div v-if="filterOnState" class="indent20">
                 <BFormGroup>
                   <BFormCheckboxGroup v-model="selectedStates" :options="stateOptions"></BFormCheckboxGroup>

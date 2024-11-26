@@ -40,11 +40,11 @@ function data() {
 }
 
 const watch = {
-	selectedPbiType: function (valStr) {
+	selectedUsType: function (valStr) {
 		// prevent looping
 		if (Number(valStr) !== store.state.currentDoc.subtype) {
 			const node = this.getSelectedNode
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the LEVEL.PBI type')) {
+			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the LEVEL.US type')) {
 				store.dispatch('setSubType', {
 					node,
 					newSubType: Number(valStr),
@@ -142,7 +142,7 @@ const methods = {
 				const failedCheck2 = Math.abs(targetLevel - sourceLevel) > 1
 				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
 				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than PBI level', SEV.WARNING)
+				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than user story level', SEV.WARNING)
 				return failedCheck2 || failedCheck3
 			}
 
@@ -156,8 +156,8 @@ const methods = {
 		} else cancel(true)
 	},
 
-	getPbiOptions() {
-		this.selectedPbiType = store.state.currentDoc.subtype.toString()
+	getUsOptions() {
+		this.selectedUsType = store.state.currentDoc.subtype.toString()
 		const options = [
 			{ text: 'User story', value: '0' },
 			{ text: 'Spike', value: '1' },

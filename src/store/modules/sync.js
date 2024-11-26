@@ -151,7 +151,7 @@ const actions = {
 				// skip items that are not available in the tree
 				return
 			}
-			if (node.level === LEVEL.PBI || node.level === LEVEL.TASK)
+			if (node.level === LEVEL.US || node.level === LEVEL.TASK)
 				commit('updateNodewithDocChange', { node, sprintId: targetSprintId, lastOtherChange: Date.now() })
 			const locationInfo = getLocationInfo(newPriority, newParentNode)
 			if (rootState.helpersRef.comparePaths(locationInfo.newPath, node.path) !== 0) {
@@ -526,8 +526,8 @@ const actions = {
 					switch (histEvent) {
 						case 'addItemsToSprintEvent':
 							{
-								const newPBI = lastHistObj.addItemsToSprintEvent[0]
-								if (newPBI) dispatch('addStoryToBoard', newPBI)
+								const newUS = lastHistObj.addItemsToSprintEvent[0]
+								if (newUS) dispatch('addStoryToBoard', newUS)
 								const newTasks = lastHistObj.addItemsToSprintEvent[1]
 								for (const t of newTasks) {
 									commit('addTaskToBoard', t)
@@ -546,7 +546,7 @@ const actions = {
 							break
 						case 'createItemEvent':
 						case 'createTaskEvent':
-							if (doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.US) {
 								// a new story is created on another user's product details view
 								dispatch('addStoryToBoard', doc)
 							}
@@ -599,8 +599,8 @@ const actions = {
 														}
 													}
 													break
-												case LEVEL.PBI:
-													// a PBI is demoted to a task
+												case LEVEL.US:
+													// a user story is demoted to a task
 													commit('removeStoryFromBoard', doc._id)
 													commit('addTaskToBoard', doc)
 													break
@@ -608,17 +608,17 @@ const actions = {
 													logIllegalMove(targetLevel, sourceLevel, doc._id)
 											}
 											break
-										case LEVEL.PBI:
+										case LEVEL.US:
 											switch (sourceLevel) {
 												case LEVEL.TASK:
-													// a task is promoted to a PBI
+													// a task is promoted to a user story
 													commit('removeTaskFromBoard', { storyId: sourceParentId, taskId: doc._id, taskState: doc.state })
 													dispatch('addStoryToBoard', doc)
 													break
-												case LEVEL.PBI:
+												case LEVEL.US:
 												case LEVEL.FEATURE:
-													// case LEVEL.PBI: a PBI is moved within the board ||
-													// case LEVEL.FEATURE: a FEATURE is demoted to a PBI
+													// case LEVEL.US: a user story is moved within the board ||
+													// case LEVEL.FEATURE: a FEATURE is demoted to a user story
 													dispatch('renewPlanningBoard')
 													break
 												default:
@@ -628,7 +628,7 @@ const actions = {
 										case LEVEL.FEATURE:
 										case LEVEL.EPIC:
 										case LEVEL.PRODUCT:
-											// case LEVEL.FEATURE: a PBI is promoted to a feature || a FEATURE is moved within the board || an EPIC is demoted to a FEATURE ||
+											// case LEVEL.FEATURE: a user story is promoted to a feature || a FEATURE is moved within the board || an EPIC is demoted to a FEATURE ||
 											// case LEVEL.EPIC: a FEATURE is promoted to an EPIC || an EPIC is is moved within the board ||
 											// case LEVEL.PRODUCT: a PRODUCT is moved within the board
 											dispatch('renewPlanningBoard')
@@ -663,7 +663,7 @@ const actions = {
 							}
 							break
 						case 'setHrsEvent':
-							if (doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.US) {
 								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.spikePersonHours = doc.spikepersonhours
@@ -673,7 +673,7 @@ const actions = {
 							}
 							break
 						case 'setPointsEvent':
-							if (doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.US) {
 								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.size = doc.spsize
@@ -709,7 +709,7 @@ const actions = {
 							}
 							break
 						case 'setSubTypeEvent':
-							if (doc.level === LEVEL.PBI) {
+							if (doc.level === LEVEL.US) {
 								for (const s of rootState.planningboard.stories) {
 									if (s.storyId === doc._id) {
 										s.subType = doc.subtype
@@ -724,7 +724,7 @@ const actions = {
 							break
 						case 'setTitleEvent':
 							switch (doc.level) {
-								case LEVEL.PBI:
+								case LEVEL.US:
 									for (const s of rootState.planningboard.stories) {
 										if (s.storyId === doc._id) {
 											s.title = doc.title
@@ -799,7 +799,7 @@ const actions = {
 		const histEvent = Object.keys(lastHistObj)[0]
 		const isSameUserInDifferentSession = lastHistObj.by === rootState.userData.user
 		const isReqAreaItem = doc.productId === MISC.AREA_PRODUCTID
-		// update the board if the event changes the current view (sprintId and team) effecting any PBIs and/or tasks
+		// update the board if the event changes the current view (sprintId and team) effecting any user stories and/or tasks
 		const updateThisBoard = mustUpdateThisBoard(lastHistObj.updateBoards)
 
 		/*

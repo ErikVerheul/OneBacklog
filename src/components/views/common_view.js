@@ -14,7 +14,7 @@ function data() {
 		defectSubtype: 2,
 		docToUpdate: null,
 		// set to an invalid value; must be updated before use
-		selectedPbiType: '',
+		selectedUsType: '',
 		// comments, history and attachments
 		doAddition: false,
 		startFiltering: false,
@@ -73,8 +73,8 @@ const computed = {
 					return 'your removal of the item or branch of items'
 				case 'undoRemoveSprintIds':
 					return 'your removal of this item from a sprint'
-				case 'undoSelectedPbiType':
-					return 'your change of PBI type (User story, Spike or Defect)'
+				case 'undoselectedUsType':
+					return 'your change of user story type (User story, Spike or Defect)'
 				case 'undoSetDependency':
 					return 'your assignment of a dependency'
 				case 'undoStateChange':
@@ -394,7 +394,7 @@ const methods = {
 					isUndoAction,
 				})
 				break
-			case 'undoSelectedPbiType':
+			case 'undoselectedUsType':
 				store.dispatch('setSubType', { node: entry.node, newSubType: entry.oldSubType, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoSetDependency':

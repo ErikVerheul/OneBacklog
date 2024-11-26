@@ -72,12 +72,12 @@ const authorization = {
 					levels[LEVEL.PRODUCT] = true
 					levels[LEVEL.EPIC] = true
 					levels[LEVEL.FEATURE] = true
-					levels[LEVEL.PBI] = true
+					levels[LEVEL.US] = true
 				}
 
 				if (this.getMyProductsRoles[productId].includes('developer')) {
 					levels[LEVEL.FEATURE] = true
-					levels[LEVEL.PBI] = true
+					levels[LEVEL.US] = true
 					levels[LEVEL.TASK] = true
 				}
 			}
@@ -85,7 +85,7 @@ const authorization = {
 				if (store.state.debug)
 					console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 
-				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, PBI, TASK]: ${levels}`)
+				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, user story, TASK]: ${levels}`)
 			}
 			return levels[level]
 		},

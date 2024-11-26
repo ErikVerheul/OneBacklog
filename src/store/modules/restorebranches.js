@@ -28,7 +28,7 @@ const actions = {
 	 * Restore (sets doSyncRestoreBranch to true) one branch or product into the tree view for use by the synchronization.
 	 * This action is used by the synchronization to sync a remote removal undo.
 	 * The items are already unremoved by the remote session.
-	 * PBI and task documents, assigned to a sprint, are saved for restoring the planning board view, if openened.
+	 * user story and task documents, assigned to a sprint, are saved for restoring the planning board view, if openened.
 	 */
 	syncRestoreBranch({ rootState, state, commit, dispatch }, payload) {
 		doSyncRestoreBranch = true
@@ -50,7 +50,7 @@ const actions = {
 				if (unremovedMark) {
 					// update the board if in view
 					if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
-						if (doc.level === LEVEL.PBI) dispatch('addStoryToBoard', doc)
+						if (doc.level === LEVEL.US) dispatch('addStoryToBoard', doc)
 						if (doc.level === LEVEL.TASK) dispatch('addTaskToBoard', doc)
 					}
 					// no need to add history here as the data is only used to update the tree model (no update of the database)
@@ -199,7 +199,7 @@ const actions = {
 			const newParentNode = rootState.helpersRef.appendDescendantNode(payload.parentNode, doc)
 			// also update the board if in view
 			if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {
-				if (doc.level === LEVEL.PBI) dispatch('addStoryToBoard', doc)
+				if (doc.level === LEVEL.US) dispatch('addStoryToBoard', doc)
 				if (doc.level === LEVEL.TASK) commit('addTaskToBoard', doc)
 			}
 			// scan next level

@@ -12,7 +12,7 @@ function created() {
 	this.PRODUCTLEVEL = 2
 	this.EPICLEVEL = 3
 	this.FEATURELEVEL = 4
-	this.PBILEVEL = 5
+	this.USLEVEL = 5
 	this.TASKLEVEL = 6
 
 	this.INSERTBELOW = 0
@@ -238,7 +238,7 @@ const methods = {
 		newNode.data.followers = preFligthData.parentFollowers
 
 		if (newNode.level === SEV.TASK) {
-			// when inserting a task, copy the team name from the parent PBI or sibling task
+			// when inserting a task, copy the team name from the parent user story or sibling task
 			newNode.data.team = node.data.team
 		} else newNode.data.team = this.myTeam
 
@@ -247,7 +247,7 @@ const methods = {
 			if (newNode.level === SEV.TASK) {
 				// when inserting a task, set the task owner to the current user
 				newNode.data.taskOwner = store.state.userData.user
-				// when inserting a task, copy the sprintId from the parent PBI or sibling task
+				// when inserting a task, copy the sprintId from the parent user story or sibling task
 				newNode.data.sprintId = node.data.sprintId
 			}
 

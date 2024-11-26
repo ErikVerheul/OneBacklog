@@ -34,14 +34,14 @@
               <BFormGroup>
                 <BFormRadio v-model="selectedTreeDepth" value="3">Up to epic level</BFormRadio>
                 <BFormRadio v-model="selectedTreeDepth" value="4">Up to feature level</BFormRadio>
-                <BFormRadio v-model="selectedTreeDepth" value="5">Up to PBI level</BFormRadio>
+                <BFormRadio v-model="selectedTreeDepth" value="5">Up to user story level</BFormRadio>
               </BFormGroup>
             </div>
             <hr />
           </BCol>
 
           <BCol sm="12">
-            <BFormCheckbox v-model="filterOnState">Filter on PBI state</BFormCheckbox>
+            <BFormCheckbox v-model="filterOnState">Filter on user story state</BFormCheckbox>
             <div v-if="filterOnState" class="indent20">
               <BFormGroup>
                 <BFormCheckboxGroup v-model="selectedStates" :options="stateOptions"></BFormCheckboxGroup>

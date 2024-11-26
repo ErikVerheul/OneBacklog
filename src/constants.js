@@ -25,7 +25,7 @@ const LEVEL = Object.freeze({
 	PRODUCT: 2,
 	EPIC: 3,
 	FEATURE: 4,
-	PBI: 5,
+	US: 5,
 	TASK: 6,
 })
 

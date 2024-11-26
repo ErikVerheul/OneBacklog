@@ -146,7 +146,7 @@ const methods = {
 		let placement
 		if (
 			(store.state.currentView === 'detailProduct' && nodeModel.level === LEVEL.TASK) ||
-			(store.state.currentView === 'coarseProduct' && nodeModel.level === LEVEL.PBI)
+			(store.state.currentView === 'coarseProduct' && nodeModel.level === LEVEL.US)
 		) {
 			placement = offsetY >= nodeHeight / 2 ? 'after' : 'before'
 		} else {
@@ -297,7 +297,7 @@ const methods = {
 	},
 
 	onToggleHandler(event, node) {
-		if ((store.state.currentView === 'detailProduct' && node.level === LEVEL.TASK) || (store.state.currentView === 'coarseProduct' && node.level === LEVEL.PBI))
+		if ((store.state.currentView === 'detailProduct' && node.level === LEVEL.TASK) || (store.state.currentView === 'coarseProduct' && node.level === LEVEL.US))
 			return
 
 		if (node.isExpanded) {
