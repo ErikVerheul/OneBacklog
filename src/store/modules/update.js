@@ -596,7 +596,7 @@ const actions = {
 				tmpDoc.description = newEncodedDescription
 
 				const onSuccessCallback = () => {
-					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The description of item with short id ${id.slice(-5)} is changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
@@ -665,7 +665,7 @@ const actions = {
 
 				const onSuccessCallback = () => {
 					rootState.isAcceptanceEdited = false
-					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp, newHist })
+					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
 						// create an entry for undoing the change in a last-in first-out sequence
