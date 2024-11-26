@@ -30,8 +30,10 @@
                 @click="showSelected(REMOVEREQAREA)">Remove this requirement area</BListGroupItem>
             </template>
           </template>
-          <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && myTeam !== 'not assigned yet' && contextNodeTeam !== myTeam">
-            <BListGroupItem button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
+          <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
+            <BListGroupItem v-if="myTeam === 'not assigned yet'" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
+              @click="showSelected(ASIGNTOMYTEAM)">Join team {{ contextNodeTeam }} to open the context menu here</BListGroupItem>
+            <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
               contextNodeType }} to my team</BListGroupItem>
           </template>
           <template v-else>
