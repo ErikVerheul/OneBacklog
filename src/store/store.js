@@ -234,7 +234,7 @@ const store = createStore({
 			if (state.currentDoc) return state.currentDoc.state
 		},
 
-		/* Returns the sprint name if found in the user's current teamcalendar or in the default calendar. Returns 'undefined' is in another user's teamcalendar. */
+		/* Returns the sprint name if found in the user's current teamcalendar or in the default calendar */
 		getItemSprintName(state) {
 			if (state.currentDoc.sprintId && state.myCurrentSprintCalendar) {
 				for (const s of state.myCurrentSprintCalendar) {
@@ -340,8 +340,8 @@ const store = createStore({
 		},
 
 		leafLevel(state, getters) {
-			if (getters.isDetailsViewSelected || getters.isOverviewSelected) return LEVEL.TASK
-			return LEVEL.PBI
+			if (getters.isDetailsViewSelected) return LEVEL.TASK
+			return LEVEL.US
 		},
 
 		myTeam(state) {
@@ -648,7 +648,7 @@ const store = createStore({
 		/* The keys of the payload object are evaluated by key name and value */
 		updateNodewithDocChange(state, payload) {
 			if (payload.newDoc) {
-				// replace encoded text fields and remove 'ignoreEvent' elements from history and update the currentDoc
+				// replace encoded text fields and remove 'ignoreEvent' elements from history to update the currentDoc
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
 			} else {
 				const node = payload.node

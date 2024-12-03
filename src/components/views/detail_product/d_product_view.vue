@@ -85,7 +85,7 @@
                   <BDropdownDivider></BDropdownDivider>
                   <BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
                 </BDropdown>
-                <BDropdown v-else right :text=getItemStateText(store.state.currentDoc.state)>
+                <BDropdown v-else right :text=getTaskStateText(store.state.currentDoc.state)>
                   <BDropdownItem @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</BDropdownItem>
                   <BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</BDropdownItem>
                   <BDropdownItem @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</BDropdownItem>

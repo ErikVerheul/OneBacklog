@@ -9,7 +9,7 @@ calling btoa on a string will cause a "Character Out Of Range" exception if a ch
 For use cases where you need to encode arbitrary Unicode text, 
 it is necessary to first convert the string to its constituent bytes in UTF-8, and then encode the bytes.*/
 
-import { MISC } from './constants.js'
+import { LEVEL, MISC } from './constants.js'
 
 function base64ToBytes(base64) {
 	const binString = window.atob(base64)
@@ -39,6 +39,8 @@ export function areStringsEqual(str1, str2) {
 /* Replace encoded text fields and remove 'ignoreEvent' elements from history */
 export function prepareDocForPresentation(doc) {
 	let preptDoc = doc
+	// set default team
+	if (preptDoc.level > LEVEL.EPIC && !preptDoc.team) preptDoc.team = MISC.NOTEAM
 	// decode from base64
 	preptDoc.description = b64ToUni(doc.description)
 	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)

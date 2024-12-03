@@ -1,14 +1,9 @@
 import { LEVEL, SEV } from '../../constants.js'
-import { getSprintNameById } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 function getMoveState(rootState, items) {
-	const descendantIds = []
-	for (const nm of items) {
-		descendantIds.push(...rootState.helpersRef.getDescendantsInfo(nm).ids)
-	}
 	const extract = {}
 	// all items must have the same productId, parent and level
 	extract.productId = items[0].productId
@@ -18,40 +13,39 @@ function getMoveState(rootState, items) {
 	extract.parentSprintId = parentNode.data.sprintId
 	extract.parentTeam = parentNode.data.team
 	extract.level = items[0].level
-	extract.descendantIds = descendantIds
+	extract.allDescendantsCount = 0
 	for (const nm of items) {
+		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
 		extract[nm._id] = {
 			ind: nm.ind,
-			dependencies: nm.dependencies,
-			descendantsCount: rootState.helpersRef.getDescendantsInfo(nm).count,
 			conditionalFor: nm.conditionalFor,
+			dependencies: nm.dependencies,
+			descendantIds: rootState.helpersRef.getDescendantsInfo(nm).ids,
+			descendantsCount,
 			priority: nm.data.priority,
 			sprintId: nm.data.sprintId,
 			team: nm.data.team,
+			taskOwner: nm.data.taskOwner,
 			lastPositionChange: nm.data.lastPositionChange,
 		}
+		extract.allDescendantsCount += extract[nm._id].descendantsCount
 	}
 	return extract
 }
 
-/* Get the id of the parent of the target task level node if that node has no sprintId set but the task has a spintId */
-function getParentToUpdate(id, afterMoveState) {
-	const targetSprintId = afterMoveState[id].sprintId
-	const targetLevel = afterMoveState.level
+function getUpdateSet(rootState, id, afterMoveState) {
 	const targetParentId = afterMoveState.parentId
-	const targetParentSprintId = afterMoveState.parentSprintId
-	if (targetSprintId && !targetParentSprintId && targetLevel === LEVEL.TASK) {
-		// if the new parent (a PBI) has no sprint assigned and the sourceSprintId is set, also assign the sprint to that PBI
-		return { targetParentId, targetSprintId }
+	const node = rootState.helpersRef.getNodeById(id)
+	if (node && node.data.tmp) {
+		if (node.data.tmp.targetParentId === targetParentId) return node.data.tmp
 	}
-
 	return undefined
 }
 
 /* The parentIds in the collection must be unique */
-function isADuplicate(targetParentsToUpdate, newTuple) {
-	for (const tuple of targetParentsToUpdate) {
-		if (tuple.targetParentId === newTuple.targetParentId) return true
+function isADuplicate(targetParentsToUpdate, newSet) {
+	for (const set of targetParentsToUpdate) {
+		if (set.targetParentId === newSet.targetParentId) return true
 	}
 	return false
 }
@@ -63,7 +57,8 @@ const actions = {
 	 * Order of execution:
 	 * 1. update the moved items with productId, parentId, level, priority, sprintId and history. History is used for syncing with other sessions and reporting
 	 * 2. if moving to another product or level, update the productId (not parentId) and level of the descendants
-	 * 3. save the update of the moved items and all child updates in one database bulk update
+	 * 3. save the update of the moved items and per item the child updates in multiple database bulk updates
+	 * 4. if the inserted task has a sprintId and the parent does not, the parent user story need to be updated with the sprintId of the child task
 	 */
 
 	/* New approach ======================================================================================================================================================= */
@@ -94,10 +89,8 @@ const actions = {
 		}
 
 		const itemIds = items.map((n) => n._id)
-		const allIds = itemIds.concat(beforeMoveState.descendantIds)
-
 		const docIdsToGet = []
-		for (const id of allIds) {
+		for (const id of itemIds) {
 			docIdsToGet.push({ id })
 		}
 
@@ -127,26 +120,34 @@ const actions = {
 							doc.dependencies = afterMoveState[doc._id].dependencies
 							doc.conditionalFor = afterMoveState[doc._id].conditionalFor
 							doc.priority = afterMoveState[doc._id].priority
-							doc.sprintId = afterMoveState[doc._id].sprintId
-							doc.team = afterMoveState[doc._id].team
+							if (doc.level >= LEVEL.US) {
+								doc.sprintId = afterMoveState[doc._id].sprintId
+								doc.team = afterMoveState[doc._id].team
+							} else {
+								delete doc.sprintId
+								delete doc.team
+							}
 							doc.lastPositionChange = Date.now()
 							// find the affected sprints
 							const sprintsAffected = []
-							if (beforeMoveState[doc._id].sprintId) sprintsAffected.push(beforeMoveState[doc._id].sprintId)
-							if (afterMoveState[doc._id].sprintId) sprintsAffected.push(afterMoveState[doc._id].sprintId)
-							for (const id of descendantsMetaData.sprintIds) {
-								if (!sprintsAffected.includes(id)) sprintsAffected.push(id)
+							if (beforeMoveState[doc._id].sprintId) {
+								if (!sprintsAffected.includes(beforeMoveState[doc._id].sprintId)) sprintsAffected.push(beforeMoveState[doc._id].sprintId)
+							}
+							if (afterMoveState[doc._id].sprintId) {
+								if (!sprintsAffected.includes(afterMoveState[doc._id].sprintId)) sprintsAffected.push(afterMoveState[doc._id].sprintId)
+							}
+							for (const sId of descendantsMetaData.sprintIds) {
+								if (!sprintsAffected.includes(sId)) sprintsAffected.push(sId)
 							}
 							// find the affected teams
 							const teamsAffected = doc.team ? [doc.team] : []
 							for (const t of descendantsMetaData.teams) {
 								if (!teamsAffected.includes(t)) teamsAffected.push(t)
 							}
-							// check if parent PBI need to be updated with the sprintId of the child task
-							const updateTuple = getParentToUpdate(doc._id, afterMoveState)
-							if (updateTuple && !isADuplicate(targetParentsToUpdate, updateTuple)) {
-								// only one sprintId for a given parentId can de assigned to the parent
-								targetParentsToUpdate.push(updateTuple)
+							// check if the parent user story need to be updated with the team and/or the sprintId of the child task
+							const updateSet = getUpdateSet(rootState, doc._id, afterMoveState)
+							if (updateSet && !isADuplicate(targetParentsToUpdate, updateSet)) {
+								targetParentsToUpdate.push(updateSet)
 							}
 							const newHist = {
 								nodeMovedEvent: [
@@ -178,20 +179,10 @@ const actions = {
 							}
 							doc.history.unshift(newHist)
 							docs.push(doc)
-						} else if (alsoUpdateDescendants && beforeMoveState.descendantIds.includes(doc._id)) {
-							const levelShift = afterMoveState.level - beforeMoveState.level
-							// update descendant documents; the productId and/or level have changed
-							doc.productId = afterMoveState.productId
-							doc.level = doc.level + levelShift
-							if (doc.level >= LEVEL.PBI) doc.sprintId = sprintAssignmentData.sprintId
-							doc.team = afterMoveState[doc._id].team
-							doc.lastPositionChange = Date.now()
-							const newHist = {
-								ignoreEvent: ['updateMovedItemsBulk'],
-								timestamp: Date.now(),
+
+							if (alsoUpdateDescendants) {
+								dispatch('updateMovedDescendants', { itemId: doc._id, beforeMoveState, afterMoveState })
 							}
-							doc.history.unshift(newHist)
-							docs.push(doc)
 						}
 					}
 					if (envelope.error) error.push(envelope.error)
@@ -241,6 +232,54 @@ const actions = {
 			})
 	},
 
+	/* If moving to another product or another level also update the descendants of the moved(back) item */
+	updateMovedDescendants({ rootState, dispatch }, payload) {
+		const itemId = payload.itemId
+		const beforeMoveState = payload.beforeMoveState
+		const afterMoveState = payload.afterMoveState
+		const docIdsToGet = []
+		for (const id of afterMoveState[itemId].descendantIds) {
+			docIdsToGet.push({ id })
+		}
+
+		globalAxios({
+			method: 'POST',
+			url: rootState.userData.currentDb + '/_bulk_get',
+			data: { docs: docIdsToGet },
+		}).then((res) => {
+			const results = res.data.results
+			const docs = []
+			for (const r of results) {
+				const envelope = r.docs[0]
+				if (envelope.ok) {
+					const doc = envelope.ok
+					const levelShift = afterMoveState.level - beforeMoveState.level
+					doc.productId = afterMoveState.productId
+					doc.level = doc.level + levelShift
+					if (doc.level >= LEVEL.US) {
+						doc.sprintId = afterMoveState[itemId].sprintId
+					} else delete doc.sprintId
+					if (doc.level >= LEVEL.FEATURE) {
+						doc.team = afterMoveState[doc._id].team
+					} else delete doc.team
+					doc.lastPositionChange = Date.now()
+					const newHist = {
+						ignoreEvent: ['updateMovedDescendants'],
+						timestamp: Date.now(),
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
+				}
+			}
+
+			dispatch('updateBulk', {
+				dbName: rootState.userData.currentDb,
+				docs,
+				caller: 'updateMovedDescendants',
+			})
+		})
+	},
+
 	/* Save the updated documents of the moved items and their descendants */
 	saveMovedItems({ rootState, commit, dispatch }, payload) {
 		const items = payload.items
@@ -255,7 +294,7 @@ const actions = {
 			onSuccessCallback: () => {
 				if (!isUndoAction) {
 					commit('addToEventList', {
-						txt: `${items.length} items have been moved with ${beforeMoveState.descendantIds.length} descendants`,
+						txt: `${items.length} items have been moved with ${beforeMoveState.allDescendantsCount} descendants`,
 						severity: SEV.INFO,
 					})
 					// make the branch with the moved nodes selectable again
@@ -313,7 +352,7 @@ const actions = {
 					}
 
 					commit('addToEventList', {
-						txt: `${items.length} items have been moved back with ${afterMoveState.descendantIds.length} descendants`,
+						txt: `${items.length} items have been moved back with ${afterMoveState.allDescendantsCount} descendants`,
 						severity: SEV.INFO,
 					})
 				}
@@ -321,10 +360,11 @@ const actions = {
 		})
 	},
 
+	// itemToNewTeamEvent for silent team change
 	updateMovedItemsParents({ rootState, dispatch }, targetParentsToUpdate) {
 		const docIdsToGet = []
-		for (const tuple of targetParentsToUpdate) {
-			docIdsToGet.push({ id: tuple.targetParentId })
+		for (const set of targetParentsToUpdate) {
+			docIdsToGet.push({ id: set.targetParentId })
 		}
 		globalAxios({
 			method: 'POST',
@@ -338,24 +378,28 @@ const actions = {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
 						const doc = envelope.ok
-						for (const tuple of targetParentsToUpdate) {
-							if (tuple.targetParentId === doc._id) {
-								// if tasks have different sprintIds the first wins
-								doc.sprintId = tuple.targetSprintId
+						for (const set of targetParentsToUpdate) {
+							if (set.targetParentId === doc._id) {
+								let oldTeam
+								let oldSprintId
+								if (set.team) {
+									oldTeam = doc.tem
+									doc.team = set.team
+								}
+								if (set.sprintId) {
+									oldSprintId = doc.sprintId
+									doc.sprintId = set.sprintId
+								}
 								doc.lastOtherChange = Date.now()
-								const sprintName = getSprintNameById(doc.sprintId, rootState.myCurrentSprintCalendar)
 								const newHist = {
-									addSprintIdsEvent: [doc.level, doc.subtype, sprintName, false, doc.sprintId],
+									updateMovedItemParentEvent: [doc.team, doc.sprintId],
 									by: rootState.userData.user,
-									email: rootState.userData.email,
-									doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 									timestamp: Date.now(),
-									isListed: true,
 									sessionId: rootState.mySessionId,
 									distributeEvent: true,
+									updateBoards: { sprintsAffected: set.sprintId ? [oldSprintId, doc.sprintId] : [], teamsAffected: set.team ? [oldTeam, doc.team] : [] },
 								}
 								doc.history.unshift(newHist)
-								console.log('updateMovedItemsParents: updating doc.title = ' + doc.title)
 								docs.push(doc)
 							}
 						}

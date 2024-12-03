@@ -133,6 +133,7 @@ const actions = {
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 				},
 				[node],
+				{ createNew: true },
 			)
 			// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
 		}
@@ -763,6 +764,9 @@ const actions = {
 							rootState.userData.myTeam = newTeam
 							break
 						}
+						case 'updateMovedItemParentEvent':
+							console.log('sync: ToDo = updateMovedItemParentEvent')
+							break
 						case 'updateTaskOrderEvent':
 							{
 								const taskUpdates = lastHistObj.updateTaskOrderEvent.taskUpdates

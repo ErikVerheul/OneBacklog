@@ -16,8 +16,8 @@
       <BListGroup>
         <template v-if="!store.state.moveOngoing && !store.state.selectNodeOngoing">
           <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
-            <BListGroupItem v-if="myTeam === 'not assigned yet'" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)">Join team {{ contextNodeTeam }} to open the context menu here</BListGroupItem>
+            <BListGroupItem v-if="myTeam === NOTEAM" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
+              @click="showSelected(ASIGNTOMYTEAM)">Join team '{{ contextNodeTeam }}' to open the context menu here</BListGroupItem>
             <BListGroupItem v-else-if="contextNodeLevel > USLEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)">Assign this {{ contextNodeType }} to my team</BListGroupItem>
             <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
@@ -28,13 +28,9 @@
             <BListGroupItem v-if="contextNodeLevel > PRODUCTLEVEL" button :active="contextOptionSelected === INSERTBELOW" variant="dark"
               @click="showSelected(INSERTBELOW)">Insert a {{ contextNodeType }} below this {{ contextNodeType }}</BListGroupItem>
 
-            <p class="colorSeaBlue" v-if="contextNodeLevel === DATABASELEVEL">Cannot create a product here. An admin can create a new product in the admin view.
-            </p>
-            <template v-else>
-              <!-- cannot create item inside task -->
-              <BListGroupItem v-if="contextNodeLevel < TASKLEVEL" button :active="contextOptionSelected === INSERTINSIDE" variant="dark"
-                @click="showSelected(INSERTINSIDE)">Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>
-            </template>
+            <!-- cannot create item inside task -->
+            <BListGroupItem v-if="contextNodeLevel < TASKLEVEL" button :active="contextOptionSelected === INSERTINSIDE" variant="dark"
+              @click="showSelected(INSERTINSIDE)">Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>
 
             <BListGroupItem v-if="store.state.userData.myOptions.proUser === 'true' && hasDependencies && contextNodeLevel > PRODUCTLEVEL" button
               :active="contextOptionSelected === SHOWDEPENDENCIES" variant="dark" @click="showSelected(SHOWDEPENDENCIES)">▲ Show/remove existing dependencies on
@@ -73,8 +69,7 @@
               this task to the sprint</BListGroupItem>
 
             <BListGroupItem v-if="isInSprint" button :active="contextOptionSelected === FROMSPRINT" variant="dark" @click="showSelected(FROMSPRINT)">Remove this
-              {{
-                contextNodeType }} from the sprint</BListGroupItem>
+              {{ contextNodeType }} from the sprint</BListGroupItem>
 
             <BListGroupItem v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL" button :active="contextOptionSelected === REMOVEITEM" variant="danger"
               @click="showSelected(REMOVEITEM)">Delete this {{ contextNodeType }} and its {{ contextNodeDescendants.count }} descendants</BListGroupItem>

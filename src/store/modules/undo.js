@@ -275,7 +275,7 @@ const actions = {
 								placement: 'after',
 							}
 						}
-						// do not recalculate priorities when inserting a product node. ToDo: check this
+						// do not recalculate priorities when inserting a product node
 						rootState.helpersRef.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
 
 						// select the recovered node

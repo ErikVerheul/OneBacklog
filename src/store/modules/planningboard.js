@@ -1061,7 +1061,7 @@ const actions = {
 								placement: 'inside',
 							}
 							// insert the new node in the tree and set the productId, parentId, the location parameters and priority
-							rootState.helpersRef.insertNodes(cursorPosition, [newNode])
+							rootState.helpersRef.insertNodes(cursorPosition, [newNode], { createNew: true })
 						}
 						// place the task on the planning board
 						for (const s of state.stories) {

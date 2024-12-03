@@ -75,7 +75,7 @@ const methods = {
 			type: 'backlogItem',
 			productId: _id,
 			parentId: 'root',
-			team: 'not assigned yet',
+			team: MISC.NOTEAM,
 			level: LEVEL.PRODUCT,
 			state: STATE.INPROGRESS,
 			reqarea: null,

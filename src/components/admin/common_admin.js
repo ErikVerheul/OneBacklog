@@ -342,7 +342,7 @@ const methods = {
 			currentDb: store.state.selectedDatabaseName,
 			myDatabases: {
 				[store.state.selectedDatabaseName]: {
-					myTeam: 'not assigned yet',
+					myTeam: MISC.NOTEAM,
 					subscriptions,
 					productsRoles,
 				},
@@ -414,7 +414,7 @@ const methods = {
 		} else {
 			// the database is new to this user; create a new entry
 			newUserData.myDatabases[dbName] = {
-				myTeam: 'not assigned yet',
+				myTeam: MISC.NOTEAM,
 				subscriptions: [],
 			}
 			for (const prod of store.state.useracc.dbProducts) {

@@ -1,4 +1,4 @@
-import { SEV } from '../../constants.js'
+import { MISC, SEV } from '../../constants.js'
 import { addToArray } from '../../common_functions.js'
 import globalAxios from 'axios'
 
@@ -252,7 +252,7 @@ const actions = {
 				} else {
 					// new database for this user; leave rolesSet empty
 					const newDb = {
-						myTeam: 'not assigned yet',
+						myTeam: MISC.NOTEAM,
 						subscriptions: [productId],
 						productsRoles: {
 							[productId]: rolesSet,
@@ -341,7 +341,7 @@ const actions = {
 				if (rootGetters.isAdmin) {
 					// subscribe all products
 					const newDbEntry = {
-						myTeam: 'not assigned yet',
+						myTeam: MISC.NOTEAM,
 						subscriptions: [],
 						productsRoles: {},
 					}

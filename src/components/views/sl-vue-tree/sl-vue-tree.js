@@ -67,17 +67,13 @@ const computed = {
 
 	/*
 	 * gaps is used for nodes indentation
-	 * nodeLevel starts with 0; item level with 1
+	 * nodeLevel starts with 0
 	 * @returns {number[]}
 	 */
 	gaps() {
 		const gaps = []
 		let i = this.nodeLevel
 		while (i-- > 0) gaps.push(i)
-		if (this.nodeLevel + 1 === store.state.helpersRef.getLeafLevel()) {
-			// create an extra array member for an extra indent on leaf level (this level has no leading chevron in the tree view)
-			gaps.push(i)
-		}
 		return gaps
 	},
 }

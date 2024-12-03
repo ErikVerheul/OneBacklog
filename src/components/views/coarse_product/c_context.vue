@@ -31,8 +31,8 @@
             </template>
           </template>
           <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
-            <BListGroupItem v-if="myTeam === 'not assigned yet'" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)">Join team {{ contextNodeTeam }} to open the context menu here</BListGroupItem>
+            <BListGroupItem v-if="myTeam === MISC.NOTEAM" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
+              @click="showSelected(ASIGNTOMYTEAM)">Join team '{{ contextNodeTeam }}' to open the context menu here</BListGroupItem>
             <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
               contextNodeType }} to my team</BListGroupItem>
           </template>
@@ -41,13 +41,9 @@
             <BListGroupItem v-if="contextNodeLevel > PRODUCTLEVEL" button :active="contextOptionSelected === INSERTBELOW" variant="dark"
               @click="showSelected(INSERTBELOW)">Insert a {{ contextNodeType }} below this {{ contextNodeType }}</BListGroupItem>
 
-            <p class="colorSeaBlue" v-if="contextNodeLevel === DATABASELEVEL">Cannot create a product here. An admin can create a new product in the admin view.
-            </p>
-            <template v-else>
-              <!-- cannot create item inside feature -->
-              <BListGroupItem v-if="contextNodeLevel < FEATURELEVEL" button :active="contextOptionSelected === INSERTINSIDE" variant="dark"
-                @click="showSelected(INSERTINSIDE)">Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>
-            </template>
+            <!-- cannot create item inside feature -->
+            <BListGroupItem v-if="contextNodeLevel < USLEVEL" button :active="contextOptionSelected === INSERTINSIDE" variant="dark"
+              @click="showSelected(INSERTINSIDE)">Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>
 
             <BListGroupItem v-if="hasDependencies && contextNodeLevel > PRODUCTLEVEL" button :active="contextOptionSelected === SHOWDEPENDENCIES" variant="dark"
               @click="showSelected(SHOWDEPENDENCIES)">▲ Show/remove existing dependencies on this item</BListGroupItem>

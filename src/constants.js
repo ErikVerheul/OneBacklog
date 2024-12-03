@@ -37,6 +37,7 @@ const MISC = Object.freeze({
 	AREA_PRODUCTID: 'requirement-areas',
 	BACKUPSONLY: 1,
 	EMPTYQUILL: '<p><br></p>',
+	NOTEAM: 'not assigned yet',
 	SPECIAL_TEXT: true,
 	SQUAREBGNDCOLOR: '#004466',
 })

@@ -4,16 +4,18 @@ import { authorization, utilities } from '../mixins/generic.js'
 import store from '../../store/store.js'
 
 function created() {
-	this.ONHOLDSTATE = 1
-	this.NEWSTATE = 2
-	this.DONESTATE = 6
+	this.ONHOLDSTATE = STATE.ON_HOLD
+	this.NEWSTATE = STATE.NEW
+	this.DONESTATE = STATE.DONE
 
-	this.DATABASELEVEL = 1
-	this.PRODUCTLEVEL = 2
-	this.EPICLEVEL = 3
-	this.FEATURELEVEL = 4
-	this.USLEVEL = 5
-	this.TASKLEVEL = 6
+	this.NOTEAM = MISC.NOTEAM
+
+	this.DATABASELEVEL = LEVEL.DATABASE
+	this.PRODUCTLEVEL = LEVEL.PRODUCT
+	this.EPICLEVEL = LEVEL.EPIC
+	this.FEATURELEVEL = LEVEL.FEATURE
+	this.USLEVEL = LEVEL.US
+	this.TASKLEVEL = LEVEL.TASK
 
 	this.INSERTBELOW = 0
 	this.INSERTINSIDE = 1
@@ -41,7 +43,7 @@ function data() {
 		contextNodeLevel: 0,
 		contextParentType: '',
 		contextNodeType: '',
-		contextNodeTeam: '',
+		contextNodeTeam: MISC.NOTEAM,
 		contextChildType: '',
 		contextOptionSelected: undefined,
 		dependentOnNode: undefined,
@@ -64,7 +66,7 @@ function data() {
 const methods = {
 	areDescendantsAssignedToOtherTeam(descendants) {
 		for (const d of descendants) {
-			if (d.data.team !== 'not assigned yet' && d.data.team !== this.myTeam) return true
+			if (d.data.team !== MISC.NOTEAM && d.data.team !== this.myTeam) return true
 		}
 		return false
 	},
@@ -101,12 +103,8 @@ const methods = {
 			}
 		}
 		// prepare the new node for insertion
-		const newNode = {
+		let newNode = {
 			_id: createId(),
-			level: undefined,
-			ind: undefined,
-			productId: undefined,
-			parentId: undefined,
 			title: 'COPY: ' + node.title,
 			dependencies: [],
 			conditionalFor: [],
@@ -117,7 +115,6 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				priority: undefined,
 				state: STATE.NEW_OR_TODO,
 				reqarea: node.data.reqArea,
 				reqAreaItemColor: node.data.reqAreaItemColor,
@@ -129,21 +126,19 @@ const methods = {
 			tmp: {},
 		}
 
-		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
-		newNode.productId = preFligthData.productId
-		newNode.parentId = preFligthData.parentId
-		newNode.level = preFligthData.level
-		newNode.ind = preFligthData.ind
-		newNode.data.priority = preFligthData.priority
+		// update the node properties as if the node is created in the tree model; after a successful document creation, the node is realy inserted
+		newNode = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode, { createNew: false, calculatePrios: true })
 
 		// create a new document as a partial copy of the current document
 		const currentDoc = store.state.currentDoc
 		const newDoc = {
-			productId: newNode.productId,
-			parentId: newNode.parentId,
 			_id: newNode._id,
 			type: 'backlogItem',
-			team: currentDoc.team,
+			productId: newNode.productId,
+			parentId: newNode.parentId,
+			sprintId: newNode.data.sprintId,
+			taskOwner: newNode.data.taskOwner,
+			team: newNode.data.team,
 			level: newNode.level,
 			subtype: currentDoc.subtype,
 			state: newNode.data.state,
@@ -154,7 +149,7 @@ const methods = {
 			dependencies: [],
 			conditionalFor: [],
 			title: newNode.title,
-			followers: [],
+			followers: newNode.data.followers || [],
 			description: uniTob64(currentDoc.description),
 			acceptanceCriteria: uniTob64(currentDoc.acceptanceCriteria),
 			priority: newNode.data.priority,
@@ -176,6 +171,7 @@ const methods = {
 					distributeEvent: true,
 				},
 			],
+			lastOtherChange: now,
 		}
 		store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 	},
@@ -184,30 +180,25 @@ const methods = {
 	 * Create and insert a new node in the tree and create a document for this new item
 	 * A new node can be inserted 'inside' or 'after' the selected node
 	 */
-	doInsertNewItem(node) {
+	doInsertNewItem(selectedNode) {
 		const now = Date.now()
 		let newNodeLocation
 		if (this.contextOptionSelected === this.INSERTBELOW) {
 			// new node is a sibling placed below (after) the selected node
 			newNodeLocation = {
-				nodeModel: node,
+				nodeModel: selectedNode,
 				placement: 'after',
 			}
 		} else {
 			// INSERTINSIDE: new node is a child placed a level lower (inside) than the selected node
 			newNodeLocation = {
-				nodeModel: node,
+				nodeModel: selectedNode,
 				placement: 'inside',
 			}
 		}
 		// prepare the new node for insertion and set isSelected to true
-		const newNode = {
+		let newNode = {
 			_id: createId(),
-			level: undefined,
-			ind: undefined,
-			productId: node.productId,
-			parentId: undefined,
-			title: undefined,
 			dependencies: [],
 			conditionalFor: [],
 			children: [],
@@ -217,39 +208,18 @@ const methods = {
 			isSelected: true,
 			doShow: true,
 			data: {
-				priority: undefined,
 				state: STATE.NEW_OR_TODO,
 				subtype: 0,
-				sprintId: undefined,
-				taskOwner: undefined,
-				team: undefined,
 				lastOtherChange: now,
 			},
 			tmp: {},
 		}
 
-		const preFligthData = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode)
-		newNode.productId = preFligthData.productId
-		newNode.parentId = preFligthData.parentId
-		newNode.level = preFligthData.level
-		newNode.ind = preFligthData.ind
-		newNode.data.priority = preFligthData.priority
-		// copy the parent's followers
-		newNode.data.followers = preFligthData.parentFollowers
-
-		if (newNode.level === SEV.TASK) {
-			// when inserting a task, copy the team name from the parent user story or sibling task
-			newNode.data.team = node.data.team
-		} else newNode.data.team = this.myTeam
+		// update the node properties as if the node is inserted in the tree model; after a successful document update, the node is realy inserted
+		newNode = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode, { createNew: true, calculatePrios: true })
 
 		if (this.haveAccessInTree(newNode.productId, newNode.level, newNode.data.team, 'create new items of this type')) {
 			newNode.title = newNode.parentId === MISC.AREA_PRODUCTID ? 'New requirement area' : 'New ' + this.getLevelText(newNode.level)
-			if (newNode.level === SEV.TASK) {
-				// when inserting a task, set the task owner to the current user
-				newNode.data.taskOwner = store.state.userData.user
-				// when inserting a task, copy the sprintId from the parent user story or sibling task
-				newNode.data.sprintId = node.data.sprintId
-			}
 
 			// create a new document and store it
 			const newDoc = {
@@ -257,7 +227,8 @@ const methods = {
 				type: 'backlogItem',
 				productId: newNode.productId,
 				parentId: newNode.parentId,
-				sprintId: node.data.sprintId,
+				sprintId: newNode.data.sprintId,
+				taskOwner: newNode.data.taskOwner,
 				team: newNode.data.team,
 				level: newNode.level,
 				subtype: 0,
@@ -269,10 +240,10 @@ const methods = {
 				dependencies: [],
 				conditionalFor: [],
 				title: newNode.title,
-				followers: newNode.data.followers,
+				followers: newNode.data.followers || [],
 				description: uniTob64(MISC.EMPTYQUILL),
 				acceptanceCriteria:
-					newNode.level < this.TASKLEVEL ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+					newNode.level < LEVEL.TASK ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				priority: newNode.data.priority,
 				comments: [
 					{
@@ -290,9 +261,10 @@ const methods = {
 						isListed: true,
 						sessionId: store.state.mySessionId,
 						distributeEvent: true,
-						updateBoards: { sprintsAffected: [node.data.sprintId], teamsAffected: [newNode.data.team] },
+						updateBoards: { sprintsAffected: [selectedNode.data.sprintId], teamsAffected: [newNode.data.team] },
 					},
 				],
+				lastOtherChange: now,
 			}
 			store.dispatch('createDocWithParentHist', { newNodeLocation, newNode, newDoc })
 		}
@@ -316,7 +288,7 @@ const methods = {
 		const selectedNode = this.contextNodeSelected
 		if (this.haveAccessInTree(selectedNode.productId, selectedNode.level, selectedNode.data.team, 'remove this item')) {
 			// when removing a product
-			if (selectedNode.level === this.PRODUCTLEVEL) {
+			if (selectedNode.level === LEVEL.PRODUCT) {
 				if (this.getMyAssignedProductIds.length === 1 || store.state.helpersRef.getProducts().length <= 1) {
 					// cannot remove the last assigned product or product in the tree
 					this.showLastEvent('You cannot remove your last assigned product, but you can remove the epics', SEV.WARNING)

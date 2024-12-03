@@ -95,7 +95,7 @@ const computed = {
 
 	welcomeMessage() {
 		let msg1
-		if (this.myTeam === 'not assigned yet') {
+		if (this.myTeam === MISC.NOTEAM) {
 			msg1 = 'You are not a team member.'
 		} else msg1 = `You are member of team '${this.myTeam}'.`
 

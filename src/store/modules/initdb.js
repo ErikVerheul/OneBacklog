@@ -154,7 +154,7 @@ const actions = {
 						currentDb: payload.dbName,
 						myDatabases: {
 							[payload.dbName]: {
-								myTeam: 'not assigned yet',
+								myTeam: MISC.NOTEAM,
 								subscriptions: [],
 								productsRoles: {},
 							},
@@ -491,7 +491,7 @@ const actions = {
 
 	createDefaultTeam({ rootState, dispatch }, dbName) {
 		const _id = createId()
-		const defaultTeam = 'not assigned yet'
+		const defaultTeam = MISC.NOTEAM
 		// create a new document and store it
 		const newDoc = {
 			_id: _id,
@@ -579,7 +579,7 @@ const actions = {
 			type: 'backlogItem',
 			productId: _id,
 			parentId: 'root',
-			team: 'not assigned yet',
+			team: MISC.NOTEAM,
 			level: LEVEL.PRODUCT,
 			state: 2,
 			reqarea: null,

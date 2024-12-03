@@ -1,5 +1,34 @@
 Product backlog items which are stored in the database as documents and presented on screen as nodes in a tree structure.
-Tip: Show object with JSON.stringify(object, null, 2)
+
+team, sprintId and taskOwner assignment
+=======================================
+done items cannot be changed in team, sprintId and taskOwner assignment
+
+team:
+User stories and tasks have a team assigned. Initially the team name is 'not assigned yet'.
+If a user joins a team and opens the context menu of an item not assigned to a team or to another team, the user can assign his team to the item and all its descendants.
+If the user did not join a team and opens the context menu of an item assigned to a team, the user is asked to join the team.
+
+When creating a new feature, user story or task, the team name is set to the team the current user is member of
+
+team and task owner:
+If a task without task owner and with an assigned team is moved to another user story without an assigned team that user story will have that team assigned automatically.
+If a task without task owner and with an assigned team is moved to another user story with an assigned team that task will get the user stories team assigned automatically.
+If a task with task owner and assigned team is moved to another user story the assigned team will not change irrespectly the user story's team assignment.
+
+A task with a task owner always has a team assigned, the task owner's team
+
+task owner:
+When creating a task in the planningboard view, the task is in a sprint and the task owner is set to the current user (the creator of the task).
+Changing the task owner can also only be done in the planningboard.
+
+sprintId:
+User stories and tasks can have one sprintId assigned.
+If a user assigns a sprintId to a user story all tasks of that user story also have that sprintId assigned. If a task is already assigned another sprint id a warning is given.
+
+If a moved task has a sprintId and the parent does not, the parent user story need to be updated with the sprintId of the child task.
+When creating a new user story or task, copy the sprintId from the parent user story or sibling task, if available.
+
 
 Database fields mapping to node props:
 
@@ -80,6 +109,7 @@ data: {
 	lastAttachmentRemoval: doc.lastAttachmentRemoval,
 	lastOtherChange: doc.lastOtherChange
 }
+node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team } set if options.createParentUpdateSets === true in applyNodeInsertionRules
 tmpPreventDrag: false // a temporary state to prevent a selected product node to enter the dragging mode after selection
 // temporary and private use, not stored, not synced with other on-line users
 tmp: {
@@ -343,6 +373,7 @@ Y             Y      Y    taskRemovedEvent								planningboard.js
 Y             N      N    teamChangeEvent									planningboard.js // when a doc of type 'team' changes
 Y             Y	     Y    undoBranchRemovalEvent	  			undo.js
 Y             Y	     Y    uploadAttachmentEvent	        	attachments.js
+Y             N	     N    updateMovedItemParentEvent     	move.js
 Y             N	     N    updateReqAreaEvent	        		update_reqarea.js
 Y             N	     N    updateTaskOrderEvent	        	planningboard.js
 Y             Y	     Y    updateTaskOwnerEvent	        	planningboard.js

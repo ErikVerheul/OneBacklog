@@ -929,7 +929,7 @@ const actions = {
 							caller: 'createDocWithParentHist-2',
 							onSuccessCallback: () => {
 								// insert the new node in the tree and set the path and ind
-								rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode])
+								rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode], { createNew: true })
 								// the level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
 								if (payload.newDoc.priority === payload.newNode.data.priority) {
 									// create an entry for undoing the change in a last-in first-out sequence
@@ -940,6 +940,7 @@ const actions = {
 									rootState.changeHistory.unshift(entry)
 									// select and show the new node
 									commit('renewSelectedNodes', payload.newNode)
+									rootState.currentDoc = payload.newDoc
 									commit('addToEventList', { txt: `Item of type ${rootState.helpersRef.getLevelText(payload.newNode.level)} is inserted.`, severity: SEV.INFO })
 								} else {
 									// the priority has changed after the preflight insert; revert the change in the tree and database

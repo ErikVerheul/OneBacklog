@@ -13,11 +13,6 @@ const actions = {
 		rootState.helpersRef = {
 			name: 'OneBacklog global helper functions',
 
-			/* Convenience function */
-			getLeafLevel() {
-				return rootGetters.leafLevel
-			},
-
 			/* Pad a number to a string with a fixed number of digits */
 			pad(num, size) {
 				var s = '000' + num
@@ -53,6 +48,7 @@ const actions = {
 			/* Create a node from the document data; ind and path may be undefined if the node is inserted in the tree with the insertNode method which resolves these values */
 			createNode(doc, ind, path) {
 				const newNode = {
+					_id: doc._id,
 					path,
 					pathStr: path ? pathToJSON(path) : undefined,
 					ind,
@@ -60,7 +56,6 @@ const actions = {
 					productId: doc.productId,
 					parentId: doc.parentId,
 					sprintId: doc.sprintId,
-					_id: doc._id,
 					dependencies: doc.dependencies || [],
 					conditionalFor: doc.conditionalFor || [],
 					title: doc.title,
@@ -326,7 +321,7 @@ const actions = {
 			},
 
 			/*
-			 * Update the descendants of the source (removal) or destination (insert) node with new position data and (if passed) new parentId and productId
+			 * Update the siblings of the parent and all siblings descendants with new position data and (if passed) new parentId and productId
 			 * Pass an insertInd as the lowest index of any insert to gain performance.
 			 */
 			updatePaths: function (parentPath, siblings, insertInd = 0, parentId, productId) {
@@ -551,30 +546,86 @@ const actions = {
 				}, rootState.helpersRef.getProductModelInArray(removedNode.productId))
 			},
 
-			/* Return the productId, parentId, level, the index position, priority and parentFollowers if this node is to be inserted */
-			preFlightSingeNodeInsert(cursorPosition, node) {
-				/* Recalculate the priorities of the inserted nodes. */
-				function calcNewPrio(node, predecessorNode, successorNode) {
-					let predecessorPrio
-					let successorPrio
-					if (predecessorNode !== null) {
-						predecessorPrio = predecessorNode.data.priority
-					} else predecessorPrio = Number.MAX_SAFE_INTEGER
-
-					if (successorNode !== null) {
-						successorPrio = successorNode.data.priority
-					} else successorPrio = Number.MIN_SAFE_INTEGER
-
-					const stepSize = Math.floor((predecessorPrio - successorPrio) / 2)
-					return Math.floor(predecessorPrio - stepSize)
+			/* Update the team and/or sprintId of the node or the target parent of the node */
+			applyNodeInsertionRules(targetParentNode, node, options) {
+				if (node.data.state === STATE.DONE) {
+					// done items cannot be changed
+					return node
 				}
 
+				let updateParentTeam = false
+				let updateParentSprintId = false
+				// team rules
+				if (node.level >= LEVEL.FEATURE) {
+					// a team name is assigned to user features, stories and tasks; the default is 'not assigned yet'
+					if (options.createNew) {
+						// when creating a new item, the team name is set to the team the current user is member of
+						node.data.team = rootState.userData.myTeam
+					} else if (options.isMove) {
+						// options createNew and isMove are exclusive
+						if (node.level === LEVEL.TASK && !node.data.taskOwner && node.data.team !== MISC.NOTEAM) {
+							// if a task without task owner and with an assigned team is moved to another user story without an assigned team, that user story will have that team assigned
+							if (targetParentNode.data.team === MISC.NOTEAM) {
+								targetParentNode.data.team = node.data.team
+								updateParentTeam = true
+							}
+							// if a task without task owner and with an assigned team is moved to another user story with an assigned team, that task will get the user stories team assigned
+							if (targetParentNode.data.team !== MISC.NOTEAM) node.data.team = targetParentNode.data.team
+						}
+					}
+				}
+
+				// sprintId rules
+				if (options.createNew && node.level >= LEVEL.US) {
+					// on creation and no sprintId was assigned, copy the sprintId from the parent user story or sibling task, if available
+					if (!node.data.sprintId && targetParentNode.data.sprintId) node.data.sprintId = targetParentNode.data.sprintId
+				}
+				if (options.isMove && node.level === LEVEL.TASK) {
+					// if a moved task has a sprintId and the parent does not, the parent user story is updated with the sprintId of the child task
+					if (node.data.sprintId && !targetParentNode.data.sprintId) {
+						targetParentNode.data.sprintId = node.data.sprintId
+						updateParentSprintId = true
+					}
+				}
+				if (options.createParentUpdateSets) {
+					// register a change set for the parent document update
+					if (updateParentTeam && !updateParentSprintId) node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team }
+					if (updateParentTeam && updateParentSprintId)
+						node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team, sprintId: node.data.sprintId }
+					if (!updateParentTeam && updateParentSprintId) node.data.tmp = { targetParentId: targetParentNode._id, sprintId: node.data.sprintId }
+				} else node.data.tmp = {}
+
+				return node
+			},
+
+			/* Assign new priorities to the nodes to be inserted between the predecessor and successor node */
+			assignNewPrios(nodes, predecessorNode, successorNode) {
+				let predecessorPrio
+				let successorPrio
+				if (predecessorNode !== null) {
+					predecessorPrio = predecessorNode.data.priority
+				} else predecessorPrio = Number.MAX_SAFE_INTEGER
+
+				if (successorNode !== null) {
+					successorPrio = successorNode.data.priority
+				} else successorPrio = Number.MIN_SAFE_INTEGER
+
+				const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
+				for (let i = 0; i < nodes.length; i++) {
+					nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
+				}
+			},
+
+			/*
+			 * Simulate the insertion of a node in the tree model.
+			 * Update the necessary properties of a single node for insertion.
+			 */
+			preFlightSingeNodeInsert(cursorPosition, node, options) {
 				let predecessorNode
 				let successorNode
 				let parentId
 				let level
 				let ind
-				let parentFollowers
 				const destNodeModel = cursorPosition.nodeModel
 				if (cursorPosition.placement === 'inside') {
 					// insert inside a parent -> the nodes become top level children
@@ -593,8 +644,18 @@ const actions = {
 					predecessorNode = destSiblings[ind - 1] || null
 					successorNode = destSiblings[ind] || null
 				}
-				parentFollowers = rootState.helpersRef.getNodeById(parentId).data.followers || []
-				return { productId: destNodeModel.productId, parentId, level, ind, priority: calcNewPrio(node, predecessorNode, successorNode), parentFollowers }
+				const targetParentNode = rootState.helpersRef.getNodeById(parentId)
+				node.productId = destNodeModel.productId
+				node.parentId = parentId
+				node.level = level
+				node.ind = ind
+				node.data.followers = targetParentNode.data.followers || []
+
+				if (options.calculatePrios || options.calculatePrios === undefined) {
+					rootState.helpersRef.assignNewPrios([node], predecessorNode, successorNode)
+				}
+
+				return rootState.helpersRef.applyNodeInsertionRules(targetParentNode, node, options)
 			},
 
 			/* Insert nodemodels that are removed from the tree before. The sprintId and team need be recalculated depending on the new parent node */
@@ -608,102 +669,19 @@ const actions = {
 			 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
 			 * Use the optional options object to move nodes, suppress productId updates and/or priority recalculation.
 			 * Calculate the priorities and the item path, level and index of the inserted items.
-			 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent (same level).
+			 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent.
 			 */
-			insertNodes(cursorPosition, nodes, options = undefined) {
-				function getMoveState(nodes) {
-					const extract = {}
-					// all items must have the same productId, parent and level
-					extract.parentId = nodes[0].parentId
-					extract.level = nodes[0].level
-					for (const nm of nodes) {
-						extract[nm._id] = {
-							sprintId: nm.data.sprintId,
-							team: nm.data.team,
-						}
-					}
-
-					return extract
-				}
-
-				function assignNewPrios(nodes, predecessorNode) {
-					let predecessorPrio
-					let successorPrio
-					if (predecessorNode !== null) {
-						predecessorPrio = predecessorNode.data.priority
-					} else predecessorPrio = Number.MAX_SAFE_INTEGER
-
-					if (successorNode !== null) {
-						successorPrio = successorNode.data.priority
-					} else successorPrio = Number.MIN_SAFE_INTEGER
-
-					const stepSize = Math.floor((predecessorPrio - successorPrio) / (nodes.length + 1))
-					for (let i = 0; i < nodes.length; i++) {
-						// update the tree; timestamp is recorded in the history in the database
-						nodes[i].data.priority = Math.floor(predecessorPrio - (i + 1) * stepSize)
-						nodes[i].data.lastPositionChange = Date.now()
-					}
-				}
-
-				function calcSprintId(movedNode, beforeMoveState) {
-					const sourceSprintId = beforeMoveState[movedNode._id].sprintId
-					const sourceLevel = beforeMoveState.level
-					const sourceParentId = beforeMoveState.parentId
-					const targetParentSprintId = rootState.helpersRef.getNodeById(movedNode.parentId).sprintId
-					const targetLevel = movedNode.level
-					const targetParentId = movedNode.parentId
-					let sprintId
-					if (sourceLevel === targetLevel) {
-						if (sourceParentId === targetParentId) {
-							sprintId = sourceSprintId
-						} else if (targetLevel === LEVEL.TASK) {
-							// if the task is moved from another user story assign the spintId of the parent user story to the targetSprintId
-							if (targetParentSprintId) {
-								sprintId = targetParentSprintId
-							} else {
-								sprintId = sourceSprintId
-							}
-						} else sprintId = sourceSprintId
-					} else {
-						// move to a different level
-						if (targetLevel === LEVEL.TASK) {
-							// if the node is moved from any other level to task level assign the spintId of the parent user story to the targetSprintId
-							if (targetParentSprintId) {
-								sprintId = targetParentSprintId
-							} else {
-								sprintId = sourceSprintId
-							}
-						} else {
-							if (targetLevel === LEVEL.US) {
-								if (sourceLevel === LEVEL.TASK) {
-									// a task promoted to user story preserves its sprint
-									sprintId = sourceSprintId
-								} else {
-									// items moved from feature level and above have no sprint assigned
-									sprintId = undefined
-								}
-							} else {
-								// items moved to feature level and above have no sprint assigned
-								sprintId = undefined
-							}
-						}
-					}
-
-					return sprintId
-				}
-
+			insertNodes(cursorPosition, nodes, options = {}) {
 				const destNodeModel = cursorPosition.nodeModel
-				let beforeMoveState = undefined
-				if (options && options.isMove) beforeMoveState = getMoveState(nodes)
-
-				// if productId is set to undefined updatePaths(*) will not update the productId
-				const productId = options && options.skipUpdateProductId ? undefined : destNodeModel.productId
+				// if productId is undefined, updatePaths will not update the productId (the productId is set to be undefined)
+				const productId = options.skipUpdateProductId ? undefined : destNodeModel.productId
 				let predecessorNode
 				let successorNode
+				let parentId
 				if (cursorPosition.placement === 'inside') {
 					// insert inside a parent -> the nodes become top level children
 					const destSiblings = destNodeModel.children || []
-					const parentId = destNodeModel._id
+					parentId = destNodeModel._id
 					predecessorNode = null
 					destSiblings.unshift(...nodes)
 					successorNode = destSiblings[nodes.length] || null
@@ -713,7 +691,7 @@ const actions = {
 				} else {
 					// insert before or after the cursor position
 					const destSiblings = rootState.helpersRef.getNodeSiblings(destNodeModel.path)
-					const parentId = destNodeModel.parentId
+					parentId = destNodeModel.parentId
 					const parentPath = destNodeModel.path.slice(0, -1)
 					const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
 					predecessorNode = destSiblings[insertInd - 1] || null
@@ -722,14 +700,18 @@ const actions = {
 					rootState.helpersRef.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 				}
 				// if not excluded in options do assign new priorities
-				if (!options || options.calculatePrios || options.calculatePrios === undefined) {
-					assignNewPrios(nodes, predecessorNode, successorNode)
+				if (options.calculatePrios || options.calculatePrios === undefined) {
+					rootState.helpersRef.assignNewPrios(nodes, predecessorNode, successorNode)
 				}
-				// if nodes are moved recalculate the sprintId
-				if (options && options.isMove)
-					for (const nm of nodes) {
-						nm.sprintId = calcSprintId(nm, beforeMoveState)
-					}
+
+				const targetParentNode = rootState.helpersRef.getNodeById(parentId)
+				options.createParentUpdateSets = true
+				for (let n of nodes) {
+					rootState.helpersRef.applyNodeInsertionRules(targetParentNode, n, options)
+					n.data.followers = targetParentNode.data.followers || []
+					if (options.isMove) n.data.lastPositionChange = Date.now()
+				}
+
 				// add the node ids to the lastSessionData of the other view (detail or coarse) if not present
 				if (rootState.lastSessionData) {
 					for (let n of nodes) {
@@ -747,7 +729,6 @@ const actions = {
 
 			/* Remove nodes from the tree model. Return true if any node was removed */
 			removeNodes(nodes) {
-				const lastSelectedNode = rootGetters.getSelectedNode
 				let success = false
 				for (const n of nodes) {
 					const siblings = rootState.helpersRef.getNodeSiblings(n.path)
@@ -759,21 +740,29 @@ const actions = {
 						// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
 						if (rootState.lastSessionData) {
 							if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-								rootState.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+								rootState.lastSessionData.detailView.lastSelectedNodeId = n.parentId
 								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-									// if the coarseView.lastSelectedNodeId is removed assign the current default product node id
-									rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
-									rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
+									if (rootState.lastSessionData.coarseView.expandedNodes.includes(n.parentId)) {
+										// if available assign the patent of the removed node
+										rootState.lastSessionData.coarseView.lastSelectedNodeId = n.parentId
+									} else {
+										// else assign the current default product node id
+										rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
+										rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
+									}
 								}
 							}
 							if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-								rootState.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-								rootState.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
+								rootState.lastSessionData.coarseView.lastSelectedNodeId = n.parentId
 								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-									// if the detailView.lastSelectedNodeId is removed assign the current default product node id
-									rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
-									rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
+									if (rootState.lastSessionData.detailView.expandedNodes.includes(n.parentId)) {
+										// if available assign the patent of the removed node
+										rootState.lastSessionData.detailView.lastSelectedNodeId = n.parentId
+									} else {
+										// else assign the current default product node id
+										rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
+										rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
+									}
 								}
 							}
 						}

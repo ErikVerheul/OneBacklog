@@ -46,7 +46,7 @@ const mutations = {
 			const parentId = item.value[2]
 			const itemState = item.value[3]
 			const title = item.value[4]
-			const team = item.value[5]
+			const team = item.value[5] || MISC.NOTEAM
 			const subtype = item.value[6]
 			const dependencies = dedup(item.value[7])
 			const conditionalFor = dedup(item.value[8])
@@ -88,7 +88,6 @@ const mutations = {
 						doShow: true,
 						data: {
 							state: itemState,
-							team,
 							priority,
 							lastOtherChange: 0,
 							followers,
@@ -140,13 +139,13 @@ const mutations = {
 					levelErrorsFound.push({ id: _id, parentId, productId, dbLevel: itemLevel, pathLength: path.length })
 				}
 				const newNode = {
+					_id,
 					path,
 					pathStr: pathToJSON(path),
 					ind,
 					level: itemLevel,
 					productId,
 					parentId,
-					_id,
 					dependencies,
 					conditionalFor,
 					title,
