@@ -408,7 +408,7 @@ const actions = {
 								onSuccessCallback: () => {
 									const removedNode = payload.node
 									// remove the node and its children from the tree view
-									if (rootState.helpersRef.removeNodes([removedNode])) {
+									if (rootState.helpersRef.removeNode(removedNode)) {
 										// remove the children; on restore the children are recovered from the database
 										removedNode.children = []
 										if (removedNode.level === LEVEL.PRODUCT) {

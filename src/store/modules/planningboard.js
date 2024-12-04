@@ -1215,7 +1215,7 @@ const actions = {
 						if (rootState.lastTreeView === 'detailProduct') {
 							// remove the node from the tree view
 							const node = rootState.helpersRef.getNodeById(taskId)
-							if (node) rootState.helpersRef.removeNodes([node])
+							if (node) rootState.helpersRef.removeNode(node)
 						}
 						commit('removeTaskFromBoard', { storyId, taskId, taskState })
 					},

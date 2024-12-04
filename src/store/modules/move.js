@@ -75,7 +75,7 @@ const actions = {
 			rootState.helpersRef.setBranchUnselectable(payload.dropTarget)
 
 			beforeMoveState = getMoveState(rootState, items)
-			rootState.helpersRef.removeNodes(items)
+			for (const it of items) rootState.helpersRef.removeNode(it)
 			rootState.helpersRef.insertMovedNodes(payload.cursorPosition, items)
 			afterMoveState = getMoveState(rootState, items)
 		}
@@ -260,7 +260,7 @@ const actions = {
 						doc.sprintId = afterMoveState[itemId].sprintId
 					} else delete doc.sprintId
 					if (doc.level >= LEVEL.FEATURE) {
-						doc.team = afterMoveState[doc._id].team
+						doc.team = afterMoveState[itemId].team
 					} else delete doc.team
 					doc.lastPositionChange = Date.now()
 					const newHist = {
@@ -336,7 +336,7 @@ const actions = {
 							}
 						}
 
-						rootState.helpersRef.removeNodes([item])
+						rootState.helpersRef.removeNode(item)
 
 						item.level = afterMoveState.level
 						item.productId = afterMoveState.productId

@@ -727,47 +727,45 @@ const actions = {
 				}
 			},
 
-			/* Remove nodes from the tree model. Return true if any node was removed */
-			removeNodes(nodes) {
+			/* Remove the node from the tree model. Return true if successful */
+			removeNode(node) {
 				let success = false
-				for (const n of nodes) {
-					const siblings = rootState.helpersRef.getNodeSiblings(n.path)
-					if (siblings.length > 0) {
-						const removeInd = n.ind
-						const parentPath = n.path.slice(0, -1)
-						siblings.splice(removeInd, 1)
-						rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
-						// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
-						if (rootState.lastSessionData) {
-							if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-								rootState.lastSessionData.detailView.lastSelectedNodeId = n.parentId
-								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-									if (rootState.lastSessionData.coarseView.expandedNodes.includes(n.parentId)) {
-										// if available assign the patent of the removed node
-										rootState.lastSessionData.coarseView.lastSelectedNodeId = n.parentId
-									} else {
-										// else assign the current default product node id
-										rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
-										rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
-									}
-								}
-							}
-							if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
-								rootState.lastSessionData.coarseView.lastSelectedNodeId = n.parentId
-								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
-									if (rootState.lastSessionData.detailView.expandedNodes.includes(n.parentId)) {
-										// if available assign the patent of the removed node
-										rootState.lastSessionData.detailView.lastSelectedNodeId = n.parentId
-									} else {
-										// else assign the current default product node id
-										rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
-										rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
-									}
+				const siblings = rootState.helpersRef.getNodeSiblings(node.path)
+				if (siblings.length > 0) {
+					const removeInd = node.ind
+					const parentPath = node.path.slice(0, -1)
+					siblings.splice(removeInd, 1)
+					rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
+					// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
+					if (rootState.lastSessionData) {
+						if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, node)) {
+							rootState.lastSessionData.detailView.lastSelectedNodeId = node.parentId
+							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, node)) {
+								if (rootState.lastSessionData.coarseView.expandedNodes.includes(node.parentId)) {
+									// if available assign the patent of the removed node
+									rootState.lastSessionData.coarseView.lastSelectedNodeId = node.parentId
+								} else {
+									// else assign the current default product node id
+									rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
+									rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
 								}
 							}
 						}
-						success = true
+						if (rootState.currentView === 'coarseProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, node)) {
+							rootState.lastSessionData.coarseView.lastSelectedNodeId = node.parentId
+							if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, node)) {
+								if (rootState.lastSessionData.detailView.expandedNodes.includes(node.parentId)) {
+									// if available assign the patent of the removed node
+									rootState.lastSessionData.detailView.lastSelectedNodeId = node.parentId
+								} else {
+									// else assign the current default product node id
+									rootState.lastSessionData.detailView.lastSelectedNodeId = rootState.currentProductId
+									rootState.lastSessionData.detailView.lastSelectedProductId = 'root'
+								}
+							}
+						}
 					}
+					success = true
 				}
 				return success
 			},

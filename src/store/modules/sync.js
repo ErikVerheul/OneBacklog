@@ -157,7 +157,7 @@ const actions = {
 			const locationInfo = getLocationInfo(newPriority, newParentNode)
 			if (rootState.helpersRef.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
-				rootState.helpersRef.removeNodes([node])
+				rootState.helpersRef.removeNode(node)
 				node.data.priority = newPriority
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
@@ -252,7 +252,7 @@ const actions = {
 										delete nm.data.reqarea
 									}
 								})
-								rootState.helpersRef.removeNodes([node])
+								rootState.helpersRef.removeNode(node)
 								showSyncMessage(`removed`, SEV.INFO)
 							}
 							break
@@ -367,7 +367,7 @@ const actions = {
 									// remove the product from the users product roles, subscriptions and product selection array and update the user's profile
 									dispatch('removeFromMyProducts', { productId: node._id, isSameUserInDifferentSession, doSignOut })
 								}
-								rootState.helpersRef.removeNodes([node])
+								rootState.helpersRef.removeNode(node)
 								showSyncMessage(`removed the`, SEV.INFO)
 							}
 							break
@@ -442,7 +442,7 @@ const actions = {
 										let nowSelectedNode = prevNode
 										commit('renewSelectedNodes', nowSelectedNode)
 									}
-									rootState.helpersRef.removeNodes([node])
+									rootState.helpersRef.removeNode(node)
 									showSyncMessage(
 										`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
 										SEV.INFO,
