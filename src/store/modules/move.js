@@ -76,7 +76,10 @@ const actions = {
 
 			beforeMoveState = getMoveState(rootState, items)
 			for (const it of items) rootState.helpersRef.removeNode(it)
-			rootState.helpersRef.insertMovedNodes(payload.cursorPosition, items)
+			for (const it of items) {
+				const skipUpdateProductId = it.parentId === 'root' && payload.cursorPosition.nodeModel.parentId === 'root'
+				rootState.helpersRef.insertNode(payload.cursorPosition, it, { calculatePrios: true, skipUpdateProductId, isMove: true })
+			}
 			afterMoveState = getMoveState(rootState, items)
 		}
 
@@ -348,7 +351,7 @@ const actions = {
 						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
 
 						const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
-						rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
+						rootState.helpersRef.insertNode(cursorPosition, item, { calculatePrios: false, skipUpdateProductId })
 					}
 
 					commit('addToEventList', {

@@ -127,12 +127,12 @@ const actions = {
 				},
 				tmp: {},
 			}
-			rootState.helpersRef.insertNodes(
+			rootState.helpersRef.insertNode(
 				{
 					nodeModel: locationInfo.prevNode,
 					placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 				},
-				[node],
+				node,
 				{ createNew: true },
 			)
 			// not committing any changes to the tree model. As the user has to navigate to the new node the data will be loaded.
@@ -161,17 +161,17 @@ const actions = {
 				node.data.priority = newPriority
 				// do not recalculate the priority during insert
 				if (locationInfo.newInd === 0) {
-					rootState.helpersRef.insertNodes(
+					rootState.helpersRef.insertNode(
 						{
 							nodeModel: locationInfo.prevNode,
 							placement: 'inside',
 						},
-						[node],
+						node,
 						{ calculatePrios: false, skipUpdateProductId: isProductMoved },
 					)
 				} else {
 					// insert after prevNode
-					rootState.helpersRef.insertNodes(
+					rootState.helpersRef.insertNode(
 						{
 							nodeModel: locationInfo.prevNode,
 							placement: 'after',

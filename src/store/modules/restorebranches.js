@@ -60,12 +60,12 @@ const actions = {
 						const newNode = rootState.helpersRef.createNode(doc)
 						const options = doc.level === LEVEL.PRODUCT ? { skipUpdateProductId: true } : { skipUpdateProductId: false }
 						// insert the parent node in the tree
-						rootState.helpersRef.insertNodes(
+						rootState.helpersRef.insertNode(
 							{
 								nodeModel: locationInfo.prevNode,
 								placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 							},
-							[newNode],
+							newNode,
 							options,
 						)
 						// load the children of the node
@@ -129,12 +129,12 @@ const actions = {
 					const locationInfo = getLocationInfo(doc.priority, parentNode)
 					const newNode = rootState.helpersRef.createNode(doc)
 					// insert the product node in the tree
-					rootState.helpersRef.insertNodes(
+					rootState.helpersRef.insertNode(
 						{
 							nodeModel: locationInfo.prevNode,
 							placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 						},
-						[newNode],
+						newNode,
 						{ skipUpdateProductId: true },
 					)
 					// load the children of the nodes

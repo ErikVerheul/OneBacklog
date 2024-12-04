@@ -929,7 +929,7 @@ const actions = {
 							caller: 'createDocWithParentHist-2',
 							onSuccessCallback: () => {
 								// insert the new node in the tree and set the path and ind
-								rootState.helpersRef.insertNodes(payload.newNodeLocation, [payload.newNode], { createNew: true })
+								rootState.helpersRef.insertNode(payload.newNodeLocation, payload.newNode, { createNew: true })
 								// the level, productId, parentId and priority are reset and should equal the preflight values; check the priority value only
 								if (payload.newDoc.priority === payload.newNode.data.priority) {
 									// create an entry for undoing the change in a last-in first-out sequence

@@ -276,7 +276,7 @@ const actions = {
 							}
 						}
 						// do not recalculate priorities when inserting a product node
-						rootState.helpersRef.insertNodes(cursorPosition, [globalEntry.removedNode], { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
+						rootState.helpersRef.insertNode(cursorPosition, globalEntry.removedNode, { calculatePrios: globalEntry.removedNode.parentId !== 'root' })
 
 						// select the recovered node
 						commit('renewSelectedNodes', globalEntry.removedNode)

@@ -250,12 +250,12 @@ const actions = {
 		const parentNode = rootState.helpersRef.getNodeById(payload.originalNode.parentId)
 		const locationInfo = getLocationInfo(clonedRootDoc.priority, parentNode)
 		// insert the cloned root node in the tree above the original
-		rootState.helpersRef.insertNodes(
+		rootState.helpersRef.insertNode(
 			{
 				nodeModel: locationInfo.prevNode,
 				placement: locationInfo.newInd === 0 ? 'inside' : 'after',
 			},
-			[clonedRootNode],
+			clonedRootNode,
 			{ skipUpdateProductId: true },
 		)
 		// select the cloned node

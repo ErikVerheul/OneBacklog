@@ -658,20 +658,12 @@ const actions = {
 				return rootState.helpersRef.applyNodeInsertionRules(targetParentNode, node, options)
 			},
 
-			/* Insert nodemodels that are removed from the tree before. The sprintId and team need be recalculated depending on the new parent node */
-			insertMovedNodes(cursorPosition, nodes) {
-				// items are assigned a new priority; if moving a product branch skip updating the productId
-				const skipUpdateProductId = nodes[0].parentId === 'root' && cursorPosition.nodeModel.parentId === 'root'
-				rootState.helpersRef.insertNodes(cursorPosition, nodes, { calculatePrios: true, skipUpdateProductId, isMove: true })
-			},
-
 			/*
-			 * Insert the nodeModels in the tree model inside, after or before the node at cursorposition.
+			 * Insert the node in the tree model inside, after or before the node at cursorposition.
 			 * Use the optional options object to move nodes, suppress productId updates and/or priority recalculation.
 			 * Calculate the priorities and the item path, level and index of the inserted items.
-			 * Precondition: the nodes are inserted in the tree and all created or moved nodes have the same parent.
 			 */
-			insertNodes(cursorPosition, nodes, options = {}) {
+			insertNode(cursorPosition, node, options = {}) {
 				const destNodeModel = cursorPosition.nodeModel
 				// if productId is undefined, updatePaths will not update the productId (the productId is set to be undefined)
 				const productId = options.skipUpdateProductId ? undefined : destNodeModel.productId
@@ -683,8 +675,8 @@ const actions = {
 					const destSiblings = destNodeModel.children || []
 					parentId = destNodeModel._id
 					predecessorNode = null
-					destSiblings.unshift(...nodes)
-					successorNode = destSiblings[nodes.length] || null
+					destSiblings.unshift(node)
+					successorNode = destSiblings[1] || null
 					rootState.helpersRef.updatePaths(destNodeModel.path, destSiblings, 0, parentId, productId)
 					// expand the parent node to show the inserted nodes
 					destNodeModel.isExpanded = true
@@ -695,34 +687,30 @@ const actions = {
 					const parentPath = destNodeModel.path.slice(0, -1)
 					const insertInd = cursorPosition.placement === 'before' ? destNodeModel.ind : destNodeModel.ind + 1
 					predecessorNode = destSiblings[insertInd - 1] || null
-					destSiblings.splice(insertInd, 0, ...nodes)
-					successorNode = destSiblings[insertInd + nodes.length] || null
+					destSiblings.splice(insertInd, 0, node)
+					successorNode = destSiblings[insertInd + 1] || null
 					rootState.helpersRef.updatePaths(parentPath, destSiblings, insertInd, parentId, productId)
 				}
 				// if not excluded in options do assign new priorities
 				if (options.calculatePrios || options.calculatePrios === undefined) {
-					rootState.helpersRef.assignNewPrios(nodes, predecessorNode, successorNode)
+					rootState.helpersRef.assignNewPrios(node, predecessorNode, successorNode)
 				}
 
 				const targetParentNode = rootState.helpersRef.getNodeById(parentId)
 				options.createParentUpdateSets = true
-				for (let n of nodes) {
-					rootState.helpersRef.applyNodeInsertionRules(targetParentNode, n, options)
-					n.data.followers = targetParentNode.data.followers || []
-					if (options.isMove) n.data.lastPositionChange = Date.now()
-				}
+				rootState.helpersRef.applyNodeInsertionRules(targetParentNode, node, options)
+				node.data.followers = targetParentNode.data.followers || []
+				if (options.isMove) node.data.lastPositionChange = Date.now()
 
 				// add the node ids to the lastSessionData of the other view (detail or coarse) if not present
 				if (rootState.lastSessionData) {
-					for (let n of nodes) {
-						if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(n._id)) {
-							rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
-							rootState.lastSessionData.coarseView.doShowNodes.push(n._id)
-						}
-						if (rootState.currentView === 'coarseProduct' && !rootState.lastSessionData.detailView.expandedNodes.includes(n._id)) {
-							rootState.lastSessionData.detailView.expandedNodes.push(n._id)
-							rootState.lastSessionData.detailView.doShowNodes.push(n._id)
-						}
+					if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(node._id)) {
+						rootState.lastSessionData.coarseView.expandedNodes.push(node._id)
+						rootState.lastSessionData.coarseView.doShowNodes.push(node._id)
+					}
+					if (rootState.currentView === 'coarseProduct' && !rootState.lastSessionData.detailView.expandedNodes.includes(node._id)) {
+						rootState.lastSessionData.detailView.expandedNodes.push(node._id)
+						rootState.lastSessionData.detailView.doShowNodes.push(node._id)
 					}
 				}
 			},
