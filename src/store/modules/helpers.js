@@ -595,6 +595,9 @@ const actions = {
 					if (!updateParentTeam && updateParentSprintId) node.data.tmp = { targetParentId: targetParentNode._id, sprintId: node.data.sprintId }
 				} else node.data.tmp = {}
 
+				node.data.followers = targetParentNode.data.followers || []
+				if (options.isMove) node.lastPositionChange = Date.now()
+
 				return node
 			},
 
@@ -662,6 +665,7 @@ const actions = {
 			 * Insert the node in the tree model inside, after or before the node at cursorposition.
 			 * Use the optional options object to move nodes, suppress productId updates and/or priority recalculation.
 			 * Calculate the priorities and the item path, level and index of the inserted items.
+			 * Returns the id of the target node the item is inserted in (on top of between it siblings)
 			 */
 			insertNode(cursorPosition, node, options = {}) {
 				const destNodeModel = cursorPosition.nodeModel
@@ -671,7 +675,7 @@ const actions = {
 				let successorNode
 				let parentId
 				if (cursorPosition.placement === 'inside') {
-					// insert inside a parent -> the nodes become top level children
+					// insert inside a parent -> the node becomes top level child
 					const destSiblings = destNodeModel.children || []
 					parentId = destNodeModel._id
 					predecessorNode = null
@@ -696,10 +700,6 @@ const actions = {
 					rootState.helpersRef.assignNewPrios(node, predecessorNode, successorNode)
 				}
 
-				const targetParentNode = rootState.helpersRef.getNodeById(parentId)
-				options.createParentUpdateSets = true
-				rootState.helpersRef.applyNodeInsertionRules(targetParentNode, node, options)
-				node.data.followers = targetParentNode.data.followers || []
 				if (options.isMove) node.data.lastPositionChange = Date.now()
 
 				// add the node ids to the lastSessionData of the other view (detail or coarse) if not present
@@ -713,6 +713,8 @@ const actions = {
 						rootState.lastSessionData.detailView.doShowNodes.push(node._id)
 					}
 				}
+
+				return parentId
 			},
 
 			/* Remove the node from the tree model. Return true if successful */

@@ -18,10 +18,9 @@ function getMoveState(rootState, items) {
 		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
 		extract[nm._id] = {
 			ind: nm.ind,
-			conditionalFor: nm.conditionalFor,
-			dependencies: nm.dependencies,
 			descendantIds: rootState.helpersRef.getDescendantsInfo(nm).ids,
 			descendantsCount,
+			followers: nm.data.followers,
 			priority: nm.data.priority,
 			sprintId: nm.data.sprintId,
 			team: nm.data.team,
@@ -75,10 +74,12 @@ const actions = {
 			rootState.helpersRef.setBranchUnselectable(payload.dropTarget)
 
 			beforeMoveState = getMoveState(rootState, items)
-			for (const it of items) rootState.helpersRef.removeNode(it)
 			for (const it of items) {
+				rootState.helpersRef.removeNode(it)
 				const skipUpdateProductId = it.parentId === 'root' && payload.cursorPosition.nodeModel.parentId === 'root'
-				rootState.helpersRef.insertNode(payload.cursorPosition, it, { calculatePrios: true, skipUpdateProductId, isMove: true })
+				const targetParentId = rootState.helpersRef.insertNode(payload.cursorPosition, it, { calculatePrios: true, skipUpdateProductId, isMove: true })
+				const targetParentNode = rootState.helpersRef.getNodeById(targetParentId)
+				rootState.helpersRef.applyNodeInsertionRules(targetParentNode, it, { isMove: true, createParentUpdateSets: true })
 			}
 			afterMoveState = getMoveState(rootState, items)
 		}
@@ -120,8 +121,7 @@ const actions = {
 							if (doc.level !== LEVEL.PRODUCT) doc.productId = afterMoveState.productId
 							doc.level = afterMoveState.level
 							doc.parentId = afterMoveState.parentId
-							doc.dependencies = afterMoveState[doc._id].dependencies
-							doc.conditionalFor = afterMoveState[doc._id].conditionalFor
+							doc.followers = afterMoveState[doc._id].followers
 							doc.priority = afterMoveState[doc._id].priority
 							if (doc.level >= LEVEL.US) {
 								doc.sprintId = afterMoveState[doc._id].sprintId
@@ -130,7 +130,7 @@ const actions = {
 								delete doc.sprintId
 								delete doc.team
 							}
-							doc.lastPositionChange = Date.now()
+							doc.lastPositionChange = afterMoveState.lastPositionChange
 							// find the affected sprints
 							const sprintsAffected = []
 							if (beforeMoveState[doc._id].sprintId) {
@@ -168,7 +168,7 @@ const actions = {
 									beforeMoveState[doc._id].sprintId,
 									afterMoveState[doc._id].sprintId,
 									payload.isUndoAction ? 'undoMove' : 'move',
-									doc.lastPositionChangee,
+									doc.lastPositionChange,
 									beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root',
 								],
 								by: rootState.userData.user,
@@ -265,7 +265,7 @@ const actions = {
 					if (doc.level >= LEVEL.FEATURE) {
 						doc.team = afterMoveState[itemId].team
 					} else delete doc.team
-					doc.lastPositionChange = Date.now()
+					doc.lastPositionChange = afterMoveState[itemId].lastPositionChange
 					const newHist = {
 						ignoreEvent: ['updateMovedDescendants'],
 						timestamp: Date.now(),
