@@ -3,16 +3,18 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+/* Get the properties that can change when the items move in the tree plus some properties needed for the history record */
 function getMoveState(rootState, items) {
 	const extract = {}
 	// all items must have the same productId, parent and level
 	extract.productId = items[0].productId
 	extract.parentId = items[0].parentId
+	extract.level = items[0].level
 	const parentNode = rootState.helpersRef.getNodeById(items[0].parentId)
 	extract.parentTitle = parentNode.title
 	extract.parentSprintId = parentNode.data.sprintId
 	extract.parentTeam = parentNode.data.team
-	extract.level = items[0].level
+
 	extract.allDescendantsCount = 0
 	for (const nm of items) {
 		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
@@ -24,7 +26,6 @@ function getMoveState(rootState, items) {
 			priority: nm.data.priority,
 			sprintId: nm.data.sprintId,
 			team: nm.data.team,
-			taskOwner: nm.data.taskOwner,
 			lastPositionChange: nm.data.lastPositionChange,
 		}
 		extract.allDescendantsCount += extract[nm._id].descendantsCount
@@ -117,20 +118,17 @@ const actions = {
 						const doc = envelope.ok
 						if (itemIds.includes(doc._id)) {
 							const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
-							// update the document; products never change their own product id
-							if (doc.level !== LEVEL.PRODUCT) doc.productId = afterMoveState.productId
-							doc.level = afterMoveState.level
+							// copy the changed properties from the afterMoveState
+							doc.productId = afterMoveState.productId
 							doc.parentId = afterMoveState.parentId
+							doc.level = afterMoveState.level
+
 							doc.followers = afterMoveState[doc._id].followers
 							doc.priority = afterMoveState[doc._id].priority
-							if (doc.level >= LEVEL.US) {
-								doc.sprintId = afterMoveState[doc._id].sprintId
-								doc.team = afterMoveState[doc._id].team
-							} else {
-								delete doc.sprintId
-								delete doc.team
-							}
-							doc.lastPositionChange = afterMoveState.lastPositionChange
+							doc.sprintId = afterMoveState[doc._id].sprintId
+							doc.team = afterMoveState[doc._id].team
+							doc.lastPositionChange = afterMoveState[doc._id].lastPositionChange
+
 							// find the affected sprints
 							const sprintsAffected = []
 							if (beforeMoveState[doc._id].sprintId) {
@@ -256,15 +254,14 @@ const actions = {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
 					const doc = envelope.ok
-					const levelShift = afterMoveState.level - beforeMoveState.level
+					// copy properties from item, parentId and priority do not change
 					doc.productId = afterMoveState.productId
+					const levelShift = afterMoveState.level - beforeMoveState.level
 					doc.level = doc.level + levelShift
-					if (doc.level >= LEVEL.US) {
-						doc.sprintId = afterMoveState[itemId].sprintId
-					} else delete doc.sprintId
-					if (doc.level >= LEVEL.FEATURE) {
-						doc.team = afterMoveState[itemId].team
-					} else delete doc.team
+
+					doc.followers = afterMoveState[itemId].followers
+					doc.sprintId = afterMoveState[itemId].sprintId
+					doc.team = afterMoveState[itemId].team
 					doc.lastPositionChange = afterMoveState[itemId].lastPositionChange
 					const newHist = {
 						ignoreEvent: ['updateMovedDescendants'],
@@ -344,10 +341,10 @@ const actions = {
 						item.level = afterMoveState.level
 						item.productId = afterMoveState.productId
 						item.parentId = afterMoveState.parentId
-						item.dependencies = afterMoveState[id].dependencies
-						item.conditionalFor = afterMoveState[id].conditionalFor
 						item.data.priority = afterMoveState[id].priority
 						item.data.sprintId = afterMoveState[id].sprintId
+						item.data.team = afterMoveState[id].team
+						item.data.followers = afterMoveState[id].followers
 						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
 
 						const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
