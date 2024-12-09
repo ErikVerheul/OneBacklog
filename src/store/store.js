@@ -487,7 +487,7 @@ const store = createStore({
 						}
 						state.myProductOptions = newOptions
 						if (payload.doSignOut) {
-							commit('endSession', 'removeFromMyProducts, payload.doSignOut = true')
+							commit('endSession', `removeFromMyProducts, productId = ${payload.productId}`)
 						}
 					}
 
