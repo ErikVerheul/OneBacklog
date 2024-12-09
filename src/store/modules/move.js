@@ -1,31 +1,28 @@
-import { LEVEL, SEV } from '../../constants.js'
+import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
+/* Get the properties that can change in a move plus some properties needed to process descendants and for the history record */
 function getMoveState(rootState, items) {
 	const extract = {}
 	// all items must have the same productId, parent and level
 	extract.productId = items[0].productId
 	extract.parentId = items[0].parentId
+	extract.level = items[0].level
 	const parentNode = rootState.helpersRef.getNodeById(items[0].parentId)
 	extract.parentTitle = parentNode.title
-	extract.parentSprintId = parentNode.data.sprintId
-	extract.parentTeam = parentNode.data.team
-	extract.level = items[0].level
+
 	extract.allDescendantsCount = 0
 	for (const nm of items) {
 		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
 		extract[nm._id] = {
 			ind: nm.ind,
-			conditionalFor: nm.conditionalFor,
-			dependencies: nm.dependencies,
 			descendantIds: rootState.helpersRef.getDescendantsInfo(nm).ids,
 			descendantsCount,
 			priority: nm.data.priority,
 			sprintId: nm.data.sprintId,
 			team: nm.data.team,
-			taskOwner: nm.data.taskOwner,
 			lastPositionChange: nm.data.lastPositionChange,
 		}
 		extract.allDescendantsCount += extract[nm._id].descendantsCount
@@ -33,7 +30,7 @@ function getMoveState(rootState, items) {
 	return extract
 }
 
-function getUpdateSet(rootState, id, afterMoveState) {
+function createUpdateSet(rootState, id, afterMoveState) {
 	const targetParentId = afterMoveState.parentId
 	const node = rootState.helpersRef.getNodeById(id)
 	if (node && node.data.tmp) {
@@ -59,9 +56,8 @@ const actions = {
 	 * 2. if moving to another product or level, update the productId (not parentId) and level of the descendants
 	 * 3. save the update of the moved items and per item the child updates in multiple database bulk updates
 	 * 4. if the inserted task has a sprintId and the parent does not, the parent user story need to be updated with the sprintId of the child task
+	 * 5. as 4 for the team name
 	 */
-
-	/* New approach ======================================================================================================================================================= */
 
 	updateMovedItemsBulk({ rootState, commit, dispatch }, payload) {
 		let items = []
@@ -107,27 +103,24 @@ const actions = {
 				const docs = []
 				const error = []
 				const targetParentsToUpdate = []
+				const toDispatch = []
 				for (const r of results) {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
+						// the item was loaded
 						const doc = envelope.ok
 						if (itemIds.includes(doc._id)) {
 							const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
-							// update the document; products never change their own product id
-							if (doc.level !== LEVEL.PRODUCT) doc.productId = afterMoveState.productId
-							doc.level = afterMoveState.level
+							// copy any changes due to the move
+							doc.productId = afterMoveState.productId
 							doc.parentId = afterMoveState.parentId
-							doc.dependencies = afterMoveState[doc._id].dependencies
-							doc.conditionalFor = afterMoveState[doc._id].conditionalFor
+							doc.level = afterMoveState.level
+
 							doc.priority = afterMoveState[doc._id].priority
-							if (doc.level >= LEVEL.US) {
-								doc.sprintId = afterMoveState[doc._id].sprintId
-								doc.team = afterMoveState[doc._id].team
-							} else {
-								delete doc.sprintId
-								delete doc.team
-							}
-							doc.lastPositionChange = Date.now()
+							doc.sprintId = afterMoveState[doc._id].sprintId
+							doc.team = afterMoveState[doc._id].team
+							doc.lastPositionChange = afterMoveState[doc._id].lastPositionChange
+
 							// find the affected sprints
 							const sprintsAffected = []
 							if (beforeMoveState[doc._id].sprintId) {
@@ -145,7 +138,7 @@ const actions = {
 								if (!teamsAffected.includes(t)) teamsAffected.push(t)
 							}
 							// check if the parent user story need to be updated with the team and/or the sprintId of the child task
-							const updateSet = getUpdateSet(rootState, doc._id, afterMoveState)
+							const updateSet = createUpdateSet(rootState, doc._id, afterMoveState)
 							if (updateSet && !isADuplicate(targetParentsToUpdate, updateSet)) {
 								targetParentsToUpdate.push(updateSet)
 							}
@@ -165,7 +158,7 @@ const actions = {
 									beforeMoveState[doc._id].sprintId,
 									afterMoveState[doc._id].sprintId,
 									payload.isUndoAction ? 'undoMove' : 'move',
-									doc.lastPositionChangee,
+									afterMoveState[doc._id].lastPositionChange,
 									beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root',
 								],
 								by: rootState.userData.user,
@@ -181,7 +174,7 @@ const actions = {
 							docs.push(doc)
 
 							if (alsoUpdateDescendants) {
-								dispatch('updateMovedDescendants', { itemId: doc._id, beforeMoveState, afterMoveState })
+								toDispatch.push({ updateMovedDescendants: { itemId: doc._id, beforeMoveState, afterMoveState } })
 							}
 						}
 					}
@@ -195,11 +188,11 @@ const actions = {
 					}
 					const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
-					// ToDo: make this an alert with the only option to restart the application
 					commit('addToEventList', {
-						txt: 'The move failed due to update errors. Try again after sign-out or contact your administrator',
+						txt: 'The move failed due to update errors. Try again after signing-in again or contact your administrator',
 						severity: SEV.WARNING,
 					})
+					commit('endSession', `updateMovedItemsBulk, error = ${errorStr}`)
 				} else {
 					if (!payload.isUndoAction) {
 						// create an entry for undoing the move in a last-in first-out sequence
@@ -211,9 +204,8 @@ const actions = {
 						}
 						rootState.changeHistory.unshift(undoEntry)
 					}
-					let toDispatch = null
 					if (targetParentsToUpdate.length > 0) {
-						toDispatch = [{ updateMovedItemsParents: targetParentsToUpdate }]
+						toDispatch.push({ updateMovedItemsParents: targetParentsToUpdate })
 					}
 					dispatch('saveMovedItems', {
 						dropTarget: payload.dropTarget,
@@ -232,7 +224,10 @@ const actions = {
 			})
 	},
 
-	/* If moving to another product or another level also update the descendants of the moved(back) item */
+	/*
+	 * If moving to another product or another level also update the descendants of the moved(back) item.
+	 * Note that the parent and the priority of a descendant does not change.
+	 */
 	updateMovedDescendants({ rootState, dispatch }, payload) {
 		const itemId = payload.itemId
 		const beforeMoveState = payload.beforeMoveState
@@ -256,13 +251,9 @@ const actions = {
 					const levelShift = afterMoveState.level - beforeMoveState.level
 					doc.productId = afterMoveState.productId
 					doc.level = doc.level + levelShift
-					if (doc.level >= LEVEL.US) {
-						doc.sprintId = afterMoveState[itemId].sprintId
-					} else delete doc.sprintId
-					if (doc.level >= LEVEL.FEATURE) {
-						doc.team = afterMoveState[doc._id].team
-					} else delete doc.team
-					doc.lastPositionChange = Date.now()
+					doc.sprintId = afterMoveState[itemId].sprintId
+					doc.team = afterMoveState[itemId].team
+					doc.lastPositionChange = afterMoveState[itemId].lastPositionChange
 					const newHist = {
 						ignoreEvent: ['updateMovedDescendants'],
 						timestamp: Date.now(),
@@ -280,7 +271,12 @@ const actions = {
 		})
 	},
 
-	/* Save the updated documents of the moved items and their descendants */
+	/*
+	 * Save the updated documents of the moved items.
+	 * Dispatch the update of the item descendants (separate updates for each item).
+	 * Dispatch the update of the item parent.
+	 * Restore the tree view if an undoAction.
+	 */
 	saveMovedItems({ rootState, commit, dispatch }, payload) {
 		const items = payload.items
 		const beforeMoveState = payload.beforeMoveState
@@ -315,6 +311,15 @@ const actions = {
 					// process each item individually as the items need not be adjacent
 					for (const item of items) {
 						const id = item._id
+						rootState.helpersRef.removeNodes([item])
+
+						item.productId = afterMoveState.productId
+						item.parentId = afterMoveState.parentId
+						item.level = afterMoveState.level
+						item.data.priority = afterMoveState[id].priority
+						item.data.sprintId = afterMoveState[id].sprintId
+						item.data.team = afterMoveState[id].team
+						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
 
 						// calculate the insert cursorPosition parameter
 						let cursorPosition
@@ -336,17 +341,7 @@ const actions = {
 							}
 						}
 
-						rootState.helpersRef.removeNodes([item])
-
-						item.level = afterMoveState.level
-						item.productId = afterMoveState.productId
-						item.parentId = afterMoveState.parentId
-						item.dependencies = afterMoveState[id].dependencies
-						item.conditionalFor = afterMoveState[id].conditionalFor
-						item.data.priority = afterMoveState[id].priority
-						item.data.sprintId = afterMoveState[id].sprintId
-						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
-
+						// if a product branch is moved to another location the product ids of the items in the branch must not change
 						const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
 						rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
 					}
@@ -360,7 +355,7 @@ const actions = {
 		})
 	},
 
-	// itemToNewTeamEvent for silent team change
+	/* Update the parents of the moved items if the team and/or sprintId have changed  */
 	updateMovedItemsParents({ rootState, dispatch }, targetParentsToUpdate) {
 		const docIdsToGet = []
 		for (const set of targetParentsToUpdate) {
