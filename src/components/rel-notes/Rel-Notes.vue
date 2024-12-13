@@ -3,6 +3,14 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.5.0 - 13 December 2024 Refactoring move functionality</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>Replace move code with efficient database bulk update posts</li>
+          <li>Concentrate move rules in one place</li>
+          <li>Create module for the filter, id selection and search in titles</li>
+          <li>Upgrade dependencies</li>
+        </ul>
         <h3>v.2.4.1 - 1 November 2024 New feature, refactoring and bug fix</h3>
         <p>New feature</p>
         <ul>
