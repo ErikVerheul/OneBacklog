@@ -45,7 +45,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype !== spikeSubtype)">
+          <template v-else-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype !== spikeSubtype)">
             <BCol cols="1">
               <label for="storyPointsId">Story points</label>
             </BCol>
@@ -55,7 +55,7 @@
             </BCol>
             <BCol cols="2"></BCol>
           </template>
-          <template v-if="getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype === spikeSubtype">
+          <template v-else-if="getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype === spikeSubtype">
             <BCol cols="1">
               <label for="personHoursId">Person hrs</label>
             </BCol>
