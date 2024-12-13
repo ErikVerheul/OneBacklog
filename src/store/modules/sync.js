@@ -1,7 +1,6 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { getLocationInfo, localTimeAndMilis, pathToJSON, prepareDocForPresentation, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
-var lastSeq = undefined
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
@@ -568,10 +567,8 @@ const actions = {
 								const newlyCalculatedPriority = item[10]
 								const sourceSprintId = item[11]
 								const targetSprintId = item[12]
-								const moveToOtherProduct = item[15]
-								if (moveToOtherProduct) {
-									dispatch('renewPlanningBoard')
-								} else
+								const moveProduct = item[15]
+								if (!moveProduct)
 									switch (targetLevel) {
 										case LEVEL.TASK:
 											switch (sourceLevel) {
@@ -765,7 +762,7 @@ const actions = {
 							break
 						}
 						case 'updateMovedItemParentEvent':
-							console.log('sync: ToDo = updateMovedItemParentEvent')
+							dispatch('renewPlanningBoard')
 							break
 						case 'updateTaskOrderEvent':
 							{
@@ -836,27 +833,28 @@ const actions = {
 			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now',
 		})
 			.then((res) => {
-				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
-				dispatch('listenForChanges')
 				const data = res.data
 				if (data.results.length > 0) {
-					// only process events with included documents
 					for (const r of data.results) {
-						// skip consecutive changes with the same sequence number (Couchdb bug?)
-						if (r.seq === lastSeq) break
-						lastSeq = r.seq
 						const doc = r.doc
-						if (doc.history[0].sessionId === rootState.mySessionId) {
-							// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
-							continue
+						if (doc) {
+							// only process events with included documents
+							if (doc.history[0].sessionId === rootState.mySessionId) {
+								// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
+								continue
+							}
+
+							if (rootState.debug && doc._id === 'messenger') {
+								console.log('MESSENGER DOC received')
+							}
+
+							// process a history event on backlog items received from other sessions (not the session that created the event)
+							dispatch('processDoc', doc)
 						}
-						if (doc._id === 'messenger') {
-							if (rootState.debug) console.log('MESSENGER DOC received')
-						}
-						// process a history event on backlog items received from other sessions (not the session that created the event)
-						dispatch('processDoc', doc)
 					}
 				}
+				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
+				dispatch('listenForChanges')
 			})
 			.catch((error) => {
 				rootState.listenForChangesRunning = false
