@@ -250,8 +250,6 @@ const actions = {
 					const levelShift = afterMoveState.level - beforeMoveState.level
 					doc.productId = afterMoveState.productId
 					doc.level = doc.level + levelShift
-					doc.sprintId = afterMoveState[itemId].sprintId
-					doc.team = afterMoveState[itemId].team
 					doc.lastPositionChange = afterMoveState[itemId].lastPositionChange
 					const newHist = {
 						ignoreEvent: ['updateMovedDescendants'],
@@ -356,6 +354,7 @@ const actions = {
 
 	/* Update the parents of the moved items if the team and/or sprintId have changed  */
 	updateMovedItemsParents({ rootState, dispatch }, targetParentsToUpdate) {
+		console.log('updateMovedItemsParents: targetParentsToUpdate = ' + JSON.stringify(targetParentsToUpdate))
 		const docIdsToGet = []
 		for (const set of targetParentsToUpdate) {
 			docIdsToGet.push({ id: set.targetParentId })
