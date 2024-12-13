@@ -673,7 +673,7 @@ const actions = {
 			 */
 			insertNodes(cursorPosition, nodes, options = {}) {
 				const destNodeModel = cursorPosition.nodeModel
-				// if productId is undefined, updatePaths will not update the productId (the productId is set to be undefined)
+				// if productId is undefined, updatePaths will not update the productId (options.skipUpdateProductId sets the productId to undefined)
 				const productId = options.skipUpdateProductId ? undefined : destNodeModel.productId
 				let predecessorNode
 				let successorNode
@@ -713,7 +713,7 @@ const actions = {
 				}
 
 				// add the node ids to the lastSessionData of the other view (detail or coarse) if not present
-				if (rootState.lastSessionData) {
+				if (rootState.lastSessionData && rootState.lastSessionData.detailView && rootState.lastSessionData.coarseView) {
 					for (let n of nodes) {
 						if (rootState.currentView === 'detailProduct' && !rootState.lastSessionData.coarseView.expandedNodes.includes(n._id)) {
 							rootState.lastSessionData.coarseView.expandedNodes.push(n._id)
@@ -738,7 +738,7 @@ const actions = {
 						siblings.splice(removeInd, 1)
 						rootState.helpersRef.updatePaths(parentPath, siblings, removeInd)
 						// update the lastSelectedNodeId and lastSelectedProductId in lastSessionData if removed
-						if (rootState.lastSessionData) {
+						if (rootState.lastSessionData && rootState.lastSessionData.detailView && rootState.lastSessionData.coarseView) {
 							if (rootState.currentView === 'detailProduct' && rootState.helpersRef.isIdInBranch(rootState.lastSessionData.detailView.lastSelectedNodeId, n)) {
 								rootState.lastSessionData.detailView.lastSelectedNodeId = n.parentId
 								if (rootState.helpersRef.isIdInBranch(rootState.lastSessionData.coarseView.lastSelectedNodeId, n)) {
