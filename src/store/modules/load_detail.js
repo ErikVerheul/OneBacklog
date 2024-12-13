@@ -19,7 +19,7 @@ const state = {
 
 const mutations = {
 	/*
-	 * The database is sorted by level, productId and priority or level, parentId and priority for top level product documents.
+	 * The database view is sorted by level, productId, parentId and priority.
 	 * In the object parentNodes the created tree nodes are mapped to to their id's.
 	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
 	 * Items the user is not authorized or subscribed to are skipped
@@ -39,27 +39,27 @@ const mutations = {
 		for (const item of payload.batch) {
 			const _id = item.id
 			const itemLevel = item.key[0]
+			const productId = item.key[1]
+			const parentId = item.key[2]
 			// negate the priority
-			const priority = -item.key[2]
-			const productId = item.value[0]
-			const reqarea = item.value[1] || null
-			const parentId = item.value[2]
-			const itemState = item.value[3]
-			const title = item.value[4]
-			const team = item.value[5] || MISC.NOTEAM
-			const subtype = item.value[6]
-			const dependencies = dedup(item.value[7])
-			const conditionalFor = dedup(item.value[8])
-			const reqAreaItemColor = item.value[9] || null
-			const sprintId = item.value[10]
-			const lastAttachmentAddition = item.value[11] || 0
-			const lastAttachmentRemoval = item.value[12] || 0
-			const lastOtherChange = item.value[13] || 0
-			const lastCommentAddition = item.value[14] || 0
-			const lastContentChange = item.value[15] || 0
-			const lastPositionChange = item.value[16] || 0
-			const lastStateChange = item.value[17] || 0
-			const followers = item.value[18] || []
+			const priority = -item.key[3]
+			const reqarea = item.value[0] || null
+			const itemState = item.value[1]
+			const title = item.value[2]
+			const team = item.value[3] || MISC.NOTEAM
+			const subtype = item.value[4]
+			const dependencies = dedup(item.value[5])
+			const conditionalFor = dedup(item.value[6])
+			const reqAreaItemColor = item.value[7] || null
+			const sprintId = item.value[8]
+			const lastAttachmentAddition = item.value[9] || 0
+			const lastAttachmentRemoval = item.value[10] || 0
+			const lastOtherChange = item.value[11] || 0
+			const lastCommentAddition = item.value[12] || 0
+			const lastContentChange = item.value[13] || 0
+			const lastPositionChange = item.value[14] || 0
+			const lastStateChange = item.value[15] || 0
+			const followers = item.value[16] || []
 
 			if (_id === 'messenger') {
 				// skip messenger document

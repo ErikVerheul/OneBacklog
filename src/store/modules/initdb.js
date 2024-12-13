@@ -323,18 +323,16 @@ const actions = {
 						}`,
 					},
 					/*
-					 * Sort on productId first to separate items from different products. Sort on level to build the intem tree top down.
-					 * Select the 'backlogitem' document type and skip removed documents.
-					 * History items older than one hour or of type 'ignoreEvent' are removed but at least one item (the most recent) must be selected.
+					 * The database view is sorted by level, productId, parentId and priority.
+					 * The 'backlogitem' document type are selected. Removed documents are skipped.
+					 * History, comments and attachments are not included and must be loaded on request
 					 */
 					details: {
 						map: `function(doc) {
-							const PRODUCTLEVEL = 2
-							const seq = doc.level === PRODUCTLEVEL ? null : doc.productId
 							// negate priority to sort the highest abosolute priority value on top
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, seq, -doc.priority],
-								[doc.productId, doc.reqarea, doc.parentId, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId,
-								doc.lastAttachmentAddition, doc.lastAttachmentRemoval, doc.lastOtherChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange, doc.followers])
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, doc.productId, doc.parentId, -doc.priority],
+								[doc.reqarea, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId, doc.lastAttachmentAddition, 
+								doc.lastAttachmentRemoval, doc.lastOtherChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange, doc.followers])
 						}`,
 					},
 					/* Filter on parentIds to map documents to their parent */
