@@ -66,7 +66,7 @@
 
             <BListGroupItem v-if="canAssignTaskToSprint" button :active="contextOptionSelected === TASKTOSPRINT" variant="dark"
               @click="showSelected(TASKTOSPRINT)">Assign
-              this task to the sprint</BListGroupItem>
+              this task to a sprint</BListGroupItem>
 
             <BListGroupItem v-if="isInSprint" button :active="contextOptionSelected === FROMSPRINT" variant="dark" @click="showSelected(FROMSPRINT)">Remove this
               {{ contextNodeType }} from the sprint</BListGroupItem>
