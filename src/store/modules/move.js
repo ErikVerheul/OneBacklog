@@ -4,9 +4,10 @@ import globalAxios from 'axios'
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 /* Get the properties that can change in a move plus some properties needed to process descendants and for the history record */
-function getMoveState(rootState, items) {
+function getMoveState(rootState, items, createdAs) {
 	const extract = {}
 	// all items must have the same productId, parent and level
+	extract.createdAs = createdAs
 	extract.productId = items[0].productId
 	extract.parentId = items[0].parentId
 	extract.level = items[0].level
@@ -70,10 +71,10 @@ const actions = {
 			// make the branch with the nodes to be moved, including the branch root, unselectable
 			rootState.helpersRef.setBranchUnselectable(payload.dropTarget)
 
-			beforeMoveState = getMoveState(rootState, items)
+			beforeMoveState = getMoveState(rootState, items, 'beforeMoveState')
 			rootState.helpersRef.removeNodes(items)
 			rootState.helpersRef.insertMovedNodes(payload.cursorPosition, items)
-			afterMoveState = getMoveState(rootState, items)
+			afterMoveState = getMoveState(rootState, items, 'afterMoveState')
 		}
 
 		if (payload.isUndoAction) {
@@ -109,73 +110,71 @@ const actions = {
 					if (envelope.ok) {
 						// the item was loaded
 						const doc = envelope.ok
-						if (itemIds.includes(doc._id)) {
-							const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
-							// copy any changes due to the move
-							doc.productId = afterMoveState.productId
-							doc.parentId = afterMoveState.parentId
-							doc.level = afterMoveState.level
+						const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
+						// copy any changes due to the move
+						doc.productId = afterMoveState.productId
+						doc.parentId = afterMoveState.parentId
+						doc.level = afterMoveState.level
 
-							doc.priority = afterMoveState[doc._id].priority
-							doc.sprintId = afterMoveState[doc._id].sprintId
-							doc.team = afterMoveState[doc._id].team
-							doc.lastPositionChange = afterMoveState[doc._id].lastPositionChange
+						doc.priority = afterMoveState[doc._id].priority
+						doc.sprintId = afterMoveState[doc._id].sprintId
+						doc.team = afterMoveState[doc._id].team
+						doc.lastPositionChange = afterMoveState[doc._id].lastPositionChange
 
-							// find the affected sprints
-							const sprintsAffected = []
-							if (beforeMoveState[doc._id].sprintId) {
-								if (!sprintsAffected.includes(beforeMoveState[doc._id].sprintId)) sprintsAffected.push(beforeMoveState[doc._id].sprintId)
-							}
-							if (afterMoveState[doc._id].sprintId) {
-								if (!sprintsAffected.includes(afterMoveState[doc._id].sprintId)) sprintsAffected.push(afterMoveState[doc._id].sprintId)
-							}
-							for (const sId of descendantsMetaData.sprintIds) {
-								if (!sprintsAffected.includes(sId)) sprintsAffected.push(sId)
-							}
-							// find the affected teams
-							const teamsAffected = doc.team ? [doc.team] : []
-							for (const t of descendantsMetaData.teams) {
-								if (!teamsAffected.includes(t)) teamsAffected.push(t)
-							}
-							// check if the parent user story need to be updated with the team and/or the sprintId of the child task
-							const updateSet = createUpdateSet(rootState, doc._id, afterMoveState)
-							if (updateSet && !isADuplicate(targetParentsToUpdate, updateSet)) {
-								targetParentsToUpdate.push(updateSet)
-							}
-							const newHist = {
-								nodeMovedEvent: [
-									beforeMoveState[doc._id].level,
-									afterMoveState[doc._id].level,
-									afterMoveState[doc._id].ind,
-									afterMoveState.parentTitle,
-									beforeMoveState[doc._id].descendantsCount,
-									beforeMoveState.parentTitle,
-									'dummy',
-									beforeMoveState.parentId,
-									afterMoveState.parentId,
-									beforeMoveState[doc._id].ind,
-									afterMoveState[doc._id].priority,
-									beforeMoveState[doc._id].sprintId,
-									afterMoveState[doc._id].sprintId,
-									payload.isUndoAction ? 'undoMove' : 'move',
-									afterMoveState[doc._id].lastPositionChange,
-									beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root',
-								],
-								by: rootState.userData.user,
-								email: rootState.userData.email,
-								doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-								timestamp: Date.now(),
-								isListed: true,
-								sessionId: rootState.mySessionId,
-								distributeEvent: true,
-								updateBoards: { sprintsAffected, teamsAffected },
-							}
-							doc.history.unshift(newHist)
-							docs.push(doc)
+						// find the affected sprints
+						const sprintsAffected = []
+						if (beforeMoveState[doc._id].sprintId) {
+							if (!sprintsAffected.includes(beforeMoveState[doc._id].sprintId)) sprintsAffected.push(beforeMoveState[doc._id].sprintId)
+						}
+						if (afterMoveState[doc._id].sprintId) {
+							if (!sprintsAffected.includes(afterMoveState[doc._id].sprintId)) sprintsAffected.push(afterMoveState[doc._id].sprintId)
+						}
+						for (const sId of descendantsMetaData.sprintIds) {
+							if (!sprintsAffected.includes(sId)) sprintsAffected.push(sId)
+						}
+						// find the affected teams
+						const teamsAffected = doc.team ? [doc.team] : []
+						for (const t of descendantsMetaData.teams) {
+							if (!teamsAffected.includes(t)) teamsAffected.push(t)
+						}
+						// check if the parent user story need to be updated with the team and/or the sprintId of the child task
+						const updateSet = createUpdateSet(rootState, doc._id, afterMoveState)
+						if (updateSet && !isADuplicate(targetParentsToUpdate, updateSet)) {
+							targetParentsToUpdate.push(updateSet)
+						}
+						const newHist = {
+							nodeMovedEvent: [
+								beforeMoveState[doc._id].level,
+								afterMoveState[doc._id].level,
+								afterMoveState[doc._id].ind,
+								afterMoveState.parentTitle,
+								beforeMoveState[doc._id].descendantsCount,
+								beforeMoveState.parentTitle,
+								'dummy',
+								beforeMoveState.parentId,
+								afterMoveState.parentId,
+								beforeMoveState[doc._id].ind,
+								afterMoveState[doc._id].priority,
+								beforeMoveState[doc._id].sprintId,
+								afterMoveState[doc._id].sprintId,
+								payload.isUndoAction ? 'undoMove' : 'move',
+								afterMoveState[doc._id].lastPositionChange,
+								beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root',
+							],
+							by: rootState.userData.user,
+							email: rootState.userData.email,
+							doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+							timestamp: Date.now(),
+							isListed: true,
+							sessionId: rootState.mySessionId,
+							distributeEvent: true,
+							updateBoards: { sprintsAffected, teamsAffected },
+						}
+						doc.history.unshift(newHist)
+						docs.push(doc)
 
-							if (alsoUpdateDescendants) {
-								toDispatch.push({ updateMovedDescendants: { itemId: doc._id, beforeMoveState, afterMoveState } })
-							}
+						if (alsoUpdateDescendants) {
+							toDispatch.push({ updateMovedDescendants: { itemId: doc._id, beforeMoveState, afterMoveState } })
 						}
 					}
 					if (envelope.error) error.push(envelope.error)
@@ -333,7 +332,7 @@ const actions = {
 							if (beforeMoveState.parentId !== afterMoveState.parentId) {
 								topSibling = parentNode.children[afterMoveState[id].ind - 1]
 							} else {
-								topSibling = parentNode.children[afterMoveState[id].ind - (beforeMoveState[id].ind > afterMoveState[id].ind ? 1 : 0)]
+								topSibling = parentNode.children[afterMoveState[id].ind - (beforeMoveState[id].ind < afterMoveState[id].ind ? 1 : 0)]
 							}
 							cursorPosition = {
 								nodeModel: topSibling,
