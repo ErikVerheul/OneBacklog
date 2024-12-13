@@ -215,7 +215,7 @@ const methods = {
 			tmp: {},
 		}
 
-		// update the node properties as if the node is inserted in the tree model; after a successful document update, the node is realy inserted
+		// update the node properties as if the node is inserted in the tree model; after a successful document update, the node is really inserted
 		newNode = store.state.helpersRef.preFlightSingeNodeInsert(newNodeLocation, newNode, { createNew: true, calculatePrios: true })
 
 		if (this.haveAccessInTree(newNode.productId, newNode.level, newNode.data.team, 'create new items of this type')) {
