@@ -587,13 +587,24 @@ const actions = {
 						updateParentSprintId = true
 					}
 				}
+				// clear previous tmp assignments
+				node.data.tmp = {}
 				if (options.createParentUpdateSets) {
 					// register a change set for the parent document update
-					if (updateParentTeam && !updateParentSprintId) node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team }
-					if (updateParentTeam && updateParentSprintId)
-						node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team, sprintId: node.data.sprintId }
-					if (!updateParentTeam && updateParentSprintId) node.data.tmp = { targetParentId: targetParentNode._id, sprintId: node.data.sprintId }
-				} else node.data.tmp = {}
+					let changeFound = false
+					let changeSet = { targetParentId: targetParentNode._id }
+					if (updateParentTeam) {
+						changeSet.team = node.data.team
+						changeFound = true
+					}
+					if (updateParentSprintId) {
+						changeSet.sprintId = node.data.sprintId
+						changeFound = true
+					}
+					if (changeFound) {
+						node.data.tmp = changeSet
+					}
+				}
 
 				return node
 			},
