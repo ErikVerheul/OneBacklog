@@ -34,7 +34,7 @@ const MISC = Object.freeze({
 	ALLBUTSYSTEM: 2,
 	ALLBUTSYSTEMANDBACKUPS: 3,
 	ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS: 4,
-	AREA_PRODUCTID: 'requirement-areas',
+	AREA_PRODUCTID: '0-requirement-areas',
 	BACKUPSONLY: 1,
 	EMPTYQUILL: '<p><br></p>',
 	NOTEAM: 'not assigned yet',

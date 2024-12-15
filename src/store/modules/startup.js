@@ -66,6 +66,7 @@ const actions = {
 				} else {
 					// must set currentDb early in the process
 					rootState.userData.currentDb = allUserData.currentDb
+					if (rootState.debug) console.log('getOtherUserData: the current database is ' + rootState.userData.currentDb)
 				}
 				// check if the user has productsroles defined for the default database
 				if (!Object.keys(allUserData.myDatabases).includes(allUserData.currentDb)) {
