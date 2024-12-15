@@ -358,7 +358,7 @@ const actions = {
 					products: {
 						map: `function(doc) {
 							const PRODUCTLEVEL = 2
-							if (doc.type == "backlogItem" && !doc.delmark && doc.level === PRODUCTLEVEL && doc._id !== "requirement-areas") emit(doc._id, doc.title)
+							if (doc.type == "backlogItem" && !doc.delmark && doc.level === PRODUCTLEVEL && doc._id !== "0-requirement-areas") emit(doc._id, doc.title)
 						}`,
 					},
 					/* Filter on removed items of any type, then emit the product _rev of the removed documents. */
