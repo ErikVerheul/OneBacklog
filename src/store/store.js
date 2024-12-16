@@ -129,7 +129,6 @@ const store = createStore({
 			filterForCommentSearchString: '',
 			filterForHistorySearchString: '',
 			freezeEvent: false,
-			lastTreeView: undefined,
 			moveOngoing: false,
 			newEventKey: 0,
 			oldAcceptance: MISC.EMPTYQUILL,

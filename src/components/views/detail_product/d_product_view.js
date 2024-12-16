@@ -20,21 +20,8 @@ const thisView = 'detailProduct'
 
 function created() {
 	store.state.currentView = thisView
-	if (thisView !== store.state.lastTreeView) {
-		if (store.state.lastTreeView === 'coarseProduct') {
-			store.commit('resetSearchesAndFilters')
-		}
-		// intial load or returning from other tree view (for now 'coarseView'); recreate the expansion state
-		store.commit('restoreTreeExpansionState')
-		this.hasViewChanged = true
-	} else this.hasViewChanged = false
 	// must reset the event listener to prevent duplication
 	this.eventBus.off('context-menu')
-}
-
-function mounted() {
-	store.state.lastTreeView = thisView
-	if (this.hasViewChanged) this.showLastEvent('Returning to the Product details', SEV.INFO)
 }
 
 function data() {
@@ -73,7 +60,6 @@ function data() {
 		setReqAreaShow: false,
 		selReqAreaId: undefined,
 		selReqAreaColor: undefined,
-		hasViewChanged: false,
 		sprints: [],
 	}
 }
@@ -917,7 +903,6 @@ const components = {
 export default {
 	mixins: [constants, authorization, utilities],
 	created,
-	mounted,
 	data,
 	computed,
 	watch,

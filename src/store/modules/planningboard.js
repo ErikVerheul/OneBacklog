@@ -571,11 +571,9 @@ const actions = {
 						}
 						doc.history.unshift(newHist)
 
-						if (rootState.lastTreeView === 'detailProduct') {
-							// update the tree view
-							const node = rootState.helpersRef.getNodeById(doc._id)
-							if (node) commit('updateNodewithDocChange', { node, sprintId: newSprintId, lastOtherChange: timestamp })
-						}
+						// update the tree view
+						const node = rootState.helpersRef.getNodeById(doc._id)
+						if (node) commit('updateNodewithDocChange', { node, sprintId: newSprintId, lastOtherChange: timestamp })
 						docs.push(doc)
 					}
 				}
@@ -686,38 +684,36 @@ const actions = {
 					docs: newChildren,
 					toDispatch: [{ syncOtherPlanningBoards: { storyId: payload.storyId, taskUpdates: payload.taskUpdates, afterMoveIds: payload.afterMoveIds } }],
 					onSuccessCallback: () => {
-						if (rootState.lastTreeView === 'detailProduct') {
-							// update the position of the tasks of the story and update the index and priority values in the tree
-							const storyNode = rootState.helpersRef.getNodeById(payload.storyId)
-							if (!storyNode) return
+						// update the position of the tasks of the story and update the index and priority values in the tree
+						const storyNode = rootState.helpersRef.getNodeById(payload.storyId)
+						if (!storyNode) return
 
-							const mapper = []
-							for (const c of storyNode.children) {
-								if (payload.afterMoveIds.includes(c._id)) {
-									mapper.push({ child: c, priority: c.data.priority, reordered: true })
-								} else mapper.push({ child: c, reordered: false })
-							}
-							const newTreeChildren = []
-							let ind = 0
-							let afterMoveIdx = 0
-							for (const m of mapper) {
-								if (!m.reordered) {
-									newTreeChildren.push(m.child)
-								} else {
-									for (const c of storyNode.children) {
-										if (c._id === payload.afterMoveIds[afterMoveIdx]) {
-											c.ind = ind
-											c.data.priority = m.priority
-											newTreeChildren.push(c)
-											afterMoveIdx++
-											break
-										}
+						const mapper = []
+						for (const c of storyNode.children) {
+							if (payload.afterMoveIds.includes(c._id)) {
+								mapper.push({ child: c, priority: c.data.priority, reordered: true })
+							} else mapper.push({ child: c, reordered: false })
+						}
+						const newTreeChildren = []
+						let ind = 0
+						let afterMoveIdx = 0
+						for (const m of mapper) {
+							if (!m.reordered) {
+								newTreeChildren.push(m.child)
+							} else {
+								for (const c of storyNode.children) {
+									if (c._id === payload.afterMoveIds[afterMoveIdx]) {
+										c.ind = ind
+										c.data.priority = m.priority
+										newTreeChildren.push(c)
+										afterMoveIdx++
+										break
 									}
 								}
-								ind++
 							}
-							storyNode.children = newTreeChildren
+							ind++
 						}
+						storyNode.children = newTreeChildren
 					},
 				})
 			})
@@ -1031,38 +1027,36 @@ const actions = {
 					updatedDoc: newDoc,
 					caller: 'boardAddTask',
 					onSuccessCallback: () => {
-						if (rootState.lastTreeView === 'detailProduct') {
-							// update the tree data
-							const newNode = {
-								_id: payload.taskId,
-								title: payload.taskTitle,
-								dependencies: [],
-								conditionalFor: [],
-								children: [],
-								isExpanded: false,
-								isDraggable: true,
-								isSelectable: true,
-								isSelected: false,
-								doShow: true,
-								data: {
-									state: payload.taskState,
-									subtype: 0,
-									sprintId: rootState.loadedSprintId,
-									team: rootState.userData.myTeam,
-									taskOwner: rootState.userData.user,
-									lastOtherChange: Date.now(),
-									followers: newDoc.followers,
-								},
-								tmp: {},
-							}
-							// position the new node as the first child of story
-							const cursorPosition = {
-								nodeModel: rootState.helpersRef.getNodeById(storyDoc._id),
-								placement: 'inside',
-							}
-							// insert the new node in the tree and set the productId, parentId, the location parameters and priority
-							rootState.helpersRef.insertNodes(cursorPosition, [newNode], { createNew: true })
+						// update the tree data
+						const newNode = {
+							_id: payload.taskId,
+							title: payload.taskTitle,
+							dependencies: [],
+							conditionalFor: [],
+							children: [],
+							isExpanded: false,
+							isDraggable: true,
+							isSelectable: true,
+							isSelected: false,
+							doShow: true,
+							data: {
+								state: payload.taskState,
+								subtype: 0,
+								sprintId: rootState.loadedSprintId,
+								team: rootState.userData.myTeam,
+								taskOwner: rootState.userData.user,
+								lastOtherChange: Date.now(),
+								followers: newDoc.followers,
+							},
+							tmp: {},
 						}
+						// position the new node as the first child of story
+						const cursorPosition = {
+							nodeModel: rootState.helpersRef.getNodeById(storyDoc._id),
+							placement: 'inside',
+						}
+						// insert the new node in the tree and set the productId, parentId, the location parameters and priority
+						rootState.helpersRef.insertNodes(cursorPosition, [newNode], { createNew: true })
 						// place the task on the planning board
 						for (const s of state.stories) {
 							if (s.storyId === storyDoc._id) {
@@ -1115,16 +1109,14 @@ const actions = {
 					caller: 'boardRemoveStoryFromSprint',
 					toDispatch: [{ removeSprintFromChildren: { storyId, removedSprintId } }],
 					onSuccessCallback: () => {
-						if (rootState.lastTreeView === 'detailProduct') {
-							// remove the sprintId from the node in the tree view
-							const node = rootState.helpersRef.getNodeById(storyId)
-							if (node) {
-								delete node.data.sprintId
-								// remove the sprintId from the tasks
-								if (node.children) {
-									for (const c of node.children) {
-										delete c.data.sprintId
-									}
+						// remove the sprintId from the node in the tree view
+						const node = rootState.helpersRef.getNodeById(storyId)
+						if (node) {
+							delete node.data.sprintId
+							// remove the sprintId from the tasks
+							if (node.children) {
+								for (const c of node.children) {
+									delete c.data.sprintId
 								}
 							}
 						}
@@ -1212,11 +1204,9 @@ const actions = {
 					caller: 'boardRemoveTask',
 					toDispatch,
 					onSuccessCallback: () => {
-						if (rootState.lastTreeView === 'detailProduct') {
-							// remove the node from the tree view
-							const node = rootState.helpersRef.getNodeById(taskId)
-							if (node) rootState.helpersRef.removeNodes([node])
-						}
+						// remove the node from the tree view
+						const node = rootState.helpersRef.getNodeById(taskId)
+						if (node) rootState.helpersRef.removeNodes([node])
 						commit('removeTaskFromBoard', { storyId, taskId, taskState })
 					},
 				})
@@ -1301,12 +1291,10 @@ const actions = {
 								break
 							}
 						}
-						if (rootState.lastTreeView === 'detailProduct') {
-							// update the tree model
-							const node = rootState.helpersRef.getNodeById(payload.taskId)
-							if (node) {
-								node.title = doc.title
-							}
+						// update the tree model
+						const node = rootState.helpersRef.getNodeById(payload.taskId)
+						if (node) {
+							node.title = doc.title
 						}
 					},
 				})
@@ -1358,12 +1346,10 @@ const actions = {
 								break
 							}
 						}
-						if (rootState.lastTreeView === 'detailProduct') {
-							// update the tree model
-							const node = rootState.helpersRef.getNodeById(payload.taskId)
-							if (node) {
-								commit('updateNodewithDocChange', { node, taskOwner: doc.taskOwner, lastOtherChange: Date.now() })
-							}
+						// update the tree model
+						const node = rootState.helpersRef.getNodeById(payload.taskId)
+						if (node) {
+							commit('updateNodewithDocChange', { node, taskOwner: doc.taskOwner, lastOtherChange: Date.now() })
 						}
 					},
 				})

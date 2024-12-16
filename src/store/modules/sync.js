@@ -428,26 +428,24 @@ const actions = {
 							showSyncMessage(`changed the title of`, SEV.INFO)
 							break
 						case 'taskRemovedEvent':
-							if (rootState.lastTreeView === 'detailProduct') {
-								const taskId = lastHistObj.taskRemovedEvent[3]
-								const taskTitle = lastHistObj.taskRemovedEvent[0]
-								const team = lastHistObj.taskRemovedEvent[1]
-								// remove the node from the tree view
-								const node = rootState.helpersRef.getNodeById(taskId)
-								if (node) {
-									if (node.isSelected) {
-										// before removal select the predecessor of the removed node (sibling or parent)
-										const prevNode = rootState.helpersRef.getPreviousNode(node.path)
-										let nowSelectedNode = prevNode
-										commit('renewSelectedNodes', nowSelectedNode)
-									}
-									rootState.helpersRef.removeNodes([node])
-									showSyncMessage(
-										`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
-										SEV.INFO,
-										MISC.SPECIAL_TEXT,
-									)
+							const taskId = lastHistObj.taskRemovedEvent[3]
+							const taskTitle = lastHistObj.taskRemovedEvent[0]
+							const team = lastHistObj.taskRemovedEvent[1]
+							// remove the node from the tree view
+							const node = rootState.helpersRef.getNodeById(taskId)
+							if (node) {
+								if (node.isSelected) {
+									// before removal select the predecessor of the removed node (sibling or parent)
+									const prevNode = rootState.helpersRef.getPreviousNode(node.path)
+									let nowSelectedNode = prevNode
+									commit('renewSelectedNodes', nowSelectedNode)
 								}
+								rootState.helpersRef.removeNodes([node])
+								showSyncMessage(
+									`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
+									SEV.INFO,
+									MISC.SPECIAL_TEXT,
+								)
 							}
 							break
 						case 'teamChangeEvent': {

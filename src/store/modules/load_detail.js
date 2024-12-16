@@ -244,7 +244,6 @@ const actions = {
 			url: rootState.userData.currentDb + '/_design/design1/_view/details',
 		})
 			.then((res) => {
-				rootState.lastTreeView = 'detailProduct'
 				rootState.loadedTreeDepth = LEVEL.TASK
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}

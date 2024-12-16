@@ -168,12 +168,7 @@ const methods = {
 	},
 
 	switchToDetailProductView() {
-		if (store.state.lastTreeView === 'detailProduct') {
-			router.push('/detailProduct')
-		} else {
-			const onSuccessCallback = () => router.push('/detailProduct')
-			store.dispatch('saveMyTreeViewAsync', { onSuccessCallback, doEndSession: false })
-		}
+		router.push('/detailProduct')
 	},
 
 	onSignout() {
