@@ -29,8 +29,7 @@ const mutations = {
 		const rootGetters = payload.rootGetters
 		/* Return true if the id matches the id stored in the lastSessionData or, if not available, the default product id */
 		function isNodeSelected(id) {
-			const lastSelectedNodeId =
-				rootState.lastSessionData && rootState.lastSessionData.detailView ? rootState.lastSessionData.detailView.lastSelectedNodeId : undefined
+			const lastSelectedNodeId = rootState.lastSessionData ? rootState.lastSessionData.lastSelectedNodeId : undefined
 			if (lastSelectedNodeId && id === lastSelectedNodeId) return true
 			if (!lastSelectedNodeId && id === rootState.currentProductId) return true
 			return false
@@ -120,12 +119,14 @@ const mutations = {
 
 			state.docsCount++
 			// expand the node as saved in the last session or expand the default product up to the epic level
-			const isExpanded = rootState.lastSessionData.detailView
-				? rootState.lastSessionData.detailView.expandedNodes.includes(_id)
-				: productId !== MISC.AREA_PRODUCTID && itemLevel < LEVEL.EPIC
-			const doShow = rootState.lastSessionData.detailView
-				? rootState.lastSessionData.detailView.doShowNodes.includes(_id)
-				: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC
+			const isExpanded =
+				rootState.lastSessionData && rootState.lastSessionData.expandedNodes
+					? rootState.lastSessionData.expandedNodes.includes(_id)
+					: productId !== MISC.AREA_PRODUCTID && itemLevel < LEVEL.EPIC
+			const doShow =
+				rootState.lastSessionData && rootState.lastSessionData.doShowNodes
+					? rootState.lastSessionData.doShowNodes.includes(_id)
+					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {

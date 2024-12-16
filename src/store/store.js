@@ -518,16 +518,16 @@ const store = createStore({
 					const tmpUserData = res.data
 					// update the lastSessionData
 					if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData) {
-						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView) {
-							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.lastSelectedProductId
+						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData) {
+							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.lastSelectedProductId
 							if (!lastSelectedProductId || !payload.productIds.includes(lastSelectedProductId)) {
 								// the lastSelectedProductId is not available or not in the newly selected product ids
-								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView
+								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData
 							} else {
 								// add all subscribed product ids (needed in case the user extended the range of subscribed products)
 								for (let productId of payload.productIds) {
-									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.expandedNodes.push(productId)
-									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.doShowNodes.push(productId)
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.expandedNodes.push(productId)
+									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.doShowNodes.push(productId)
 								}
 							}
 						}
@@ -766,17 +766,17 @@ const store = createStore({
 				if (!state.lastSessionData) state.lastSessionData = {}
 
 				if (state.currentView === 'detailProduct') {
-					state.lastSessionData.detailView = { expandedNodes: [], doShowNodes: [] }
+					state.lastSessionData = { expandedNodes: [], doShowNodes: [] }
 					state.helpersRef.traverseModels((nm) => {
 						if (nm.isExpanded) {
-							state.lastSessionData.detailView.expandedNodes.push(nm._id)
-							state.lastSessionData.detailView.doShowNodes.push(nm._id)
+							state.lastSessionData.expandedNodes.push(nm._id)
+							state.lastSessionData.doShowNodes.push(nm._id)
 						} else if (nm.doShow) {
-							state.lastSessionData.detailView.doShowNodes.push(nm._id)
+							state.lastSessionData.doShowNodes.push(nm._id)
 						}
 					})
-					state.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
-					state.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
+					state.lastSessionData.lastSelectedNodeId = lastSelectedNode._id
+					state.lastSessionData.lastSelectedProductId = lastSelectedNode.productId
 				}
 			} else {
 				if (state.debug) console.log(`createTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
@@ -786,11 +786,11 @@ const store = createStore({
 		restoreTreeExpansionState(state) {
 			if (state.currentView === 'detailProduct') {
 				state.helpersRef.traverseModels((nm) => {
-					nm.isExpanded = state.lastSessionData.detailView.expandedNodes.includes(nm._id) && nm._id !== MISC.AREA_PRODUCTID
-					nm.doShow = state.lastSessionData.detailView.doShowNodes.includes(nm._id) && nm.parentId !== MISC.AREA_PRODUCTID
-					nm.isSelected = nm._id === state.lastSessionData.detailView.lastSelectedNodeId
+					nm.isExpanded = state.lastSessionData.expandedNodes.includes(nm._id) && nm._id !== MISC.AREA_PRODUCTID
+					nm.doShow = state.lastSessionData.doShowNodes.includes(nm._id) && nm.parentId !== MISC.AREA_PRODUCTID
+					nm.isSelected = nm._id === state.lastSessionData.lastSelectedNodeId
 				})
-				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.detailView.lastSelectedNodeId)]
+				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.lastSelectedNodeId)]
 			}
 		},
 
