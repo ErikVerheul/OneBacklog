@@ -559,13 +559,10 @@ const actions = {
 					toDispatch,
 					onSuccessCallback: () => {
 						commit('addToEventList', { txt: `${docsToUpdate.length} of your tasks are assigned to team '${payload.newTeam}'`, severity: SEV.INFO })
-						if (rootState.currentView !== 'coarseProduct') {
-							// the overview does not load the task level
-							docsToUpdate.forEach((doc) => {
-								const node = rootState.helpersRef.getNodeById(doc._id)
-								commit('updateNodewithDocChange', { node, team: payload.newTeam })
-							})
-						}
+						docsToUpdate.forEach((doc) => {
+							const node = rootState.helpersRef.getNodeById(doc._id)
+							commit('updateNodewithDocChange', { node, team: payload.newTeam })
+						})
 					},
 				})
 			})

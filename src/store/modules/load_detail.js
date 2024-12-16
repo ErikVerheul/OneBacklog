@@ -280,21 +280,6 @@ const actions = {
 					}
 				}
 
-				if (!rootState.lastSessionData || !rootState.lastSessionData.coarseView) {
-					// no lastSessionData for the coarse view available; create a default and show the nodes up to the epic level
-					rootState.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
-					rootState.helpersRef.traverseModels((nm) => {
-						if (nm._id === MISC.AREA_PRODUCTID || (nm.productId !== MISC.AREA_PRODUCTID && nm.level < LEVEL.EPIC)) {
-							rootState.lastSessionData.coarseView.expandedNodes.push(nm._id)
-						}
-						if (nm.productId === MISC.AREA_PRODUCTID || nm.level <= LEVEL.EPIC) {
-							rootState.lastSessionData.coarseView.doShowNodes.push(nm._id)
-						}
-					})
-					rootState.lastSessionData.coarseView.lastSelectedNodeId = rootState.currentProductId
-					rootState.lastSessionData.coarseView.lastSelectedProductId = 'root'
-				}
-
 				if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 			})

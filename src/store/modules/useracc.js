@@ -554,7 +554,7 @@ const actions = {
 			})
 	},
 
-	/* Save the expansion state of the tree (detail or coarse) and sign-out if payload.doEndSession is true */
+	/* Save the expansion state of the tree and sign-out if payload.doEndSession is true */
 	saveMyTreeViewAsync({ rootState, rootGetters, dispatch, commit }, payload) {
 		commit('createTreeExpansionState', rootGetters.getSelectedNode)
 		globalAxios({
