@@ -3,7 +3,6 @@
  */
 import { SEV, LEVEL } from '../../../constants.js'
 import { collapseNode, expandNode, isInPath } from '../../../common_functions.js'
-import commonView from '../common_view.js'
 import store from '../../../store/store.js'
 
 // in px; used to calculate the node closest to the current cursor position
@@ -215,6 +214,10 @@ const methods = {
 	},
 
 	mouseUpLeftHandler(event, node) {
+		function showLastEvent(txt, severity) {
+			store.commit('addToEventList', { txt, severity })
+		}
+
 		if (!this.isRoot) {
 			this.getRootComponent().mouseUpLeftHandler(event, node)
 			return
@@ -236,7 +239,7 @@ const methods = {
 		// stop drag if no nodes selected or at root level or selecting a node for registering a dependency
 		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.selectNodeOngoing) {
 			if (store.state.selectNodeOngoing)
-				this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
+				showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
 			this.stopDrag()
 			return
 		}
@@ -249,13 +252,13 @@ const methods = {
 				return
 			}
 			if (isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
-				this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
+				showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
 				this.stopDrag()
 				return
 			}
 			// prevent dragging a product into another product
 			if (dn.level === LEVEL.PRODUCT && (this.cursorPosition.placement === 'inside' || this.cursorPosition.nodeModel.parentId !== 'root')) {
-				this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
+				showLastEvent('Cannot drag a product into another product', SEV.WARNING)
 				this.stopDrag()
 				return
 			}
@@ -266,7 +269,7 @@ const methods = {
 		const nextParent = store.state.helpersRef.getNextSibling(sourceParent.path)
 		if (sourceParent === null) {
 			// cancel the drop
-			this.showLastEvent('The parent of the selected node is not found', SEV.ERROR)
+			showLastEvent('The parent of the selected node is not found', SEV.ERROR)
 			this.stopDrag()
 			return
 		}
@@ -373,7 +376,6 @@ const methods = {
 }
 
 export default {
-	extends: commonView,
 	name: 'sl-vue-tree',
 	props,
 	data,
