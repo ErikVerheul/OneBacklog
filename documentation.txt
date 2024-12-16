@@ -177,7 +177,7 @@ These roles are set during loading by haveWritePermission(...).
 		writeAccessLevel: 2,
 	},
 	"APO": {
-		description: "Can access the requirement areas with write access and can prioritise features (level 4). The role 'APO' is a permission on the document database","
+		description: "Can access the requirement areas with write access and can prioritise products, epics and features (level 2, 3 and 4). The role 'APO' is a permission on the document database","
 		products: "assigned",
 		writeAccessLevel: 2
 	},
