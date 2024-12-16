@@ -727,20 +727,15 @@ const methods = {
 	},
 
 	getItemInfo() {
-		let txt = ''
 		if (this.getCurrentItemLevel > LEVEL.EPIC) {
-			if (this.getCurrentItemLevel < LEVEL.TASK) {
-				txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
-			} else {
-				if (store.state.currentDoc.taskOwner) {
-					txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by '${store.state.currentDoc.taskOwner}' of team '${store.state.currentDoc.team}'`
-				} else txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
+			let txt = `This ${this.getLevelText(this.getCurrentItemLevel)} is owned by team '${store.state.currentDoc.team}'`
+			if (this.getCurrentItemLevel > LEVEL.FEATURE) {
+				if (this.getCurrentItemLevel === LEVEL.TASK && store.state.currentDoc.taskOwner) txt += ` of team '${store.state.currentDoc.team}'`
+				if (this.getItemSprintName) txt += ` (Sprint '${this.getItemSprintName})'`
 			}
-			if (this.getItemSprintName) {
-				txt += ` (Sprint '${this.getItemSprintName})'`
-			}
+			return txt
 		}
-		return txt
+		return ''
 	},
 
 	/* Return true if in the current or next sprint */
