@@ -166,7 +166,7 @@ Developers can create new user stories for their product(s) but not change prior
 Viewers can only read the information of the products assigned to them.
 
 <b>Non functional requirements:</b>
-The number of simultaneous users viewing changes, made by a reasonable (not tested yet) number of users, is unlimited. The browser limits a smooth tree view response to approximately 200 visible nodes. The database can handle an unlimited number of items. Updates by other users are available within 1 second with a ADSL Internet connection. Notification of network connection loss and automatic recovery.
+The number of simultaneous users viewing changes, made by a reasonable (not tested yet) number of users, is limited by the maximum nummer of sessions to the database. The browser limits a smooth tree view response to approximately 200 visible nodes (year 2020, today more than a user can display on his screen). The database can handle an unlimited number of items. Updates by other users are available within 1 second with a ADSL Internet connection. Notification of network connection loss and automatic recovery is in place.
 
 ## Implementation
 
@@ -178,13 +178,6 @@ The number of simultaneous users viewing changes, made by a reasonable (not test
 - A user can subscribe to change notices of any item of any product assigned to that user. The change notices are sent to his email address.
 - Users can add comments to an item and to the automatic history log.
 - Attachments can be added to each backlog item type.
-<div>
-    For performance reasons the size of the browser DOM is kept small. That's why there are two main views:
-    <ul>
-        <li>The 'Product detail' view of all products assigned to the user up to the task level. Only one product can be expanded. The user can select a subset of products to be shown and a default product to expand on load. The PO can update and move items within that product and set dependencies.</li>
-        <li>The 'Products overview' view shows all assigned products up to the feature level. Multiple or all products can be expanded. The APO can asign requirement areas to items. The PO can set dependencies between items in the same product and on items residing in different products. The latter is an undesirable situation, that can be undone by moving items from one product to the other.</li>
-    </ul>
-</div>
 
 <b>Sprint Backlog</b><br /><br />
 ![Example products overview](https://github.com/ErikVerheul/OneBacklog/blob/master/public/img/planning-board.png)

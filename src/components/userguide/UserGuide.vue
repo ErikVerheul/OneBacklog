@@ -17,14 +17,9 @@
 					select professional mode.</p>
 				<p>Professional mode adds the following features:</p>
 				<ul>
-					<li>The 'Products overview', a view only available for the Area Product Owner to manage his crossover interests by
-						product area. </li>
 					<li>The user has the option to change database. A database contains products which are maintained independant
 						from products in other databases.</li>
-					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.
-					</li>
-					<li>Initially the products tree view is expanded to the feature level and not to the user story level to
-						maintain overview on bigger products</li>
+					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
 					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
 				</ul>
 				<p>In the context menu the professional user has more options</p>
@@ -81,7 +76,7 @@
 					<h4>Backlog tree view</h4>
 					<p>The Backlog tree view is the heart of the application. Here are the product backlog items created,
 						maintained during their life cycle and prioritized by the product owner.</p>
-					<BImg :src="getImgUrl('img/example-screen.png')" alt="Product details example screen" />
+					<BImg :src="getImgUrl('img/example-screen.png')" alt="Backlog tree view example screen" />
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user
 						with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This
 						is your main tool. What you can do depends on your assigned roles.</p>
@@ -106,7 +101,8 @@
 						<li>'admin': Can create, maintain and assign users to products. The CouchDb Server administrator acquires this role during the initialization
 							procedure and can assign this role to
 							other users.</li>
-						<li class="pro-user">'APO': The APO maintains the requirement areas backlog. Can create comments and see and upload attachments.</li>
+						<li class="pro-user">'APO' (Area Product Owner): The APO maintains the requirement areas backlog. Can create comments and see and upload
+							attachments.</li>
 					</ul>
 					Three roles are set per product (a product lives in a database):
 					<ul>
@@ -206,7 +202,7 @@
 					</ul>
 					<p class="pro-user">Dependencies:</p>
 					<p class="pro-user">Items with dependencies on other items are designated with a ▼ symbol in front of the
-						title name. Use the context menu to assign dependencies or to inspect or remove them.
+						title name. As a PO use the context menu to assign dependencies or to inspect or remove them.
 						When dependencies are set the items which become conditional for the dependent items are designated with a ▲ symbol.
 						When after dragging items one or more dependencies are violated you receive an error message with a visual presentation. See the example
 						below.
@@ -222,13 +218,11 @@
 						(just click on another node). The state badge stays but looses its blue color.</p>
 				</div>
 				<div id="rv">
-					<h4 class="pro-user">Products overview</h4>
-					<p class="pro-user">The 'Products overview' view shows all assigned products up to the feature level. Multiple
-						or all products can be expanded. The APO can create and asign requirement areas to items. The PO can
-						drag&#38;drop items between his products and set dependencies between items in different products.</p>
-					<BImg :src="getImgUrl('img/products-overview.png')" alt="Example roducts overview" />
-					<p class="pro-user">This view shows all products in the database up to the feature level. The requirement area
-						are color coded choosen by the APO.</p>
+					<h4 class="pro-user">APO view</h4>
+					<p class="pro-user">The 'Backlog tree' view looks a bit different. A side panal on the right contants a button for each backlog item.
+						The APO can asign and change requirement areas to these items.</p>
+					<BImg :src="getImgUrl('img/products-overview.png')" alt="Example Backlog APO view" />
+					<p class="pro-user">The requirement areas are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
 					<h4>Tree view undo, filtering and search</h4>
