@@ -544,7 +544,7 @@ const store = createStore({
 
 	mutations: {
 		/*
-		 * Show a message in the message bar in the Product details or Products overview
+		 * Show a message in the message bar in the Backlog tree view
 		 * Stops showing new events if a CRITICAL, ERROR or WARNING event message is displayed.
 		 * Resume showing new events after the events list is displayed (click on event bar)
 		 */

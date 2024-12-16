@@ -545,11 +545,11 @@ const actions = {
 						case 'createItemEvent':
 						case 'createTaskEvent':
 							if (doc.level === LEVEL.US) {
-								// a new story is created on another user's product details view
+								// a new story is created on another user's Backlog tree view
 								dispatch('addStoryToBoard', doc)
 							}
 							if (doc.level === LEVEL.TASK) {
-								// a new task is created on another user's product details view or board
+								// a new task is created on another user's Backlog tree view or board
 								commit('addTaskToBoard', doc)
 							}
 							break

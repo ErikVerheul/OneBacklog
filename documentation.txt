@@ -207,7 +207,7 @@ Items with an assigned team can only be moved, removed, or changed by members of
 
 Sprint Backlog
 ==============
-From the 'Product details' view context menu features, user stories and tasks can be selected to be assigned to the current or next sprint:
+From the 'Backlog tree' view context menu features, user stories and tasks can be selected to be assigned to the current or next sprint:
  - When a feature is selected all its descendants (user stories and tasks) are assigned
  - A feature without user stories cannot be assigned to a sprint
  - When a user story is selected, that user story and it descendant tasks are assigned

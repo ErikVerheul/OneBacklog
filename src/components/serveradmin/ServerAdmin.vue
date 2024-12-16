@@ -144,7 +144,7 @@
         <BButton v-if="!store.state.isCurrentDbChanged" class="m-1" @click="cancel">Cancel</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="store.state.isCurrentDbChanged">
-          <h4>Success! Click 'Exit' to sign-out. Sign-in to see the product details view of the '{{
+          <h4>Success! Click 'Exit' to sign-out. Sign-in to see the Backlog tree view of the '{{
             store.state.selectedDatabaseName }} 'database</h4>
           <div>
             <BButton class="m-1" @click="signOut()">Exit</BButton>

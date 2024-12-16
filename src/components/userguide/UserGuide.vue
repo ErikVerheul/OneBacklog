@@ -55,9 +55,8 @@
 					tree view, to select an item on Id or to search items on title see <a href="#tv-features">Tree view undo,
 						search and filtering</a></p>
 				<h5>Select your view</h5>
-				<p>For &apos;Select your view&apos; see <a href="#pv">Product details</a>, <a href="#rv">Products overview</a>
-					and <a href="#pb">Sprint planning board</a></p>
-				<p>In the Product details view you van assign a sprint to a user story or task. <a href="#sp">See Sprint assignment</a>
+				<p>For &apos;Select your view&apos; see <a href="#pv">Backlog tree</a> and <a href="#pb">Sprint planning board</a></p>
+				<p>In the Backlog tree view you van assign a sprint to a user story or task. <a href="#sp">See Sprint assignment</a>
 				</p>
 				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or
 					server admin.</p>
@@ -79,8 +78,8 @@
 				<p>(*) A user can be member of none or 1 team at a time. However, when another team needs help, a user can join
 					that team temporarily.</p>
 				<div id="pv">
-					<h4>Product details view</h4>
-					<p>The Product details view is the heart of the application. Here are the product backlog items created,
+					<h4>Backlog tree view</h4>
+					<p>The Backlog tree view is the heart of the application. Here are the product backlog items created,
 						maintained during their life cycle and prioritized by the product owner.</p>
 					<BImg :src="getImgUrl('img/example-screen.png')" alt="Product details example screen" />
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user
@@ -282,7 +281,7 @@
 							boards of other users and the tree view. Touch devices are supported.</p>
 						<p>When you right click on a task the context menu is opened:</p>
 						<BImg :src="getImgUrl('img/task-context.png')" alt="Example context menu" />
-						<p>Note: Removing a task does not delete the task. In the Product details view you can change the state back
+						<p>Note: Removing a task does not delete the task. In the Backlog tree view you can change the state back
 							to &apos;In progress&apos; or any other state.</p>
 						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.
 						</p>
@@ -293,7 +292,7 @@
 							sprint. In the next sprint it will show up again.</p>
 						<h5>Sprint ending, start of next sprint</h5>
 						<p>When the end date and time of a sprint is due, the next sprint starts automatically. When the current
-							sprint is about to end use the Product details view to:</p>
+							sprint is about to end use the Backlog tree view to:</p>
 						<ul>
 							<li>Remove unfinished items from the current sprint, to be picked later, or</li>
 							<li>Assign the unfinished items to the next sprint, or</li>

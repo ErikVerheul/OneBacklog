@@ -54,7 +54,7 @@ export default {
 
   methods: {
     /*
-    * From the 'Product details' view context menu a user story or a task can be selected to be assigned to the current or next sprint
+    * From the 'Backlog tree' view context menu a user story or a task can be selected to be assigned to the current or next sprint
     * Only items that are not in a sprint already can be assigned to a sprint.
     */
     addItemToSprint() {
