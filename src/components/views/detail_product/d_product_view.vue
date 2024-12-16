@@ -70,7 +70,8 @@
             <h3 v-if="store.state.userData.myOptions.proUser === 'true'">{{ store.state.currentProductTitle }} [Details]</h3>
             <h3 v-else>{{ store.state.currentProductTitle }}</h3>
           </BCol>
-          <template v-if="store.state.currentDoc._id !== 'root'">
+          <template
+            v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
             <BCol cols="2"></BCol>
             <BCol cols="1">
               <h3 align="right">State:</h3>
@@ -157,7 +158,7 @@
             </template>
 
             <template v-slot:toggle="{ node }">
-              <span v-if="node.level !== LEVEL.TASK">
+              <span v-if="node.level !== LEVEL.TASK && node.parentId !== MISC.AREA_PRODUCTID">
                 <i v-if="node.isExpanded">
                   <font-awesome-icon icon="chevron-down" />
                 </i>
@@ -198,8 +199,17 @@
             </template>
 
             <template v-slot:sidebar="{ node }">
+              <template v-if="node.productId === MISC.AREA_PRODUCTID">
+                <p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
+              </template>
+              <p v-else-if="isAPO && store.state.colorMapper && node.level > LEVEL.PRODUCT">
+                <BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+                  :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" size="sm">Change
+                </BButton>
+                <BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
+              </p>
               <template
-                v-if="store.state.userData.myOptions.proUser === 'true' && store.state.colorMapper && store.state.colorMapper[node.data.reqarea] && node.level > LEVEL.PRODUCT && node.data.reqarea">
+                v-if="store.state.userData.myOptions.proUser === 'true' && !isAPO && store.state.colorMapper && store.state.colorMapper[node.data.reqarea] && node.level > LEVEL.PRODUCT && node.data.reqarea">
                 <p class="rectangle" :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }"></p>
               </template>
             </template>
@@ -219,6 +229,18 @@
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
               </div>
+            </div>
+          </div>
+          <div v-if="isAPO" class="pane" :style="{ height: '80px' }">
+            <div class="d-table w-100">
+              <p v-if="!isReqAreaItem" class="title">{{ getItemInfo() }}</p>
+              <span v-else-if="!isReqAreaTopLevel">
+                <BFormGroup>
+                  Select a display color for this requirement area:
+                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
+                    :options="getRemainingColorOptions()" />
+                </BFormGroup>
+              </span>
             </div>
           </div>
           <div class="pane" :style="{ height: '40px' }">
@@ -301,6 +323,21 @@
       </p>
       <p>Press OK to continue</p>
       <p class="note">Note: Change your options settings to prevent this warning</p>
+    </BModal>
+
+    <!-- color select -->
+    <BModal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
+      <h4>Enter a color in hex format eg. #567cd6</h4>
+      <BFormInput v-model="userReqAreaItemcolor" :state="colorState"></BFormInput>
+    </BModal>
+    <!-- set req area -->
+    <BModal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
+      <template v-slot:modal-title>
+        {{ getSelectedNode.title }}
+      </template>
+      <BFormGroup label="Select the requirement area this item belongs to:">
+        <BFormRadioGroup v-model="selReqAreaId" :options="this.store.state.reqAreaOptions" value-field="id" text-field="title" stacked />
+      </BFormGroup>
     </BModal>
 
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">

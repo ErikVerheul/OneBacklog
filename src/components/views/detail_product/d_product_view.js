@@ -1,4 +1,4 @@
-import { SEV, LEVEL } from '../../../constants.js'
+import { MISC, SEV, LEVEL } from '../../../constants.js'
 import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/AppHeader.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
@@ -34,6 +34,18 @@ function mounted() {
 
 function data() {
 	return {
+		colorOptions: [
+			{ color: 'red', hexCode: '#FF0000' },
+			{ color: 'yellow', hexCode: '#FFFF00' },
+			{ color: 'green', hexCode: '#008000' },
+			{ color: 'blue', hexCode: '#0000ff' },
+			{ color: 'other color', hexCode: 'user choice' },
+		],
+		colorSelectShow: false,
+		userReqAreaItemcolor: '#567cd6',
+		setReqAreaShow: false,
+		selReqAreaId: undefined,
+		selReqAreaColor: undefined,
 		hasViewChanged: false,
 		sprints: [],
 	}
@@ -55,9 +67,29 @@ const watch = {
 	},
 }
 
+const computed = {
+	/*
+	 * Check for a valid color hex code:
+	 * #          -> a hash
+	 * [0-9A-F]   -> any integer from 0 to 9 and any letter from A to F
+	 * {6}        -> the previous group appears exactly 6 times
+	 * $          -> match end
+	 * i          -> ignore case
+	 */
+	colorState() {
+		return /^#[0-9A-F]{6}$/i.test(this.userReqAreaItemcolor)
+	},
+
+	// return true if a requirements area item is selected or false if another or no node is selected
+	isReqAreaItemSelected() {
+		if (this.getSelectedNode === null) return false
+		return this.getSelectedNode._id === MISC.AREA_PRODUCTID || this.getSelectedNode.parentId === MISC.AREA_PRODUCTID
+	},
+}
+
 const methods = {
 	doShowState(node) {
-		return node._id !== 'root'
+		return node._id !== 'root' && node._id !== MISC.AREA_PRODUCTID && node.parentId !== MISC.AREA_PRODUCTID
 	},
 
 	getItemInfo() {
@@ -98,6 +130,23 @@ const methods = {
 		return false
 	},
 
+	/* Get the requirement area colors not in use already */
+	getRemainingColorOptions() {
+		const availableOptions = []
+		// the requirements areas product must be the first product in the hierarchy
+		const reqAreaNodes = store.state.helpersRef.getProducts()[0].children
+		for (let co of this.colorOptions) {
+			let colorInUse = false
+			for (let nm of reqAreaNodes) {
+				if (nm.data.reqAreaItemColor === co.hexCode) {
+					colorInUse = true
+				}
+			}
+			if (!colorInUse) availableOptions.push(co)
+		}
+		return availableOptions
+	},
+
 	getActiveSprintText(node) {
 		const sprintId = node.data.sprintId
 		if (sprintId === this.getActiveSprints.currentSprint.id) {
@@ -113,7 +162,11 @@ const methods = {
 		const onSuccessCallback = () => {
 			this.isDescriptionEdited = false
 			this.isAcceptanceEdited = false
-			this.showSelectionEvent(store.state.selectedNodes)
+			// preset the req area color if available
+			this.selReqAreaColor = this.getSelectedNode.data.reqAreaItemColor
+			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
+				this.showSelectionEvent(store.state.selectedNodes)
+			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
@@ -137,6 +190,7 @@ const methods = {
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
 		const parentNode = position.placement === 'inside' ? position.nodeModel : store.state.helpersRef.getParentNode(position.nodeModel)
+		// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
 		if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			const checkDropNotAllowed = (node, sourceLevel, targetLevel) => {
 				const failedCheck2 = Math.abs(targetLevel - sourceLevel) > 1
@@ -165,6 +219,40 @@ const methods = {
 		]
 		return options
 	},
+
+	updateColor(value) {
+		if (value === 'user choice') {
+			this.selReqAreaColor = '#567cd6'
+			this.colorSelectShow = true
+		} else {
+			this.setUserColor(value)
+		}
+	},
+
+	setUserColor(newColor) {
+		store.dispatch('updateColorDb', { node: this.getSelectedNode, newColor })
+	},
+
+	setReqArea(node) {
+		if (this.isAPO) {
+			this.selReqAreaId = node.data.reqarea || null
+			// set the req area options
+			const currReqAreaNodes = store.state.helpersRef.getReqAreaNodes()
+			if (currReqAreaNodes) {
+				store.state.reqAreaOptions = []
+				for (const nm of currReqAreaNodes) {
+					store.state.reqAreaOptions.push({ id: nm._id, title: nm.title })
+				}
+				if (this.selReqAreaId !== null) store.state.reqAreaOptions.push({ id: null, title: 'Remove item from requirement areas' })
+				this.setReqAreaShow = true
+			} else this.showLastEvent('Sorry, your assigned role(s) disallow you to assign requirement areas', SEV.WARNING)
+		}
+	},
+
+	/* Update the req area of the item (null for no req area set) */
+	doSetReqArea() {
+		store.dispatch('updateReqArea', { node: this.getSelectedNode, reqareaId: this.selReqAreaId, timestamp: Date.now() })
+	},
 }
 
 const components = {
@@ -183,6 +271,7 @@ export default {
 	created,
 	mounted,
 	data,
+	computed,
 	watch,
 	methods,
 	components,

@@ -57,10 +57,6 @@ const methods = {
 				vm.contextWarning = 'WARNING: Item cannot be dependent on it self'
 				return false
 			}
-			if (selNode.productId !== vm.dependentOnNode.productId) {
-				vm.contextWarning = 'WARNING: Cannot create a dependency between items in different products'
-				return false
-			}
 			const nodeWithDependencies = vm.dependentOnNode
 			if (nodeWithDependencies.dependencies.includes(selNode._id)) {
 				vm.contextWarning = 'WARNING: Cannot add the same dependency twice'

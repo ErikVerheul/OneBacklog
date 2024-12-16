@@ -15,7 +15,19 @@
     <template v-else>
       <BListGroup>
         <template v-if="!store.state.moveOngoing && !store.state.selectNodeOngoing">
-          <template v-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
+          <template v-if="isAPO && isReqAreaItem">
+            <template v-if="isReqAreaTopLevel">
+              <BListGroupItem button :active="contextOptionSelected === INSERTINSIDE" variant="dark" @click="showSelected(INSERTINSIDE)">Insert a requirement
+                area inside this node</BListGroupItem>
+            </template>
+            <template v-else>
+              <BListGroupItem button :active="contextOptionSelected === INSERTBELOW" variant="dark" @click="showSelected(INSERTBELOW)">Insert a requirement area
+                below this node</BListGroupItem>
+              <BListGroupItem v-if="allowRemoval && contextNodeLevel >= PRODUCTLEVEL" button :active="contextOptionSelected === REMOVEREQAREA" variant="danger"
+                @click="showSelected(REMOVEREQAREA)">Remove this requirement area</BListGroupItem>
+            </template>
+          </template>
+          <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
             <BListGroupItem v-if="myTeam === NOTEAM" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
               @click="showSelected(ASIGNTOMYTEAM)">Join team '{{ contextNodeTeam }}' to open the context menu here</BListGroupItem>
             <BListGroupItem v-else-if="contextNodeLevel > USLEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
@@ -27,7 +39,6 @@
             <!-- cannot create a database or product here -->
             <BListGroupItem v-if="contextNodeLevel > PRODUCTLEVEL" button :active="contextOptionSelected === INSERTBELOW" variant="dark"
               @click="showSelected(INSERTBELOW)">Insert a {{ contextNodeType }} below this {{ contextNodeType }}</BListGroupItem>
-
             <!-- cannot create item inside task -->
             <BListGroupItem v-if="contextNodeLevel < TASKLEVEL" button :active="contextOptionSelected === INSERTINSIDE" variant="dark"
               @click="showSelected(INSERTINSIDE)">Insert a {{ contextChildType }} inside this {{ contextNodeType }}</BListGroupItem>

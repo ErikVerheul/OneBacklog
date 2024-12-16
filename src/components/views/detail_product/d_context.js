@@ -22,7 +22,6 @@ function data() {
 const methods = {
 	showContextMenu(node) {
 		if (store.state.selectedNodes.length === 1) {
-			// select and load the item
 			this.contextOptionSelected = undefined
 			this.listItemText = ''
 			this.showAssistance = false
@@ -144,6 +143,10 @@ const methods = {
 				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
 				break
+			case this.REMOVEREQAREA:
+				this.assistanceText = store.state.help.remove
+				this.listItemText = 'Remove this requirement area'
+				break
 			case this.SETDEPENDENCY:
 				this.assistanceText = store.state.help.setDependency
 				if (!store.state.selectNodeOngoing) {
@@ -191,6 +194,7 @@ const methods = {
 				this.doInsertNewItem(this.contextNodeSelected)
 				break
 			case this.REMOVEITEM:
+			case this.REMOVEREQAREA:
 				this.doRemove()
 				break
 			case this.ASIGNTOMYTEAM:
