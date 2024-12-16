@@ -120,13 +120,15 @@ const mutations = {
 			state.docsCount++
 			// expand the node as saved in the last session or expand the default product up to the epic level
 			const isExpanded =
-				rootState.lastSessionData && rootState.lastSessionData.expandedNodes
+				(rootGetters.isAPO && productId === MISC.AREA_PRODUCTID) ||
+				(rootState.lastSessionData && rootState.lastSessionData.expandedNodes
 					? rootState.lastSessionData.expandedNodes.includes(_id)
-					: productId !== MISC.AREA_PRODUCTID && itemLevel < LEVEL.EPIC
+					: productId !== MISC.AREA_PRODUCTID && itemLevel < LEVEL.EPIC)
 			const doShow =
-				rootState.lastSessionData && rootState.lastSessionData.doShowNodes
+				(rootGetters.isAPO && productId === MISC.AREA_PRODUCTID) ||
+				(rootState.lastSessionData && rootState.lastSessionData.doShowNodes
 					? rootState.lastSessionData.doShowNodes.includes(_id)
-					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC
+					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC)
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
