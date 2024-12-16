@@ -67,8 +67,7 @@
           </template>
           <BCol v-if="getCurrentItemLevel === LEVEL.TASK" cols="4"></BCol>
           <BCol cols="4" class="text-center">
-            <h3 v-if="store.state.userData.myOptions.proUser === 'true'">{{ store.state.currentProductTitle }} [Details]</h3>
-            <h3 v-else>{{ store.state.currentProductTitle }}</h3>
+            <h3>{{ store.state.currentProductTitle }}</h3>
           </BCol>
           <template
             v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
@@ -231,10 +230,10 @@
               </div>
             </div>
           </div>
-          <div v-if="isAPO" class="pane" :style="{ height: '80px' }">
+          <div class="pane" :style="{ height: '80px' }">
             <div class="d-table w-100">
-              <p v-if="!isReqAreaItem" class="title">{{ getItemInfo() }}</p>
-              <span v-else-if="!isReqAreaTopLevel">
+              <p v-if="isReqAreaTopLevel" class="title">Note: The requirement areas are managed by the Areas Product Owner (APO)</p>
+              <span v-if="isAPO && isReqAreaItem && !isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
                   <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
