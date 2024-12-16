@@ -176,15 +176,6 @@ const methods = {
 		}
 	},
 
-	switchToCoarseProductView() {
-		if (store.state.lastTreeView === 'coarseProduct') {
-			router.push('/coarseProduct')
-		} else {
-			const onSuccessCallback = () => router.push('/coarseProduct')
-			store.dispatch('saveMyTreeViewAsync', { onSuccessCallback, doEndSession: false })
-		}
-	},
-
 	onSignout() {
 		window.removeEventListener('beforeunload', beforeUnloadHandler)
 		store.state.signingOut = true

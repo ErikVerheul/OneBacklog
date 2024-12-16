@@ -7,7 +7,6 @@ import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
 import SigninPage from './components/auth/Sign-in.vue'
 import ProductPage from './components/views/detail_product/d_product_view.vue'
-import ReqsAreaPage from './components/views/coarse_product/c_product_view.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
@@ -48,17 +47,6 @@ const routes = [
 		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user && store.state.isProductAssigned) {
-				next()
-			} else {
-				next('/signin')
-			}
-		},
-	},
-	{
-		path: '/coarseProduct',
-		component: ReqsAreaPage,
-		beforeEnter(to, from, next) {
-			if (store.state.userData.user) {
 				next()
 			} else {
 				next('/signin')

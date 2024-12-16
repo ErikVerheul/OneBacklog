@@ -13,10 +13,7 @@
           <!-- app-header additions go in this slot -->
           <slot></slot>
           <BNavItemDropdown text="Select your view" right>
-            <BDropdownItem @click="switchToDetailProductView">Product details</BDropdownItem>
-            <BDropdownItem v-if="isAPO && store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true'"
-              @click="switchToCoarseProductView">Products
-              overview</BDropdownItem>
+            <BDropdownItem @click="switchToDetailProductView">Backlog tree view</BDropdownItem>
             <BDropdownItem to="../../board">Planning board</BDropdownItem>
             <BDropdownDivider v-if="isAssistAdmin || isAdmin || isServerAdmin"></BDropdownDivider>
             <BDropdownItem v-if="isAssistAdmin" to="../../assistadmin">AssistAdmin</BDropdownItem>
