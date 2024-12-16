@@ -194,15 +194,6 @@ const actions = {
 		}, rootState.helpersRef.getProductNodes())
 
 		if (nodeFound) {
-			// cannot display tasks in the coarse view
-			if (rootGetters.isOverviewSelected && nodeFound.level === LEVEL.TASK) {
-				commit('addToEventList', {
-					txt: `The item is found but at the task level but cannot be dispayed in this view. Use the Detail view instead to find this item`,
-					severity: SEV.WARNING,
-				})
-				return
-			}
-
 			// select the node after loading the document
 			dispatch('loadDoc', {
 				id: nodeFound._id,
@@ -279,7 +270,7 @@ const actions = {
 		dispatch('saveTreeView', { type: 'titles', nodesToScan: [branchHead] })
 		rootState.helpersRef.traverseModels(
 			(nm) => {
-				if (!(rootGetters.isOverviewSelected && nm.level === LEVEL.TASK) && nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
+				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
 					// expand the product up to the found item and highlight it
 					rootState.helpersRef.showPathToNode(nm, { doHighLight_1: true })
 					nodesFound.push(nm)

@@ -146,7 +146,6 @@ const utilities = {
 			'getLastEventTxt',
 			'isDetailsViewSelected',
 			'isFollower',
-			'isOverviewSelected',
 			'isPlanningBoardSelected',
 			'myTeam',
 		]),

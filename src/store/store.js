@@ -113,12 +113,10 @@ const store = createStore({
 			myTeamId: null,
 			productTitlesMap: {},
 			treeNodes: [],
-			// detail tree view
+			// tree view
 			reqAreaMapper: {},
-			// coarse tree view
 			colorMapper: {},
 			reqAreaOptions: [],
-			// detail & coarse tree views
 			busyWithLastUndo: false,
 			busyChangingSubscriptions: false,
 			currentDoc: null,
@@ -330,10 +328,6 @@ const store = createStore({
 			return state.currentView === 'detailProduct'
 		},
 
-		isOverviewSelected(state) {
-			return state.currentView === 'coarseProduct'
-		},
-
 		isPlanningBoardSelected(state) {
 			return state.currentView === 'planningBoard'
 		},
@@ -534,19 +528,6 @@ const store = createStore({
 								for (let productId of payload.productIds) {
 									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.expandedNodes.push(productId)
 									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.detailView.doShowNodes.push(productId)
-								}
-							}
-						}
-						if (tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView) {
-							const lastSelectedProductId = tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.lastSelectedProductId
-							if (!lastSelectedProductId || (!payload.productIds.includes(lastSelectedProductId) && lastSelectedProductId !== MISC.AREA_PRODUCTID)) {
-								// the lastSelectedProductId is not available or not in the newly selected product ids
-								delete tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView
-							} else {
-								// add all subscribed product ids (needed in case the user extended the range of subscribed products)
-								for (let productId of payload.productIds) {
-									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.expandedNodes.push(productId)
-									tmpUserData.myDatabases[state.userData.currentDb].lastSessionData.coarseView.doShowNodes.push(productId)
 								}
 							}
 						}
@@ -797,20 +778,6 @@ const store = createStore({
 					state.lastSessionData.detailView.lastSelectedNodeId = lastSelectedNode._id
 					state.lastSessionData.detailView.lastSelectedProductId = lastSelectedNode.productId
 				}
-
-				if (state.currentView === 'coarseProduct') {
-					state.lastSessionData.coarseView = { expandedNodes: [], doShowNodes: [] }
-					state.helpersRef.traverseModels((nm) => {
-						if (nm.isExpanded) {
-							state.lastSessionData.coarseView.expandedNodes.push(nm._id)
-							state.lastSessionData.coarseView.doShowNodes.push(nm._id)
-						} else if (nm.doShow) {
-							state.lastSessionData.coarseView.doShowNodes.push(nm._id)
-						}
-					})
-					state.lastSessionData.coarseView.lastSelectedNodeId = lastSelectedNode._id
-					state.lastSessionData.coarseView.lastSelectedProductId = lastSelectedNode.productId
-				}
 			} else {
 				if (state.debug) console.log(`createTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
 			}
@@ -824,15 +791,6 @@ const store = createStore({
 					nm.isSelected = nm._id === state.lastSessionData.detailView.lastSelectedNodeId
 				})
 				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.detailView.lastSelectedNodeId)]
-			}
-
-			if (state.currentView === 'coarseProduct') {
-				state.helpersRef.traverseModels((nm) => {
-					nm.isExpanded = state.lastSessionData.coarseView.expandedNodes.includes(nm._id)
-					nm.doShow = state.lastSessionData.coarseView.doShowNodes.includes(nm._id)
-					nm.isSelected = nm._id === state.lastSessionData.coarseView.lastSelectedNodeId
-				})
-				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.coarseView.lastSelectedNodeId)]
 			}
 		},
 

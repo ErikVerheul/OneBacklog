@@ -221,7 +221,7 @@ const actions = {
 				}
 				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
 				// process requirement area items
-				if (rootGetters.isOverviewSelected && isReqAreaItem) {
+				if (isReqAreaItem) {
 					switch (histEvent) {
 						case 'changeReqAreaColorEvent':
 							commit('updateColorMapper', { id: doc._id, newColor: doc.color })
@@ -803,13 +803,13 @@ const actions = {
 
 		/*
 		 * Process the event if the user is subscribed for the event's product, or it's a changeReqAreaColorEvent, or to restore removed products,
-		 * or the item is a requirement area item and the overview is in view
+		 * or the item is a requirement area item
 		 */
 		if (
 			rootGetters.getMyProductSubscriptionIds.includes(doc.productId) ||
 			histEvent === 'changeReqAreaColorEvent' ||
 			(histEvent === 'undoBranchRemovalEvent' && doc.level === LEVEL.DATABASE) ||
-			(rootGetters.isOverviewSelected && isReqAreaItem)
+			isReqAreaItem
 		)
 			doProc(doc)
 	},
