@@ -278,7 +278,7 @@ const methods = {
 	},
 
 	showProductView() {
-		router.push('/detailProduct')
+		router.push('/treeView')
 	},
 
 	validEmail: function (email) {

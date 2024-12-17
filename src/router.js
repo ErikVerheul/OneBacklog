@@ -43,7 +43,7 @@ const routes = [
 		},
 	},
 	{
-		path: '/detailProduct',
+		path: '/treeView',
 		component: ProductPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user && store.state.isProductAssigned) {

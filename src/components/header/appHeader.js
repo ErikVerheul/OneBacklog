@@ -168,7 +168,7 @@ const methods = {
 	},
 
 	switchToDetailProductView() {
-		router.push('/detailProduct')
+		router.push('/treeView')
 	},
 
 	onSignout() {

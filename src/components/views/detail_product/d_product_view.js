@@ -16,7 +16,7 @@ const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
-const thisView = 'detailProduct'
+const thisView = 'treeView'
 
 function created() {
 	store.state.currentView = thisView

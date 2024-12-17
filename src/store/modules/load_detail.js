@@ -225,7 +225,7 @@ const actions = {
 					onSuccessCallback: () => {
 						rootState.helpersRef.setDescendantsReqArea()
 						rootState.helpersRef.dependencyViolationsFound()
-						router.push('/detailProduct')
+						router.push('/treeView')
 					},
 				})
 			})
