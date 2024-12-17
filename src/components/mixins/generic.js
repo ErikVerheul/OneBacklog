@@ -148,7 +148,6 @@ const utilities = {
 			'getLastEventBGColor',
 			'getLastEventTextColor',
 			'getLastEventTxt',
-			'isDetailsViewSelected',
 			'isFollower',
 			'isPlanningBoardSelected',
 			'myTeam',

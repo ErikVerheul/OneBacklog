@@ -24,7 +24,7 @@ const mutations = {
 	 * The map is used to insert siblings to their parent. The CouchDb design filter sort order guarantees that the parents are read before any siblings.
 	 * Items the user is not authorized or subscribed to are skipped
 	 */
-	processProducts(state, payload) {
+	createTreeModel(state, payload) {
 		const rootState = payload.rootState
 		const rootGetters = payload.rootGetters
 		/* Return true if the id matches the id stored in the lastSessionData or, if not available, the default product id */
@@ -118,7 +118,7 @@ const mutations = {
 			}
 
 			state.docsCount++
-			// expand the node as saved in the last session or expand the default product up to the epic level
+			// expand and show the node as saved in the last session or expand the all products up to the epic level; always show the REQUIREMENRS nodes to the APO
 			const isExpanded =
 				(rootGetters.isAPO && productId === MISC.AREA_PRODUCTID) ||
 				(rootState.lastSessionData && rootState.lastSessionData.expandedNodes
@@ -250,7 +250,7 @@ const actions = {
 				rootState.loadedTreeDepth = LEVEL.TASK
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}
-				commit('processProducts', { rootState, rootGetters, batch: res.data.rows })
+				commit('createTreeModel', { rootState, rootGetters, batch: res.data.rows })
 
 				// all backlog items are read and all nodes created; reset load parameters
 				parentNodes = {}

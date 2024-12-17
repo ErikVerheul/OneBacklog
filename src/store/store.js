@@ -324,17 +324,12 @@ const store = createStore({
 			return state.treeNodes
 		},
 
-		isDetailsViewSelected(state) {
-			return state.currentView === 'detailProduct'
-		},
-
 		isPlanningBoardSelected(state) {
 			return state.currentView === 'planningBoard'
 		},
 
 		leafLevel(state, getters) {
-			if (getters.isDetailsViewSelected) return LEVEL.TASK
-			return LEVEL.US
+			return LEVEL.TASK
 		},
 
 		myTeam(state) {
@@ -765,33 +760,29 @@ const store = createStore({
 			if (lastSelectedNode) {
 				if (!state.lastSessionData) state.lastSessionData = {}
 
-				if (state.currentView === 'detailProduct') {
-					state.lastSessionData = { expandedNodes: [], doShowNodes: [] }
-					state.helpersRef.traverseModels((nm) => {
-						if (nm.isExpanded) {
-							state.lastSessionData.expandedNodes.push(nm._id)
-							state.lastSessionData.doShowNodes.push(nm._id)
-						} else if (nm.doShow) {
-							state.lastSessionData.doShowNodes.push(nm._id)
-						}
-					})
-					state.lastSessionData.lastSelectedNodeId = lastSelectedNode._id
-					state.lastSessionData.lastSelectedProductId = lastSelectedNode.productId
-				}
+				state.lastSessionData = { expandedNodes: [], doShowNodes: [] }
+				state.helpersRef.traverseModels((nm) => {
+					if (nm.isExpanded) {
+						state.lastSessionData.expandedNodes.push(nm._id)
+						state.lastSessionData.doShowNodes.push(nm._id)
+					} else if (nm.doShow) {
+						state.lastSessionData.doShowNodes.push(nm._id)
+					}
+				})
+				state.lastSessionData.lastSelectedNodeId = lastSelectedNode._id
+				state.lastSessionData.lastSelectedProductId = lastSelectedNode.productId
 			} else {
 				if (state.debug) console.log(`createTreeExpansionState: Cannot save the expansion state. The last selected node is not avaiable`)
 			}
 		},
 
 		restoreTreeExpansionState(state) {
-			if (state.currentView === 'detailProduct') {
-				state.helpersRef.traverseModels((nm) => {
-					nm.isExpanded = state.lastSessionData.expandedNodes.includes(nm._id) && nm._id !== MISC.AREA_PRODUCTID
-					nm.doShow = state.lastSessionData.doShowNodes.includes(nm._id) && nm.parentId !== MISC.AREA_PRODUCTID
-					nm.isSelected = nm._id === state.lastSessionData.lastSelectedNodeId
-				})
-				state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.lastSelectedNodeId)]
-			}
+			state.helpersRef.traverseModels((nm) => {
+				nm.isExpanded = state.lastSessionData.expandedNodes.includes(nm._id) && nm._id !== MISC.AREA_PRODUCTID
+				nm.doShow = state.lastSessionData.doShowNodes.includes(nm._id) && nm.parentId !== MISC.AREA_PRODUCTID
+				nm.isSelected = nm._id === state.lastSessionData.lastSelectedNodeId
+			})
+			state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.lastSelectedNodeId)]
 		},
 
 		endSession(state, caller) {

@@ -279,10 +279,8 @@ const actions = {
 							showSyncMessage(`set the sprint for`, SEV.INFO)
 							break
 						case 'changeReqAreaColorEvent':
-							if (rootGetters.isDetailsViewSelected) {
-								commit('updateColorMapper', { id: doc._id, newColor: doc.color })
-								showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
-							}
+							commit('updateColorMapper', { id: doc._id, newColor: doc.color })
+							showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
 							break
 						case 'commentAmendedEvent':
 							node.data.lastCommentAddition = doc.comments[0].timestamp

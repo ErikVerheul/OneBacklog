@@ -139,7 +139,7 @@ const methods = {
 		const offsetY = y - nodeItem.getBoundingClientRect().top
 
 		let placement
-		if (store.state.currentView === 'detailProduct' && nodeModel.level === LEVEL.TASK) {
+		if (nodeModel.level === LEVEL.TASK) {
 			placement = offsetY >= nodeHeight / 2 ? 'after' : 'before'
 		} else {
 			if (offsetY <= edgeSize) {
@@ -293,7 +293,7 @@ const methods = {
 	},
 
 	onToggleHandler(event, node) {
-		if (store.state.currentView === 'detailProduct' && node.level === LEVEL.TASK) return
+		if (node.level === LEVEL.TASK) return
 
 		if (node.isExpanded) {
 			collapseNode(node)

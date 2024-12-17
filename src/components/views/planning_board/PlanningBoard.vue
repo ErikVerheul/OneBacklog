@@ -1,5 +1,4 @@
 <template>
-  <p>myTeam = {{ selectedTeam }}</p>
   <div>
     <app-header>
       <!-- Right aligned nav items -->
