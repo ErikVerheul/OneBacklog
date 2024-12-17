@@ -6,10 +6,10 @@ import AppHeader from '../../header/AppHeader.vue'
 import Multipane from '../../multipane/Multipane-comp.vue'
 import MultipaneResizer from '../../multipane/Multipane-Resizer.vue'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
-import DcontextMenu from './d_context.vue'
-import Filters from './d_filters.vue'
+import DcontextMenu from './Tree_context.vue'
+import Filters from './Tree_filters.vue'
 import Listings from '../../listings/common_listings.vue'
-import ToSprint from './d_tosprint.vue'
+import ToSprint from './Tree_sprint.vue'
 import store from '../../../store/store.js'
 
 const MAXUPLOADSIZE = 100000000

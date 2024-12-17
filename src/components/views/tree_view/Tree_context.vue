@@ -1,5 +1,5 @@
 <template>
-  <BModal ref="d_contextMenuRef" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" :title="contextNodeTitle">
+  <BModal ref="contextMenuRef" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" :title="contextNodeTitle">
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
         <p>Select the dependencies to remove:</p>
@@ -102,7 +102,7 @@
   </BModal>
 </template>
 
-<script src="./d_context.js"></script>
+<script src="./Tree_context.js"></script>
 
 <style lang="scss" scoped>
 .assist-text {

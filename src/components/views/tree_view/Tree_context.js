@@ -419,9 +419,9 @@ const methods = {
 				this.canAssignUsToSprint = node.level === this.USLEVEL && !node.data.sprintId
 				// can only assign tasks to a sprint if not in a sprint already
 				this.canAssignTaskToSprint = node.level === this.TASKLEVEL && !node.data.sprintId
-				if (this.$refs.d_contextMenuRef) {
+				if (this.$refs.contextMenuRef) {
 					// prevent error message on recompile
-					this.$refs.d_contextMenuRef.show()
+					this.$refs.contextMenuRef.show()
 				}
 			} else this.allowRemoval = false
 		} else this.showLastEvent('Cannot apply context menu on multiple items. Choose one', SEV.WARNING)

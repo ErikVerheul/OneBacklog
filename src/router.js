@@ -6,7 +6,7 @@ import RelNotesPage from './components/rel-notes/Rel-Notes.vue'
 import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
 import SigninPage from './components/auth/Sign-in.vue'
-import ProductPage from './components/views/detail_product/d_product_view.vue'
+import ProductPage from './components/views/tree_view/Tree_view.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 

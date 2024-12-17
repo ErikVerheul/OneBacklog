@@ -374,7 +374,7 @@
   </div>
 </template>
 
-<script src="./d_product_view.js"></script>
+<script src="./Tree_view.js"></script>
 
 <style lang="scss" scoped>
 /* horizontal panes */
