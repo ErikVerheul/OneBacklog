@@ -71,7 +71,7 @@
 import { MISC } from '../../../constants.js'
 import { initMessaging } from '../../../common_functions.js'
 import { mapState, mapGetters } from 'vuex'
-import { utilities } from '../../mixins/generic.js'
+import { utilities } from '../../mixins/GenericMixin.js'
 import AppHeader from '../../header/AppHeader.vue'
 import StoryLane from './StoryLane.vue'
 import store from '../../../store/store.js'

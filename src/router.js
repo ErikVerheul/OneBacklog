@@ -2,15 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 import store from './store/store'
 
 import WelcomePage from './components/welcome/Welcome-comp.vue'
-import RelNotesPage from './components/rel-notes/Rel-Notes.vue'
+import RelNotesPage from './components/rel-notes/RelNotes.vue'
 import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
 import SigninPage from './components/auth/Sign-in.vue'
-import ProductPage from './components/views/tree_view/Tree_view.vue'
+import ProductPage from './components/views/tree_view/TreeView.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
-import AssistAdminPage from './components/admin/AssistAdminTool.vue'
+import AssistAdminPage from './components/admin/AssistAdmin.vue'
 import AdminPage from './components/admin/AdminTool.vue'
 import ServerAdminPage from './components/serveradmin/ServerAdmin.vue'
 

@@ -1,8 +1,8 @@
 import { MISC } from '../../constants.js'
 import { addToArray, removeFromArray, createId, isValidEmail } from '../../common_functions.js'
 import AppHeader from '../header/AppHeader.vue'
-import router from '../../router'
-import { utilities } from '../mixins/generic.js'
+import router from '../../router.js'
+import { utilities } from '../mixins/GenericMixin.js'
 import store from '../../store/store.js'
 
 const HOUR_MILIS = 60 * 60000

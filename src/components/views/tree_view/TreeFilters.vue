@@ -115,7 +115,7 @@
 <script>
 import { LEVEL, SEV } from '../../../constants.js'
 import { collapseNode, expandNode, hideNode, isInPath } from '../../../common_functions.js'
-import { utilities } from '../../mixins/generic.js'
+import { utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
 
 function mounted() {

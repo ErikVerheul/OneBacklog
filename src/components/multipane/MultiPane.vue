@@ -4,7 +4,7 @@
   </div>
 </template>
 
-<script src="./multipane.js"></script>
+<script src="./MultiPane.js"></script>
 
 <style lang="scss">
 .multipane {
@@ -24,13 +24,13 @@
   z-index: 1;
 }
 
-.multipane-resizer {
+.MultipaneResizer {
   display: block;
   position: relative;
   z-index: 2;
 }
 
-.layout-h>.multipane-resizer {
+.layout-h>.MultipaneResizer {
   width: 100%;
   height: 10px;
   margin-top: -10px;
@@ -38,7 +38,7 @@
   cursor: row-resize;
 }
 
-.layout-v>.multipane-resizer {
+.layout-v>.MultipaneResizer {
   width: 10px;
   height: 100%;
   margin-left: -10px;

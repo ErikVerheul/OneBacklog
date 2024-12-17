@@ -349,7 +349,7 @@
   </div>
 </template>
 
-<script src="./assistadmin.js"></script>
+<script src="./AssistAdmin.js"></script>
 
 <style scoped>
 h4,

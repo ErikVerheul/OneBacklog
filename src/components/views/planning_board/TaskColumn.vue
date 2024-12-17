@@ -21,7 +21,7 @@
 <script>
 import { LEVEL } from '../../../constants.js'
 import { createId } from '../../../common_functions.js'
-import { authorization, utilities } from '../../mixins/generic.js'
+import { authorization, utilities } from '../../mixins/GenericMixin.js'
 import { VueDraggableNext } from 'vue-draggable-next'
 import TaskItem from './TaskItem.vue'
 import store from '../../../store/store.js'

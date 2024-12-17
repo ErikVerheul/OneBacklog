@@ -84,7 +84,7 @@
 import { MISC } from '../../constants.js'
 import { b64ToUni } from '../../common_functions.js'
 import store from '../../store/store.js'
-import commonListings from './common_listings.js'
+import commonListings from './CommonListings.js'
 
 const props = ['selectedForView']
 

@@ -430,7 +430,7 @@
   </div>
 </template>
 
-<script src="./adminTool.js"></script>
+<script src="./AdminTool.js"></script>
 
 <style scoped>
 h4,

@@ -216,7 +216,7 @@
         </div>
       </div>
 
-      <multipane-resizer></multipane-resizer>
+      <MultipaneResizer></MultipaneResizer>
       <div class="pane" :style="{ flexGrow: 1, minWidth: '30%', width: '50%', minHeight: '100%' }">
         <!-- inner horizontal panes -->
         <multipane class="horizontal-panes" layout="horizontal">
@@ -265,7 +265,7 @@
             <QuillEditor v-model:content="store.state.currentDoc.description" contentType="html" @update:content="initNewDescription"
               @blur="updateDescription({ node: getSelectedNode, cb: null })"></QuillEditor>
           </div>
-          <multipane-resizer></multipane-resizer>
+          <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
             <div>
               <h5 class="title">Acceptance criteria</h5>
@@ -275,7 +275,7 @@
             <QuillEditor v-model:content="store.state.currentDoc.acceptanceCriteria" contentType="html" @update:content="initNewAcceptance"
               @blur="updateAcceptance({ node: getSelectedNode, cb: null })"></QuillEditor>
           </div>
-          <multipane-resizer></multipane-resizer>
+          <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '75px', top: '5px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
@@ -374,7 +374,7 @@
   </div>
 </template>
 
-<script src="./Tree_view.js"></script>
+<script src="./TreeView.js"></script>
 
 <style lang="scss" scoped>
 /* horizontal panes */
@@ -408,7 +408,7 @@
   border: 1px solid #ccc;
 }
 
-.custom-resizer>.multipane-resizer {
+.custom-resizer>.MultipaneResizer {
   margin: 0;
   left: 0;
   position: relative;

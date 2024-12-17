@@ -1,6 +1,6 @@
 import { MISC, SEV, LEVEL, STATE } from '../../../constants.js'
 import { createId, getSprintNameById, uniTob64 } from '../../../common_functions.js'
-import { authorization, utilities } from '../../mixins/generic.js'
+import { authorization, utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
 
 function created() {

@@ -14,7 +14,7 @@
 
 <script>
 import store from '../../store/store.js'
-import Listings from '../listings/common_listings.vue'
+import Listings from '../listings/CommonListings.vue'
 
 const computed = {
   canNotSave: function () {

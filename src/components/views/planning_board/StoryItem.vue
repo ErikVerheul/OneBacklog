@@ -34,7 +34,7 @@
 
 <script>
 import { LEVEL } from '../../../constants.js'
-import { authorization, utilities } from '../../mixins/generic.js'
+import { authorization, utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
 
 export default {
@@ -91,10 +91,10 @@ export default {
         switch (this.contextOptionSelected) {
           case this.ID_TO_CLIPBOARD:
             navigator.clipboard.writeText(this.story.storyId.slice(-5)).then(() => {
-               
+
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard successfully set')
             }, () => {
-               
+
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
             })
             break

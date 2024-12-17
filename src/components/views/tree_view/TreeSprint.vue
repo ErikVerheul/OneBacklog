@@ -11,7 +11,7 @@
 <script>
 import { LEVEL } from '../../../constants.js'
 import { getSprintNameById } from '../../../common_functions.js'
-import { utilities } from '../../mixins/generic.js'
+import { utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
 
 function shortStartDate(sprint) {

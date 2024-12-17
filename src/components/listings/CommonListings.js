@@ -4,7 +4,7 @@
  * When the 'Attachments" radio button is clicked the attachments to this item are listed. These can be removed. New attchments can be oploaded.
  */
 import { MISC } from '../../constants.js'
-import { utilities } from '../mixins/generic.js'
+import { utilities } from '../mixins/GenericMixin.js'
 import { b64ToUni } from '../../common_functions.js'
 import store from '../../store/store.js'
 

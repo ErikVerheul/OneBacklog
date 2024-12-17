@@ -102,7 +102,7 @@
   </BModal>
 </template>
 
-<script src="./Tree_context.js"></script>
+<script src="./TreeContext.js"></script>
 
 <style lang="scss" scoped>
 .assist-text {
