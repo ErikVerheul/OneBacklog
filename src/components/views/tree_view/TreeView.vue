@@ -230,27 +230,27 @@
               </div>
             </div>
           </div>
-          <div v-if="isReqAreaItem" class="pane" :style="{ height: '60px' }">
+          <div class="pane" :style="{ height: '60px' }">
             <div class="d-table w-100">
-              <p v-if="isAPO && isReqAreaTopLevel">As Areas Product Owner (APO) you can create and remove requirement areas here</p>
-              <p v-if="!isAPO && isReqAreaTopLevel">Note: The requirement areas are managed by the Areas Product Owner (APO). Not you.</p>
-              <span v-if="isAPO && !isReqAreaTopLevel">
-                <BFormGroup>
-                  Select a display color for this requirement area:
-                  <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
-                    :options="getRemainingColorOptions()" />
-                </BFormGroup>
-              </span>
-            </div>
-          </div>
-          <div v-else class="pane" :style="{ height: '60px' }">
-            <div class="d-table w-100">
-              <div> {{ getItemInfo() }}</div>
-              <div v-if="getCurrentItemLevel === LEVEL.US" class="d-table-cell tar">
-                <BFormGroup>
-                  <BFormRadioGroup v-model="selectedUsType" :options="getUsOptions()" name="usOptions" />
-                </BFormGroup>
-              </div>
+              <template v-if="isReqAreaItem">
+                <p v-if="isAPO && isReqAreaTopLevel">As Areas Product Owner (APO) you can create and remove requirement areas here</p>
+                <p v-if="!isAPO && isReqAreaTopLevel">Note: The requirement areas are managed by the Areas Product Owner (APO). Not you.</p>
+                <span v-if="isAPO && !isReqAreaTopLevel">
+                  <BFormGroup>
+                    Select a display color for this requirement area:
+                    <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
+                      :options="getRemainingColorOptions()" />
+                  </BFormGroup>
+                </span>
+              </template>
+              <template v-else>
+                <div> {{ getItemInfo() }}</div>
+                <div v-if="getCurrentItemLevel === LEVEL.US" class="d-table-cell tar">
+                  <BFormGroup>
+                    <BFormRadioGroup v-model="selectedUsType" :options="getUsOptions()" name="usOptions" />
+                  </BFormGroup>
+                </div>
+              </template>
             </div>
           </div>
           <div class="pane" :style="{ height: '40px' }">
