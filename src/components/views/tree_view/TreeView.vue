@@ -311,7 +311,7 @@
     <!-- ToSprint modal -->
     <toSprint></toSprint>
     <!-- Context modal -->
-    <DcontextMenu></DcontextMenu>
+    <ContextMenu></ContextMenu>
 
     <BModal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
       <p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">

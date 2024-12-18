@@ -6,7 +6,7 @@ import AppHeader from '../../header/AppHeader.vue'
 import Multipane from '../../multipane/MultiPane.vue'
 import MultipaneResizer from '../../multipane/MultipaneResizer.vue'
 import slVueTree from '../sl-vue-tree/sl-vue-tree.vue'
-import DcontextMenu from './TreeContext.vue'
+import ContextMenu from './TreeContext.vue'
 import Filters from './TreeFilters.vue'
 import Listings from '../../listings/CommonListings.vue'
 import ToSprint from './TreeSprint.vue'
@@ -889,7 +889,7 @@ const components = {
 	Multipane,
 	MultipaneResizer,
 	slVueTree,
-	DcontextMenu,
+	ContextMenu,
 	Filters,
 	Listings,
 	ToSprint,
