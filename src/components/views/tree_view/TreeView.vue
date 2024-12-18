@@ -230,10 +230,11 @@
               </div>
             </div>
           </div>
-          <div class="pane" :style="{ height: '80px' }">
+          <div v-if="isReqAreaItem" class="pane" :style="{ height: '60px' }">
             <div class="d-table w-100">
-              <p v-if="isReqAreaTopLevel" class="title">Note: The requirement areas are managed by the Areas Product Owner (APO)</p>
-              <span v-if="isAPO && isReqAreaItem && !isReqAreaTopLevel">
+              <p v-if="isAPO && isReqAreaTopLevel">As Areas Product Owner (APO) you can create and remove requirement areas here</p>
+              <p v-if="!isAPO && isReqAreaTopLevel">Note: The requirement areas are managed by the Areas Product Owner (APO). Not you.</p>
+              <span v-if="isAPO && !isReqAreaTopLevel">
                 <BFormGroup>
                   Select a display color for this requirement area:
                   <BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
@@ -242,9 +243,9 @@
               </span>
             </div>
           </div>
-          <div class="pane" :style="{ height: '40px' }">
+          <div v-else class="pane" :style="{ height: '60px' }">
             <div class="d-table w-100">
-              <div class="title"> {{ getItemInfo() }}</div>
+              <div> {{ getItemInfo() }}</div>
               <div v-if="getCurrentItemLevel === LEVEL.US" class="d-table-cell tar">
                 <BFormGroup>
                   <BFormRadioGroup v-model="selectedUsType" :options="getUsOptions()" name="usOptions" />
@@ -254,9 +255,9 @@
           </div>
           <div class="pane" :style="{ height: '40px' }">
             <div class="d-table w-100">
-              <h5 class="title">Description</h5>
+              <h5>Description</h5>
               <div v-if="store.state.currentDoc.history[0]" class="d-table-cell tar">
-                <p class="title"> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new
+                <p> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new
                   Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
               </div>
             </div>
@@ -268,7 +269,7 @@
           <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
             <div>
-              <h5 class="title">Acceptance criteria</h5>
+              <h5>Acceptance criteria</h5>
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
