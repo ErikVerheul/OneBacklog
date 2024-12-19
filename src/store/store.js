@@ -61,18 +61,16 @@ function createEventToDisplay(payload) {
 			backgroundColor = '#ff5c33'
 			textColor = 'black'
 	}
-	let tip = ''
-	if (payload.severity > SEV.INFO) tip = ' CLICK to unlock'
-	const newEvent = {
+
+	return {
 		eventKey: payload.eventKey,
 		time: localTimeAndMilis(new Date()),
-		txt: payload.txt + tip,
+		txt: payload.txt,
 		sevKey: payload.severity,
 		severity: severityStr,
 		backgroundColor,
 		textColor,
 	}
-	return newEvent
 }
 
 function getCurrentEvt(eventsArray, key) {
@@ -241,9 +239,14 @@ const store = createStore({
 		},
 
 		getLastEventTxt(state) {
+			function getTip() {
+				if (store.state.freezeEvent) return ' - CLICK to unlock'
+				return ''
+			}
+
 			if (state.showProgress) return state.progressMessage
 			const currentEvt = getCurrentEvt(state.eventList, state.currentEventKey)
-			if (currentEvt !== null) return currentEvt.txt
+			if (currentEvt !== null) return currentEvt.txt + getTip()
 		},
 
 		getLastEventBGColor(state) {
@@ -560,7 +563,7 @@ const store = createStore({
 			}
 		},
 
-		resetfroozenEventDisplay(state) {
+		unlockOrShowAllMessages(state) {
 			state.freezeEvent = false
 			state.currentEventKey = state.eventList[0].eventKey
 		},

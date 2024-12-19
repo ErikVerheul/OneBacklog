@@ -718,8 +718,9 @@ const methods = {
 	},
 
 	showMoreMessages() {
-		store.commit('resetfroozenEventDisplay')
-		this.$refs.historyEventRef.show()
+		if (!store.state.freezeEvent) {
+			this.$refs.historyEventRef.show()
+		} else store.commit('unlockOrShowAllMessages')
 	},
 
 	doShowState(node) {
