@@ -813,17 +813,27 @@ const methods = {
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
 	beforeNodeDropped(draggingNodes, position, cancel) {
 		/*
-		 * 1. Disallow drop on node or between nodes with a missing parent or if the user has no write authority
+		 * 1. Disallow drop on node or between nodes with a missing parent or if the user has no write authority.
 		 * 2. Disallow drop when moving over more than 1 level.
 		 * 3. Dropping items with descendants is not possible when any descendant would land higher than the highest level (LEVEL.TASK).
+		 * 4. Disallow making a node a descendant of it self.
+		 * 5. Disallow moving a product in another product.
+		 * 6. Prevent moving nodes while selecting a dependency.
 		 * precondition: the selected nodes have all the same parent (same level)
 		 */
 		const parentNode = position.placement === 'inside' ? position.nodeModel : store.state.helpersRef.getParentNode(position.nodeModel)
-		// do not move regular nodes in the REQUIREMETS AREA
-		if (draggingNodes[0].parentId !== MISC.AREA_PRODUCTID && parentNode._id === MISC.AREA_PRODUCTID) {
+
+		if ((draggingNodes[0].parentId !== MISC.AREA_PRODUCTID && parentNode._id === MISC.AREA_PRODUCTID) || position.nodeModel._id === MISC.AREA_PRODUCTID) {
+			// do not move regular nodes in or above the REQUIREMENTS AREA
+			cancel(true)
+		} else if (
+			draggingNodes[0]._id === MISC.AREA_PRODUCTID ||
+			(draggingNodes[0].parentId === MISC.AREA_PRODUCTID && position.nodeModel.parentId !== MISC.AREA_PRODUCTID)
+		) {
+			// do not move REQUIREMENTS AREA nodes to the regular nodes
 			cancel(true)
 		} else if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
-			// cancel quietly if getParentNode(position.nodeModel) returns null (not found)
+			// cancel quietly if parentNode is null (not found)
 			const checkDropNotAllowed = (node, position, sourceLevel, targetLevel) => {
 				const failedCheck2 = Math.abs(targetLevel - sourceLevel) > 1
 				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
