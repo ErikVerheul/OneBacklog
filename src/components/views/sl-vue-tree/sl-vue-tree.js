@@ -1,8 +1,8 @@
 /*
  * This component is an improved and extended version of the Holiber sl-vue-tree. See https://github.com/holiber/sl-vue-tree
  */
-import { SEV, LEVEL } from '../../../constants.js'
-import { collapseNode, expandNode, isInPath } from '../../../common_functions.js'
+import { LEVEL } from '../../../constants.js'
+import { collapseNode, expandNode } from '../../../common_functions.js'
 import store from '../../../store/store.js'
 
 // in px; used to calculate the node closest to the current cursor position
@@ -98,7 +98,7 @@ const methods = {
 	// trigger the context component via the eventbus if the node is selectable (no branch removal is pending)
 	contextMenuHandler(event, node) {
 		// disallow selection of the root node
-		if (node.level === 1) return
+		if (node.level === LEVEL.DATABASE) return
 
 		// cursorPosition not available, so get it
 		const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
@@ -195,7 +195,7 @@ const methods = {
 			return
 		}
 		// disallow selection of the root node
-		if (node.level === 1) return
+		if (node.level === LEVEL.DATABASE) return
 
 		// set preventProductDrag (true if clicked on a product node and the node is not expanded)
 		this.preventProductDrag = node.tmpPreventDrag && !node.isExpanded
@@ -211,10 +211,6 @@ const methods = {
 	},
 
 	mouseUpLeftHandler(event, node) {
-		function showLastEvent(txt, severity) {
-			store.commit('addToEventList', { txt, severity })
-		}
-
 		if (!this.isRoot) {
 			this.getRootComponent().mouseUpLeftHandler(event, node)
 			return
@@ -233,10 +229,8 @@ const methods = {
 			return
 		}
 
-		// stop drag if no nodes selected or at root level or selecting a node for registering a dependency
-		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE || store.state.selectNodeOngoing) {
-			if (store.state.selectNodeOngoing)
-				showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu.', SEV.WARNING)
+		// stop drag if no nodes selected or at root level
+		if (!this.lastClickedNode.isSelected || this.cursorPosition.nodeModel.level === LEVEL.DATABASE) {
 			this.stopDrag()
 			return
 		}
@@ -248,28 +242,11 @@ const methods = {
 				this.stopDrag()
 				return
 			}
-			if (isInPath(dn.path, this.cursorPosition.nodeModel.path)) {
-				showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
-				this.stopDrag()
-				return
-			}
-			// prevent dragging a product into another product
-			if (dn.level === LEVEL.PRODUCT && (this.cursorPosition.placement === 'inside' || this.cursorPosition.nodeModel.parentId !== 'root')) {
-				showLastEvent('Cannot drag a product into another product', SEV.WARNING)
-				this.stopDrag()
-				return
-			}
 		}
 
 		// if the cursor is placed below the last child of a parent item insert the moved item(s) as childs of that parent
 		const sourceParent = store.state.helpersRef.getParentNode(this.lastClickedNode)
 		const nextParent = store.state.helpersRef.getNextSibling(sourceParent.path)
-		if (sourceParent === null) {
-			// cancel the drop
-			showLastEvent('The parent of the selected node is not found', SEV.ERROR)
-			this.stopDrag()
-			return
-		}
 		if (this.cursorPosition.placement === 'before' && this.cursorPosition.nodeModel === nextParent) {
 			// change the cursorPosition.nodeModel to the last child of the sourceParent and insert after this child
 			this.cursorPosition.nodeModel = sourceParent.children.slice(-1)[0]

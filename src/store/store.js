@@ -1,6 +1,6 @@
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other (async) database updates are done.
-import { SEV, LEVEL, MISC } from '../constants.js'
+import { SEV, MISC } from '../constants.js'
 import { createStore } from 'vuex'
 import globalAxios from 'axios'
 import { expandNode, collapseNode, addToArray, localTimeAndMilis, prepareDocForPresentation, removeFromArray } from '../common_functions.js'
@@ -326,10 +326,6 @@ const store = createStore({
 
 		isPlanningBoardSelected(state) {
 			return state.currentView === 'planningBoard'
-		},
-
-		leafLevel(state, getters) {
-			return LEVEL.TASK
 		},
 
 		myTeam(state) {

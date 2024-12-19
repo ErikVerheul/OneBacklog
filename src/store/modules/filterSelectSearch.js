@@ -179,7 +179,7 @@ const actions = {
 	},
 
 	/* Find a full or short id in whithin all product branches */
-	findItemOnId({ rootState, dispatch, commit, rootGetters }, payload) {
+	findItemOnId({ rootState, dispatch, commit }, payload) {
 		const SHORTKEYLENGTH = 5
 		const id = payload.id
 		// scan all items of the current products

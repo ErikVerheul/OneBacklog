@@ -127,7 +127,7 @@ const actions = {
 	 * Unmark the removed item and its descendants for removal. Create nodes from the retrieved docs and add then to the removed node.
 	 * Do not reset the busyWithLastUndo as one of the intances fails
 	 */
-	unremoveDescendants({ rootState, rootGetters, commit, dispatch }, payload) {
+	unremoveDescendants({ rootState, commit, dispatch }, payload) {
 		/* Traverse the removedNode branch to find the parent node for the item with this id; return undefined if not found */
 		function getParentNodeById(id, removedNode) {
 			let parentNode
@@ -148,7 +148,7 @@ const actions = {
 		// all docs have the same parent and level
 		const sharedDocLevel = docs[0].level
 		let parentNode = undefined
-		if (sharedDocLevel <= rootGetters.leafLevel) {
+		if (sharedDocLevel <= LEVEL.TASK) {
 			// get the parentNode if a node needs to be recovered
 			parentNode = getParentNodeById(docs[0].parentId, globalEntry.removedNode)
 		}
@@ -183,7 +183,7 @@ const actions = {
 			}
 
 			// create a node and insert it in the removed node
-			if (parentNode && parentNode.level < rootGetters.leafLevel) {
+			if (parentNode && parentNode.level < LEVEL.TASK) {
 				// restore the node as child of the parent up to leafLevel
 				rootState.helpersRef.appendDescendantNode(parentNode, doc)
 				descendantNodesRestoredCount++
