@@ -129,6 +129,8 @@ const mutations = {
 				(rootState.lastSessionData && rootState.lastSessionData.doShowNodes
 					? rootState.lastSessionData.doShowNodes.includes(_id)
 					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC)
+			// the APO is the only role that maintains requirement areas
+			const isSelectable = rootGetters.isAPO || (!rootGetters.isAPO && productId !== MISC.AREA_PRODUCTID)
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
@@ -154,7 +156,7 @@ const mutations = {
 					title,
 					children: [],
 					isExpanded,
-					isSelectable: true,
+					isSelectable,
 					isDraggable,
 					isSelected: isNodeSelected(_id),
 					doShow,
