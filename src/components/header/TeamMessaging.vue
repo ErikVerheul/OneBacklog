@@ -1,5 +1,5 @@
 <template>
-  <BModal size="lg" v-model="store.state.showGoMessaging" hide-footer title="View and send messages">
+  <BModal size="lg" v-model="store.state.showGoMessaging" no-footer title="View and send messages">
     <BCard border-variant="primary" :header="getHeaderText()" header-bg-variant="dark" header-text-variant="white" align="center">
       <label for="newMsgId">Message title</label>
       <BFormInput id="newMsgId" v-model="store.state.newMsgTitle" placeholder="Your message must have a title" />

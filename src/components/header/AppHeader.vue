@@ -56,7 +56,7 @@
       <slot name="licence"></slot>
     </appLicence>
 
-    <BModal size="lg" v-model="showChangeDatabase" hide-footer title="Change your database">
+    <BModal size="lg" v-model="showChangeDatabase" no-footer title="Change your database">
       <BContainer align-v="true">
         <h5>Select another database. Your current database is '{{ store.state.userData.currentDb }}'</h5>
         <BFormGroup>
@@ -98,7 +98,7 @@
       </BContainer>
     </BModal>
 
-    <BModal size="lg" v-model="showSelectProducts" hide-footer title="Select one or more (hold shift or Ctrl) products to be loaded">
+    <BModal size="lg" v-model="showSelectProducts" no-footer title="Select one or more (hold shift or Ctrl) products to be loaded">
       <BContainer align-v="true">
         <BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length">
         </BFormSelect>
@@ -198,7 +198,7 @@
     </BModal>
 
     <!-- when userData not initialized do not show the options -->
-    <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" hide-footer title="Options menu">
+    <BModal size="lg" v-if="store.state.userData.myOptions" v-model="showOptionsModal" no-footer title="Options menu">
       <h5>If you manage large complex products</h5>
       <BFormCheckbox v-model="store.state.userData.myOptions.proUser" value="true" unchecked-value="false">
         Use the professional mode of this app
@@ -232,7 +232,7 @@
       <BButton class="m-1 float-end" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
     </BModal>
 
-    <BModal v-model="store.state.signingOut" hide-header hide-footer @hide.prevent>Signing out, please wait...</BModal>
+    <BModal v-model="store.state.signingOut" no-header no-footer @hide.prevent>Signing out, please wait...</BModal>
   </div>
   <TeamMessaging></TeamMessaging>
 </template>
