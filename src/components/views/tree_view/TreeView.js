@@ -836,17 +836,17 @@ const methods = {
 		} else if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
 			// cancel quietly if parentNode is null (not found)
 			const checkDropNotAllowed = (node, position, sourceLevel, targetLevel) => {
-				const failedCheck2 = Math.abs(targetLevel - sourceLevel) > 1
-				const failedCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
-				const failedCheck4 = isInPath(node.path, position.nodeModel.path)
-				const failedCheck5 = node.level === LEVEL.PRODUCT && (position.placement === 'inside' || position.nodeModel.parentId !== 'root')
-				const failedCheck6 = store.state.selectNodeOngoing
-				if (failedCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
-				if (failedCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than user story level', SEV.WARNING)
-				if (failedCheck4) this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
-				if (failedCheck5) this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
-				if (failedCheck6) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu', SEV.WARNING)
-				return failedCheck2 || failedCheck3 || failedCheck4 || failedCheck5 || failedCheck6
+				const dropCheck2 = Math.abs(targetLevel - sourceLevel) > 1
+				const dropCheck3 = targetLevel + store.state.helpersRef.getDescendantsInfo(node).depth > LEVEL.TASK
+				const dropCheck4 = isInPath(node.path, position.nodeModel.path)
+				const dropCheck5 = node.level === LEVEL.PRODUCT && (position.placement === 'inside' || position.nodeModel.parentId !== 'root')
+				const dropCheck6 = store.state.selectNodeOngoing
+				if (dropCheck2) this.showLastEvent('Promoting / demoting an item over more than 1 level is not allowed', SEV.WARNING)
+				if (dropCheck3) this.showLastEvent('Descendants of this item can not move to a level lower than user story level', SEV.WARNING)
+				if (dropCheck4) this.showLastEvent('Cannot drop a node inside itself or its descendants', SEV.WARNING)
+				if (dropCheck5) this.showLastEvent('Cannot drag a product into another product', SEV.WARNING)
+				if (dropCheck6) this.showLastEvent('Cannot drag while selecting a dependency. Complete or cancel the selection in context menu', SEV.WARNING)
+				return dropCheck2 || dropCheck3 || dropCheck4 || dropCheck5 || dropCheck6
 			}
 
 			const sourceLevel = draggingNodes[0].level
