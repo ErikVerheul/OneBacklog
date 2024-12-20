@@ -20,11 +20,14 @@
 					<li>The user has the option to change database. A database contains products which are maintained independant
 						from products in other databases.</li>
 					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
+					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
+					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
+					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
 					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
 				</ul>
 				<p>In the context menu the professional user has more options</p>
 				<ul>
-					<li>The user can assign dependencies between backlog items.</li>
+					<li>The user can set dependencies between backlog items and be alerted when conficts arise.</li>
 					<li>The user can clone a backlog item.</li>
 					<li>The user can copy a backlog item.</li>
 				</ul>
@@ -53,14 +56,15 @@
 				<p>For &apos;Select your view&apos; see <a href="#pv">Backlog tree</a> and <a href="#pb">Sprint planning board</a></p>
 				<p>In the Backlog tree view you van assign a sprint to a user story or task. <a href="#sp">See Sprint assignment</a>
 				</p>
-				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin or
+				<p>You can select the maintenance views <a href="#sv">Maintenance views</a> if you have the role of admin, assistAdmin (limited options) or
 					server admin.</p>
 				<h5><em>User</em></h5>
+				<p>The <em>User</em> dropdown options:</p>
 				<BImg :src="getImgUrl('img/user-dropdown.png')" alt="User dropdown" />
 				<ul>
-					<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
 					<li>View/send messages: With this option you can view and send messages to your team members.</li>
 					<li>Change team: Its the user and only the user who can switch between teams *.</li>
+					<li class="pro-user">Change database: Only applicable for users with products in more than one database.</li>
 					<li>Select products: If multiple products are assigned to you, you can choose the products to be displayed.
 						You also select which is the default product. On the next sign-in this products loads first and opens on top
 						of the other products.</li>
@@ -80,8 +84,10 @@
 					<p>The large black area below the event bar shows all the products assigned and selected by the current user
 						with their descendant epics, features and user stories / defects / spikes in a layered tree structure. This
 						is your main tool. What you can do depends on your assigned roles.</p>
-					<p>On top of the tree structure is the event bar with to the right two small squares which start bincking when a new message comes in and when another
-						user made a change to the tree structure.</p>
+					<p>On top of the tree structure is the <b>event bar</b> with to the right two small squares. The left square (mess) bincks when a new message comes
+						in.
+						The right square (sync or offl) blinks when another online user made a synchronized change to the backlog. It lights permanent with the text 'offl'
+						when the app looses contact with the database.</p>
 					<p>You can have multiple products. Each of them consists of:</p>
 					<ul>
 						<li>epics which consists of</li>
@@ -89,10 +95,9 @@
 						<li>user stories of kind user-story/defect/spike which are realized by executing</li>
 						<li>tasks</li>
 					</ul>
-					<p><b>Note that a user story can be a user story or a defect or a spike. They share the same level between feature
-							and task.</b></p>
+					<p><b>Note that a user story can be a traditional user story or a defect or a spike. They share the same level between feature and task.</b></p>
 					<p>The authorization is set per database and product based on the following roles:<br>
-						Three roles are set per database:
+						Four roles are set per database:
 					</p>
 					<ul>
 						<li>'_admin': One user with this role is CouchDb Server administrator. This user must be created when the CouchDb instance is created. Can setup
@@ -101,10 +106,12 @@
 						<li>'admin': Can create, maintain and assign users to products. The CouchDb Server administrator acquires this role during the initialization
 							procedure and can assign this role to
 							other users.</li>
+						<li>'assistAdmin: The assistant admin role is a generic role with access to all user profiles and all product definitions in this database. However,
+							the assistant admin can only create users for databases/products he/she is assigned to by an admin.'</li>
 						<li class="pro-user">'APO' (Area Product Owner): The APO maintains the requirement areas backlog. Can create comments and see and upload
 							attachments.</li>
 					</ul>
-					Three roles are set per product (a product lives in a database):
+					Three roles are set per product (one or more products live in a database):
 					<ul>
 						<li>'PO': Can create and maintain product, epics, features and user stories for the assigned products. Can change
 							priorities at all levels. Can create comments and see and upload attachments.</li>
@@ -220,8 +227,8 @@
 				<div id="rv">
 					<h4 class="pro-user">APO view</h4>
 					<p class="pro-user">The 'Backlog tree' view looks a bit different. A side panal on the right contants a button for each backlog item.
-						The APO can asign and change requirement areas to these items.</p>
-					<BImg :src="getImgUrl('img/products-overview.png')" alt="Example Backlog APO view" />
+						The APO can assign and change requirement areas to these items.</p>
+					<BImg :src="getImgUrl('img/apo-view.png')" alt="Example Backlog APO view" />
 					<p class="pro-user">The requirement areas are color coded choosen by the APO.</p>
 				</div>
 				<div id="tv-features">
