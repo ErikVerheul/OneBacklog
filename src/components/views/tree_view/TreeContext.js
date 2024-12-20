@@ -20,7 +20,7 @@ function created() {
 	this.INSERTBELOW = 0
 	this.INSERTINSIDE = 1
 	this.REMOVEITEM = 3
-	this.ASIGNTOMYTEAM = 4
+	this.ASSIGNTOMYTEAM = 4
 	this.SETDEPENDENCY = 6
 	this.SHOWDEPENDENCIES = 7
 	this.SHOWCONDITIONS = 8
@@ -503,12 +503,12 @@ const methods = {
 					this.disableOkButton = true
 				} else this.listItemText = `Remove this ${this.contextNodeType} and ${this.contextNodeDescendants.count} descendants.`
 				break
-			case this.ASIGNTOMYTEAM:
+			case this.ASSIGNTOMYTEAM:
 				this.assistanceText = store.state.help.team
 				if (this.areDescendantsAssignedToOtherTeam(this.contextNodeDescendants.descendants)) {
 					this.contextWarning = `Descendants of this ${this.contextNodeType} are assigned to another team.
 					Click OK to assign all these items to your team or Cancel and join team '${this.contextNodeTeam}' to open the context menu.`
-				} else if (this.contextParentTeam !== 'not asigned yet' && this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.myTeam) {
+				} else if (this.contextParentTeam !== MISC.NOTEAM && this.contextNodeLevel > this.FEATURELEVEL && this.contextParentTeam !== this.myTeam) {
 					this.contextWarning = `WARNING: The team of parent ${this.contextParentType} (${this.contextParentTeam}) and your team (${this.myTeam}) do not match. Read the assistance text.`
 				}
 				this.listItemText = `Assign this ${this.contextNodeType} to my team '${this.myTeam}'.`
@@ -567,7 +567,7 @@ const methods = {
 			case this.REMOVEREQAREA:
 				this.doRemove()
 				break
-			case this.ASIGNTOMYTEAM:
+			case this.ASSIGNTOMYTEAM:
 				this.doAssignToMyTeam()
 				break
 			case this.SETDEPENDENCY:

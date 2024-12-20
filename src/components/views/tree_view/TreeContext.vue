@@ -28,11 +28,11 @@
             </template>
           </template>
           <template v-else-if="(isPO || isDeveloper) && contextNodeLevel > EPICLEVEL && contextNodeTeam !== myTeam">
-            <BListGroupItem v-if="myTeam === NOTEAM" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)">Join team '{{ contextNodeTeam }}' to open the context menu here</BListGroupItem>
-            <BListGroupItem v-else-if="contextNodeLevel > USLEVEL" button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark"
-              @click="showSelected(ASIGNTOMYTEAM)">Assign this {{ contextNodeType }} to my team</BListGroupItem>
-            <BListGroupItem v-else button :active="contextOptionSelected === ASIGNTOMYTEAM" variant="dark" @click="showSelected(ASIGNTOMYTEAM)">Assign this {{
+            <BListGroupItem v-if="myTeam === NOTEAM" button :active="contextOptionSelected === ASSIGNTOMYTEAM" variant="dark"
+              @click="showSelected(ASSIGNTOMYTEAM)">Join team '{{ contextNodeTeam }}' to open the context menu here</BListGroupItem>
+            <BListGroupItem v-else-if="contextNodeLevel > USLEVEL" button :active="contextOptionSelected === ASSIGNTOMYTEAM" variant="dark"
+              @click="showSelected(ASSIGNTOMYTEAM)">Assign this {{ contextNodeType }} to my team</BListGroupItem>
+            <BListGroupItem v-else button :active="contextOptionSelected === ASSIGNTOMYTEAM" variant="dark" @click="showSelected(ASSIGNTOMYTEAM)">Assign this {{
               contextNodeType }} and its {{ contextNodeDescendants.count }} descendants to my team</BListGroupItem>
           </template>
           <template v-else>

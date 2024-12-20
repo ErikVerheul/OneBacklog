@@ -156,7 +156,7 @@ const state = {
         <li>Use the planning board to maintain the tasks for this user story</li>
     </ul>`,
 	usFromSprint: `<h4>Remove a user story from a sprint help</h4>
-    <p>You are about to remove this user story from the asigned sprint</p>
+    <p>You are about to remove this user story from the assigned sprint</p>
     <ul>
         <li>All tasks of that story will be removed from the sprint</li>
         <li>The user story will be removed if no tasks remain</li>
