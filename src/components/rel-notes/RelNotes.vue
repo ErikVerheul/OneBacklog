@@ -3,6 +3,15 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.6.0 - 20 December 2024 Merge views</h3>
+        <p>Due to performance improvements in Vue and the current browsers there is no need to limit the number of rows in the tree view.</p>
+        <p>Refactoring</p>
+        <ul>
+          <li>Merge detail- and coarse view (overview) to one Backlog tree view</li>
+          <li>Update APO rights</li>
+          <li>Upgrade dependencies</li>
+          <li>Update modal prop to latest bootstrap-vue-next version</li>
+        </ul>
         <h3>v.2.5.0 - 13 December 2024 Refactoring move functionality</h3>
         <p>Refactoring</p>
         <ul>

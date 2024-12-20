@@ -83,7 +83,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '2.5.0.1',
+			appVersion: '2.6.0',
 			// generic helper functions
 			helpersRef: null,
 			// console log settings
@@ -788,7 +788,6 @@ const store = createStore({
 			// stop the timers
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
-			if (state.debug) console.log(`endSession: caller = ${caller}`)
 			state.signedOut = true
 			// reset the app by reloading and skipping the cache (Firefox only)
 			window.location.reload(true)
