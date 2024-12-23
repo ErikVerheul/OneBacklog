@@ -80,9 +80,8 @@ const actions = {
 		if (payload.isUndoAction) {
 			undoEntry = payload.entry
 			items = undoEntry.items
-			// switch before and after state
-			beforeMoveState = undoEntry.afterMoveState
-			afterMoveState = undoEntry.beforeMoveState
+			beforeMoveState = undoEntry.beforeMoveState
+			afterMoveState = undoEntry.afterMoveState
 		}
 
 		const itemIds = items.map((n) => n._id)
@@ -198,8 +197,8 @@ const actions = {
 						undoEntry = {
 							type: 'undoMove',
 							items,
-							beforeMoveState,
-							afterMoveState,
+							beforeMoveState: afterMoveState,
+							afterMoveState: beforeMoveState,
 						}
 						rootState.changeHistory.unshift(undoEntry)
 					}
@@ -298,11 +297,11 @@ const actions = {
 					/* Restore the nodes in their previous (source) position */
 					const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
 					if (beforeMoveState.parentId !== afterMoveState.parentId) {
-						// sort to insert top down
-						items.sort((a, b) => a.ind - b.ind)
-					} else {
-						// sort to insert bottom up
+						// sort to insert top down (descending order)
 						items.sort((a, b) => b.ind - a.ind)
+					} else {
+						// sort to insert bottom up (ascending order)
+						items.sort((a, b) => a.ind - b.ind)
 					}
 
 					// process each item individually as the items need not be adjacent
@@ -330,7 +329,7 @@ const actions = {
 							if (beforeMoveState.parentId !== afterMoveState.parentId) {
 								topSibling = parentNode.children[afterMoveState[id].ind - 1]
 							} else {
-								topSibling = parentNode.children[afterMoveState[id].ind - (beforeMoveState[id].ind < afterMoveState[id].ind ? 1 : 0)]
+								topSibling = parentNode.children[afterMoveState[id].ind - (afterMoveState[id].ind < beforeMoveState[id].ind ? 1 : 0)]
 							}
 							cursorPosition = {
 								nodeModel: topSibling,
