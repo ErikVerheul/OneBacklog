@@ -18,7 +18,6 @@ function getMoveState(rootState, items, createdAs) {
 	for (const nm of items) {
 		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
 		extract[nm._id] = {
-			ind: nm.ind,
 			descendantIds: rootState.helpersRef.getDescendantsInfo(nm).ids,
 			descendantsCount,
 			priority: nm.data.priority,
@@ -293,22 +292,15 @@ const actions = {
 					rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
 				}
 
+				/* Restore the nodes in their previous (source) position */
 				if (isUndoAction) {
-					/* Restore the nodes in their previous (source) position */
 					const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
-					if (beforeMoveState.parentId !== afterMoveState.parentId) {
-						// sort to insert top down (descending order)
-						items.sort((a, b) => b.ind - a.ind)
-					} else {
-						// sort to insert bottom up (ascending order)
-						items.sort((a, b) => a.ind - b.ind)
-					}
 
 					// process each item individually as the items need not be adjacent
 					for (const item of items) {
 						const id = item._id
 						rootState.helpersRef.removeNodes([item])
-
+						// restore the original prop values
 						item.productId = afterMoveState.productId
 						item.parentId = afterMoveState.parentId
 						item.level = afterMoveState.level
@@ -317,29 +309,31 @@ const actions = {
 						item.data.team = afterMoveState[id].team
 						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
 
-						// calculate the insert cursorPosition parameter
 						let cursorPosition
-						if (afterMoveState[id].ind === 0) {
+						if (parentNode.children.length > 0) {
+							for (let child of parentNode.children) {
+								if (child.data.priority < item.data.priority) {
+									cursorPosition = {
+										nodeModel: child,
+										placement: 'before',
+									}
+									break
+								}
+							}
+						} else {
 							cursorPosition = {
 								nodeModel: parentNode,
 								placement: 'inside',
 							}
-						} else {
-							let topSibling
-							if (beforeMoveState.parentId !== afterMoveState.parentId) {
-								topSibling = parentNode.children[afterMoveState[id].ind - 1]
-							} else {
-								topSibling = parentNode.children[afterMoveState[id].ind - (afterMoveState[id].ind < beforeMoveState[id].ind ? 1 : 0)]
-							}
-							cursorPosition = {
-								nodeModel: topSibling,
-								placement: 'after',
-							}
 						}
-
-						// if a product branch is moved to another location the product ids of the items in the branch must not change
-						const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
-						rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
+						if (cursorPosition) {
+							// if a product branch is moved to another location the product ids of the items in the branch must not change
+							const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
+							rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
+						} else {
+							const msg = `saveMovedItems: cannot restore item with title '${item.title}' in the tree view`
+							dispatch('doLog', { event: msg, level: SEV.ERROR })
+						}
 					}
 
 					commit('addToEventList', {
