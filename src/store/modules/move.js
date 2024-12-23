@@ -311,7 +311,9 @@ const actions = {
 
 						let cursorPosition
 						if (parentNode.children.length > 0) {
-							for (let child of parentNode.children) {
+							let child
+							for (let idx = 0; idx < parentNode.children.length; idx++) {
+								child = parentNode.children[idx]
 								if (child.data.priority < item.data.priority) {
 									cursorPosition = {
 										nodeModel: child,
@@ -320,12 +322,20 @@ const actions = {
 									break
 								}
 							}
+							if (child && !cursorPosition) {
+								// restore the item as the last child
+								cursorPosition = {
+									nodeModel: child,
+									placement: 'after',
+								}
+							}
 						} else {
 							cursorPosition = {
 								nodeModel: parentNode,
 								placement: 'inside',
 							}
 						}
+
 						if (cursorPosition) {
 							// if a product branch is moved to another location the product ids of the items in the branch must not change
 							const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
