@@ -784,7 +784,7 @@ const store = createStore({
 			state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.lastSelectedNodeId)]
 		},
 
-		endSession(state, caller) {
+		endSession(state) {
 			// stop the timers
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)
