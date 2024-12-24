@@ -7,26 +7,26 @@
     </div>
     <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
       <BListGroup>
-        <BListGroupItem button :active="contextOptionSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title
+        <BListGroupItem button :active="ctxOptSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task </BListGroupItem>
+        <BListGroupItem button :active="ctxOptSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title
         </BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner
+        <BListGroupItem button :active="ctxOptSelected === CHANGE_OWNER" variant="dark" @click="prepSelected(CHANGE_OWNER)">Change task owner
         </BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
-          clipboard</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task
+        <BListGroupItem button :active="ctxOptSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard
+        </BListGroupItem>
+        <BListGroupItem button :active="ctxOptSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task
         </BListGroupItem>
       </BListGroup>
 
-      <div v-if="contextOptionSelected === ADD_TASK" class="title_block">
+      <div v-if="ctxOptSelected === ADD_TASK" class="title_block">
         <BFormInput v-model="newTaskTitle" placeholder="Enter the title of the new task"></BFormInput>
       </div>
 
-      <div v-if="contextOptionSelected === CHANGE_TITLE" class="title_block">
+      <div v-if="ctxOptSelected === CHANGE_TITLE" class="title_block">
         <BFormInput v-model="changedTaskTitle" placeholder="Change the title of this task"></BFormInput>
       </div>
 
-      <div v-if="contextOptionSelected === CHANGE_OWNER" class="title_block">
+      <div v-if="ctxOptSelected === CHANGE_OWNER" class="title_block">
         <h5>Select a team member to own this task</h5>
         <BRow class="my-1">
           <BCol sm="12">Start typing an username or select from the list:</BCol>
@@ -64,7 +64,7 @@ export default {
     return {
       debugMode: store.state.debug,
       showContextMenu: false,
-      contextOptionSelected: undefined,
+      ctxOptSelected: undefined,
       newTaskTitle: '',
       contextWarning: undefined,
       disableOkButton: true,
@@ -76,11 +76,11 @@ export default {
 
   methods: {
     prepSelected(idx) {
-      this.contextOptionSelected = idx
+      this.ctxOptSelected = idx
       this.newTaskTitle = ''
       this.contextWarning = undefined
       this.disableOkButton = false
-      switch (this.contextOptionSelected) {
+      switch (this.ctxOptSelected) {
         case this.ADD_TASK:
           this.assistanceText = undefined
           this.listItemText = 'Add a new task to this column'
@@ -111,7 +111,7 @@ export default {
     procSelected() {
       if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
         this.showAssistance = false
-        switch (this.contextOptionSelected) {
+        switch (this.ctxOptSelected) {
           case this.ADD_TASK:
             store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.newTaskTitle })
             break
@@ -140,7 +140,7 @@ export default {
     },
 
     doCancel() {
-      this.contextOptionSelected = undefined
+      this.ctxOptSelected = undefined
       this.newTaskTitle = ''
       this.contextWarning = undefined
       this.disableOkButton = true
