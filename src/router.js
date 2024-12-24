@@ -6,7 +6,7 @@ import RelNotesPage from './components/rel-notes/RelNotes.vue'
 import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
 import SigninPage from './components/auth/Sign-in.vue'
-import ProductPage from './components/views/tree_view/TreeView.vue'
+import TreeViewPage from './components/views/tree_view/TreeView.vue'
 
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
 
@@ -44,7 +44,7 @@ const routes = [
 	},
 	{
 		path: '/treeView',
-		component: ProductPage,
+		component: TreeViewPage,
 		beforeEnter(to, from, next) {
 			if (store.state.userData.user && store.state.isProductAssigned) {
 				next()
