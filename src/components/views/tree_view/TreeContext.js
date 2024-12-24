@@ -558,8 +558,6 @@ const methods = {
 				this.doCopyItem(this.contextNodeSelected)
 				break
 			case this.INSERTBELOW:
-				this.doInsertNewItem(this.contextNodeSelected)
-				break
 			case this.INSERTINSIDE:
 				this.doInsertNewItem(this.contextNodeSelected)
 				break
