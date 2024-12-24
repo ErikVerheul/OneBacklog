@@ -639,7 +639,7 @@ const actions = {
 				let ind
 				const destNodeModel = cursorPosition.nodeModel
 				if (cursorPosition.placement === 'inside') {
-					// insert inside a parent -> the nodes become top level children
+					// insert inside a parent -> the node becomes the top level child
 					const destSiblings = destNodeModel.children || []
 					parentId = destNodeModel._id
 					level = destNodeModel.level + 1
@@ -666,6 +666,7 @@ const actions = {
 					rootState.helpersRef.assignNewPrios([node], predecessorNode, successorNode)
 				}
 
+				// return the node with all props updated as if the node was inserted in the tree model
 				return rootState.helpersRef.applyNodeInsertionRules(targetParentNode, node, options)
 			},
 
