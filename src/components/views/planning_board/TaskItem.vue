@@ -14,6 +14,9 @@
         </BListGroupItem>
         <BListGroupItem button :active="ctxOptSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to clipboard
         </BListGroupItem>
+        <BListGroupItem button :active="ctxOptSelected === VIEW_TASK_IN_TREE" variant="dark" @click="prepSelected(VIEW_TASK_IN_TREE)">View task in backlog tree
+          view
+        </BListGroupItem>
         <BListGroupItem button :active="ctxOptSelected === REMOVE_TASK" variant="danger" @click="prepSelected(REMOVE_TASK)">Remove this task
         </BListGroupItem>
       </BListGroup>
@@ -42,6 +45,7 @@
 </template>
 
 <script>
+import router from '../../../router'
 import { LEVEL } from '../../../constants.js'
 import { createId } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/GenericMixin.js'
@@ -57,7 +61,8 @@ export default {
     this.CHANGE_TITLE = 1
     this.CHANGE_OWNER = 2
     this.ID_TO_CLIPBOARD = 3
-    this.REMOVE_TASK = 4
+    this.VIEW_TASK_IN_TREE = 4
+    this.REMOVE_TASK = 5
   },
 
   data() {
@@ -100,6 +105,7 @@ export default {
           this.selectedUser = store.state.userData.user
           break
         case this.ID_TO_CLIPBOARD:
+        case this.VIEW_TASK_IN_TREE:
         case this.REMOVE_TASK:
           break
         default:
@@ -123,12 +129,14 @@ export default {
             break
           case this.ID_TO_CLIPBOARD:
             navigator.clipboard.writeText(this.item.id.slice(-5)).then(() => {
-
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard successfully set')
             }, () => {
-
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
             })
+            break
+          case this.VIEW_TASK_IN_TREE:
+            router.push('/treeView')
+            store.dispatch('findItemOnId', this.item.id)
             break
           case this.REMOVE_TASK:
             store.dispatch('boardRemoveTask', this.item.id)

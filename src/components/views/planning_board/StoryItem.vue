@@ -25,6 +25,9 @@
       <BListGroup>
         <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
           clipboard</BListGroupItem>
+        <BListGroupItem button :active="contextOptionSelected === VIEW_STORY_IN_TREE" variant="dark" @click="prepSelected(VIEW_STORY_IN_TREE)">View this {{
+          storyType }}
+          in the tree backlog view</BListGroupItem>
         <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }}
           from the sprint</BListGroupItem>
       </BListGroup>
@@ -33,6 +36,7 @@
 </template>
 
 <script>
+import router from '../../../router'
 import { LEVEL } from '../../../constants.js'
 import { authorization, utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
@@ -44,7 +48,8 @@ export default {
 
   created() {
     this.ID_TO_CLIPBOARD = 0
-    this.REMOVE_STORY = 1
+    this.VIEW_STORY_IN_TREE = 1
+    this.REMOVE_STORY = 2
   },
 
   computed: {
@@ -78,6 +83,7 @@ export default {
       switch (this.contextOptionSelected) {
         case this.ID_TO_CLIPBOARD:
         case this.REMOVE_STORY:
+        case this.VIEW_STORY_IN_TREE:
           break
         default:
           this.assistanceText = 'No assistance available'
@@ -91,15 +97,17 @@ export default {
         switch (this.contextOptionSelected) {
           case this.ID_TO_CLIPBOARD:
             navigator.clipboard.writeText(this.story.storyId.slice(-5)).then(() => {
-
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard successfully set')
             }, () => {
-
               if (this.debugMode) console.log('TaskItem.procSelected: clipboard write failed')
             })
             break
           case this.REMOVE_STORY:
             store.dispatch('boardRemoveStoryFromSprint', this.story.storyId)
+            break
+          case this.VIEW_STORY_IN_TREE:
+            router.push('/treeView')
+            store.dispatch('findItemOnId', this.story.storyId)
             break
         }
       } else {

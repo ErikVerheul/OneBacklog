@@ -393,7 +393,7 @@ const methods = {
 			// return on invalid id string
 			return
 		}
-		store.dispatch('findItemOnId', { id })
+		store.dispatch('findItemOnId', id)
 	},
 
 	/* Find all items with the key as a substring in their title in the current product branch */

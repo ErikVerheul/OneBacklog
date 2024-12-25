@@ -179,9 +179,8 @@ const actions = {
 	},
 
 	/* Find a full or short id in whithin all product branches */
-	findItemOnId({ rootState, dispatch, commit }, payload) {
+	findItemOnId({ rootState, dispatch, commit }, id) {
 		const SHORTKEYLENGTH = 5
-		const id = payload.id
 		// scan all items of the current products
 		const isShortId = id.length === SHORTKEYLENGTH
 		let nodeFound
