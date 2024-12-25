@@ -1,10 +1,10 @@
 <template>
-  <div class="b-card story-column-item" @contextmenu.prevent="showContextMenu = !showContextMenu">
-    <div class="b-card-block">
+  <div class="story-column-item" @contextmenu.prevent="showContextMenu = !showContextMenu">
+    <div>
       <i class="colorYellow" v-if="story.subType === 0">
         <font-awesome-icon icon="folder" />
       </i>
-      <i v-if="story.subType === 1">
+      <i class="lightBlue" v-if="story.subType === 1">
         <font-awesome-icon icon="hourglass-start" />
       </i>
       <i class="colorRed" v-if="story.subType === 2">
@@ -14,25 +14,21 @@
       <p v-if="story.subType !== 1">size = {{ story.size }}</p>
       <p v-else>hours = {{ story.spikePersonHours }}</p>
       <p class="small-text">
-        F: {{ story.featureName }}
-        <br />
-        E: {{ story.epicName }}
-        <br />
-        P: {{ story.productName }}
+        Feature: {{ story.featureName }}
       </p>
     </div>
-    <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
-      <BListGroup>
-        <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
-          clipboard</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === VIEW_STORY_IN_TREE" variant="dark" @click="prepSelected(VIEW_STORY_IN_TREE)">View this {{
-          storyType }}
-          in the tree backlog view</BListGroupItem>
-        <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }}
-          from the sprint</BListGroupItem>
-      </BListGroup>
-    </BModal>
   </div>
+  <BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
+    <BListGroup>
+      <BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
+        clipboard</BListGroupItem>
+      <BListGroupItem button :active="contextOptionSelected === VIEW_STORY_IN_TREE" variant="dark" @click="prepSelected(VIEW_STORY_IN_TREE)">View this {{
+        storyType }}
+        in the tree backlog view</BListGroupItem>
+      <BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }}
+        from the sprint</BListGroupItem>
+    </BListGroup>
+  </BModal>
 </template>
 
 <script>
@@ -128,12 +124,12 @@ export default {
   font-size: small;
 }
 
-.b-card-block {
-  padding: 15px;
-  font-size: 12pt;
+.lightBlue {
+  color: lightblue
 }
 
-.b-card.story-column-item {
-  background: #8b8cc7;
+.story-column-item {
+  padding: 15px;
+  background-color: #8b8cc7;
 }
 </style>
