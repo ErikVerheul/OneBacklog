@@ -16,12 +16,8 @@ const MAXUPLOADSIZE = 100000000
 const SHORTKEYLENGTH = 5
 const FULLKEYLENGTH = 17
 
-const thisView = 'treeView'
-
 function created() {
-	store.state.currentView = thisView
-	// must reset the event listener to prevent duplication
-	this.eventBus.off('context-menu')
+	store.state.currentView = 'treeView'
 }
 
 function data() {

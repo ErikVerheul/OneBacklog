@@ -37,6 +37,11 @@ function created() {
 	})
 }
 
+function unmounted() {
+	// must reset the event listener to prevent duplication
+	this.eventBus.off('context-menu')
+}
+
 function data() {
 	return {
 		disableOkButton: true,
@@ -627,4 +632,5 @@ export default {
 	created,
 	data,
 	methods,
+	unmounted,
 }
