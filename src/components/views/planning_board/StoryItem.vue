@@ -131,5 +131,8 @@ export default {
 .story-column-item {
   padding: 15px;
   background-color: #8b8cc7;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 3px #ccc;
 }
 </style>

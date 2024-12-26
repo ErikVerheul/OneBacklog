@@ -3,7 +3,7 @@
     <h3 v-if="idx === 0">{{ title }}</h3>
     <hr />
     <template v-if="idx >= 0 && draggables.length === 0">
-      <BButton @click="showModal = !showModal" block squared variant="outline-secondary">Click to create a task here</BButton>
+      <BButton @click="showModal = !showModal" variant="outline-secondary">Click to create a task here</BButton>
     </template>
     <div class="BCardBody">
       <draggable v-model="draggables" :group="idx.toString()">

@@ -183,9 +183,15 @@ export default {
 
 .b-card.task-column-item {
   background: #ddc01d;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 3px #ccc;
 }
 
 .b-card.task-column-done {
   background: #9bc777;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 2px 3px #ccc;
 }
 </style>
