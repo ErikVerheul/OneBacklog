@@ -278,14 +278,14 @@
 					<h4>Sprint planning board</h4>
 					<div class="indent20">
 						<BImg :src="getImgUrl('img/planning-board.png')" alt="Example planning board" />
+						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.</p>
 						<p>By drag&#38;drop the user changes the state of the tasks in the sprint. Changes are synced with the
 							boards of other users and the tree view. Touch devices are supported.</p>
 						<p>When you right click on a task the context menu is opened:</p>
 						<BImg :src="getImgUrl('img/task-context.png')" alt="Example context menu" />
-						<p>Note: Removing a task does not delete the task. In the Backlog tree view you can change the state back
-							to &apos;In progress&apos; or any other state.</p>
-						<p>Left click on a &apos;Click to create a task here&apos; button to create a task in a column without task.
-						</p>
+						<p>Note: After viewing the task in the &apos;Backlog tree view&apos; you can return to the planning board by a click on the back button of your
+							browser.</p>
+						<p>Note: Removing a task does delete the task. In the &apos;Backlog tree view&apos; you can remove the task from the sprint.</p>
 						<h5>Unfinished tasks</h5>
 						<BImg :src="getImgUrl('img/unfinished-tasks.png')" alt="Example unfinished tasks" />
 						<p>If your team has any tasks not DONE in a previous sprint this modal will pop up when a PO or developer
