@@ -96,7 +96,6 @@ const actions = {
 			.catch((error) => {
 				// cannot log failure here as the database name is unknown yet
 				alert('Unknown user password combination')
-				if (rootState.debug) console.log('Sign-in failed with ' + error)
 			})
 	},
 }
