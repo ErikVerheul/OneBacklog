@@ -261,12 +261,13 @@ const actions = {
 			})
 	},
 
-	/* Find all items with the key as a substring in their title in the currently selected branch */
+	/* Find all items with the key as a substring in their title in the currently selected product */
 	seachOnTitle({ rootState, dispatch, commit, rootGetters }) {
-		const branchHead = rootGetters.getSelectedNode
+		const currentProductId = rootGetters.getSelectedNode.productId
+		const productHead = rootState.helpersRef.getNodeById(currentProductId)
 		const nodesFound = []
 		// save display state of the branch
-		dispatch('saveTreeView', { type: 'titles', nodesToScan: [branchHead] })
+		dispatch('saveTreeView', { type: 'titles', nodesToScan: [productHead] })
 		rootState.helpersRef.traverseModels(
 			(nm) => {
 				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {
@@ -282,12 +283,12 @@ const actions = {
 					}
 				}
 			},
-			[branchHead],
+			[productHead],
 		)
 
 		// create reset object
 		state.resetSearchOnTitle = {
-			nodesTouched: [branchHead],
+			nodesTouched: [productHead],
 		}
 
 		if (nodesFound.length > 0) {
@@ -297,15 +298,15 @@ const actions = {
 				onSuccessCallback: () => {
 					commit('renewSelectedNodes', nodesFound[0])
 					if (nodesFound.length === 1) {
-						commit('addToEventList', { txt: `One item title matches your search in branch '${branchHead.title}'. This item is selected`, severity: SEV.INFO })
+						commit('addToEventList', { txt: `One item title matches your search in product '${productHead.title}'. This item is selected`, severity: SEV.INFO })
 					} else
 						commit('addToEventList', {
-							txt: `${nodesFound.length} item titles match your search in branch '${branchHead.title}'. The first match is selected`,
+							txt: `${nodesFound.length} item titles match your search in product '${productHead.title}'. The first match is selected`,
 							severity: SEV.INFO,
 						})
 				},
 			})
-		} else commit('addToEventList', { txt: `No item titles match your search in branch '${branchHead.title}'`, severity: SEV.INFO })
+		} else commit('addToEventList', { txt: `No item titles match your search in product '${productHead.title}'`, severity: SEV.INFO })
 	},
 
 	resetFindOnId({ state, dispatch, commit }) {
