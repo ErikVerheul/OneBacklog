@@ -269,7 +269,7 @@ const actions = {
 			 * Undo the tree expansion from a previous scan on violations if no violations are found.
 			 * Return true if violations are found, false otherwise.
 			 */
-			dependencyViolationsFound() {
+			revealDependencyViolations() {
 				let violationsWereFound = false
 				const violations = rootState.helpersRef.findDependencyViolations()
 				if (violations.length > 0) {
