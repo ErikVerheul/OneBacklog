@@ -131,6 +131,7 @@ const mutations = {
 				(rootState.lastSessionData && rootState.lastSessionData.doShowNodes
 					? rootState.lastSessionData.doShowNodes.includes(_id)
 					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC)
+			const isSelectable = true
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
