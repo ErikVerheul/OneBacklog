@@ -105,6 +105,8 @@ const mutations = {
 					rootState.reqAreaMapper[_id] = title
 					rootState.colorMapper[_id] = { reqAreaItemColor }
 				}
+				// skip requirement area items if not APO: the APO is the only role that maintains requirement areas
+				if (!rootGetters.isAPO) continue
 			}
 			// skip the items of the products the user is not authorized to
 			if (productId !== MISC.AREA_PRODUCTID && !rootGetters.getMyAssignedProductIds.includes(productId)) continue
@@ -129,8 +131,6 @@ const mutations = {
 				(rootState.lastSessionData && rootState.lastSessionData.doShowNodes
 					? rootState.lastSessionData.doShowNodes.includes(_id)
 					: productId !== MISC.AREA_PRODUCTID && itemLevel <= LEVEL.EPIC)
-			// the APO is the only role that maintains requirement areas
-			const isSelectable = rootGetters.isAPO || (!rootGetters.isAPO && productId !== MISC.AREA_PRODUCTID)
 			// the root cannot be dragged
 			const isDraggable = itemLevel >= LEVEL.PRODUCT
 			if (parentNodes[parentId] !== undefined) {
