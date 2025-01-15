@@ -11,6 +11,8 @@ export default {
 		},
 	},
 
+	emits: ['paneResizeStart', 'paneResize', 'paneResizeStop'],
+
 	data() {
 		return {
 			isResizing: false,

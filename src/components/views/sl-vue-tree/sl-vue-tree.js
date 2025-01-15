@@ -20,6 +20,8 @@ const props = {
 	},
 }
 
+const emits = ['beforedrop', 'drop', 'context-menu', 'nodes-are-selected']
+
 function data() {
 	return {
 		draggableNodes: [],
@@ -351,6 +353,7 @@ const methods = {
 export default {
 	name: 'sl-vue-tree',
 	props,
+	emits,
 	data,
 	mounted,
 	computed,
