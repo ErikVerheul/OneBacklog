@@ -31,11 +31,6 @@ export function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
-export function areStringsEqual(str1, str2) {
-	const retVal = str1.localeCompare(str2)
-	return retVal === 0
-}
-
 /* Replace encoded text fields and remove 'ignoreEvent' elements from history */
 export function prepareDocForPresentation(doc) {
 	let preptDoc = doc
@@ -260,7 +255,6 @@ export function initMessaging(store) {
 export default {
 	uniTob64,
 	b64ToUni,
-	areStringsEqual,
 	expandNode,
 	collapseNode,
 	showNode,
