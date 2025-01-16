@@ -664,7 +664,6 @@ const actions = {
 				tmpDoc.acceptanceCriteria = newEncodedAcceptance
 
 				const onSuccessCallback = () => {
-					rootState.isAcceptanceEdited = false
 					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp })
 					if (!payload.isUndoAction || payload.isUndoAction === undefined) {
 						commit('addToEventList', { txt: `The acceptance criteria  of item with short id ${id.slice(-5)} are changed`, severity: SEV.INFO })
@@ -831,7 +830,7 @@ const actions = {
 			.then(() => {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
-				if (id === rootState.currentDoc._id) {
+				if (rootState.currentDoc && id === rootState.currentDoc._id) {
 					// apply changes on the currently selected document
 					rootState.currentDoc = prepareDocForPresentation(payload.updatedDoc)
 				}
@@ -867,6 +866,7 @@ const actions = {
 					if (result.error === 'conflict') updateConflictCount++
 					if (result.error && result.error != 'conflict') otherErrorCount++
 				}
+				console.log('updateBulk: updateOkCount = ' + updateOkCount)
 				if (updateConflictCount > 0 || otherErrorCount > 0) {
 					const msg = `updateBulk: (called by ${payload.caller}) ${updateOkCount} documents are updated, ${updateConflictCount} updates have a conflict, ${otherErrorCount} updates failed on error`
 					dispatch('doLog', { event: msg, level: SEV.WARNING })
