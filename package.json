@@ -19,14 +19,14 @@
     "synchronization"
   ],
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.7.1",
-    "@fortawesome/free-solid-svg-icons": "^6.7.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.2",
+    "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
     "@popperjs/core": "^2.11.8",
     "@vueup/vue-quill": "^1.2.0",
     "axios": "^1.7.9",
     "bootstrap": "^5.3.3",
-    "bootstrap-vue-next": "^0.26.18",
+    "bootstrap-vue-next": "^0.26.20",
     "mitt": "^3.0.1",
     "vue": "^3.5.13",
     "vue-draggable-next": "^2.2.1",
@@ -34,17 +34,17 @@
     "vuex": "^4.1.0"
   },
   "overrides": {
-    "quill": "^2.0.2"
+    "quill": "^2.0.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.17.0",
+    "@eslint/js": "^9.18.0",
     "@vitejs/plugin-vue": "^5.2.1",
-    "eslint": "^9.17.0",
+    "eslint": "^9.18.0",
     "eslint-plugin-vue": "^9.32.0",
     "globals": "^15.14.0",
     "prettier": "3.4.2",
     "unplugin-vue-components": "^0.28.0",
-    "vite": "^6.0.6"
+    "vite": "^6.0.7"
   },
   "eslintConfig": {
     "root": true,
