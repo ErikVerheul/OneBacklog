@@ -1,0 +1,34 @@
+{
+  "data": {
+    "results": [],
+    "last_seq": "806-g1AAAACheJzLYWBgYMpgTmEQTM4vTc5ISXIwNDLXMwBCwxyQVCJDUv3___-zMpiTGBgY-3KBYuxpaUlJZgZm2PTgMSmPBUgyNACp_wgDZ4ANNDU1MjcysMCmNQsACZcpSQ",
+    "pending": 0
+  },
+  "status": 200,
+  "statusText": "OK",
+  "headers": {
+    "cache-control": "must-revalidate",
+    "content-type": "application/json",
+    "server": "CouchDB/3.3.3 (Erlang OTP/24)",
+    "x-couch-request-id": "31b0a259a0",
+    "x-couchdb-body-time": "0"
+  },
+  "config": {
+    "transitional": { "silentJSONParsing": true, "forcedJSONParsing": true, "clarifyTimeoutError": false },
+    "adapter": ["xhr", "http", "fetch"],
+    "transformRequest": [null],
+    "transformResponse": [null],
+    "timeout": 0,
+    "xsrfCookieName": "XSRF-TOKEN",
+    "xsrfHeaderName": "X-XSRF-TOKEN",
+    "maxContentLength": -1,
+    "maxBodyLength": -1,
+    "env": {},
+    "headers": { "Accept": "application/json, text/plain, */*" },
+    "baseURL": "http://localhost:5984",
+    "withCredentials": true,
+    "method": "get",
+    "url": "demodbtest2/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now"
+  },
+  "request": {}
+}
