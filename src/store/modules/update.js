@@ -866,7 +866,6 @@ const actions = {
 					if (result.error === 'conflict') updateConflictCount++
 					if (result.error && result.error != 'conflict') otherErrorCount++
 				}
-				console.log('updateBulk: updateOkCount = ' + updateOkCount)
 				if (updateConflictCount > 0 || otherErrorCount > 0) {
 					const msg = `updateBulk: (called by ${payload.caller}) ${updateOkCount} documents are updated, ${updateConflictCount} updates have a conflict, ${otherErrorCount} updates failed on error`
 					dispatch('doLog', { event: msg, level: SEV.WARNING })

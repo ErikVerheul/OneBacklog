@@ -53,7 +53,7 @@ const actions = {
 					// start listenForChanges if needed
 					if (!rootState.listenForChangesRunning) {
 						if (rootState.debugConnectionAndLogging) dispatch('doLog', { event: `Watchdog attemps to (re)start the listener for changes.`, level: SEV.INFO })
-						dispatch('listenForChanges')
+						dispatch('listenForChanges', 'now')
 					}
 					// save the log on every watchdog cycle
 					dispatch('saveLog')

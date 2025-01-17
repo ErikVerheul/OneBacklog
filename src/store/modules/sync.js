@@ -816,7 +816,7 @@ const actions = {
 	},
 
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
-	listenForChanges({ rootState, dispatch, commit }) {
+	listenForChanges({ rootState, dispatch, commit }, since) {
 		if (rootState.debug) console.log('listenForChanges is STARTED')
 		const listenForChangesWasRunning = rootState.listenForChangesRunning
 		if (rootState.signedOut || rootState.stopListeningForChanges) {
@@ -830,22 +830,19 @@ const actions = {
 		globalAxios({
 			method: 'GET',
 			// the sync filter selects docs with a history of events, the event is NOT 'ignoreEvent' and the event has the 'distributeEvent===true' property
-			url: rootState.userData.currentDb + '/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=now',
+			url: `${rootState.userData.currentDb}/_changes?filter=filters/sync_filter&feed=longpoll&include_docs=true&since=${since}`,
 		})
 			.then((res) => {
 				const data = res.data
 				if (data.last_seq !== lastSeq) {
 					// skip consecutive changes with the same sequence number (Couchdb bug?)
-					if (rootState.debug)
-						console.log('listenForChanges: data.last_seq = ' + data.last_seq + ', data.pending = ' + data.pending + ' res.status = ' + res.status)
 					for (const r of data.results) {
 						const doc = r.doc
 						if (doc && doc.history) {
-							if (rootState.debug) console.log('listenForChanges: doc.title = ' + doc.title)
 							// only process events with included documents
 							if (doc.history[0].sessionId === rootState.mySessionId) {
 								// do not process events of the session that created the event
-								if (rootState.debug) console.log('listenForChanges skipped as from own session: doc.title = ' + doc.title)
+								if (rootState.debug) console.log('listenForChanges, skipped as from own session: doc.title = ' + doc.title)
 								continue
 							}
 							if (rootState.debug && doc._id === 'messenger') {
@@ -856,10 +853,13 @@ const actions = {
 						}
 					}
 					lastSeq = data.last_seq
+				} else {
+					if (rootState.debug)
+						console.log('listenForChanges, skip consecutive change with the same sequence number: lastSeq = ' + lastSeq + ' data = ' + JSON.stringify(data))
 				}
 				// send a new request to retrieve subsequent events
 				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
-				dispatch('listenForChanges')
+				dispatch('listenForChanges', lastSeq)
 			})
 			.catch((error) => {
 				rootState.listenForChangesRunning = false
