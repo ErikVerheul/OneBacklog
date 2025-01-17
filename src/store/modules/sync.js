@@ -1,6 +1,7 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { getLocationInfo, localTimeAndMilis, pathToJSON, prepareDocForPresentation, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
+var lastSeq = undefined
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)
 
@@ -36,7 +37,7 @@ const actions = {
 
 		function reportOddTimestamp(event, docId) {
 			if (Date.now() - event.timestamp > 60000) {
-				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 minute`
+				const msg = `Received event '${Object.keys(event)[0]}' from user ${event.by}. The event is dated ${new Date(event.timestamp).toString()} and older than 1 minute.`
 				commit('addToEventList', { txt: msg, severity: SEV.WARNING })
 				dispatch('doLog', { event: msg + ` The document id is ${docId}.`, level: SEV.WARNING })
 			}
@@ -816,6 +817,7 @@ const actions = {
 
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
 	listenForChanges({ rootState, dispatch, commit }) {
+		if (rootState.debug) console.log('listenForChanges is STARTED')
 		const listenForChangesWasRunning = rootState.listenForChangesRunning
 		if (rootState.signedOut || rootState.stopListeningForChanges) {
 			rootState.listenForChangesRunning = false
@@ -832,25 +834,30 @@ const actions = {
 		})
 			.then((res) => {
 				const data = res.data
-				if (data.results.length > 0) {
+				if (data.last_seq !== lastSeq) {
+					// skip consecutive changes with the same sequence number (Couchdb bug?)
+					if (rootState.debug)
+						console.log('listenForChanges: data.last_seq = ' + data.last_seq + ', data.pending = ' + data.pending + ' res.status = ' + res.status)
 					for (const r of data.results) {
 						const doc = r.doc
-						if (doc) {
+						if (doc && doc.history) {
+							if (rootState.debug) console.log('listenForChanges: doc.title = ' + doc.title)
 							// only process events with included documents
 							if (doc.history[0].sessionId === rootState.mySessionId) {
-								// compare with the session id of the most recent distributed history event; do not process events of the session that created the event
+								// do not process events of the session that created the event
+								if (rootState.debug) console.log('listenForChanges skipped as from own session: doc.title = ' + doc.title)
 								continue
 							}
-
 							if (rootState.debug && doc._id === 'messenger') {
 								console.log('MESSENGER DOC received')
 							}
-
 							// process a history event on backlog items received from other sessions (not the session that created the event)
 							dispatch('processDoc', doc)
 						}
 					}
+					lastSeq = data.last_seq
 				}
+				// send a new request to retrieve subsequent events
 				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
 				dispatch('listenForChanges')
 			})
