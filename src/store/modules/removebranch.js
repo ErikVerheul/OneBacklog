@@ -99,7 +99,7 @@ const actions = {
 			})
 	},
 
-	/* Do not reset the busyWithLastUndo as one of the intances fails */
+	/* Do not reset the busyWithLastUndo as one of the instances fails */
 	processItemsToRemove({ rootState, dispatch, commit }, payload) {
 		const toDispatch = []
 		const removedParentLevel = payload.node.level
