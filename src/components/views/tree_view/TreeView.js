@@ -1,5 +1,5 @@
 import { MISC, SEV, LEVEL, STATE } from '../../../constants.js'
-import { areStringsEqual, initMessaging, isInPath } from '../../../common_functions.js'
+import { initMessaging, isInPath } from '../../../common_functions.js'
 import { constants, authorization, utilities } from '../../mixins/GenericMixin.js'
 import { getSprintById } from '../../../common_functions.js'
 import AppHeader from '../../header/AppHeader.vue'
@@ -238,16 +238,6 @@ const computed = {
 const methods = {
 	goMessaging() {
 		initMessaging(store)
-	},
-
-	initNewDescription() {
-		this.isDescriptionEdited = true
-		this.isAcceptanceEdited = false
-	},
-
-	initNewAcceptance() {
-		this.isDescriptionEdited = false
-		this.isAcceptanceEdited = true
 	},
 
 	stopFiltering() {
@@ -510,47 +500,61 @@ const methods = {
 	},
 
 	/* Tree and database update methods */
-	updateDescription(payload) {
-		// node is either the current node (descripton changed and a click outside description and not on a node) or
-		// the previous selected node (description changed and clicked on a node)
+	updateDescriptionAtBlur(node) {
+		if (
+			this.isDescriptionEdited &&
+			this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')
+		) {
+			store.dispatch('saveDescription', {
+				node,
+				newDescription: store.state.currentDoc.description,
+				timestamp: Date.now(),
+			})
+		}
+		this.isDescriptionEdited = false
+	},
+
+	updateDescriptionOnNodeSelect(payload) {
 		const node = payload.node
-		if (areStringsEqual(store.state.oldDescription, store.state.currentDoc.description)) {
-			// update skipped when not changed; load the doc of last clicked node
-			this.isDescriptionEdited = false
-			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
+			store.dispatch('saveDescription', {
+				node,
+				newDescription: store.state.currentDoc.description,
+				timestamp: Date.now(),
+				toDispatch: [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }],
+			})
 		} else {
-			const toDispatch = [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }]
-			if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
-				store.dispatch('saveDescription', {
-					node,
-					newDescription: store.state.currentDoc.description,
-					timestamp: Date.now(),
-					toDispatch,
-				})
-			} else this.isDescriptionEdited = false
+			// update skipped when not permitted; load the doc of last clicked node
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
 		}
 	},
 
-	updateAcceptance(payload) {
-		// node is either the current node (descripton changed and a click outside description and not on a node) or
-		// the previous selected node (description changed and clicked on a node)
+	updateAcceptanceAtBlur(node) {
+		if (
+			this.isAcceptanceEdited &&
+			this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')
+		) {
+			store.dispatch('saveAcceptance', {
+				node,
+				newAcceptance: store.state.currentDoc.acceptanceCriteria,
+				timestamp: Date.now(),
+			})
+		}
+		this.isAcceptanceEdited = false
+	},
+
+	updateAcceptanceOnNodeSelect(payload) {
 		const node = payload.node
-		if (node._id !== MISC.AREA_PRODUCTID && node.parentId !== MISC.AREA_PRODUCTID) {
-			if (areStringsEqual(store.state.oldAcceptance, store.state.currentDoc.acceptanceCriteria)) {
-				// update skipped when not changed; load the doc of last clicked node
-				this.isAcceptanceEdited = false
-				store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
-			} else {
-				const toDispatch = [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }]
-				if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
-					store.dispatch('saveAcceptance', {
-						node,
-						newAcceptance: store.state.currentDoc.acceptanceCriteria,
-						timestamp: Date.now(),
-						toDispatch,
-					})
-				} else this.isAcceptanceEdited = false
-			}
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
+			store.dispatch('saveAcceptance', {
+				node,
+				newAcceptance: store.state.currentDoc.acceptanceCriteria,
+				timestamp: Date.now(),
+				toDispatch: [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }],
+			})
+		} else {
+			// update skipped when not permitted; load the doc of last clicked node
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
 		}
 	},
 
@@ -788,8 +792,6 @@ const methods = {
 		const onSuccessCallback = () => {
 			this.isDescriptionEdited = false
 			this.isAcceptanceEdited = false
-			// preset the req area color if available
-			this.selReqAreaColor = this.getSelectedNode.data.reqAreaItemColor
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
@@ -797,12 +799,11 @@ const methods = {
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
 		if (this.isDescriptionEdited) {
-			this.updateDescription({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+			this.updateDescriptionOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
 		} else if (this.isAcceptanceEdited) {
-			this.updateAcceptance({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
-		}
-		// load the selected document
-		else {
+			this.updateAcceptanceOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		} else {
+			// load the selected document
 			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
 		}
 	},
