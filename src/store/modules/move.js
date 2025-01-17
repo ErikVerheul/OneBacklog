@@ -269,87 +269,178 @@ const actions = {
 	 * Dispatch the update of the item descendants and/or the item's parent (separate updates for each item).
 	 * Restore the tree view if an undoAction.
 	 */
+	// saveMovedItems({ rootState, commit, dispatch }, payload) {
+	// 	const items = payload.items
+	// 	const beforeMoveState = payload.beforeMoveState
+	// 	const afterMoveState = payload.afterMoveState
+	// 	console.log('saveMovedItems: titles = ' + payload.docs.map((doc) => doc.title))
+	// 	dispatch('updateBulk', {
+	// 		dbName: rootState.userData.currentDb,
+	// 		docs: payload.docs,
+	// 		caller: 'saveMovedItems',
+	// 		toDispatch: payload.toDispatch,
+	// 		onSuccessCallback: () => {
+	// 			if (!payload.isUndoAction) {
+	// 				commit('addToEventList', {
+	// 					txt: `${items.length} items have been moved with ${beforeMoveState.allDescendantsCount} descendants`,
+	// 					severity: SEV.INFO,
+	// 				})
+	// 				// make the branch with the moved nodes selectable again
+	// 				rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
+	// 			}
+
+	// 			/* Restore the nodes in their previous (source) position */
+	// 			if (payload.isUndoAction) {
+	// 				const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
+
+	// 				// process each item individually as the items need not be adjacent
+	// 				for (const item of items) {
+	// 					const id = item._id
+	// 					rootState.helpersRef.removeNodes([item])
+	// 					// restore the original prop values
+	// 					item.productId = afterMoveState.productId
+	// 					item.parentId = afterMoveState.parentId
+	// 					item.level = afterMoveState.level
+	// 					item.data.priority = afterMoveState[id].priority
+	// 					item.data.sprintId = afterMoveState[id].sprintId
+	// 					item.data.team = afterMoveState[id].team
+	// 					item.data.lastPositionChange = afterMoveState[id].lastPositionChange
+
+	// 					let cursorPosition
+	// 					if (parentNode.children.length > 0) {
+	// 						let child
+	// 						for (let idx = 0; idx < parentNode.children.length; idx++) {
+	// 							child = parentNode.children[idx]
+	// 							if (child.data.priority < item.data.priority) {
+	// 								cursorPosition = {
+	// 									nodeModel: child,
+	// 									placement: 'before',
+	// 								}
+	// 								break
+	// 							}
+	// 						}
+	// 						if (child && !cursorPosition) {
+	// 							// restore the item as the last child
+	// 							cursorPosition = {
+	// 								nodeModel: child,
+	// 								placement: 'after',
+	// 							}
+	// 						}
+	// 					} else {
+	// 						cursorPosition = {
+	// 							nodeModel: parentNode,
+	// 							placement: 'inside',
+	// 						}
+	// 					}
+
+	// 					if (cursorPosition) {
+	// 						// if a product branch is moved to another location the product ids of the items in the branch must not change
+	// 						const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
+	// 						rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
+	// 					} else {
+	// 						const msg = `saveMovedItems: cannot restore item with title '${item.title}' in the tree view`
+	// 						dispatch('doLog', { event: msg, level: SEV.ERROR })
+	// 					}
+	// 				}
+
+	// 				commit('addToEventList', {
+	// 					txt: `${items.length} items have been moved back with ${afterMoveState.allDescendantsCount} descendants`,
+	// 					severity: SEV.INFO,
+	// 				})
+	// 			}
+	// 		},
+	// 	})
+	// },
+
 	saveMovedItems({ rootState, commit, dispatch }, payload) {
 		const items = payload.items
 		const beforeMoveState = payload.beforeMoveState
 		const afterMoveState = payload.afterMoveState
 		console.log('saveMovedItems: titles = ' + payload.docs.map((doc) => doc.title))
-		dispatch('updateBulk', {
-			dbName: rootState.userData.currentDb,
-			docs: payload.docs,
-			caller: 'saveMovedItems',
-			toDispatch: payload.toDispatch,
-			onSuccessCallback: () => {
-				if (!payload.isUndoAction) {
-					commit('addToEventList', {
-						txt: `${items.length} items have been moved with ${beforeMoveState.allDescendantsCount} descendants`,
-						severity: SEV.INFO,
-					})
-					// make the branch with the moved nodes selectable again
-					rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
-				}
+		for (const doc of payload.docs) {
+			setTimeout(function () {
+				console.log('saveMovedItems: saving ' + doc.title)
+				dispatch('updateDoc', {
+					dbName: rootState.userData.currentDb,
+					updatedDoc: doc,
+					caller: 'saveMovedItems',
+					onSuccessCallback: () => {
+						if (!payload.isUndoAction) {
+							commit('addToEventList', {
+								txt: `${items.length} items have been moved with ${beforeMoveState.allDescendantsCount} descendants`,
+								severity: SEV.INFO,
+							})
+							// make the branch with the moved nodes selectable again
+							rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
+						}
 
-				/* Restore the nodes in their previous (source) position */
-				if (payload.isUndoAction) {
-					const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
+						/* Restore the nodes in their previous (source) position */
+						if (payload.isUndoAction) {
+							const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
 
-					// process each item individually as the items need not be adjacent
-					for (const item of items) {
-						const id = item._id
-						rootState.helpersRef.removeNodes([item])
-						// restore the original prop values
-						item.productId = afterMoveState.productId
-						item.parentId = afterMoveState.parentId
-						item.level = afterMoveState.level
-						item.data.priority = afterMoveState[id].priority
-						item.data.sprintId = afterMoveState[id].sprintId
-						item.data.team = afterMoveState[id].team
-						item.data.lastPositionChange = afterMoveState[id].lastPositionChange
+							// process each item individually as the items need not be adjacent
+							let item
+							for (const it of items) {
+								if (it._id === doc._id) item = it
+							}
+							const id = item._id
+							rootState.helpersRef.removeNodes([item])
+							// restore the original prop values
+							item.productId = afterMoveState.productId
+							item.parentId = afterMoveState.parentId
+							item.level = afterMoveState.level
+							item.data.priority = afterMoveState[id].priority
+							item.data.sprintId = afterMoveState[id].sprintId
+							item.data.team = afterMoveState[id].team
+							item.data.lastPositionChange = afterMoveState[id].lastPositionChange
 
-						let cursorPosition
-						if (parentNode.children.length > 0) {
-							let child
-							for (let idx = 0; idx < parentNode.children.length; idx++) {
-								child = parentNode.children[idx]
-								if (child.data.priority < item.data.priority) {
+							let cursorPosition
+							if (parentNode.children.length > 0) {
+								let child
+								for (let idx = 0; idx < parentNode.children.length; idx++) {
+									child = parentNode.children[idx]
+									if (child.data.priority < item.data.priority) {
+										cursorPosition = {
+											nodeModel: child,
+											placement: 'before',
+										}
+										break
+									}
+								}
+								if (child && !cursorPosition) {
+									// restore the item as the last child
 									cursorPosition = {
 										nodeModel: child,
-										placement: 'before',
+										placement: 'after',
 									}
-									break
 								}
-							}
-							if (child && !cursorPosition) {
-								// restore the item as the last child
+							} else {
 								cursorPosition = {
-									nodeModel: child,
-									placement: 'after',
+									nodeModel: parentNode,
+									placement: 'inside',
 								}
 							}
-						} else {
-							cursorPosition = {
-								nodeModel: parentNode,
-								placement: 'inside',
+
+							if (cursorPosition) {
+								// if a product branch is moved to another location the product ids of the items in the branch must not change
+								const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
+								rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
+							} else {
+								const msg = `saveMovedItems: cannot restore item with title '${item.title}' in the tree view`
+								dispatch('doLog', { event: msg, level: SEV.ERROR })
 							}
-						}
 
-						if (cursorPosition) {
-							// if a product branch is moved to another location the product ids of the items in the branch must not change
-							const skipUpdateProductId = beforeMoveState.parentId === 'root' && afterMoveState.parentId === 'root'
-							rootState.helpersRef.insertNodes(cursorPosition, [item], { calculatePrios: false, skipUpdateProductId })
-						} else {
-							const msg = `saveMovedItems: cannot restore item with title '${item.title}' in the tree view`
-							dispatch('doLog', { event: msg, level: SEV.ERROR })
+							commit('addToEventList', {
+								txt: `${items.length} items have been moved back with ${afterMoveState.allDescendantsCount} descendants`,
+								severity: SEV.INFO,
+							})
 						}
-					}
-
-					commit('addToEventList', {
-						txt: `${items.length} items have been moved back with ${afterMoveState.allDescendantsCount} descendants`,
-						severity: SEV.INFO,
-					})
-				}
-			},
-		})
+					},
+				})
+			}, 1000)
+		}
+		// make the branch with the moved nodes selectable again
+		rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
 	},
 
 	/* Update the parents of the moved items if the team and/or sprintId have changed  */
