@@ -18,6 +18,7 @@ function getMoveState(rootState, items, createdAs) {
 	for (const nm of items) {
 		const descendantsCount = rootState.helpersRef.getDescendantsInfo(nm).count
 		extract[nm._id] = {
+			ind: nm.ind,
 			descendantIds: rootState.helpersRef.getDescendantsInfo(nm).ids,
 			descendantsCount,
 			priority: nm.data.priority,
@@ -63,7 +64,6 @@ const actions = {
 		let items = []
 		let beforeMoveState = undefined
 		let afterMoveState = undefined
-		let undoEntry = undefined
 
 		if (!payload.isUndoAction) {
 			items = payload.nodes
@@ -77,20 +77,16 @@ const actions = {
 		}
 
 		if (payload.isUndoAction) {
-			undoEntry = payload.entry
+			const undoEntry = payload.entry
 			items = undoEntry.items
 			beforeMoveState = undoEntry.beforeMoveState
 			afterMoveState = undoEntry.afterMoveState
 		}
 
-		const itemIds = items.map((n) => n._id)
 		const docIdsToGet = []
-		for (const id of itemIds) {
-			docIdsToGet.push({ id })
+		for (const it of items) {
+			docIdsToGet.push({ id: it._id })
 		}
-
-		// if moving to another product or another level also update the descendants of the moved(back) items
-		const alsoUpdateDescendants = afterMoveState.productId !== beforeMoveState.productId || afterMoveState.level !== beforeMoveState.level
 
 		globalAxios({
 			method: 'POST',
@@ -99,10 +95,12 @@ const actions = {
 		})
 			.then((res) => {
 				const results = res.data.results
-				const docs = []
+				const updatedDocs = []
 				const error = []
 				const targetParentsToUpdate = []
 				const toDispatch = []
+				// if moving to another product or another level also update the descendants of the moved(back) items
+				const alsoUpdateDescendants = afterMoveState.productId !== beforeMoveState.productId || afterMoveState.level !== beforeMoveState.level
 				for (const r of results) {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
@@ -142,8 +140,8 @@ const actions = {
 						}
 						const newHist = {
 							nodeMovedEvent: [
-								beforeMoveState[doc._id].level,
-								afterMoveState[doc._id].level,
+								beforeMoveState.level,
+								afterMoveState.level,
 								afterMoveState[doc._id].ind,
 								afterMoveState.parentTitle,
 								beforeMoveState[doc._id].descendantsCount,
@@ -169,7 +167,7 @@ const actions = {
 							updateBoards: { sprintsAffected, teamsAffected },
 						}
 						doc.history.unshift(newHist)
-						docs.push(doc)
+						updatedDocs.push(doc)
 
 						if (alsoUpdateDescendants) {
 							toDispatch.push({ updateMovedDescendants: { itemId: doc._id, beforeMoveState, afterMoveState } })
@@ -193,13 +191,13 @@ const actions = {
 				} else {
 					if (!payload.isUndoAction) {
 						// create an entry for undoing the move in a last-in first-out sequence
-						undoEntry = {
+						const newUndoEntry = {
 							type: 'undoMove',
 							items,
 							beforeMoveState: afterMoveState,
 							afterMoveState: beforeMoveState,
 						}
-						rootState.changeHistory.unshift(undoEntry)
+						rootState.changeHistory.unshift(newUndoEntry)
 					}
 					if (targetParentsToUpdate.length > 0) {
 						toDispatch.push({ updateMovedItemsParents: targetParentsToUpdate })
@@ -207,7 +205,7 @@ const actions = {
 					dispatch('saveMovedItems', {
 						dropTarget: payload.dropTarget,
 						items,
-						docs,
+						docs: updatedDocs,
 						beforeMoveState,
 						afterMoveState,
 						isUndoAction: payload.isUndoAction,
@@ -268,22 +266,21 @@ const actions = {
 
 	/*
 	 * Save the updated documents of the moved items.
-	 * Dispatch the update of the item descendants (separate updates for each item).
-	 * Dispatch the update of the item parent.
+	 * Dispatch the update of the item descendants and/or the item's parent (separate updates for each item).
 	 * Restore the tree view if an undoAction.
 	 */
 	saveMovedItems({ rootState, commit, dispatch }, payload) {
 		const items = payload.items
 		const beforeMoveState = payload.beforeMoveState
 		const afterMoveState = payload.afterMoveState
-		const isUndoAction = payload.isUndoAction
+		console.log('saveMovedItems: titles = ' + payload.docs.map((doc) => doc.title))
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb,
 			docs: payload.docs,
 			caller: 'saveMovedItems',
 			toDispatch: payload.toDispatch,
 			onSuccessCallback: () => {
-				if (!isUndoAction) {
+				if (!payload.isUndoAction) {
 					commit('addToEventList', {
 						txt: `${items.length} items have been moved with ${beforeMoveState.allDescendantsCount} descendants`,
 						severity: SEV.INFO,
@@ -293,7 +290,7 @@ const actions = {
 				}
 
 				/* Restore the nodes in their previous (source) position */
-				if (isUndoAction) {
+				if (payload.isUndoAction) {
 					const parentNode = rootState.helpersRef.getNodeById(afterMoveState.parentId)
 
 					// process each item individually as the items need not be adjacent
