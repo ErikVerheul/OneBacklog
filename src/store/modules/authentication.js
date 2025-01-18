@@ -93,7 +93,7 @@ const actions = {
 				const toDispatch = [{ refreshCookieLoop: null }, { getDatabases: payload.resetLastSessionData }]
 				dispatch('refreshCookie', { caller: 'authentication:signin', toDispatch })
 			})
-			.catch((error) => {
+			.catch(() => {
 				// cannot log failure here as the database name is unknown yet
 				alert('Unknown user password combination')
 			})
