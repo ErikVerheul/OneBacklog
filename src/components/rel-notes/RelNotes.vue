@@ -3,6 +3,23 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.8.0 - 18 January 2025 New feature, bug fixes and refactoring</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Show alert when signing in with unknown user password combination</li>
+        </ul>
+        <p>Bug fixes</p>
+        <ul>
+          <li>Fix incorrect synchronization due to missing changes caused by a Couchdb bug; extra debugging added</li>
+          <li>Fix error when starting a newly created database the first time</li>
+          <li>Fix 'Search in titles': the search scope is the current product (not the current branch)</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>Declare emits (new in Vue3)</li>
+          <li>Skip requirement area items if not APO: the APO is the only role that maintains requirement areas</li>
+          <li>Renaming, obsolete function removed, typo in comment</li>
+        </ul>
         <h3>v.2.7.0 - 26 December 2024 New feature and refactoring</h3>
         <p>New feature</p>
         <ul>
@@ -11,7 +28,7 @@
         <p>Refactoring</p>
         <ul>
           <li>Story and task layout in planning board</li>
-          <li>Reset the eventlistener in the component where it is activatedw</li>
+          <li>Reset the eventlistener in the component where it is activated</li>
           <li>Undo move now uses the priority instead of the saved index to position the inserted item</li>
         </ul>
         <h3>v.2.6.0 - 20 December 2024 Merge views</h3>
