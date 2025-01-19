@@ -155,7 +155,7 @@ export default {
       return ''
     },
 
-    /* Return date/time dependant sprint selection options, recent first + next sprint on top*/
+    /* Return date/time dependent sprint selection options, recent first + next sprint on top*/
     sprintTitleOptions() {
       const now = Date.now()
       const calendar = store.state.myCurrentSprintCalendar

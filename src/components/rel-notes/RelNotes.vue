@@ -127,7 +127,7 @@
         <p>New features</p>
         <ul>
           <li>Allow users to amend their team messages if no other team member has replied yet to that message</li>
-          <li>Add vertical scroll bar to the listings (comments, history and messages), so that they can be scrolled independantly</li>
+          <li>Add vertical scroll bar to the listings (comments, history and messages), so that they can be scrolled independently</li>
         </ul>
         <h3>v.2.3.3 - 10 September 2024 New Feature, bug fixes, refactoring</h3>
         <p>New feature</p>

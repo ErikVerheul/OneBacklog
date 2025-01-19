@@ -17,7 +17,7 @@
 					select professional mode.</p>
 				<p>Professional mode adds the following features:</p>
 				<ul>
-					<li>The user has the option to change database. A database contains products which are maintained independant
+					<li>The user has the option to change database. A database contains products which are maintained independent
 						from products in other databases.</li>
 					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>
 					<li>When prioritizing the backlog the product owner can move multiple items as a group to another priority.</li>

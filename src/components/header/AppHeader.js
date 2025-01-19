@@ -7,7 +7,7 @@ import store from '../../store/store.js'
 
 const MINPASSWORDLENGTH = 8
 
-// show browser dependant message 'Changes you made may not be saved. Stay on page / Leave page' when exiting the app irregularly
+// show browser dependent message 'Changes you made may not be saved. Stay on page / Leave page' when exiting the app irregularly
 const beforeUnloadHandler = (event) => {
 	event.preventDefault()
 }
