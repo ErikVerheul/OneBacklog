@@ -161,7 +161,7 @@ Task .. ................ 6 ................... 6
 
 The '_admin' role is set on database creation to the creator. Initinally the '_admin' also has the role 'admin'.
 The 'admin', and 'APO' roles are the roles set in the 'roles' field of the user in the _users database by the 'admin' at user creation or maintenance.
-Write access is dependant on role and level. Write access includes deletion.
+Write access is dependent on role and level. Write access includes deletion.
 All roles have read access to their assigned databases and the assigned products in that database.
 These roles are set during loading by haveWritePermission(...).
 

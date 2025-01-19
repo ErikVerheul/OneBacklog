@@ -2,14 +2,16 @@
   <BModal ref="contextMenuRef" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" :title="contextNodeTitle">
     <template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
       <template v-if="contextOptionSelected === SHOWDEPENDENCIES">
-        <p>Select the dependencies to remove:</p>
-        <BFormCheckboxGroup v-model="selectedDependencyIds" stacked :options="dependenciesObjects" value-field="_id" text-field="title">
-        </BFormCheckboxGroup>
+        <p v-if="dependenciesObjects.length = 1">This {{ contextNodeType }} is conditional for this backlog item:</p>
+        <p v-else> This {{ contextNodeType }} is conditional for these backlog items:</p>
+        <BFormCheckboxGroup v-model="selectedDependencyIds" stacked :options="dependenciesObjects" value-field="_id" text-field="title" />
+        <p class="my-4"><b>Select the items that are no longer dependent on this {{ contextNodeType }}</b></p>
       </template>
       <template v-if="contextOptionSelected === SHOWCONDITIONS">
-        <p>Select the conditions to remove:</p>
-        <BFormCheckboxGroup v-model="selectedConditionIds" stacked :options="conditionsObjects" value-field="_id" text-field="title">
-        </BFormCheckboxGroup>
+        <p v-if="conditionsObjects.length = 1">This {{ contextNodeType }} is dependent on this backlog item:</p>
+        <p v-else>This {{ contextNodeType }} is dependent on for these backlog items:</p>
+        <BFormCheckboxGroup v-model="selectedConditionIds" stacked :options="conditionsObjects" value-field="_id" text-field="title" />
+        <p class="my-4"><b>Select the items that are no longer conditional for this {{ contextNodeType }}</b></p>
       </template>
     </template>
     <template v-else>
