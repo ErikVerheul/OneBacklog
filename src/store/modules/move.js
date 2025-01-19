@@ -273,7 +273,6 @@ const actions = {
 		const items = payload.items
 		const beforeMoveState = payload.beforeMoveState
 		const afterMoveState = payload.afterMoveState
-		console.log('saveMovedItems: titles = ' + payload.docs.map((doc) => doc.title))
 		dispatch('updateBulk', {
 			dbName: rootState.userData.currentDb,
 			docs: payload.docs,
