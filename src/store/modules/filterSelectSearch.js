@@ -31,7 +31,7 @@ const actions = {
 	 * Traverse the tree to save the view state before change
 	 * No async calls are made. Cannot be a mutation as getters are used
 	 */
-	saveTreeView({ rootState }, payload) {
+	saveTreeViewState({ rootState }, payload) {
 		rootState.helpersRef.traverseModels((nm) => {
 			if (payload.type === 'condition') {
 				nm.tmp.savedIsExpandedInCondition = nm.isExpanded
@@ -203,7 +203,7 @@ const actions = {
 						nodesTouched: nodesOnPath,
 					}
 					// save display state of the branch up to the found node
-					dispatch('saveTreeView', { type: 'findId', nodesToScan: nodesOnPath })
+					dispatch('saveTreeViewState', { type: 'findId', nodesToScan: nodesOnPath })
 					// expand the tree view up to the found item
 					rootState.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
 					commit('renewSelectedNodes', nodeFound)
@@ -267,7 +267,7 @@ const actions = {
 		const productHead = rootState.helpersRef.getNodeById(currentProductId)
 		const nodesFound = []
 		// save display state of the branch
-		dispatch('saveTreeView', { type: 'titles', nodesToScan: [productHead] })
+		dispatch('saveTreeViewState', { type: 'titles', nodesToScan: [productHead] })
 		rootState.helpersRef.traverseModels(
 			(nm) => {
 				if (nm.title.toLowerCase().includes(state.keyword.toLowerCase())) {

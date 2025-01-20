@@ -370,7 +370,7 @@ const methods = {
 	getDependencies() {
 		this.dependenciesObjects = []
 		this.allDepenciesFound = true
-		store.dispatch('saveTreeView', { type: 'dependency', nodesToScan: store.state.helpersRef.getProductNodes() })
+		store.dispatch('saveTreeViewState', { type: 'dependency', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = store.state.helpersRef.getNodeById(depId)
 			if (item) {
@@ -384,7 +384,7 @@ const methods = {
 	getConditions() {
 		this.conditionsObjects = []
 		this.allConditionsFound = true
-		store.dispatch('saveTreeView', { type: 'condition', nodesToScan: store.state.helpersRef.getProductNodes() })
+		store.dispatch('saveTreeViewState', { type: 'condition', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = store.state.helpersRef.getNodeById(conId)
 			if (item) {

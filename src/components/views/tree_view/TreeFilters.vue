@@ -256,7 +256,7 @@ const methods = {
     if (store.getters.isResetFilterSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
 
     // save node display state
-    store.dispatch('saveTreeView', { type: 'filter', nodesToScan })
+    store.dispatch('saveTreeViewState', { type: 'filter', nodesToScan })
 
     const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
     let count = 0

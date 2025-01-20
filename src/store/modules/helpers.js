@@ -242,8 +242,8 @@ const actions = {
 
 			/* Show the path from condNode to depNode including both nodes */
 			showDependencyViolations(violations) {
-				dispatch('saveTreeView', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
-				dispatch('saveTreeView', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
+				dispatch('saveTreeViewState', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
+				dispatch('saveTreeViewState', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
 				for (let column = 0; column < violations.length; column++) {
 					const v = violations[column]
 					rootState.helpersRef.showPathToNode(v.condNode, { doWarn: true })
