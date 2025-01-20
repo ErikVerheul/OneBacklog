@@ -129,7 +129,7 @@
 .sl-vue-tree-dependencyviolation {
   display: inline-block;
   position: absolute;
-  right: 50px;
+  right: 80px;
 }
 
 .sl-vue-tree-sidebar {
