@@ -286,8 +286,8 @@ const actions = {
 					})
 					// make the branch with the moved nodes selectable again
 					rootState.helpersRef.unSetBranchUnselectable(payload.dropTarget)
-					// check for created or resolved dependency violations
-					rootState.helpersRef.checkDepencyViolations()
+					// check for created or resolved dependency violations; show a warning if found
+					rootState.helpersRef.checkDepencyViolations(true)
 				}
 
 				/* Restore the nodes in their previous (source) position */
@@ -342,8 +342,8 @@ const actions = {
 							dispatch('doLog', { event: msg, level: SEV.ERROR })
 						}
 					}
-					// check for created or resolved dependency violations
-					rootState.helpersRef.checkDepencyViolations()
+					// check for created or resolved dependency violations; show a warning if found
+					rootState.helpersRef.checkDepencyViolations(true)
 					commit('addToEventList', {
 						txt: `${items.length} items have been moved back with ${afterMoveState.allDescendantsCount} descendants`,
 						severity: SEV.INFO,

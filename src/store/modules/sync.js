@@ -331,8 +331,13 @@ const actions = {
 						case 'nodeMovedEvent':
 							moveNode(node, doc.parentId)
 							showSyncMessage(`moved`, SEV.INFO)
-							// check for created or resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations()
+							// check for created or resolved dependency violations; show a dedicated if found
+							if (rootState.helpersRef.checkDepencyViolations(false)) {
+								commit('addToEventList', {
+									txt: 'This move created a dependency violation. Wait for the creator to fix it or undo the move or remove the dependency',
+									severity: SEV.WARNING,
+								})
+							}
 							break
 						case 'removeAttachmentEvent':
 							commit('updateNodewithDocChange', { node, lastAttachmentRemoval: doc.lastAttachmentRemoval })

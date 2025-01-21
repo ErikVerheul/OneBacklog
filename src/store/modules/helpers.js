@@ -241,7 +241,8 @@ const actions = {
 			},
 
 			/* Show the path from condNode to depNode including both nodes */
-			showDependencyViolations(violations) {
+			showDependencyViolations(violations, showWarning) {
+				if (showWarning) commit('addToEventList', { txt: 'Dependency violation detected. Undo the change or remove the dependency.', severity: SEV.WARNING })
 				dispatch('saveTreeViewState', { type: 'condition', nodesToScan: rootState.helpersRef.getProductNodes() })
 				dispatch('saveTreeViewState', { type: 'dependency', nodesToScan: rootState.helpersRef.getProductNodes() })
 				for (let column = 0; column < violations.length; column++) {
@@ -259,9 +260,11 @@ const actions = {
 			},
 
 			/* Check for created or resolved dependency violations */
-			checkDepencyViolations() {
+			checkDepencyViolations(showWarning) {
 				const violations = rootState.helpersRef.findDependencyViolations()
-				if (violations.length > 0) rootState.helpersRef.showDependencyViolations(violations)
+				const violationsFound = violations.length > 0
+				if (violationsFound) rootState.helpersRef.showDependencyViolations(violations, showWarning)
+				return violationsFound
 			},
 
 			/*
@@ -269,13 +272,12 @@ const actions = {
 			 * Undo the tree expansion from a previous scan on violations if no violations are found.
 			 * Return true if violations are found, false otherwise.
 			 */
-			revealDependencyViolations() {
+			revealDependencyViolations(showWarning) {
 				let violationsWereFound = false
 				const violations = rootState.helpersRef.findDependencyViolations()
 				if (violations.length > 0) {
 					violationsWereFound = true
-					commit('addToEventList', { txt: 'Dependency violation detected. Undo the change or remove the dependency.', severity: SEV.WARNING })
-					rootState.helpersRef.showDependencyViolations(violations)
+					rootState.helpersRef.showDependencyViolations(violations, showWarning)
 				} else {
 					// traverse the tree to reset to the tree view state
 					rootState.helpersRef.traverseModels((nm) => {

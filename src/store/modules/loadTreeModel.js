@@ -227,7 +227,8 @@ const actions = {
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {
 						rootState.helpersRef.setDescendantsReqArea()
-						rootState.helpersRef.revealDependencyViolations()
+						// show a warning if violations found
+						rootState.helpersRef.revealDependencyViolations(true)
 						router.push('/treeView')
 					},
 				})

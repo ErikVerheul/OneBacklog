@@ -325,8 +325,8 @@ const actions = {
 							}
 							// no need to pass history as the currenly selected node is the node with the conditions
 							commit('updateNodewithDocChange', { node: depOnNode, conditionsremoved: conIdArray, lastOtherChange: payload.timestamp })
-							// check for resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations()
+							// check for resolved dependency violations; show a warning if found
+							rootState.helpersRef.checkDepencyViolations(true)
 						}
 					},
 				})
@@ -438,8 +438,8 @@ const actions = {
 							}
 							// no need to pass history as the currenly selcted node is the node with the dependencies
 							commit('updateNodewithDocChange', { node: condForNode, dependenciesRemoved: depIdArray, lastOtherChange: payload.timestamp })
-							// check for resolved dependency violations
-							rootState.helpersRef.checkDepencyViolations()
+							// check for resolved dependency violations; show a warning if found
+							rootState.helpersRef.checkDepencyViolations(true)
 						}
 					},
 				})
