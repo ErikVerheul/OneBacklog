@@ -116,7 +116,7 @@ tmp: {
 	isHighlighted_1: boolean // light blue
 	isHighlighted_2: boolean // light green
 	isWarnLighted: boolean // red
-	markedViolations: [] // column number to place this dependency violation in
+	markedViolations: [{ column, isDep, isCond }] // column: number to place this dependency violation in, isDep: true if the dependency endpoint; isCond: true if the conditional for endpoint
 
 	savedIsExpandedInCondition: isExpanded // to restore the original view after finding condition violations
 	savedDoShowInCondition: doShow // to restore the original view after finding condition violations

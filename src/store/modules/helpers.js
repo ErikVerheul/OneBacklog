@@ -201,6 +201,9 @@ const actions = {
 							const cond = rootState.helpersRef.getNodeById(depId)
 							if (cond !== null && rootState.helpersRef.comparePaths(nm.path, cond.path) === -1) {
 								violations.push({ condNode: cond, depNode: nm })
+								console.log('findDependencyViolations: condition = ' + cond.title)
+								console.log('findDependencyViolations: dependency = ' + nm.title)
+								console.log('')
 							}
 						}
 					}
@@ -252,8 +255,8 @@ const actions = {
 					rootState.helpersRef.traverseModels((nm) => {
 						if (rootState.helpersRef.comparePaths(v.depNode.path, nm.path) !== 1 && rootState.helpersRef.comparePaths(nm.path, v.condNode.path) !== 1) {
 							if (nm.tmp.markedViolations) {
-								nm.tmp.markedViolations.push(column)
-							} else nm.tmp.markedViolations = [column]
+								nm.tmp.markedViolations.push({ column, isDep: nm === v.depNode, isCond: nm === v.condNode })
+							} else nm.tmp.markedViolations = [{ column, isDep: nm === v.depNode, isCond: nm === v.condNode }]
 						}
 					}, rootState.helpersRef.getProductNodes())
 				}

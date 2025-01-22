@@ -269,20 +269,23 @@ const methods = {
 		return patch + node.title
 	},
 
-	rowLength(violation) {
+	rowLength(violations) {
 		let l = 0
-		for (let v of violation) {
-			if (v > l) l = v
+		for (let v of violations) {
+			if (v.column > l) l = v.column
 		}
 		return l + 1
 	},
 
-	createRow(violation) {
-		violation.sort()
+	createRow(markedViolation) {
 		const row = []
-		for (let i = 0; i < this.rowLength(violation); i++) {
-			if (violation.includes(i)) {
-				row.push(' △.' + (i + 1))
+		for (let i = 0; i < markedViolation.length; i++) {
+			if (markedViolation.map((v) => v.column).includes(i)) {
+				if (markedViolation[i].isDep) {
+					row.push(' ┐')
+				} else if (markedViolation[i].isCond) {
+					row.push(' ┘')
+				} else row.push(' │')
 			} else row.push('')
 		}
 		row.reverse()
