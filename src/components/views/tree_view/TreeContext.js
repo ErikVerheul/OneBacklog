@@ -369,30 +369,26 @@ const methods = {
 
 	getDependencies() {
 		this.dependenciesObjects = []
-		this.allDepenciesFound = true
 		store.dispatch('saveTreeViewState', { type: 'dependency', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const depId of this.contextNodeSelected.dependencies) {
 			const item = store.state.helpersRef.getNodeById(depId)
 			if (item) {
 				store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
 				this.dependenciesObjects.push({ _id: depId, title: item.title })
-			} else this.allDepenciesFound = false
+			}
 		}
-		this.disableOkButton = !this.allDepenciesFound
 	},
 
 	getConditions() {
 		this.conditionsObjects = []
-		this.allConditionsFound = true
 		store.dispatch('saveTreeViewState', { type: 'condition', nodesToScan: store.state.helpersRef.getProductNodes() })
 		for (const conId of this.contextNodeSelected.conditionalFor) {
 			const item = store.state.helpersRef.getNodeById(conId)
 			if (item) {
 				store.state.helpersRef.showPathToNode(item, { doHighLight_2: true })
 				this.conditionsObjects.push({ _id: conId, title: item.title })
-			} else this.allConditionsFound = false
+			}
 		}
-		this.disableOkButton = !this.allConditionsFound
 	},
 
 	showContextMenu(node) {
