@@ -169,31 +169,10 @@
 
             <template v-slot:dependencyviolation="{ node }">
               <template v-if="store.state.userData.myOptions.proUser === 'true' && node.tmp.markedViolations">
-                <div v-if="rowLength(node.tmp.markedViolations) === 1">
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                </div>
-                <div v-else-if="rowLength(node.tmp.markedViolations) === 2">
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                </div>
-                <div v-else-if="rowLength(node.tmp.markedViolations) === 3">
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                </div>
-                <div v-else-if="rowLength(node.tmp.markedViolations) === 4">
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-                </div>
-                <div v-else>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[0] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[1] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[2] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[3] }}</span>
-                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[4] }}</span>
-                </div>
+                <template v-for="col in rowLength(node.tmp.markedViolations) + 1">
+                  <!-- note that col starts with the initial value of 1 instead of 0 -->
+                  <span class="violation-column">{{ createRow(node.tmp.markedViolations)[col - 2] }}</span>
+                </template>
               </template>
             </template>
 
