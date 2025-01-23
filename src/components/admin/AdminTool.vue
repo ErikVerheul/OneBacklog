@@ -152,7 +152,7 @@
           <div v-if="!dbIsSelected">
             <BFormGroup>
               <h5>Select a database to '{{ optionSelected }}'</h5>
-              <p>v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use
+              <p v-if="optionSelected === 'Create a product'">Note: The product will be assigned to your profile only. Use
                 'Maintain user permissions to products' as a next step to assign the product to other users.</p>
               <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked />
             </BFormGroup>
