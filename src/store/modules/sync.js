@@ -518,7 +518,7 @@ const actions = {
 							showSyncMessage(`changed the task owner of`, SEV.INFO)
 							break
 						default:
-							if (rootState.debug) console.log('sync.trees: event not found, name = ' + histEvent)
+							if (rootState.debug) console.log('sync.treeview: event not found, name = ' + histEvent)
 					}
 				}
 
@@ -822,7 +822,6 @@ const actions = {
 
 	/* Is started by the watchdog. Listens for document changes. The timeout, if no changes are available, is 60 seconds (default maximum) */
 	listenForChanges({ rootState, dispatch, commit }, since) {
-		if (rootState.debug) console.log('listenForChanges is STARTED')
 		const listenForChangesWasRunning = rootState.listenForChangesRunning
 		if (rootState.signedOut || rootState.stopListeningForChanges) {
 			rootState.listenForChangesRunning = false
@@ -847,7 +846,6 @@ const actions = {
 							// only process events with included documents
 							if (doc.history[0].sessionId === rootState.mySessionId) {
 								// do not process events of the session that created the event
-								if (rootState.debug) console.log('listenForChanges, skipped as from own session: doc.title = ' + doc.title)
 								continue
 							}
 							if (rootState.debug && doc._id === 'messenger') {
@@ -858,9 +856,6 @@ const actions = {
 						}
 					}
 					lastSeq = data.last_seq
-				} else {
-					if (rootState.debug)
-						console.log('listenForChanges, skip consecutive change with the same sequence number: lastSeq = ' + lastSeq + ' data = ' + JSON.stringify(data))
 				}
 				// send a new request to retrieve subsequent events
 				// note that, when no data are received, receiving a response can last up to 60 seconds (time-out)
