@@ -622,7 +622,7 @@ const store = createStore({
 		/* The keys of the payload object are evaluated by key name and value */
 		updateNodewithDocChange(state, payload) {
 			if (payload.newDoc) {
-				// replace encoded text fields and remove 'ignoreEvent' elements from history to update the currentDoc
+				// replace encoded text fields
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
 			} else {
 				const node = payload.node
