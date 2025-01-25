@@ -482,14 +482,14 @@ const actions = {
 
 	/* Change the team of the descendants to the users team */
 	setTeamDescendantsBulk({ rootState, dispatch }, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const desc of payload.descendants) {
-			docsToGet.push({ id: desc._id })
+			docIdsToGet.push({ id: desc._id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results

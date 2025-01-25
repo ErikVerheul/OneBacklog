@@ -206,21 +206,19 @@ const actions = {
 					const docs = []
 					for (const r of results) {
 						const doc = r.docs[0].ok
-						if (doc) {
-							if (doc.level <= removedDeps[doc._id].removedParentLevel && doc.level < removedDeps[doc._id].level) {
-								const newConditionalFor = []
-								for (const c of doc.conditionalFor) {
-									if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
-								}
-								doc.conditionalFor = newConditionalFor
-								extCondsRemovedFromIds.push(doc._id)
-								const newHist = {
-									ignoreEvent: ['removeExternalConds'],
-									timestamp: Date.now(),
-								}
-								doc.history.unshift(newHist)
-								docs.push(doc)
+						if (doc.level <= removedDeps[doc._id].removedParentLevel && doc.level < removedDeps[doc._id].level) {
+							const newConditionalFor = []
+							for (const c of doc.conditionalFor) {
+								if (c !== removedDeps[doc._id].dependentOn) newConditionalFor.push(c)
 							}
+							doc.conditionalFor = newConditionalFor
+							extCondsRemovedFromIds.push(doc._id)
+							const newHist = {
+								ignoreEvent: ['removeExternalConds'],
+								timestamp: Date.now(),
+							}
+							doc.history.unshift(newHist)
+							docs.push(doc)
 						}
 					}
 					dispatch('updateBulk', {
@@ -257,21 +255,19 @@ const actions = {
 					const docs = []
 					for (const r of results) {
 						const doc = r.docs[0].ok
-						if (doc) {
-							if (doc.level <= removedConds[doc._id].removedParentLevel && doc.level < removedConds[doc._id].level) {
-								const newDependencies = []
-								for (const d of doc.dependencies) {
-									if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
-								}
-								doc.dependencies = newDependencies
-								extDepsRemovedFromIds.push(doc._id)
-								const newHist = {
-									ignoreEvent: ['removeExternalDeps'],
-									timestamp: Date.now(),
-								}
-								doc.history.unshift(newHist)
-								docs.push(doc)
+						if (doc.level <= removedConds[doc._id].removedParentLevel && doc.level < removedConds[doc._id].level) {
+							const newDependencies = []
+							for (const d of doc.dependencies) {
+								if (d !== removedConds[doc._id].conditionalFor) newDependencies.push(d)
 							}
+							doc.dependencies = newDependencies
+							extDepsRemovedFromIds.push(doc._id)
+							const newHist = {
+								ignoreEvent: ['removeExternalDeps'],
+								timestamp: Date.now(),
+							}
+							doc.history.unshift(newHist)
+							docs.push(doc)
 						}
 					}
 					// remove reqarea assignments when removing a requirement area

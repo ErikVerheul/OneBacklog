@@ -443,14 +443,14 @@ const actions = {
 
 	/* Extend usResults for tasks with user stories not assigned to the sprint */
 	loadMissingUss({ rootState, state, dispatch }, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.missingUsIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id: id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
@@ -534,14 +534,14 @@ const actions = {
 
 	/* Import the unfinished items in the current sprint */
 	importInSprint({ rootState, state, dispatch, commit }, newSprintId) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of state.itemIdsToImport) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
@@ -753,14 +753,14 @@ const actions = {
 	/* A sprintId is assigned to a user story, a task or a user story and one or more tasks */
 	addSprintIds({ rootState, commit, dispatch }, payload) {
 		if (payload.isUndoAction) rootState.busyWithLastUndo = false
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.itemIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
@@ -854,14 +854,14 @@ const actions = {
 	/* Remove a sprintId assigned to a user story, a task or a user story and one or more tasks */
 	removeSprintIds({ rootState, commit, dispatch }, payload) {
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.itemIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results

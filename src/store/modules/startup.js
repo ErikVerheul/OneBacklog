@@ -1,4 +1,4 @@
-import { SEV } from '../../constants.js'
+import { MISC, SEV } from '../../constants.js'
 import { createId, startMsgSquareBlink } from '../../common_functions.js'
 import globalAxios from 'axios'
 
@@ -6,9 +6,6 @@ import globalAxios from 'axios'
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
 import router from '../../router'
-
-const HOUR_MILIS = 60 * 60000
-const DAY_MILIS = 24 * HOUR_MILIS
 
 const actions = {
 	/*
@@ -133,7 +130,6 @@ const actions = {
 						if (rootState.debug) console.log('getOtherUserData: Server admin logged in but has no profile in users database. Start init')
 						rootState.showHeaderDropDowns = false
 						rootState.backendMessages = []
-						// ToDo: couses: ReferenceError: can't access lexical declaration 'InitPage' before initialization when Vite auto-reloads
 						router.push('/init')
 					}
 				} else {
@@ -244,7 +240,11 @@ const actions = {
 			url: rootState.userData.currentDb + '/config',
 		})
 			.then((res) => {
-				const configData = res.data
+				rootState.configData = res.data
+				if (!rootState.configData.historyRetention) {
+					// historyRetention is introduced in version 2.9.0
+					rootState.configData.historyRetention = { maxHistoryDays: 365, maxHistoryEvents: 100 }
+				}
 
 				if (rootState.debug) console.log('getConfig: The configuration document is loaded')
 				if (!rootState.isProductAssigned) {
@@ -256,25 +256,21 @@ const actions = {
 						commit('endSession', 'startup: getConfig - No default product is set')
 					}
 				} else {
-					if (configData.defaultSprintCalendar) {
-						const lastSprint = configData.defaultSprintCalendar.slice(-1)[0]
+					if (rootState.configData.defaultSprintCalendar) {
+						const lastSprint = rootState.configData.defaultSprintCalendar.slice(-1)[0]
 						if (lastSprint.startTimestamp - lastSprint.sprintLength < Date.now()) {
 							// sprint calendar ran out of sprints; extend the calendar automatically
 							dispatch('extendDefaultSprintCalendar', {
-								configData,
+								configData: rootState.configData,
 								onSuccessCallback: () => {
-									// save the config data in memory
-									rootState.configData = configData
 									// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
-									rootState.myCurrentSprintCalendar = configData.defaultSprintCalendar
+									rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 									dispatch('getAllTeams')
 								},
 							})
 						} else {
-							// save the config data in memory
-							rootState.configData = configData
 							// assign the default calendar to the sprint calendar; this calendar will be replaced if a team has its own calendar
-							rootState.myCurrentSprintCalendar = configData.defaultSprintCalendar
+							rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 							dispatch('getAllTeams')
 						}
 					} else {
@@ -283,8 +279,8 @@ const actions = {
 							// create a basic sprint calendar of 3 sprints with a length of 14 days starting an hour before now
 							const calendar = []
 							const numberOfSprints = 3
-							const sprintLengthMillis = DAY_MILIS * 14
-							const start = Date.now() - HOUR_MILIS
+							const sprintLengthMillis = MISC.MILIS_IN_DAY * 14
+							const start = Date.now() - MISC.MILIS_IN_HOUR
 							for (let i = 0; i < numberOfSprints; i++) {
 								const sprint = {
 									id: createId(),
@@ -294,14 +290,12 @@ const actions = {
 								}
 								calendar.push(sprint)
 							}
-							configData.defaultSprintCalendar = calendar
+							rootState.configData.defaultSprintCalendar = calendar
 							// set my sprint calendar
 							rootState.myCurrentSprintCalendar = calendar
-							// save the config data in memory
-							rootState.configData = configData
 							// update the config document
 							const toDispatch = [{ getAllTeams: null }]
-							dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: configData, toDispatch, caller: 'getConfig' })
+							dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: rootState.configData, toDispatch, caller: 'getConfig' })
 						} else {
 							alert('Error: No default sprint calendar is set. Consult your administrator. The application will exit.')
 							commit('dispatch', 'startup: getConfig - No default sprint calendar is set')

@@ -136,14 +136,14 @@ const actions = {
 	 */
 	updateReqAreaChildren({ rootState, dispatch }, payload) {
 		const childIds = payload.node.children.map((n) => n._id)
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const c of childIds) {
-			docsToGet.push({ id: c })
+			docIdsToGet.push({ id: c })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
