@@ -10,7 +10,7 @@
         <BButton block @click="createNewDb">Create a new database</BButton>
         <BButton block @click="changeMyDb">Change my default database to any available database</BButton>
         <BButton block @click="purgeDb">Purge removed documents and compact the database</BButton>
-        <BButton block variant="warning" @click="remHistAndComm">Remove old comments on age</BButton>
+        <BButton block variant="warning" @click="removeOldComments">Remove old comments on age</BButton>
         <BButton block variant="warning" @click="deleteDb">Delete a database</BButton>
         <BButton block @click="fauxton">All FAUXTON tasks</BButton>
       </BButtonGroup>
@@ -171,14 +171,11 @@
           </BCol>
         </BRow>
         <hr>
-        <BButton v-if="!store.state.IsCommentsReset" class="m-1" @click="doRemoveOldComments" variant="primary">Remove old comments</BButton>
-        <BButton v-if="!store.state.IsCommentsReset" class="m-1" @click="cancel">Cancel</BButton>
+        <BButton v-if="!store.state.isCommentsReset" class="m-1" @click="doRemoveOldComments" variant="primary">Remove old comments</BButton>
+        <BButton v-if="!store.state.isCommentsReset" class="m-1" @click="cancel">Cancel</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
-        <div v-if="store.state.IsCommentsReset">
+        <div v-if="store.state.isCommentsReset">
           <h4>Success! Old comments are removed</h4>
-        </div>
-        <div v-else>
-          <h4 v-if="asyncFired">Please wait ... Failure? See the log</h4>
         </div>
       </div>
 
@@ -225,7 +222,6 @@ export default {
     return {
       optionSelected: 'Select a task',
       canCancel: true,
-      asyncFired: false,
       localMessage: '',
       fauxtonStarted: false,
       dbToOverwrite: '',
@@ -406,17 +402,15 @@ export default {
       store.dispatch('collectRemoved', store.state.selectedDatabaseName)
     },
 
-    remHistAndComm() {
-      this.asyncFired = false
+    removeOldComments() {
       this.optionSelected = 'Remove old comments on age'
       this.localMessage = ''
-      store.state.IsCommentsReset = false
+      store.state.isCommentsReset = false
       // get all non sytem & non backup databases
       store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
     doRemoveOldComments() {
-      this.asyncFired = true
       store.dispatch('removeOldCommentsAsync', { dbName: store.state.selectedDatabaseName, age: this.removeAge })
     },
 

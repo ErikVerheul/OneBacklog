@@ -315,7 +315,7 @@ const actions = {
 			url: payload.dbName + '/_all_docs',
 		})
 			.then((res) => {
-				rootState.IsCommentsReset = false
+				rootState.isCommentsReset = false
 				rootState.backendMessages = []
 				const docIdsToUpdate = []
 				for (let i = 0; i < res.data.rows.length; i++) {
@@ -366,7 +366,7 @@ const actions = {
 							ignoreEvent: ['resetHistAndComm'],
 							timestamp: Date.now(),
 						}
-						docs.history.unshift(newHist)
+						doc.history.unshift(newHist)
 						docs.push(doc)
 					}
 					if (r.docs[0].error) error.push(r.docs[0].error)
@@ -384,7 +384,7 @@ const actions = {
 					docs,
 					caller: 'resetHistAndComm',
 					onSuccessCallback: () => {
-						rootState.IsCommentsReset = true
+						rootState.isCommentsReset = true
 					},
 				})
 			})
