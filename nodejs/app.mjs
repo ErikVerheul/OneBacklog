@@ -234,7 +234,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'taskRemovedEvent':
       return createEmail(`<h3>Task '${value[0]}' is removed by team '${value[1]}'</h3>`)
     case 'uploadAttachmentEvent':
-      return createEmail(`<h3>Attachment with title '${value[0]}' of type '${value[2]}' and size ${value[1]} bytes is uploaded</h3>`)
+      return createEmail(`<h3>Attachment with file name '${value[0]}' of type ${value[2]} and size ${value[1]} is uploaded</h3>`)
     case 'updateTaskOwnerEvent':
       return createEmail(`<h3>Task owner is changed from '${value[0]}' to '${value[1]}`)
     default:
