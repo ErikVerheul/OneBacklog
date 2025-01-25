@@ -201,9 +201,6 @@ const actions = {
 							const cond = rootState.helpersRef.getNodeById(depId)
 							if (cond !== null && rootState.helpersRef.comparePaths(nm.path, cond.path) === -1) {
 								violations.push({ condNode: cond, depNode: nm })
-								console.log('findDependencyViolations: condition = ' + cond.title)
-								console.log('findDependencyViolations: dependency = ' + nm.title)
-								console.log('')
 							}
 						}
 					}
