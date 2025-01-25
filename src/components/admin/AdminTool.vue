@@ -4,8 +4,6 @@
     <BContainer>
       <h2 class="text-center">Admin view: {{ optionSelected }}</h2>
       <template v-if="optionSelected === 'Select a task'">
-        <p class="text-center">Note: Products, teams and calendars are defined per database. If you have more than one database, you are asked
-          to select one</p>
         <BButtonGroup vertical class="d-grid gap-2" aria-label="Vertical button group">
           <BButton block @click="createUser">Create a user and assign product(s)</BButton>
           <BButton block @click="maintainUsers">Maintain user permissions to products </BButton>
