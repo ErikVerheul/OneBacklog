@@ -1,7 +1,7 @@
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other (async) database updates are done.
 import { SEV, LEVEL } from '../../constants.js'
-import { collapseNode, isInPath } from '../../common_functions.js'
+import { applyRetention, collapseNode, isInPath } from '../../common_functions.js'
 import globalAxios from 'axios'
 
 const state = {
@@ -232,7 +232,7 @@ const actions = {
 				if (rows.length > 0) {
 					if (rootState.debug) console.log('loadItemByShortId: ' + rows.length + ' documents are found')
 					// take the fist document found
-					const doc = rows[0].doc
+					const doc = applyRetention(rootState, rows[0].doc)
 					if (rootGetters.getMyAssignedProductIds.includes(doc.productId)) {
 						if (rootGetters.getMyProductSubscriptionIds.includes(doc.productId)) {
 							if (rows.length > 1) {

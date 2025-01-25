@@ -1,4 +1,5 @@
 import { SEV } from '../../constants.js'
+import { applyRetention } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -56,7 +57,7 @@ const actions = {
 				url: rootState.userData.currentDb + '/' + _id,
 			})
 				.then((res) => {
-					const tmpDoc = res.data
+					const tmpDoc = applyRetention(rootState, res.data)
 					if (!tmpDoc._attachments) {
 						// first attachment
 						tmpDoc._attachments = {
@@ -120,7 +121,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				if (tmpDoc._attachments) {
 					const newHist = {
 						removeAttachmentEvent: [payload.attachmentTitle],

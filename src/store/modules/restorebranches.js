@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { dedup, getLocationInfo } from '../../common_functions.js'
+import { applyRetention, dedup, getLocationInfo } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -45,7 +45,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + removedDocId,
 		})
 			.then((res) => {
-				const doc = res.data
+				const doc = applyRetention(rootState, res.data)
 				unremovedMark = doc.unremovedMark
 				if (unremovedMark) {
 					// update the board if in view
@@ -113,7 +113,7 @@ const actions = {
 		doSyncRestoreBranch = false
 		const docIdsToGet = []
 		for (const id of payload.missingIds) {
-			docIdsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
@@ -123,7 +123,7 @@ const actions = {
 			.then((res) => {
 				const results = res.data.results
 				for (const r of results) {
-					const doc = r.docs[0].ok
+					const doc = applyRetention(rootState, r.docs[0].ok)
 					// no need to add history here as the data is only used to update the tree model (no update of the database)
 					const parentNode = rootState.helpersRef.getRootNode()
 					const locationInfo = getLocationInfo(doc.priority, parentNode)
@@ -195,7 +195,7 @@ const actions = {
 	createChildNodes({ rootState, state, commit, dispatch }, payload) {
 		for (const r of payload.results) {
 			// add the child node
-			const doc = r.doc
+			const doc = applyRetention(rootState, r.doc)
 			const newParentNode = rootState.helpersRef.appendDescendantNode(payload.parentNode, doc)
 			// also update the board if in view
 			if (state.updateThisBoard && state.sprintId === doc.sprintId && state.team === doc.team) {

@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
-import { removeFromArray } from '../../common_functions.js'
+import { applyRetention, removeFromArray } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -317,11 +317,11 @@ const actions = {
 			.then((res) => {
 				rootState.isHistAndCommReset = false
 				rootState.backendMessages = []
-				const docsToUpdate = []
+				const docIdsToUpdate = []
 				for (let i = 0; i < res.data.rows.length; i++) {
-					docsToUpdate.push({ id: res.data.rows[i].id })
+					docIdsToUpdate.push({ id: res.data.rows[i].id })
 				}
-				dispatch('resetHistAndComm', { dbName: payload.dbName, docs: docsToUpdate, olderThan: payload.age })
+				dispatch('resetHistAndComm', { dbName: payload.dbName, docIdsToUpdate, olderThan: payload.age })
 			})
 			.catch((error) => {
 				if (rootState.debug) console.log(error)
@@ -331,55 +331,37 @@ const actions = {
 	},
 
 	resetHistAndComm({ rootState, dispatch }, payload) {
-		const dayMillis = 24 * 60 * 60000
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_get',
-			data: { docs: payload.docs },
+			data: { docs: payload.docIdsToUpdate },
 		})
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
 				const error = []
 				const now = Date.now()
+				const maxAgeMilis = payload.olderThan * MISC.MILIS_IN_DAY
 				for (const r of results) {
-					const doc = r.docs[0].ok
-					if (doc) {
-						if (doc.type === 'backlogItem') {
-							const newHistory = []
-							let histRemovedCount = 0
-							for (const h of doc.history) {
-								if (now - h.timestamp <= payload.olderThan * dayMillis) {
-									newHistory.push(h)
-								} else histRemovedCount++
-							}
-							doc.history = newHistory
-							const newHist = {
-								resetHistoryEvent: [histRemovedCount, payload.olderThan],
-								by: rootState.userData.user,
-								timestamp: now,
-								isListed: true,
-								sessionId: rootState.mySessionId,
-								distributeEvent: true,
-							}
-							doc.history.unshift(newHist)
-
-							const newComments = []
-							let commentsRemovedCount = 0
-							for (const c of doc.comments) {
-								if (now - c.timestamp <= payload.olderThan * dayMillis) {
-									newComments.push(c)
-								} else commentsRemovedCount++
-							}
-							doc.comments = newComments
-							const newComment = {
-								resetCommentsEvent: [commentsRemovedCount, payload.olderThan],
-								by: rootState.userData.user,
-								timestamp: now,
-							}
-							doc.comments.unshift(newComment)
-							docs.push(doc)
+					let doc = r.docs[0].ok
+					if (doc.type === 'backlogItem') {
+						doc = applyRetention(rootState, doc)
+						const newComments = []
+						let commentsRemovedCount = 0
+						for (const c of doc.comments) {
+							if (now - c.timestamp <= maxAgeMilis) {
+								newComments.push(c)
+							} else commentsRemovedCount++
 						}
+						doc.comments = newComments
+						const newComment = {
+							resetCommentsEvent: [commentsRemovedCount, now - maxAgeMilis],
+							by: rootState.userData.user,
+							timestamp: now,
+						}
+						// place at the end of the array
+						doc.comments.push(newComment)
+						docs.push(doc)
 					}
 					if (r.docs[0].error) error.push(r.docs[0].error)
 				}

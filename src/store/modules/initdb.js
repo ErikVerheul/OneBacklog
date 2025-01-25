@@ -244,7 +244,7 @@ const actions = {
 			_id: 'config',
 			type: 'config',
 			changedBy: 'Erik',
-			changeDate: 1724012868428,
+			changeDate: 1737708280124,
 
 			itemType: ['RequirementArea', 'Database', 'Product', 'Epic', 'Feature', 'User story', 'Task'],
 
@@ -286,6 +286,7 @@ const actions = {
 				'The product backog item of type Spike is an effort, limited in a set number of hours, to do an investigation. The purpose of that investigation is to be able to understand and estimate future work better',
 				'The product backog item of type Defect is an effort to fix a breach with the functional or non-functional acceptance criteria. The defect was undetected in the sprint test suites or could not be fixed before the sprint end',
 			],
+			historyRetention: { maxHistoryDays: 365, maxHistoryEvents: 100 },
 		}
 		globalAxios({
 			method: 'POST',

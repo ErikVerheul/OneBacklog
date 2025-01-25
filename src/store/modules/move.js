@@ -1,4 +1,5 @@
 import { SEV } from '../../constants.js'
+import { applyRetention } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -105,7 +106,7 @@ const actions = {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
 						// the item was loaded
-						const doc = envelope.ok
+						const doc = applyRetention(rootState, envelope.ok)
 						const descendantsMetaData = rootState.helpersRef.getDescendantsInfoOnId(doc._id)
 						// copy any changes due to the move
 						doc.productId = afterMoveState.productId
@@ -242,7 +243,7 @@ const actions = {
 			for (const r of results) {
 				const envelope = r.docs[0]
 				if (envelope.ok) {
-					const doc = envelope.ok
+					const doc = applyRetention(rootState, envelope.ok)
 					const levelShift = afterMoveState.level - beforeMoveState.level
 					doc.productId = afterMoveState.productId
 					doc.level = doc.level + levelShift
@@ -371,7 +372,7 @@ const actions = {
 				for (const r of results) {
 					const envelope = r.docs[0]
 					if (envelope.ok) {
-						const doc = envelope.ok
+						const doc = applyRetention(rootState, envelope.ok)
 						for (const set of targetParentsToUpdate) {
 							if (set.targetParentId === doc._id) {
 								let oldTeam

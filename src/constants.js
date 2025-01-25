@@ -37,6 +37,8 @@ const MISC = Object.freeze({
 	AREA_PRODUCTID: '0-requirement-areas',
 	BACKUPSONLY: 1,
 	EMPTYQUILL: '<p><br></p>',
+	MILIS_IN_DAY: 24 * 60 * 60 * 1000,
+	MILIS_IN_HOUR: 60 * 60 * 1000,
 	NOTEAM: 'not assigned yet',
 	SPECIAL_TEXT: true,
 	SQUAREBGNDCOLOR: '#004466',

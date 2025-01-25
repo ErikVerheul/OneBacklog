@@ -21,17 +21,34 @@ function bytesToBase64(bytes) {
 	return window.btoa(binString)
 }
 
-// convert unicode string to base64 encoded ascii
+/* Convert unicode string to base64 encoded ascii */
 export function uniTob64(str) {
 	return bytesToBase64(new TextEncoder().encode(str))
 }
 
-// convert base64 encoded ascii to unicode string
+/* Convert base64 encoded ascii to unicode string */
 export function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
-/* Replace encoded text fields and remove 'ignoreEvent' elements from history */
+/* Apply the retention rules to the history array of the document */
+export function applyRetention(rootState, doc) {
+	const shortenedHistory = []
+	let counter = 0
+	for (const h of doc.history) {
+		if (Object.keys(h)[0] !== 'ignoreEvent') {
+			shortenedHistory.push(h)
+			counter++
+			if (counter >= rootState.configData.historyRetention.maxHistoryEvents) break
+			if (Date.now() - h.timestamp > rootState.configData.historyRetention.maxHistoryDays * MISC.MILIS_IN_DAY) break
+		}
+	}
+
+	doc.history = shortenedHistory
+	return doc
+}
+
+/* Set default team and decode text fields */
 export function prepareDocForPresentation(doc) {
 	let preptDoc = doc
 	// set default team
@@ -39,11 +56,6 @@ export function prepareDocForPresentation(doc) {
 	// decode from base64
 	preptDoc.description = b64ToUni(doc.description)
 	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
-	const cleanedHistory = []
-	for (const h of doc.history) {
-		if (Object.keys(h)[0] !== 'ignoreEvent') cleanedHistory.push(h)
-	}
-	preptDoc.history = cleanedHistory
 	return preptDoc
 }
 

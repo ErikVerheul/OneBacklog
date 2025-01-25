@@ -1,5 +1,5 @@
 import { SEV } from '../../constants.js'
-import { dedup } from '../../common_functions.js'
+import { applyRetention, dedup } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -13,7 +13,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const newHist = {
 					setDependencyEvent: [payload.conditionalForNode._id, payload.conditionalForNode.title],
 					by: rootState.userData.user,
@@ -53,7 +53,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const timestamp = Date.now()
 				const newHist = {
 					setConditionEvent: [payload.dependentOnNode._id, payload.dependentOnNode.title],
@@ -123,7 +123,7 @@ const actions = {
 			url: dbName + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				if (tmpDoc.dependencies.slice(-1)[0] === payload.conditionalForNode._id) {
 					// the condition has not been removed
 					tmpDoc.dependencies = tmpDoc.dependencies.slice(0, -1)
@@ -174,7 +174,7 @@ const actions = {
 			url: dbName + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				if (tmpDoc.conditionalFor.slice(-1)[0] === payload.dependentOnNode._id) {
 					// the dependency has not been removed
 					tmpDoc.conditionalFor = tmpDoc.conditionalFor.slice(0, -1)
@@ -232,7 +232,7 @@ const actions = {
 			url: dbName + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				tmpDoc.dependencies = payload.newDeps
 				const newHist = {
 					dependencyRemovedEvent: [payload.removedIds],
@@ -261,47 +261,45 @@ const actions = {
 
 	/* Remove one or more conditions; called by removeDependenciesAsync only */
 	alsoRemoveConditions({ rootState, commit, dispatch }, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.removedIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
 				for (const r of results) {
-					const doc = r.docs[0].ok
-					if (doc) {
-						const newConditions = []
-						if (doc.conditionalFor) {
-							for (const c of doc.conditionalFor) {
-								if (c !== payload.node._id) {
-									newConditions.push(c)
-								}
+					const doc = applyRetention(rootState, r.docs[0].ok)
+					const newConditions = []
+					if (doc.conditionalFor) {
+						for (const c of doc.conditionalFor) {
+							if (c !== payload.node._id) {
+								newConditions.push(c)
 							}
 						}
-						doc.conditionalFor = newConditions
-						doc.lastOtherChange = payload.timestamp
-						const newHist = {
-							conditionRemovedEvent: [[payload.node._id], payload.node.title],
-							by: rootState.userData.user,
-							email: rootState.userData.email,
-							doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-							timestamp: Date.now(),
-							isListed: true,
-							sessionId: rootState.mySessionId,
-							distributeEvent: true,
-						}
-						doc.history.unshift(newHist)
-						docs.push(doc)
-						if (payload.removedIds > 1) {
-							commit('addToEventList', { txt: 'The dependencies are removed', severity: SEV.INFO })
-						} else commit('addToEventList', { txt: 'The dependency is removed', severity: SEV.INFO })
 					}
+					doc.conditionalFor = newConditions
+					doc.lastOtherChange = payload.timestamp
+					const newHist = {
+						conditionRemovedEvent: [[payload.node._id], payload.node.title],
+						by: rootState.userData.user,
+						email: rootState.userData.email,
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						timestamp: Date.now(),
+						isListed: true,
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
+					if (payload.removedIds > 1) {
+						commit('addToEventList', { txt: 'The dependencies are removed', severity: SEV.INFO })
+					} else commit('addToEventList', { txt: 'The dependency is removed', severity: SEV.INFO })
 				}
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,
@@ -346,7 +344,7 @@ const actions = {
 			url: dbName + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				// update the conditions
 				tmpDoc.conditionalFor = payload.newCons
 				const newHist = {
@@ -376,49 +374,47 @@ const actions = {
 
 	/* Remove the dependencies; called by removeConditionsAsync only */
 	alsoRemoveDependenciesAsync({ rootState, commit, dispatch }, payload) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of payload.removedIds) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
 				for (const r of results) {
-					const doc = r.docs[0].ok
-					if (doc) {
-						const newDependencies = []
-						if (doc.dependencies) {
-							for (const d of doc.dependencies) {
-								if (d !== payload.node._id) {
-									newDependencies.push(d)
-								}
+					const doc = applyRetention(rootState, r.docs[0].ok)
+					const newDependencies = []
+					if (doc.dependencies) {
+						for (const d of doc.dependencies) {
+							if (d !== payload.node._id) {
+								newDependencies.push(d)
 							}
 						}
-						// update the dependencies
-						doc.dependencies = newDependencies
-						// const prevLastChange = doc.lastOtherChange || 0 --> ToDo: track last change?
-						doc.lastOtherChange = payload.timestamp
-						const newHist = {
-							dependencyRemovedEvent: [[payload.node._id], payload.node.title],
-							by: rootState.userData.user,
-							email: rootState.userData.email,
-							doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
-							timestamp: Date.now(),
-							isListed: true,
-							sessionId: rootState.mySessionId,
-							distributeEvent: true,
-						}
-						doc.history.unshift(newHist)
-						docs.push(doc)
-						if (payload.removedIds > 1) {
-							commit('addToEventList', { txt: 'The conditions are removed', severity: SEV.INFO })
-						} else commit('addToEventList', { txt: 'The condition is removed', severity: SEV.INFO })
 					}
+					// update the dependencies
+					doc.dependencies = newDependencies
+					// const prevLastChange = doc.lastOtherChange || 0 --> ToDo: track last change?
+					doc.lastOtherChange = payload.timestamp
+					const newHist = {
+						dependencyRemovedEvent: [[payload.node._id], payload.node.title],
+						by: rootState.userData.user,
+						email: rootState.userData.email,
+						doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
+						timestamp: Date.now(),
+						isListed: true,
+						sessionId: rootState.mySessionId,
+						distributeEvent: true,
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
+					if (payload.removedIds > 1) {
+						commit('addToEventList', { txt: 'The conditions are removed', severity: SEV.INFO })
+					} else commit('addToEventList', { txt: 'The condition is removed', severity: SEV.INFO })
 				}
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,
@@ -458,22 +454,22 @@ const actions = {
 				}
 			}
 		}
-		const docsToGet = []
+		const docIdsToGet = []
 		const docs = []
 		for (const d of externalDependencies) {
 			for (const dd of d.dependencies) {
-				docsToGet.push({ id: dd })
+				docIdsToGet.push({ id: dd })
 			}
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
 				for (const r of results) {
-					const doc = r.docs[0].ok
+					const doc = applyRetention(rootState, r.docs[0].ok)
 					const depItem = getDepItem(doc._id)
 					if (doc && doc.conditionalFor && depItem) {
 						const newConditionalFor = []

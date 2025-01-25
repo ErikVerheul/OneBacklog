@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { uniTob64, b64ToUni, prepareDocForPresentation } from '../../common_functions.js'
+import { applyRetention, uniTob64, b64ToUni, prepareDocForPresentation } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -23,7 +23,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const wasFollower = rootGetters.isFollower
 				const tmpFollowers = tmpDoc.followers
 				if (rootGetters.isFollower) {
@@ -74,15 +74,15 @@ const actions = {
 		const node = payload.node
 		let currentNodeFollowers = []
 		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
-		const docsToGet = [{ id: node._id }]
+		const docIdsToGet = [{ id: node._id }]
 		for (const id of descendantsInfo.ids) {
-			docsToGet.push({ id })
+			docIdsToGet.push({ id })
 		}
 		rootState.busyChangingSubscriptions = true
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const selectedItemWasFollowed = rootGetters.isFollower
@@ -161,7 +161,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const oldTsSize = tmpDoc.tssize
 				const newHist = {
 					setSizeEvent: [oldTsSize, payload.newSizeIdx],
@@ -220,7 +220,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const oldPersonHours = tmpDoc.spikepersonhours
 				let updateBoards = undefined
 				if (tmpDoc.sprintId) {
@@ -284,7 +284,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				// update size only
 				const oldPoints = tmpDoc.spsize
 				let updateBoards = undefined
@@ -358,7 +358,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const oldState = tmpDoc.state
 				let updateBoards = undefined
 				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
@@ -446,7 +446,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const oldTitle = tmpDoc.title
 				let updateBoards = undefined
 				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
@@ -510,7 +510,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				let updateBoards = undefined
 				if (tmpDoc.sprintId && (tmpDoc.level === LEVEL.US || tmpDoc.level === LEVEL.TASK)) {
 					updateBoards = { sprintsAffected: [tmpDoc.sprintId], teamsAffected: [tmpDoc.team] }
@@ -574,7 +574,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				// decode from base64
 				rootState.oldDescription = b64ToUni(tmpDoc.description)
 				// encode to base64
@@ -642,7 +642,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				// decode from base64
 				rootState.oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
 				// encode to base64
@@ -710,7 +710,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				const newHist = {
 					newCommentEvent: ['A new comment was added'],
 					by: rootState.userData.user,
@@ -755,7 +755,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + id,
 		})
 			.then((res) => {
-				const tmpDoc = res.data
+				const tmpDoc = applyRetention(rootState, res.data)
 				// replace the comment in the document.comments array
 				let couldReplace = false
 				let originalTimestamp
@@ -905,7 +905,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + payload.newDoc.parentId,
 		})
 			.then((res) => {
-				const parentDoc = res.data
+				const parentDoc = applyRetention(rootState, res.data)
 				// create a history event for the parent to trigger an email message to followers
 				const parentHist = {
 					newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
@@ -971,7 +971,7 @@ const actions = {
 		})
 			.then((res) => {
 				if (rootState.debug) console.log('loadDoc: document with id ' + payload.id + ' is loaded.')
-				commit('updateNodewithDocChange', { newDoc: res.data })
+				commit('updateNodewithDocChange', { newDoc: applyRetention(rootState, res.data) })
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				// execute passed actions if provided
@@ -1001,6 +1001,45 @@ const actions = {
 			})
 			.catch((error) => {
 				const msg = `sendMessageAsync: Could not read the 'messenger' document. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	/* Update the history retention settings in the config document */
+	updateRetentionSettings({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'GET',
+			url: payload.dbName + '/config',
+		})
+			.then((res) => {
+				const configData = res.data
+				configData.historyRetention = { maxHistoryDays: payload.maxHistoryDays, maxHistoryEvents: payload.maxHistoryEvents }
+				dispatch('saveConfig', { dbName: payload.dbName, newConfig: configData })
+			})
+			.catch((error) => {
+				const msg = `updateRetentionSettings: Could not read config document of database '${payload.dbName}'. ${error}`
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
+	saveConfig({ rootState, dispatch }, payload) {
+		globalAxios({
+			method: 'PUT',
+			url: payload.dbName + '/config',
+			data: payload.newConfig,
+		})
+			.then(() => {
+				// update the in-memory copy
+				rootState.configData.historyRetention = payload.newConfig.historyRetention
+				rootState.backendMessages.push({
+					seqKey: rootState.seqKey++,
+					msg: `saveConfig: The config document is successfully save in database '${payload.dbName}'`,
+				})
+			})
+			.catch((error) => {
+				const msg = `saveConfig: Could not write config document to database '${payload.dbName}'. ${error}`
+				rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg })
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

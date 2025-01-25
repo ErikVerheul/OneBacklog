@@ -1,4 +1,5 @@
 import { SEV, LEVEL, MISC } from '../../constants.js'
+import { applyRetention, dedup } from '../../common_functions.js'
 
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -42,7 +43,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		})
 			.then((res) => {
-				updatedParentDoc = res.data
+				updatedParentDoc = applyRetention(rootState, res.data)
 				const newHist = {
 					itemRestoredEvent: [updatedParentDoc.level, updatedParentDoc.subtype],
 					by: rootState.userData.user,
@@ -144,7 +145,7 @@ const actions = {
 		}
 
 		const results = payload.results
-		const docs = results.map((r) => r.doc)
+		const docs = results.map((r) => applyRetention(rootState, r.doc))
 		// all docs have the same parent and level
 		const sharedDocLevel = docs[0].level
 		let parentNode = undefined
@@ -206,7 +207,7 @@ const actions = {
 			url: rootState.userData.currentDb + '/' + _id,
 		})
 			.then((res) => {
-				const removedBranchRootDoc = res.data
+				const removedBranchRootDoc = applyRetention(rootState, res.data)
 				const newHist = {
 					undoBranchRemovalEvent: [
 						globalEntry.removedNode._id,
@@ -322,14 +323,14 @@ const actions = {
 	 * This action is called after that all nodes are restored
 	 */
 	restoreExtDepsAndConds({ rootState, dispatch }) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const d of globalEntry.removedExtDependencies) {
-			docsToGet.push({ id: d.id })
+			docIdsToGet.push({ id: d.id })
 		}
 		for (const c of globalEntry.removedExtConditions) {
-			docsToGet.push({ id: c.id })
+			docIdsToGet.push({ id: c.id })
 		}
-		if (docsToGet.length === 0) {
+		if (docIdsToGet.length === 0) {
 			// no conds or deps to restore
 			if (globalEntry.removedNode.productId === MISC.AREA_PRODUCTID) {
 				// restore the removed references to the requirement area
@@ -342,34 +343,32 @@ const actions = {
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
 				const errors = []
 				for (const r of results) {
-					const doc = r.docs[0].ok
-					if (doc) {
-						// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
-						if (doc.dependencies) {
-							for (const d of globalEntry.removedExtDependencies) {
-								if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
-							}
+					const doc = applyRetention(rootState, r.docs[0].ok)
+					// restore removed dependencies if the array exists (when not the dependency cannot be removed from this document)
+					if (doc.dependencies) {
+						for (const d of globalEntry.removedExtDependencies) {
+							if (d.id === doc._id) doc.dependencies.push(d.dependentOn)
 						}
-						// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
-						if (doc.conditionalFor) {
-							for (const c of globalEntry.removedExtConditions) {
-								if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
-							}
-						}
-						const newHist = {
-							ignoreEvent: ['restoreExtDepsAndConds'],
-							timestamp: Date.now(),
-						}
-						doc.history.unshift(newHist)
-						docs.push(doc)
 					}
+					// restore removed conditions if the array exists (when not the condition cannot be removed from this document)
+					if (doc.conditionalFor) {
+						for (const c of globalEntry.removedExtConditions) {
+							if (c.id === doc._id) doc.conditionalFor.push(c.conditionalFor)
+						}
+					}
+					const newHist = {
+						ignoreEvent: ['restoreExtDepsAndConds'],
+						timestamp: Date.now(),
+					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
 					if (r.docs[0].error) errors.push(r.docs[0].error)
 				}
 				if (errors.length > 0) {
@@ -401,33 +400,31 @@ const actions = {
 
 	/* Restore the requirement area references */
 	restoreReqarea({ rootState, dispatch }) {
-		const docsToGet = []
+		const docIdsToGet = []
 		for (const id of globalEntry.itemsRemovedFromReqArea) {
-			docsToGet.push({ id: id })
+			docIdsToGet.push({ id })
 		}
-		if (docsToGet.length === 0) {
+		if (docIdsToGet.length === 0) {
 			dispatch('updateRemovedBranchParentHist', globalEntry)
 			return
 		}
 		globalAxios({
 			method: 'POST',
 			url: rootState.userData.currentDb + '/_bulk_get',
-			data: { docs: docsToGet },
+			data: { docs: docIdsToGet },
 		})
 			.then((res) => {
 				const results = res.data.results
 				const docs = []
 				for (const r of results) {
-					const doc = r.docs[0].ok
-					if (doc) {
-						doc.reqarea = globalEntry.removedNode._id
-						const newHist = {
-							ignoreEvent: ['restoreReqarea'],
-							timestamp: Date.now(),
-						}
-						doc.history.unshift(newHist)
-						docs.push(doc)
+					const doc = applyRetention(rootState, r.docs[0].ok)
+					doc.reqarea = globalEntry.removedNode._id
+					const newHist = {
+						ignoreEvent: ['restoreReqarea'],
+						timestamp: Date.now(),
 					}
+					doc.history.unshift(newHist)
+					docs.push(doc)
 				}
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,

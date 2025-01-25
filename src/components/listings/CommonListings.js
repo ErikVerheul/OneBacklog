@@ -412,7 +412,7 @@ const methods = {
 	},
 
 	mkUploadAttachmentEvent(value) {
-		return "<h6>Attachment with title '" + value[0] + "' of type " + value[2] + ' and size ' + value[1] + ' is uploaded.</h6>'
+		return `<h6>Attachment with file name '${value[0]}' of type ${value[2]} and size ${value[1]} is uploaded.</h6>`
 	},
 
 	mkComment(value) {
@@ -420,8 +420,7 @@ const methods = {
 	},
 
 	mkResetCommentsEvent(value) {
-		if (value[1]) return `<h6> ${value[0]} Comment items older than ${value[1]} days are removed in a cleanup initiated by an admistrator.</h6>`
-		return `<h6> ${value[0]} Comment items are removed in a cleanup initiated by an admistrator.</h6>`
+		return `<h6>${value[0]} Comment items older than ${new Date(value[1]).toString().substring(0, 33)} are removed in a cleanup initiated by an administrator.</h6>`
 	},
 
 	mkBy(value) {
