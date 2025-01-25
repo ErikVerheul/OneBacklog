@@ -10,7 +10,7 @@
         <BButton block @click="createNewDb">Create a new database</BButton>
         <BButton block @click="changeMyDb">Change my default database to any available database</BButton>
         <BButton block @click="purgeDb">Purge removed documents and compact the database</BButton>
-        <BButton block variant="warning" @click="remHistAndComm">Remove history and comments</BButton>
+        <BButton block variant="warning" @click="remHistAndComm">Remove old comments on age</BButton>
         <BButton block variant="warning" @click="deleteDb">Delete a database</BButton>
         <BButton block @click="fauxton">All FAUXTON tasks</BButton>
       </BButtonGroup>
@@ -152,10 +152,10 @@
         </div>
       </div>
 
-      <div v-if="optionSelected === 'Remove history and comments'">
-        <h2>Remove history and comments</h2>
+      <div v-if="optionSelected === 'Remove old comments on age'">
+        <h2>Remove all comments in this database older than a set age</h2>
         <BFormGroup>
-          <h5>Select the database you want to reset the history and comments</h5>
+          <h5>Select the database you want to remove the old comments from</h5>
           <BFormRadioGroup v-model="store.state.selectedDatabaseName" :options="store.state.databaseOptions" stacked>
           </BFormRadioGroup>
         </BFormGroup>
@@ -171,12 +171,11 @@
           </BCol>
         </BRow>
         <hr>
-        <BButton v-if="!store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove
-          history and comments</BButton>
+        <BButton v-if="!store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove old comments</BButton>
         <BButton v-if="!store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
         <div v-if="store.state.isHistAndCommReset">
-          <h4>Success! History and comments are removed</h4>
+          <h4>Success! Old comments are removed</h4>
         </div>
         <div v-else>
           <h4 v-if="asyncFired">Please wait ... Failure? See the log</h4>
@@ -409,7 +408,7 @@ export default {
 
     remHistAndComm() {
       this.asyncFired = false
-      this.optionSelected = 'Remove history and comments'
+      this.optionSelected = 'Remove old comments on age'
       this.localMessage = ''
       store.state.isHistAndCommReset = false
       // get all non sytem & non backup databases
