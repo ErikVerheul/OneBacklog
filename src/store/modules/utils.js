@@ -315,7 +315,7 @@ const actions = {
 			url: payload.dbName + '/_all_docs',
 		})
 			.then((res) => {
-				rootState.isHistAndCommReset = false
+				rootState.IsCommentsReset = false
 				rootState.backendMessages = []
 				const docIdsToUpdate = []
 				for (let i = 0; i < res.data.rows.length; i++) {
@@ -384,7 +384,7 @@ const actions = {
 					docs,
 					caller: 'resetHistAndComm',
 					onSuccessCallback: () => {
-						rootState.isHistAndCommReset = true
+						rootState.IsCommentsReset = true
 					},
 				})
 			})

@@ -171,10 +171,10 @@
           </BCol>
         </BRow>
         <hr>
-        <BButton v-if="!store.state.isHistAndCommReset" class="m-1" @click="doRemHistAndComm" variant="primary">Remove old comments</BButton>
-        <BButton v-if="!store.state.isHistAndCommReset" class="m-1" @click="cancel">Cancel</BButton>
+        <BButton v-if="!store.state.IsCommentsReset" class="m-1" @click="doRemoveOldComments" variant="primary">Remove old comments</BButton>
+        <BButton v-if="!store.state.IsCommentsReset" class="m-1" @click="cancel">Cancel</BButton>
         <BButton v-else class="m-1" @click="cancel" variant="primary">Return</BButton>
-        <div v-if="store.state.isHistAndCommReset">
+        <div v-if="store.state.IsCommentsReset">
           <h4>Success! Old comments are removed</h4>
         </div>
         <div v-else>
@@ -410,14 +410,14 @@ export default {
       this.asyncFired = false
       this.optionSelected = 'Remove old comments on age'
       this.localMessage = ''
-      store.state.isHistAndCommReset = false
+      store.state.IsCommentsReset = false
       // get all non sytem & non backup databases
       store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
     },
 
-    doRemHistAndComm() {
+    doRemoveOldComments() {
       this.asyncFired = true
-      store.dispatch('remHistAndCommAsync', { dbName: store.state.selectedDatabaseName, age: this.removeAge })
+      store.dispatch('removeOldCommentsAsync', { dbName: store.state.selectedDatabaseName, age: this.removeAge })
     },
 
     deleteDb() {

@@ -158,7 +158,7 @@ const store = createStore({
 			isCurrentDbChanged: false,
 			isDatabaseCreated: false,
 			isDbDeleted: false,
-			isHistAndCommReset: false,
+			IsCommentsReset: false,
 			isLogLoaded: false,
 			isProductAssigned: false,
 			isProductCreated: false,
