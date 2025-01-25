@@ -309,7 +309,7 @@ const actions = {
 			})
 	},
 
-	remHistAndCommAsync({ rootState, state, dispatch }, payload) {
+	removeOldCommentsAsync({ rootState, state, dispatch }, payload) {
 		globalAxios({
 			method: 'GET',
 			url: payload.dbName + '/_all_docs',
@@ -361,6 +361,12 @@ const actions = {
 						}
 						// place at the end of the array
 						doc.comments.push(newComment)
+						// make sure this change is ignored by the synchronization
+						const newHist = {
+							ignoreEvent: ['resetHistAndComm'],
+							timestamp: Date.now(),
+						}
+						docs.history.unshift(newHist)
 						docs.push(doc)
 					}
 					if (r.docs[0].error) error.push(r.docs[0].error)
