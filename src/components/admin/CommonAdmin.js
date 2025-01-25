@@ -51,6 +51,8 @@ function data() {
 		teamOptions: [],
 		canRemoveLastProduct: true,
 		canRemoveDatabase: true,
+		maxHistoryDays: 365,
+		maxHistoryEvents: 100,
 	}
 }
 
@@ -140,6 +142,14 @@ const methods = {
 		this.getUserFirst = false
 		this.dbIsSelected = false
 		store.state.areTeamsRemoved = false
+	},
+
+	setHistoryPreservation() {
+		this.optionSelected = 'Set the history retention paramaters'
+		this.maxHistoryDays = store.state.configData.historyRetention.maxHistoryDays
+		this.maxHistoryEvents = store.state.configData.historyRetention.maxHistoryEvents
+		store.state.backendMessages = []
+		this.dbIsSelected = false
 	},
 
 	doAfterDbIsSelected() {
@@ -571,6 +581,14 @@ const methods = {
 
 	doGetTeamsOfDb() {
 		store.dispatch('fetchTeamsAction', store.state.selectedDatabaseName)
+	},
+
+	doSaveHistoryRetentionSettings() {
+		store.dispatch('updateRetentionSettings', {
+			dbName: store.state.selectedDatabaseName,
+			maxHistoryDays: this.maxHistoryDays,
+			maxHistoryEvents: this.maxHistoryEvents,
+		})
 	},
 
 	userIsMe() {

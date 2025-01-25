@@ -20,6 +20,7 @@
           <br />
           <BButton block @click="maintainDefaultSprintCalendar">Maintain the default sprint calendar</BButton>
           <BButton block @click="createOrUpdateTeamCalendar">Create / Maintain a team sprint calendar</BButton>
+          <BButton block @click="setHistoryPreservation">Set the history retention paramaters</BButton>
         </BButtonGroup>
       </template>
       <template v-else>
@@ -415,6 +416,18 @@
               </div>
               <hr>
               <BButton class="m-1" @click="cancel">Return</BButton>
+            </template>
+
+            <template v-else-if="optionSelected === 'Set the history retention paramaters'">
+              <h4>Set the history retention for all items in database '{{ store.state.selectedDatabaseName }}'</h4>
+              <p>This setting will be active immediately for all product items in the database</p>
+              <p>Enter number of days the history items are kept:</p>
+              <BFormInput v-model="maxHistoryDays"></BFormInput>
+              <p>Enter maximum number of history items to keep:</p>
+              <BFormInput v-model="maxHistoryEvents"></BFormInput>
+              <BButton v-if="maxHistoryDays > 0 && maxHistoryEvents > 0" class="m-3" @click="doSaveHistoryRetentionSettings" variant="primary">
+                Save</BButton>
+              <BButton class="m-3" @click="cancel">Cancel</BButton>
             </template>
           </div>
         </template>
