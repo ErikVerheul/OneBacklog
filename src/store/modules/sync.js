@@ -217,7 +217,7 @@ const actions = {
 
 				reportOddTimestamp(lastHistObj, doc._id)
 				if (doc._id === rootState.currentDoc._id) {
-					// replace encoded text fields and remove 'ignoreEvent' elements from history and update the currentDoc
+					// replace encoded text fields
 					rootState.currentDoc = prepareDocForPresentation(doc)
 				}
 				if (rootState.debug) console.log('sync:update the tree with event ' + histEvent)
