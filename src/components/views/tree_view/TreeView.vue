@@ -169,7 +169,7 @@
 
             <template v-slot:dependencyviolation="{ node }">
               <template v-if="store.state.userData.myOptions.proUser === 'true' && node.tmp.markedViolations">
-                <template v-for="col in rowLength(node.tmp.markedViolations) + 1">
+                <template v-for="col in rowLength(node.tmp.markedViolations) + 1" :key="col">
                   <!-- note that col starts with the initial value of 1 instead of 0 -->
                   <span class="violation-column">{{ createRow(node.tmp.markedViolations)[col - 2] }}</span>
                 </template>
