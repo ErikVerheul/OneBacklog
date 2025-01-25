@@ -3,6 +3,18 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.9.0 - 25 January 2025 New feature and refactoring</h3>
+        <p>New feature</p>
+        <ul>
+          <li>Enable the admin role to set the history retention parameters</li>
+          <li>Old events stored in the history of each backlog item are automatically removed by age or number of stored events as set bij the admin</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>Improved presentation of dependency violations in the tree view</li>
+          <li>The database admin feature to remove old history and comments is now restricted to comments only</li>
+          <li>Extra debugging removed</li>
+        </ul>
         <h3>v.2.8.0 - 18 January 2025 New feature, bug fixes and refactoring</h3>
         <p>New feature</p>
         <ul>
