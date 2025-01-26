@@ -993,8 +993,6 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = res.data
-				// add the productId this message applies to
-				tmpDoc.productId = rootState.currentProductId
 				// replace the history
 				tmpDoc.history = [trigger]
 				dispatch('updateDoc', { dbName: rootState.userData.currentDb, updatedDoc: tmpDoc, caller: 'sendMessageAsync' })

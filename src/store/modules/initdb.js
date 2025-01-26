@@ -623,7 +623,7 @@ const actions = {
 
 	/*
 	 * A dummy backlogIten to pass messages to other users. The first element of the history array is used to pass the event to all other open sessions.
-	 * Usage: Load this document, add the field "productId" with value currentProductId and replace the history with the event you want to distribute.
+	 * Usage: Load this document and replace the history with the event you want to distribute.
 	 */
 	createMessenger({ rootState }, dbName) {
 		const _id = 'messenger'
