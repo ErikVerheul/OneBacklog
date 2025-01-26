@@ -328,9 +328,10 @@ timestamp: Date.now()
 distibuted	mailed	listed	event                       	file
 ----------------------------------------------------------------
 Y             Y	     Y    acceptanceEvent	              	update.js
-n/a           n/a    Y    addCommentEvent	              	update.js					// stored in the comments array
+n/a           n/a    Y    addCommentEvent	              	update.js				// stored in the comments array
 Y			  			N	     N    addItemsToSprintEvent						planningboard.js
 Y			  			Y	     Y    addSprintIdsEvent								move.js, planningboard.js
+Y							N 		 N		allItemsAreMoved								move.js					// updates the special Messenger doc
 Y			  			N	     N    boardReloadEvent								planningboard.js
 Y             N	     N    changeReqAreaColorEvent         update.js
 N             N	     Y    clonedBranchEvent	              clone.js

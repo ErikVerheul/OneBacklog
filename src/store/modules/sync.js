@@ -279,6 +279,15 @@ const actions = {
 							commit('updateNodewithDocChange', { node, sprintId: doc.sprintId, lastOtherChange: doc.lastOtherChange })
 							showSyncMessage(`set the sprint for`, SEV.INFO)
 							break
+						case 'allItemsAreMoved':
+							// check for created or resolved dependency violations; show a dedicated message if found
+							if (rootState.helpersRef.checkDepencyViolations(false)) {
+								commit('addToEventList', {
+									txt: 'This move created a dependency violation. Wait for the creator to fix it or undo the move or remove the dependency',
+									severity: SEV.WARNING,
+								})
+							}
+							break
 						case 'changeReqAreaColorEvent':
 							commit('updateColorMapper', { id: doc._id, newColor: doc.color })
 							showSyncMessage(`changed the color indication of ${rootState.helpersRef.getLevelText(doc.level, doc.subtype)} '${doc.title}'`, SEV.INFO, true)
@@ -331,13 +340,6 @@ const actions = {
 						case 'nodeMovedEvent':
 							moveNode(node, doc.parentId)
 							showSyncMessage(`moved`, SEV.INFO)
-							// check for created or resolved dependency violations; show a dedicated if found
-							if (rootState.helpersRef.checkDepencyViolations(false)) {
-								commit('addToEventList', {
-									txt: 'This move created a dependency violation. Wait for the creator to fix it or undo the move or remove the dependency',
-									severity: SEV.WARNING,
-								})
-							}
 							break
 						case 'removeAttachmentEvent':
 							commit('updateNodewithDocChange', { node, lastAttachmentRemoval: doc.lastAttachmentRemoval })
