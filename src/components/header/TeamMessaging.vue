@@ -4,7 +4,7 @@
       <label for="newMsgId">Message title</label>
       <BFormInput id="newMsgId" v-model="store.state.newMsgTitle" placeholder="Your message must have a title" />
       <p class="mt-3 mb-0">Your message</p>
-      <QuillEditor v-model:content=store.state.myNewMessage contentType="html"></QuillEditor>
+      <QuillyEditor v-model=store.state.myNewMessage :is-semantic-html-model="true"></QuillyEditor>
       <BButton :disabled="canNotSave" class="mt-3" variant="primary" @click="saveMessage">{{ getSaveButtonText() }}</BButton>
     </BCard>
     <h2 class="mt-3">Your team messages</h2>

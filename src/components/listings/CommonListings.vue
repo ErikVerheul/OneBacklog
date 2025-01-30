@@ -75,7 +75,7 @@
 
   <template>
     <BModal size="lg" v-model="editMyText" scrollable @ok="replaceEditedComment" title="Edit your comment">
-      <QuillEditor v-model:content=myLastText contentType="html"></QuillEditor>
+      <QuillyEditor v-model=myLastText :is-semantic-html-model="true"></QuillyEditor>
     </BModal>
   </template>
 </template>

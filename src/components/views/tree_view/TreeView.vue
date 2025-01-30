@@ -1,4 +1,4 @@
-// note about the QuillEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
+// note about the QuillyEditor: the @blur event does not work as expected. See https://github.com/quilljs/quill/issues/1680
 <template>
   <div>
     <app-header>
@@ -242,8 +242,9 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="store.state.currentDoc.description" contentType="html" @update:content="isDescriptionEdited = true"
-              @blur="updateDescriptionAtBlur(getSelectedNode)"></QuillEditor>
+            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @text-change="isDescriptionEdited = true"
+              @blur="updateDescriptionAtBlur(getSelectedNode)">
+            </QuillyEditor>
           </div>
           <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '45px', top: '5px' }">
@@ -252,8 +253,8 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillEditor v-model:content="store.state.currentDoc.acceptanceCriteria" contentType="html" @update:content="isAcceptanceEdited = true"
-              @blur="updateAcceptanceAtBlur(getSelectedNode)"></QuillEditor>
+            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @text-change="isAcceptanceEdited = true"
+              @blur="updateAcceptanceAtBlur(getSelectedNode)"></QuillyEditor>
           </div>
           <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '75px', top: '5px' }">
@@ -320,7 +321,7 @@
     </BModal>
 
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-      <QuillEditor v-model:content=newComment contentType="html"></QuillEditor>
+      <QuillyEditor v-model=newComment :is-semantic-html-model="true"></QuillyEditor>
     </BModal>
 
     <BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
