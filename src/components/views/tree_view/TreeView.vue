@@ -242,7 +242,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @text-change="isDescriptionEdited = true"
+            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true"
               @blur="updateDescriptionAtBlur(getSelectedNode)">
             </QuillyEditor>
           </div>
@@ -253,7 +253,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @text-change="isAcceptanceEdited = true"
+            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true"
               @blur="updateAcceptanceAtBlur(getSelectedNode)"></QuillyEditor>
           </div>
           <MultipaneResizer></MultipaneResizer>

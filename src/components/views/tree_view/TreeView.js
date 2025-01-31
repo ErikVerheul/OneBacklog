@@ -31,8 +31,6 @@ function data() {
 		// comments, history and attachments
 		doAddition: false,
 		startFiltering: false,
-		isDescriptionEdited: false,
-		isAcceptanceEdited: false,
 		isCommentsFilterActive: false,
 		isHistoryFilterActive: false,
 		newComment: MISC.EMPTYQUILL,
@@ -504,17 +502,13 @@ const methods = {
 
 	/* Tree and database update methods */
 	updateDescriptionAtBlur(node) {
-		if (
-			this.isDescriptionEdited &&
-			this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')
-		) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
 				newDescription: store.state.currentDoc.description,
 				timestamp: Date.now(),
 			})
 		}
-		this.isDescriptionEdited = false
 	},
 
 	updateDescriptionOnNodeSelect(payload) {
@@ -533,17 +527,13 @@ const methods = {
 	},
 
 	updateAcceptanceAtBlur(node) {
-		if (
-			this.isAcceptanceEdited &&
-			this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')
-		) {
+		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
 				newAcceptance: store.state.currentDoc.acceptanceCriteria,
 				timestamp: Date.now(),
 			})
 		}
-		this.isAcceptanceEdited = false
 	},
 
 	updateAcceptanceOnNodeSelect(payload) {
@@ -793,22 +783,16 @@ const methods = {
 	/* event handling */
 	onNodesSelected() {
 		const onSuccessCallback = () => {
-			this.isDescriptionEdited = false
-			this.isAcceptanceEdited = false
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
 
 		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		if (this.isDescriptionEdited) {
-			this.updateDescriptionOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
-		} else if (this.isAcceptanceEdited) {
-			this.updateAcceptanceOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
-		} else {
-			// load the selected document
-			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
-		}
+		this.updateDescriptionOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		this.updateAcceptanceOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
+		// load the selected document
+		store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */

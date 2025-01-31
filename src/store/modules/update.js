@@ -575,10 +575,15 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// decode from base64
-				rootState.oldDescription = b64ToUni(tmpDoc.description)
 				// encode to base64
 				const newEncodedDescription = uniTob64(payload.newDescription)
+				if (tmpDoc.description === newEncodedDescription) {
+					if (rootState.debug) console.log('saveDescription: description is unchanged')
+					return
+				}
+
+				// decode from base64
+				rootState.oldDescription = b64ToUni(tmpDoc.description)
 				const newHist = {
 					descriptionEvent: [tmpDoc.description, newEncodedDescription],
 					by: rootState.userData.user,
@@ -643,10 +648,15 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// decode from base64
-				rootState.oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
 				// encode to base64
 				const newEncodedAcceptance = uniTob64(payload.newAcceptance)
+				if (tmpDoc.acceptanceCriteria === newEncodedAcceptance) {
+					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')
+					return
+				}
+
+				// decode from base64
+				rootState.oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
 				const newHist = {
 					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
 					by: rootState.userData.user,
