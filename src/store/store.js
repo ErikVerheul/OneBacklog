@@ -88,6 +88,7 @@ const store = createStore({
 			helpersRef: null,
 			// console log settings
 			debug: import.meta.env.VITE_DEBUG === 'true' || false,
+			debugAccess: import.meta.env.VITE_DEBUG_ACCESS === 'true' || false,
 			debugConnectionAndLogging: import.meta.env.VITE_DEBUG_CONNECTION === 'true' || false,
 			// creating a CouchDb instance
 			isDatabaseInitiated: false,
@@ -124,11 +125,11 @@ const store = createStore({
 			filterForCommentSearchString: '',
 			filterForHistorySearchString: '',
 			freezeEvent: false,
+			lastLoadedDocId: undefined,
 			moveOngoing: false,
 			newEventKey: 0,
 			oldAcceptance: MISC.EMPTYQUILL,
 			oldDescription: MISC.EMPTYQUILL,
-			previousSelectedNodes: undefined,
 			progressMessage: '',
 			reqAreaMapper: {},
 			searchOn: false,
@@ -314,13 +315,6 @@ const store = createStore({
 				}
 				return screenedSubscriptions
 			} else return []
-		},
-
-		/* Return the previous selected node or the currently selected node if no previous node was selected */
-		getPreviousNodeSelected(state, getters) {
-			if (state.previousSelectedNodes) {
-				return state.previousSelectedNodes.slice(-1)[0]
-			} else return getters.getSelectedNode
 		},
 
 		getTreeModel(state) {
@@ -603,7 +597,6 @@ const store = createStore({
 
 		addSelectedNode(state, newNode) {
 			if (newNode.isSelectable) {
-				state.previousSelectedNodes = state.selectedNodes || [newNode]
 				newNode.isSelected = true
 				if (!state.selectedNodes.includes(newNode)) state.selectedNodes.push(newNode)
 			}
@@ -612,8 +605,7 @@ const store = createStore({
 		/* If the node is selectable, store the currently selected nodes, unselect all previous selected nodes and select the node */
 		renewSelectedNodes(state, newNode) {
 			if (newNode.isSelectable) {
-				state.previousSelectedNodes = state.selectedNodes || [newNode]
-				for (const n of state.selectedNodes) if (n) n.isSelected = false
+				for (const n of state.selectedNodes) n.isSelected = false
 				newNode.isSelected = true
 				state.selectedNodes = [newNode]
 			}
@@ -624,6 +616,8 @@ const store = createStore({
 			if (payload.newDoc) {
 				// replace encoded text fields
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
+				state.lastLoadedDocId = payload.newDoc._id
+				console.log('updateNodewithDocChange: state.lastLoadedDocId = ' + state.lastLoadedDocId)
 			} else {
 				const node = payload.node
 				const keys = Object.keys(payload)

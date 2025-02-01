@@ -82,10 +82,11 @@ const authorization = {
 				}
 			}
 			if (this.getMyProductsRoles[productId]) {
-				if (store.state.debug)
+				if (store.state.debugAccess)
 					console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 
-				if (store.state.debug) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, user story, TASK]: ${levels}`)
+				if (store.state.debugAccess)
+					console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, user story, TASK]: ${levels}`)
 			}
 			return levels[level]
 		},
@@ -143,7 +144,6 @@ const utilities = {
 			'getCurrentItemState',
 			'getCurrentItemTsSize',
 			'getItemSprintName',
-			'getPreviousNodeSelected',
 			'getSelectedNode',
 			'getLastEventBGColor',
 			'getLastEventTextColor',
@@ -241,7 +241,7 @@ const utilities = {
 				if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}.`
 				if (roles.length === 4) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]} and ${roles[3]}.`
 				if (roles.length === 5) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]}, ${roles[3]} and ${roles[4]}.`
-				return `roles cannot have more than 3 values!`
+				return `roles cannot have more than 5 values!`
 			}
 			// update the event message bar
 			let evt = ''
