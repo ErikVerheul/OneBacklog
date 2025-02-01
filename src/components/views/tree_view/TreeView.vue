@@ -41,7 +41,7 @@
               <label for="tShirtSizeId">T-Shirt size</label>
             </BCol>
             <BCol cols="1">
-              <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @input="prepUpdate(store.state.currentDoc)" @blur="updateTsSize()" />
+              <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)" @keydown.enter="updateTsSize()" @blur="updateTsSize()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -50,8 +50,8 @@
               <label for="storyPointsId">Story points</label>
             </BCol>
             <BCol cols="1">
-              <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @input="prepUpdate(store.state.currentDoc)"
-                @blur="updateStoryPoints()" />
+              <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @update:model-value="prepUpdate(store.state.currentDoc)"
+              @keydown.enter="updateStoryPoints()" @blur="updateStoryPoints()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -60,8 +60,8 @@
               <label for="personHoursId">Person hrs</label>
             </BCol>
             <BCol cols="1">
-              <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @input="prepUpdate(store.state.currentDoc)"
-                @blur="updatePersonHours()" />
+              <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @update:model-value="prepUpdate(store.state.currentDoc)"
+              @keydown.enter="updatePersonHours()" @blur="updatePersonHours()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -201,8 +201,8 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @input="prepUpdate(store.state.currentDoc)"
-                @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @update:model-value="prepUpdate(store.state.currentDoc)"
+              @keydown.enter="updateTitle()" @blur="updateTitle()"></BFormInput>
               <div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
