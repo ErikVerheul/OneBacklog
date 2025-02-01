@@ -565,6 +565,56 @@ const actions = {
 			})
 	},
 
+	/*
+	 * The currentDoc acceptanceCriteria and description might be edited while the previous node was selected
+	 * The non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
+	 */
+	updateDescriptionOrAcceptance({ rootState, dispatch }, payload) {
+		function finishWithoutUpdate(payload) {
+			// execute passed actions if provided
+			dispatch('dispatchAdditionalActions', payload)
+			// execute passed function if provided
+			if (payload.onSuccessCallback) payload.onSuccessCallback()
+		}
+		console.log('rootState.debugAccess = ' + rootState.debugAccess)
+		const node = payload.node
+		const id = node._id
+		if (payload.isUndoAction) rootState.busyWithLastUndo = true
+		globalAxios({
+			method: 'GET',
+			url: rootState.userData.currentDb + '/' + id,
+		})
+			.then((res) => {
+				const tmpDoc = applyRetention(rootState, res.data)
+				const decodedDescription = b64ToUni(tmpDoc.description).replace(/&nbsp;/g, ' ')
+				const decodedAcceptance = b64ToUni(tmpDoc.acceptanceCriteria).replace(/&nbsp;/g, ' ')
+				if (decodedDescription === payload.newDescription && decodedAcceptance === payload.newAcceptance) {
+					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria are unchanged')
+					finishWithoutUpdate(payload)
+					return
+				} else if (decodedDescription !== payload.newDescription && decodedAcceptance !== payload.newAcceptance) {
+					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria cannot be changed together')
+					finishWithoutUpdate(payload)
+					return
+				}
+
+				// the description or the acceptance criteria have changed (not both)
+
+				if (decodedDescription !== payload.newDescription) {
+					dispatch('saveDescription', payload)
+				}
+
+				if (decodedAcceptance !== payload.newAcceptance) {
+					dispatch('saveAcceptance', payload)
+				}
+			})
+			.catch((error) => {
+				if (payload.isUndoAction) rootState.busyWithLastUndo = false
+				const msg = `updateDescriptionOrAcceptance: Could not read document with id ${id}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
 	saveDescription({ rootState, commit, dispatch }, payload) {
 		const node = payload.node
 		const id = node._id
@@ -575,7 +625,7 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// encode to base64
+				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
 				const newEncodedDescription = uniTob64(payload.newDescription)
 				if (tmpDoc.description === newEncodedDescription) {
 					if (rootState.debug) console.log('saveDescription: description is unchanged')
@@ -648,7 +698,7 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// encode to base64
+				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
 				const newEncodedAcceptance = uniTob64(payload.newAcceptance)
 				if (tmpDoc.acceptanceCriteria === newEncodedAcceptance) {
 					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')

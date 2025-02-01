@@ -505,25 +505,22 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
-				newDescription: store.state.currentDoc.description,
+				newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
 		}
 	},
 
-	updateDescriptionOnNodeSelect(payload) {
-		const node = payload.node
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
-			store.dispatch('saveDescription', {
-				node,
-				newDescription: store.state.currentDoc.description,
-				timestamp: Date.now(),
-				toDispatch: [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }],
-			})
-		} else {
-			// update skipped when not permitted; load the doc of last clicked node
-			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
-		}
+	updateDocOnNodeSelect(payload) {
+		const node = store.state.helpersRef.getNodeById(payload.lastId)
+		// the currentDoc acceptanceCriteria or description might be edited while the previous node was selected
+		store.dispatch('updateDescriptionOrAcceptance', {
+			node,
+			newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
+			newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
+			timestamp: Date.now(),
+			toDispatch: [{ loadDoc: { id: payload.newId, onSuccessCallback: payload.onSuccessCallback } }],
+		})
 	},
 
 	updateAcceptanceAtBlur(node) {
@@ -533,21 +530,6 @@ const methods = {
 				newAcceptance: store.state.currentDoc.acceptanceCriteria,
 				timestamp: Date.now(),
 			})
-		}
-	},
-
-	updateAcceptanceOnNodeSelect(payload) {
-		const node = payload.node
-		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
-			store.dispatch('saveAcceptance', {
-				node,
-				newAcceptance: store.state.currentDoc.acceptanceCriteria,
-				timestamp: Date.now(),
-				toDispatch: [{ loadDoc: { id: this.getSelectedNode._id, onSuccessCallback: payload.cb } }],
-			})
-		} else {
-			// update skipped when not permitted; load the doc of last clicked node
-			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback: payload.cb })
 		}
 	},
 
@@ -787,12 +769,17 @@ const methods = {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
-
-		// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-		this.updateDescriptionOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
-		this.updateAcceptanceOnNodeSelect({ node: this.getPreviousNodeSelected, cb: onSuccessCallback })
-		// load the selected document
-		store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
+		if (
+			this.haveAccessInTree(
+				store.state.currentProductId,
+				this.getCurrentItemLevel,
+				store.state.currentDoc.team,
+				'change the description or acceptance criteria of this item',
+			)
+		) {
+			// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
+			this.updateDocOnNodeSelect({ lastId: store.state.lastLoadedDocId, newId: this.getSelectedNode._id, onSuccessCallback })
+		}
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
