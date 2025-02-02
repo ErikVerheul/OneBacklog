@@ -315,6 +315,7 @@ cd to the root directory of this app and use your favorite editor to create a fi
 ```
 VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
 VITE_DEBUG=false // set to true to see console log messages on most critical events
+VITE_DEBUG_ACCESS=false  // set to true to see console log messages regarding the user access rigths
 VITE_DEBUG_CONNECTION=false // set to true to see console log messages regarding the CouchDb cookie authentication renewal
 VITE_SITE_URL=http://localhost:8080 # or https://<your remote host> when the CouchDb instance is hosted in the cloud
 VITE_API_URL=http://localhost:5984 # or https://<your remote host>:6984 when the CouchDb instance is hosted in the cloud
