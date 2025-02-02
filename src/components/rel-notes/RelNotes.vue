@@ -3,6 +3,20 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.2.10.0 - 2 February 2025 New features, bug fix and refactoring</h3>
+        <p>New features</p>
+        <ul>
+          <li>VITE_DEBUG_ACCESS setting added to the development environment</li>
+          <li>Also update Title, Story points, T-shirt size and Person hours on hitting the return key (apart from clicking somewhere else (@blur))</li>
+        </ul>
+        <p>Bug fix</p>
+        <ul>
+          <li>Fix the updates of the description or acceptance criteria when nothing did change</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>The Quill wrapper is replaced with the newer QuillyEditor Vue3 wrapper</li>
+        </ul>
         <h3>v.2.9.0 - 25 January 2025 New feature and refactoring</h3>
         <p>New feature</p>
         <ul>
