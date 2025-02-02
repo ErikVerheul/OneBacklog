@@ -160,14 +160,10 @@ export default {
   margin: 3px;
 }
 
-.p1 {
-  font-size: 12px;
-}
-
 .list-body {
   padding: 10px 0px 10px 0px;
   text-align: left;
-  font-size: 16px;
-  line-height: 1.6;
+  font-family: sans-serif;
+  font-size: 12px;
 }
 </style>
