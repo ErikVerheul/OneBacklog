@@ -50,13 +50,12 @@ export function applyRetention(rootState, doc) {
 
 /* Set default team and decode text fields */
 export function prepareDocForPresentation(doc) {
-	let preptDoc = doc
 	// set default team
-	if (preptDoc.level > LEVEL.EPIC && !preptDoc.team) preptDoc.team = MISC.NOTEAM
+	if (doc.level > LEVEL.EPIC && !doc.team) doc.team = MISC.NOTEAM
 	// decode from base64
-	preptDoc.description = b64ToUni(doc.description)
-	preptDoc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
-	return preptDoc
+	doc.description = b64ToUni(doc.description)
+	doc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
+	return doc
 }
 
 //////////////// expand, collapse and show or hide the children of the node ////////////
