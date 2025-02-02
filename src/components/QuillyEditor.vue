@@ -10,7 +10,6 @@ import 'quill/dist/quill.snow.css'
 
 const editor = ref()
 const content = ref('<p><br></p>')
-let quill
 
 const options = ref({
   theme: 'snow',
@@ -21,7 +20,7 @@ const options = ref({
       [{ list: 'ordered' }, { list: 'bullet' }],
       [{ indent: '-1' }, { indent: '+1' }], // outdent/indent
       ['link', 'image', 'code-block'],
-      ['clean'] // Remove formatting button
+      ['clean'] // remove formatting button
     ],
   },
   placeholder: 'Insert text here ...',
@@ -29,7 +28,7 @@ const options = ref({
 })
 
 onMounted(() => {
-  quill = editor.value.initialize(Quill)
+  editor.value.initialize(Quill)
 })
 
 </script>
