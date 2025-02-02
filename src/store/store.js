@@ -614,10 +614,9 @@ const store = createStore({
 		/* The keys of the payload object are evaluated by key name and value */
 		updateNodewithDocChange(state, payload) {
 			if (payload.newDoc) {
-				// replace encoded text fields
+				// set default team and decode text fields
 				state.currentDoc = prepareDocForPresentation(payload.newDoc)
 				state.lastLoadedDocId = payload.newDoc._id
-				console.log('updateNodewithDocChange: state.lastLoadedDocId = ' + state.lastLoadedDocId)
 			} else {
 				const node = payload.node
 				const keys = Object.keys(payload)
