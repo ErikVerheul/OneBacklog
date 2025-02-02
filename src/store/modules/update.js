@@ -576,7 +576,6 @@ const actions = {
 			// execute passed function if provided
 			if (payload.onSuccessCallback) payload.onSuccessCallback()
 		}
-		console.log('rootState.debugAccess = ' + rootState.debugAccess)
 		const node = payload.node
 		const id = node._id
 		if (payload.isUndoAction) rootState.busyWithLastUndo = true
