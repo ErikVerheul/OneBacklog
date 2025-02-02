@@ -593,7 +593,8 @@ const actions = {
 					finishWithoutUpdate(payload)
 					return
 				} else if (decodedDescription !== payload.newDescription && decodedAcceptance !== payload.newAcceptance) {
-					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria cannot be changed together')
+					const msg = `updateDescriptionOrAcceptance: description and acceptance criteria should not be changed together`
+					dispatch('doLog', { event: msg, level: SEV.ERROR })
 					finishWithoutUpdate(payload)
 					return
 				}
@@ -891,7 +892,7 @@ const actions = {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				if (rootState.currentDoc && id === rootState.currentDoc._id) {
-					// apply changes on the currently selected document
+					// set default team and decode text fields
 					rootState.currentDoc = prepareDocForPresentation(payload.updatedDoc)
 				}
 				// execute passed actions if provided
@@ -942,7 +943,7 @@ const actions = {
 					if (payload.onSuccessCallback) payload.onSuccessCallback()
 					for (const doc of payload.docs) {
 						if (doc._id === rootState.currentDoc._id) {
-							// apply changes on the currently selected document
+							// set default team and decode text fields
 							rootState.currentDoc = prepareDocForPresentation(doc)
 						}
 					}
