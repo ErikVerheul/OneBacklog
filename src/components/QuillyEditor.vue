@@ -3,13 +3,14 @@
 </template>
 
 <script setup>
+import { MISC } from '../constants.js'
 import { onMounted, ref } from 'vue'
 import Quill from 'quill'
 import { QuillyEditor } from 'vue-quilly'
 import 'quill/dist/quill.snow.css'
 
 const editor = ref()
-const content = ref('<p><br></p>')
+const content = ref(MISC.EMPTYQUILL)
 
 const options = ref({
   theme: 'snow',
