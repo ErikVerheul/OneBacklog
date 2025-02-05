@@ -5,7 +5,7 @@
  */
 import { MISC } from '../../constants.js'
 import { utilities } from '../mixins/GenericMixin.js'
-import { b64ToUni } from '../../common_functions.js'
+import { decodeHtml } from '../../common_functions.js'
 import store from '../../store/store.js'
 
 function convertToShortIds(ids) {
@@ -51,8 +51,8 @@ const computed = {
 			const event = Object.keys(commentItem)[0]
 			if (event === 'ignoreEvent') continue
 
-			if (event === 'addCommentEvent') allText += removeImages(this.mkComment(commentItem[event]))
-			if (event === 'replaceCommentEvent') allText += removeImages(this.mkComment(commentItem[event]))
+			if (event === 'addCommentEvent') allText += removeImages(this.mkComment(commentItem[event], commentItem.encoding))
+			if (event === 'replaceCommentEvent') allText += removeImages(this.mkComment(commentItem[event], commentItem.encoding))
 			if (event === 'resetCommentsEvent') allText += this.mkResetCommentsEvent(commentItem[event])
 
 			allText += this.mkBy(commentItem['by'])
@@ -77,7 +77,7 @@ const computed = {
 			if (event === 'ignoreEvent' || !histItem.isListed) continue
 
 			let allText = ''
-			if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
+			if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event], histItem.encoding))
 			if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
 			if (event === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[event])
 			if (event === 'copyItemEvent') allText += this.mkCopyItemEvent(histItem[event])
@@ -86,7 +86,7 @@ const computed = {
 			if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])
 			if (event === 'createRootEvent') allText += this.mkCreateRootEvent(histItem[event])
 			if (event === 'dependencyRemovedEvent') allText += this.mkDependencyRemovedEvent(histItem[event])
-			if (event === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[event]))
+			if (event === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[event], histItem.encoding))
 			if (event === 'importToSprintEvent') allText += this.mkImportToSprintEvent(histItem[event])
 			if (event === 'itemRestoredEvent') allText += this.mkItemRestoredEvent(histItem[event])
 			if (event === 'newChildEvent') allText += this.mkNewChildEvent(histItem[event])
@@ -177,8 +177,8 @@ const methods = {
 		return `User '${histItem.by}' made a change in this ${this.getLevelText(store.state.currentDoc.level, store.state.currentDoc.subtype)}`
 	},
 
-	prepHistoryText(key, value) {
-		if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value)
+	prepHistoryText(key, value, encoding) {
+		if (key === 'acceptanceEvent') return this.mkAcceptanceEvent(value, encoding)
 		if (key === 'addSprintIdsEvent') return this.mkAddSprintIdsEvent(value)
 		if (key === 'clonedBranchEvent') return this.mkClonedBranchEvent(value)
 		if (key === 'commentAmendedEvent') return this.mkCommentAmendedEvent()
@@ -188,7 +188,7 @@ const methods = {
 		if (key === 'createRootEvent') return this.mkCreateRootEvent(value)
 		if (key === 'createTaskEvent') return this.mkCreateTaskEvent(value)
 		if (key === 'dependencyRemovedEvent') return this.mkDependencyRemovedEvent(value)
-		if (key === 'descriptionEvent') return this.mkDescriptionEvent(value)
+		if (key === 'descriptionEvent') return this.mkDescriptionEvent(value, encoding)
 		if (key === 'importToSprintEvent') return this.mkImportToSprintEvent(value)
 		if (key === 'itemRestoredEvent') return this.mkItemRestoredEvent(value)
 		if (key === 'newChildEvent') return this.mkNewChildEvent(value)
@@ -224,17 +224,17 @@ const methods = {
 		return `${this.mkTimestamp(histItem.timestamp)}`
 	},
 
-	prepCommentsText(key, value) {
-		if (key === 'addCommentEvent') return this.mkComment(value)
-		if (key === 'replaceCommentEvent') return this.mkComment(value)
+	prepCommentsText(key, value, encoding) {
+		if (key === 'addCommentEvent') return this.mkComment(value, encoding)
+		if (key === 'replaceCommentEvent') return this.mkComment(value, encoding)
 		if (key === 'resetCommentsEvent') return this.mkResetCommentsEvent(value)
 	},
 
 	/* Presentation methods */
-	mkAcceptanceEvent(value) {
-		return (
-			'<h6>The acceptance criteria of the item have changed:(from/to)<hr></h6>' + replaceEmpty(b64ToUni(value[0])) + '<hr>' + replaceEmpty(b64ToUni(value[1]))
-		)
+	mkAcceptanceEvent(value, encoding) {
+		const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
+		const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
+		return s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding))
 	},
 
 	mkAddSprintIdsEvent(value) {
@@ -287,8 +287,10 @@ const methods = {
 		return `<h6>${s}</h6>`
 	},
 
-	mkDescriptionEvent(value) {
-		return '<h6>The description of the item has changed:(from/to)<hr></h6>' + replaceEmpty(b64ToUni(value[0])) + '<hr>' + replaceEmpty(b64ToUni(value[1]))
+	mkDescriptionEvent(value, encoding) {
+		const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
+		const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
+		return s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding))
 	},
 
 	mkImportToSprintEvent(value) {
@@ -415,8 +417,8 @@ const methods = {
 		return `<h6>Attachment with file name '${value[0]}' of type ${value[2]} and size ${value[1]} is uploaded.</h6>`
 	},
 
-	mkComment(value) {
-		return replaceEmpty(b64ToUni(value[0]))
+	mkComment(value, encoding) {
+		return replaceEmpty(decodeHtml(value[0], encoding))
 	},
 
 	mkResetCommentsEvent(value) {

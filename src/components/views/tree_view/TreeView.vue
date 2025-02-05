@@ -41,7 +41,8 @@
               <label for="tShirtSizeId">T-Shirt size</label>
             </BCol>
             <BCol cols="1">
-              <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)" @keydown.enter="updateTsSize()" @blur="updateTsSize()" />
+              <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)"
+                @keydown.enter="updateTsSize()" @blur="updateTsSize()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -51,7 +52,7 @@
             </BCol>
             <BCol cols="1">
               <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @update:model-value="prepUpdate(store.state.currentDoc)"
-              @keydown.enter="updateStoryPoints()" @blur="updateStoryPoints()" />
+                @keydown.enter="updateStoryPoints()" @blur="updateStoryPoints()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -61,7 +62,7 @@
             </BCol>
             <BCol cols="1">
               <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @update:model-value="prepUpdate(store.state.currentDoc)"
-              @keydown.enter="updatePersonHours()" @blur="updatePersonHours()" />
+                @keydown.enter="updatePersonHours()" @blur="updatePersonHours()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -201,8 +202,8 @@
         <multipane class="horizontal-panes" layout="horizontal">
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
-              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title" @update:model-value="prepUpdate(store.state.currentDoc)"
-              @keydown.enter="updateTitle()" @blur="updateTitle()"></BFormInput>
+              <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title"
+                @update:model-value="prepUpdate(store.state.currentDoc)" @keydown.enter="updateTitle()" @blur="updateTitle()"></BFormInput>
               <div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
@@ -242,8 +243,7 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true"
-              @blur="updateDescriptionAtBlur(getSelectedNode)">
+            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @blur="updateDescriptionAtBlur(getSelectedNode)">
             </QuillyEditor>
           </div>
           <MultipaneResizer></MultipaneResizer>
@@ -253,8 +253,8 @@
             </div>
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
-            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true"
-              @blur="updateAcceptanceAtBlur(getSelectedNode)"></QuillyEditor>
+            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @blur="updateAcceptanceAtBlur(getSelectedNode)">
+            </QuillyEditor>
           </div>
           <MultipaneResizer></MultipaneResizer>
           <div class="pane" :style="{ height: '75px', top: '5px' }">
@@ -358,183 +358,184 @@
 <script src="./TreeView.js"></script>
 
 <style lang="scss" scoped>
-/* horizontal panes */
-.horizontal-panes {
-  width: 100%;
-  border: 1px solid #ccc;
-}
 
-.horizontal-panes>.pane {
-  text-align: left;
-  padding: 5px;
-  overflow: hidden;
-  background: white;
-}
-
-.horizontal-panes>.pane~.pane {
-  border-top: 1px solid #ccc;
-}
-
-/* vertical panes */
-.custom-resizer {
-  width: 100%;
-  height: 100%;
-}
-
-.custom-resizer>.pane {
-  text-align: left;
-  padding: 2px;
-  overflow: hidden;
-  background: #eee;
-  border: 1px solid #ccc;
-}
-
-.custom-resizer>.MultipaneResizer {
-  margin: 0;
-  left: 0;
-  position: relative;
-
-  &:before {
-    display: block;
-    content: "";
-    width: 3px;
-    height: 40px;
-    position: absolute;
-    top: 400px;
-    left: 50%;
-    margin-top: -20px;
-    margin-left: -1.5px;
-    border-left: 1px solid #408fae;
-    border-right: 1px solid #408fae;
+  /* horizontal panes */
+  .horizontal-panes {
+    width: 100%;
+    border: 1px solid #ccc;
   }
 
-  &:hover {
+  .horizontal-panes>.pane {
+    text-align: left;
+    padding: 5px;
+    overflow: hidden;
+    background: white;
+  }
+
+  .horizontal-panes>.pane~.pane {
+    border-top: 1px solid #ccc;
+  }
+
+  /* vertical panes */
+  .custom-resizer {
+    width: 100%;
+    height: 100%;
+  }
+
+  .custom-resizer>.pane {
+    text-align: left;
+    padding: 2px;
+    overflow: hidden;
+    background: #eee;
+    border: 1px solid #ccc;
+  }
+
+  .custom-resizer>.MultipaneResizer {
+    margin: 0;
+    left: 0;
+    position: relative;
+
     &:before {
-      border-color: #999;
+      display: block;
+      content: "";
+      width: 3px;
+      height: 40px;
+      position: absolute;
+      top: 400px;
+      left: 50%;
+      margin-top: -20px;
+      margin-left: -1.5px;
+      border-left: 1px solid #408fae;
+      border-right: 1px solid #408fae;
+    }
+
+    &:hover {
+      &:before {
+        border-color: #999;
+      }
     }
   }
-}
 
-/* other stuff */
-h3 {
-  font-size: 1.4em;
-}
+  /* other stuff */
+  h3 {
+    font-size: 1.4em;
+  }
 
-label {
-  font-size: 1.4em;
-  font-weight: bolder;
-}
+  label {
+    font-size: 1.4em;
+    font-weight: bolder;
+  }
 
-.top-row {
-  margin-top: 10px;
-  max-width: 100%;
-}
+  .top-row {
+    margin-top: 10px;
+    max-width: 100%;
+  }
 
-.filter-button {
-  width: 15em;
-  height: 45px;
-}
+  .filter-button {
+    width: 15em;
+    height: 45px;
+  }
 
-.id-sizing {
-  width: 25em;
-  height: 45px;
-}
+  .id-sizing {
+    width: 25em;
+    height: 45px;
+  }
 
-.group-height {
-  height: 45px;
-}
+  .group-height {
+    height: 45px;
+  }
 
-.d-table {
-  display: table;
-}
+  .d-table {
+    display: table;
+  }
 
-.d-table-cell {
-  display: table-cell;
-  vertical-align: middle;
-}
+  .d-table-cell {
+    display: table-cell;
+    vertical-align: middle;
+  }
 
-.d-table-cell.bold {
-  font-weight: bold;
-}
+  .d-table-cell.bold {
+    font-weight: bold;
+  }
 
-.w-100 {
-  width: 100%;
-}
+  .w-100 {
+    width: 100%;
+  }
 
-.tar {
-  text-align: right;
-}
+  .tar {
+    text-align: right;
+  }
 
-.tac {
-  text-align: center;
-}
+  .tac {
+    text-align: center;
+  }
 
-.tal {
-  text-align: left;
-}
+  .tal {
+    text-align: left;
+  }
 
-.event-list {
-  color: white;
-  padding: 10px;
-  border-radius: 2px;
-}
+  .event-list {
+    color: white;
+    padding: 10px;
+    border-radius: 2px;
+  }
 
-/* tree stuff */
-.last-event {
-  width: 100%;
-  text-align: left;
-  padding: 9px;
-  padding-right: 100px;
-  border-radius: 2px;
-}
+  /* tree stuff */
+  .last-event {
+    width: 100%;
+    text-align: left;
+    padding: 9px;
+    padding-right: 100px;
+    border-radius: 2px;
+  }
 
-.item-icon {
-  display: inline-block;
-  text-align: left;
-  width: 20px;
-  color: skyblue;
-}
+  .item-icon {
+    display: inline-block;
+    text-align: left;
+    width: 20px;
+    color: skyblue;
+  }
 
-.tree-container {
-  flex-grow: 1;
-  height: 100%;
-}
+  .tree-container {
+    flex-grow: 1;
+    height: 100%;
+  }
 
-/* my stuff */
-h3 {
-  height: 45px;
-}
+  /* my stuff */
+  h3 {
+    height: 45px;
+  }
 
-.note {
-  background: #eee;
-}
+  .note {
+    background: #eee;
+  }
 
-.messSquare {
-  position: absolute;
-  right: 50px;
-  padding: 5px;
-  margin: 5px;
-}
+  .messSquare {
+    position: absolute;
+    right: 50px;
+    padding: 5px;
+    margin: 5px;
+  }
 
-.syncOLSquare {
-  position: absolute;
-  width: 42px;
-  right: 3px;
-  padding: 5px;
-  margin: 5px;
-}
+  .syncOLSquare {
+    position: absolute;
+    width: 42px;
+    right: 3px;
+    padding: 5px;
+    margin: 5px;
+  }
 
-.rectangle {
-  width: 25px;
-  height: 25px;
-}
+  .rectangle {
+    width: 25px;
+    height: 25px;
+  }
 
-.violation-column {
-  display: inline-block;
-  width: 40px;
-}
+  .violation-column {
+    display: inline-block;
+    width: 40px;
+  }
 
-.divider {
-  width: 15px;
-}
+  .divider {
+    width: 15px;
+  }
 </style>

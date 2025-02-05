@@ -1,5 +1,5 @@
 import { MISC, SEV, LEVEL, STATE } from '../../../constants.js'
-import { createId, getSprintNameById, uniTob64 } from '../../../common_functions.js'
+import { createId, getSprintNameById, encodeHtml } from '../../../common_functions.js'
 import { authorization, utilities } from '../../mixins/GenericMixin.js'
 import store from '../../../store/store.js'
 
@@ -164,15 +164,12 @@ const methods = {
 			conditionalFor: [],
 			title: newNode.title,
 			followers: newNode.data.followers || [],
-			description: uniTob64(currentDoc.description),
-			acceptanceCriteria: uniTob64(currentDoc.acceptanceCriteria),
+			description: encodeHtml(currentDoc.description),
+			descriptionEncoding: 'escaped',
+			acceptanceCriteria: encodeHtml(currentDoc.acceptanceCriteria),
+			acceptanceEncoding: 'escaped',
 			priority: newNode.data.priority,
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: now,
-				},
-			],
+			comments: [],
 			history: [
 				{
 					copyItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],
@@ -255,16 +252,13 @@ const methods = {
 				conditionalFor: [],
 				title: newNode.title,
 				followers: newNode.data.followers || [],
-				description: uniTob64(MISC.EMPTYQUILL),
+				description: encodeHtml(MISC.EMPTYQUILL),
+				descriptionEncoding: 'escaped',
 				acceptanceCriteria:
-					newNode.level < LEVEL.TASK ? uniTob64('<p>Please do not neglect</p>') : uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+					newNode.level < LEVEL.TASK ? encodeHtml('<p>Please do not neglect</p>') : encodeHtml('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				acceptanceEncoding: 'escaped',
 				priority: newNode.data.priority,
-				comments: [
-					{
-						ignoreEvent: 'comments initiated',
-						timestamp: now,
-					},
-				],
+				comments: [],
 				history: [
 					{
 						createItemEvent: [newNode.level, store.state.helpersRef.getNodeById(newNode.parentId).title, newNode.ind + 1],

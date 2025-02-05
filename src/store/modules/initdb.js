@@ -1,5 +1,5 @@
 import { LEVEL, MISC } from '../../constants.js'
-import { uniTob64, createId } from '../../common_functions.js'
+import { encodeHtml, createId } from '../../common_functions.js'
 import globalAxios from 'axios'
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
@@ -454,15 +454,12 @@ const actions = {
 			title: 'The root of all products in this database',
 			team: 'n/a',
 			followers: [],
-			description: uniTob64('<p>Database root document</p>'),
-			acceptanceCriteria: uniTob64('<p>not applicable</p>'),
+			description: encodeHtml('<p>Database root document</p>'),
+			descriptionEncoding: 'escaped',
+			acceptanceCriteria: encodeHtml('<p>not applicable</p>'),
+			acceptanceEncoding: 'escaped',
 			priority: 0,
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-				},
-			],
+			comments: [],
 			// do not distribute this event; other users have no access rights yet
 			history: [
 				{
@@ -536,15 +533,12 @@ const actions = {
 			spikepersonhours: 0,
 			title: 'REQUIREMENT AREAS',
 			followers: [],
-			description: uniTob64('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
-			acceptanceCriteria: uniTob64('<p>n/a</p>'),
+			description: encodeHtml('<p>To insert one or more requirement areas inside this node right-click on this nodes title in the tree view.</p>'),
+			descriptionEncoding: 'escaped',
+			acceptanceCriteria: encodeHtml('<p>n/a</p>'),
+			acceptanceEncoding: 'escaped',
 			// do not set a priority, must be null
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-				},
-			],
+			comments: [],
 			// do not distribute this event; other users have no access rights yet
 			history: [
 				{
@@ -584,15 +578,12 @@ const actions = {
 			reqarea: null,
 			title,
 			followers: [],
-			description: uniTob64(MISC.EMPTYQUILL),
-			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
+			description: encodeHtml(MISC.EMPTYQUILL),
+			descriptionEncoding: 'escaped',
+			acceptanceCriteria: encodeHtml('<p>Please do not neglect</p>'),
+			acceptanceEncoding: 'escaped',
 			priority: 0,
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-				},
-			],
+			comments: [],
 			// do not distribute this event; other users have no access rights yet
 			history: [
 				{
@@ -633,12 +624,7 @@ const actions = {
 			type: 'backlogItem',
 			title: 'A dummy backlogIten to pass messages to other users',
 			level: 0,
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-				},
-			],
+			comments: [],
 			history: [
 				{
 					ignoreEvent: ['messenger'],

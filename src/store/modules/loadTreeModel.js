@@ -244,8 +244,7 @@ const actions = {
 
 	/* Get all items from the current database */
 	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }, payload) {
-		// initialize the helpers functions
-		dispatch('createHelpers')
+		dispatch('createHelpers') // initialize the helpers function
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/details',

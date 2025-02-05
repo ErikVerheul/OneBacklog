@@ -1,5 +1,5 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
-import { uniTob64, createId } from '../../common_functions.js'
+import { encodeHtml, createId } from '../../common_functions.js'
 import common_admin from './CommonAdmin.js'
 import store from '../../store/store.js'
 
@@ -81,15 +81,12 @@ const methods = {
 			reqarea: null,
 			title: this.productTitle,
 			followers: [],
-			description: uniTob64(MISC.EMPTYQUILL),
-			acceptanceCriteria: uniTob64('<p>Please do not neglect</p>'),
+			description: encodeHtml(MISC.EMPTYQUILL),
+			descriptionEncoding: 'escaped',
+			acceptanceCriteria: encodeHtml('<p>Please do not neglect</p>'),
+			acceptanceEncoding: 'escaped',
 			priority,
-			comments: [
-				{
-					ignoreEvent: 'comments initiated',
-					timestamp: Date.now(),
-				},
-			],
+			comments: [],
 		}
 		// update the database, insert the new node below the last product and add the product to this admin's subscriptions and productsRoles
 		store.dispatch('createProductAction', { dbName: store.state.selectedDatabaseName, newProduct, lastProductNode })

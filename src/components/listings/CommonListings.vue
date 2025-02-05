@@ -8,13 +8,13 @@
             <BRow
               v-if="(isMyAddition(comment, 'addCommentEvent') || isMyAddition(comment, 'replaceCommentEvent')) && !otherUserReactedAfterMe(comment, getFilteredComments)">
               <BCol cols="11">
-                <div v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
+                <div v-html="prepCommentsText(getEventName(comment), getEventValue(comment), comment.encoding)"></div>
               </BCol>
               <BCol cols="1">
                 <font-awesome-icon icon="edit" @click="startEditMyComment(comment)" />
               </BCol>
             </BRow>
-            <div v-else v-html="prepCommentsText(getEventName(comment), getEventValue(comment))"></div>
+            <div v-else v-html="prepCommentsText(getEventName(comment), getEventValue(comment), comment.encoding)"></div>
           </BCardBody>
           <template #footer>
             <em>{{ mkCommentFooter(comment) }}</em>
@@ -40,7 +40,7 @@
         <BCard border-variant="primary" :header="mkHistHeader(histItem)" header-bg-variant="primary" header-text-variant="white" footer-tag="footer"
           align="center">
           <BCardBody class="list-body">
-            <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem))"></div>
+            <div v-html="prepHistoryText(getEventName(histItem), getEventValue(histItem), histItem.encoding || null)"></div>
           </BCardBody>
           <template #footer>
             <em>{{ mkHistFooter(histItem) }}</em>
@@ -50,11 +50,11 @@
       </div>
     </div>
     <div v-else-if="selectedForView === 'messages'">
-      <div style="width: 98%;" v-for="msgEvent in store.state.myB64TeamMessages" :key="msgEvent.timestamp">
+      <div style="width: 98%;" v-for="msgEvent in store.state.teamMessages" :key="msgEvent.timestamp">
         <BCard border-variant="primary" :header="msgEvent.title" header-bg-variant="primary" header-text-variant="white" footer-tag="footer" align="center">
           <BCardBody class="list-body">
             <BRow
-              v-if="(isMyAddition(msgEvent, 'teamMessage') || isMyAddition(msgEvent, 'replacedTeamMessage')) && !otherUserReactedAfterMe(msgEvent, store.state.myB64TeamMessages)">
+              v-if="(isMyAddition(msgEvent, 'teamMessage') || isMyAddition(msgEvent, 'replacedTeamMessage')) && !otherUserReactedAfterMe(msgEvent, store.state.teamMessages)">
               <BCol cols="11">
                 <div v-html="getMsgContent(msgEvent)"></div>
               </BCol>
@@ -81,89 +81,90 @@
 </template>
 
 <script>
-import { MISC } from '../../constants.js'
-import { b64ToUni } from '../../common_functions.js'
-import store from '../../store/store.js'
-import commonListings from './CommonListings.js'
+  import { MISC } from '../../constants.js'
+  import { decodeHtml } from '../../common_functions.js'
+  import store from '../../store/store.js'
+  import commonListings from './CommonListings.js'
 
-const props = ['selectedForView']
+  const props = ['selectedForView']
 
-function data() {
-  return {
-    editMyText: false,
-    commentObjToBeReplaced: {},
-    messageObjToBeReplaced: {},
-    myLastText: MISC.EMPTYQUILL,
-  }
-}
-
-const methods = {
-  otherUserReactedAfterMe(event, allEvents) {
-    let otherUserFound = false
-    for (let e of allEvents) {
-      if (e.by !== store.state.userData.user) {
-        otherUserFound = true
-      }
-      if (e === event) {
-        break
-      }
+  function data() {
+    return {
+      editMyText: false,
+      commentObjToBeReplaced: {},
+      messageObjToBeReplaced: {},
+      myLastText: MISC.EMPTYQUILL,
     }
-    return otherUserFound
-  },
+  }
 
-  isMyAddition(event, eventName) {
-    return event.by === store.state.userData.user && this.getEventName(event) === eventName
-  },
+  const methods = {
+    otherUserReactedAfterMe(event, allEvents) {
+      let otherUserFound = false
+      for (let e of allEvents) {
+        if (e.by !== store.state.userData.user) {
+          otherUserFound = true
+        }
+        if (e === event) {
+          break
+        }
+      }
+      return otherUserFound
+    },
 
-  startEditMyComment(event) {
-    this.commentObjToBeReplaced = event
-    this.myLastText = b64ToUni(this.getEventValue(event))
-    this.editMyText = true
-  },
+    isMyAddition(event, eventName) {
+      return event.by === store.state.userData.user && this.getEventName(event) === eventName
+    },
 
-  replaceEditedComment() {
-    store.dispatch('replaceComment', {
-      node: this.getSelectedNode,
-      commentObjToBeReplaced: this.commentObjToBeReplaced,
-      editedCommentText: this.myLastText,
-      timestamp: Date.now(),
-    })
-  },
+    startEditMyComment(event) {
+      this.commentObjToBeReplaced = event
+      this.myLastText = decodeHtml(this.getEventValue(event)[0], event.encoding)
+      this.editMyText = true
+    },
 
-  startEditMyMessText(msgEvent) {
-    store.state.replaceMessage = true
-    store.state.replaceMessageTimestamp = msgEvent.timestamp
-    store.state.newMsgTitle = msgEvent.title
-    store.state.myNewMessage = b64ToUni(msgEvent.b64Msg)
-  },
+    replaceEditedComment() {
+      store.dispatch('replaceComment', {
+        node: this.getSelectedNode,
+        commentObjToBeReplaced: this.commentObjToBeReplaced,
+        editedCommentText: this.myLastText,
+        encoding: 'escaped',
+        timestamp: Date.now(),
+      })
+    },
 
-  getMsgContent(msgEvent) {
-    return b64ToUni(msgEvent.b64Msg)
-  },
+    startEditMyMessText(msgEvent) {
+      store.state.replaceMessage = true
+      store.state.replaceMessageTimestamp = msgEvent.timestamp
+      store.state.newMsgTitle = msgEvent.title
+      store.state.myNewMessage = decodeHtml(msgEvent.b64Msg, msgEvent.encoding)
+    },
 
-  mkMsgFooter(msgEvent) {
-    if (Object.keys(msgEvent)[0] === 'replacedTeamMessage') return `This message was updated by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
-    return `This message was send by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
-  },
-}
+    getMsgContent(msgEvent) {
+      return decodeHtml(msgEvent.b64Msg, msgEvent.encoding)
+    },
 
-export default {
-  extends: commonListings,
-  data,
-  methods,
-  props
-}
+    mkMsgFooter(msgEvent) {
+      if (Object.keys(msgEvent)[0] === 'replacedTeamMessage') return `This message was updated by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
+      return `This message was send by '${msgEvent.by}' at ${new Date(msgEvent.timestamp).toString()}`
+    },
+  }
+
+  export default {
+    extends: commonListings,
+    data,
+    methods,
+    props
+  }
 </script>
 
 <style scoped>
-.space3px {
-  margin: 3px;
-}
+  .space3px {
+    margin: 3px;
+  }
 
-.list-body {
-  padding: 10px 0px 10px 0px;
-  text-align: left;
-  font-family: sans-serif;
-  font-size: 12px;
-}
+  .list-body {
+    padding: 10px 0px 10px 0px;
+    text-align: left;
+    font-family: sans-serif;
+    font-size: 12px;
+  }
 </style>

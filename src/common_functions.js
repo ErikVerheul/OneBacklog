@@ -16,19 +16,60 @@ function base64ToBytes(base64) {
 	return Uint8Array.from(binString, (m) => m.codePointAt(0))
 }
 
-function bytesToBase64(bytes) {
-	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
-	return window.btoa(binString)
-}
+/* these functions are obsolete starting at v.3.0.0 */
+// function bytesToBase64(bytes) {
+// 	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
+// 	return window.btoa(binString)
+// }
 
-/* Convert unicode string to base64 encoded ascii */
-export function uniTob64(str) {
-	return bytesToBase64(new TextEncoder().encode(str))
-}
+// /* Convert unicode string to base64 encoded ascii */
+// function uniTob64(str) {
+// 	return bytesToBase64(new TextEncoder().encode(str))
+// }
 
 /* Convert base64 encoded ascii to unicode string */
-export function b64ToUni(bytes) {
+function b64ToUni(bytes) {
 	return new TextDecoder().decode(base64ToBytes(bytes))
+}
+
+export function escapeHTML(str) {
+	return str.replace(
+		/[&<>'"]/g,
+		(tag) =>
+			({
+				'&': '&amp;',
+				'<': '&lt;',
+				'>': '&gt;',
+				"'": '&#39;',
+				'"': '&quot;',
+			})[tag] || tag,
+	)
+}
+
+export function unescapeHTML(str) {
+	return str.replace(
+		/&amp;|&lt;|&gt;|&#39;|&quot;/g,
+		(tag) =>
+			({
+				'&amp;': '&',
+				'&lt;': '<',
+				'&gt;': '>',
+				'&#39;': "'",
+				'&quot;': '"',
+			})[tag] || tag,
+	)
+}
+
+export function encodeHtml(str) {
+	return escapeHTML(str)
+}
+
+export function decodeHtml(str, encoding) {
+	if (encoding === 'escaped') {
+		return unescapeHTML(str)
+	}
+	// fall through if not yet converted to escaped
+	return b64ToUni(str)
 }
 
 /* Apply the retention rules to the history array of the document */
@@ -52,9 +93,8 @@ export function applyRetention(rootState, doc) {
 export function prepareDocForPresentation(doc) {
 	// set default team
 	if (doc.level > LEVEL.EPIC && !doc.team) doc.team = MISC.NOTEAM
-	// decode from base64
-	doc.description = b64ToUni(doc.description)
-	doc.acceptanceCriteria = b64ToUni(doc.acceptanceCriteria)
+	doc.description = decodeHtml(doc.description, doc.descriptionEncoding)
+	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding)
 	return doc
 }
 
@@ -259,13 +299,13 @@ export function initMessaging(store) {
 	store.state.myNewMessage = MISC.EMPTYQUILL
 	store.state.newMsgTitle = ''
 	// save the current number of messages in my profile
-	store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.myB64TeamMessages.length || 0 })
+	store.dispatch('saveMyMessagesNumberAction', { teamName: store.state.userData.myTeam, currentNumberOfMessages: store.state.teamMessages.length || 0 })
 	store.state.showGoMessaging = true
 }
 
 export default {
-	uniTob64,
-	b64ToUni,
+	encodeHtml,
+	decodeHtml,
 	expandNode,
 	collapseNode,
 	showNode,

@@ -1,5 +1,5 @@
 import { SEV, LEVEL, MISC, STATE } from '../../constants.js'
-import { expandNode, getSprintNameById, uniTob64 } from '../../common_functions.js'
+import { expandNode, getSprintNameById, encodeHtml } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -999,15 +999,12 @@ const actions = {
 					conditionalFor: [],
 					title: payload.taskTitle,
 					followers: storyDoc.followers || [],
-					description: uniTob64(MISC.EMPTYQUILL),
-					acceptanceCriteria: uniTob64('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+					description: encodeHtml(MISC.EMPTYQUILL),
+					descriptionEncoding: 'escaped',
+					acceptanceCriteria: encodeHtml('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+					acceptanceEncoding: 'escaped',
 					priority: taskPriority,
-					comments: [
-						{
-							ignoreEvent: 'comments initiated',
-							timestamp: Date.now(),
-						},
-					],
+					comments: [],
 					history: [
 						{
 							createTaskEvent: [storyDoc.title],

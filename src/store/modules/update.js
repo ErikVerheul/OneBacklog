@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { applyRetention, uniTob64, b64ToUni, prepareDocForPresentation } from '../../common_functions.js'
+import { applyRetention, encodeHtml, decodeHtml, prepareDocForPresentation } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -585,8 +585,9 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				const decodedDescription = b64ToUni(tmpDoc.description).replace(/&nbsp;/g, ' ')
-				const decodedAcceptance = b64ToUni(tmpDoc.acceptanceCriteria).replace(/&nbsp;/g, ' ')
+				// decode from escaped or base64
+				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding)
+				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding)
 				if (decodedDescription === payload.newDescription && decodedAcceptance === payload.newAcceptance) {
 					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria are unchanged')
 					finishWithoutUpdate(payload)
@@ -626,21 +627,22 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
 				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
-				const newEncodedDescription = uniTob64(payload.newDescription)
+				const newEncodedDescription = encodeHtml(payload.newDescription)
 				if (tmpDoc.description === newEncodedDescription) {
 					if (rootState.debug) console.log('saveDescription: description is unchanged')
 					return
 				}
 
-				// decode from base64
-				rootState.oldDescription = b64ToUni(tmpDoc.description)
+				// decode from escaped or base64
+				rootState.oldDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding)
 				const newHist = {
-					descriptionEvent: [tmpDoc.description, newEncodedDescription],
+					descriptionEvent: [tmpDoc.description, newEncodedDescription, payload.isUndoAction],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
 					isListed: true,
+					encoding: 'escaped',
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
 				}
@@ -649,6 +651,7 @@ const actions = {
 				tmpDoc.lastContentChange = payload.timestamp
 				tmpDoc.lastOtherChange = payload.timestamp
 				tmpDoc.description = newEncodedDescription
+				tmpDoc.descriptionEncoding = 'escaped'
 
 				const onSuccessCallback = () => {
 					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp })
@@ -699,21 +702,22 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
 				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
-				const newEncodedAcceptance = uniTob64(payload.newAcceptance)
+				const newEncodedAcceptance = encodeHtml(payload.newAcceptance)
 				if (tmpDoc.acceptanceCriteria === newEncodedAcceptance) {
 					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')
 					return
 				}
 
-				// decode from base64
-				rootState.oldAcceptance = b64ToUni(tmpDoc.acceptanceCriteria)
+				// decode from escaped or base64
+				rootState.oldAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding)
 				const newHist = {
-					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance],
+					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance, payload.isUndoAction],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
 					isListed: true,
+					encoding: 'escaped',
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
 				}
@@ -722,6 +726,7 @@ const actions = {
 				tmpDoc.lastContentChange = payload.timestamp
 				tmpDoc.lastOtherChange = payload.timestamp
 				tmpDoc.acceptanceCriteria = newEncodedAcceptance
+				tmpDoc.acceptanceEncoding = 'escaped'
 
 				const onSuccessCallback = () => {
 					commit('updateNodewithDocChange', { node, lastContentChange: payload.timestamp })
@@ -783,8 +788,9 @@ const actions = {
 				tmpDoc.history.unshift(newHist)
 
 				const newComment = {
-					addCommentEvent: [uniTob64(payload.comment)],
+					addCommentEvent: [encodeHtml(payload.comment)],
 					by: rootState.userData.user,
+					encoding: 'escaped',
 					timestamp: Date.now(),
 				}
 				tmpDoc.comments.unshift(newComment)
@@ -830,8 +836,9 @@ const actions = {
 						originalTimestamp = tmpDoc.comments[i].timestamp
 						// replace the comment with the amended version and a new timestamp
 						tmpDoc.comments[i] = {
-							replaceCommentEvent: [uniTob64(payload.editedCommentText)],
+							replaceCommentEvent: [encodeHtml(payload.editedCommentText)],
 							by: rootState.userData.user,
+							encoding: 'escaped',
 							timestamp: Date.now(),
 						}
 						amendedCommentIdx = i

@@ -142,7 +142,7 @@ const store = createStore({
 			// view and send messages
 			messSquareColor: MISC.SQUAREBGNDCOLOR,
 			msgBlinkIds: [],
-			myB64TeamMessages: [],
+			teamMessages: [],
 			myNewMessage: MISC.EMPTYQUILL,
 			newMsgTitle: '',
 			replaceMessage: false,

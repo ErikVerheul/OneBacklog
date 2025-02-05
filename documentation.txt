@@ -52,8 +52,10 @@ Database--------- backlogItem document -------------------- node
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
 "followers": []-------------------------------------------- data.followers; contains user names
-"description"(string, base-64 encoded on save, decoded on load), loaded on request
-"acceptanceCriteria"(string, base-64 encoded on save, decoded on load), loaded on request
+"description"(string, encoded on save, decoded on load), loaded on request
+"descriptionEncoding"(string), null if base64 encoded, "escaped" if escaped, loaded on request
+"acceptanceCriteria"(string, encoded on save, decoded on load), loaded on request
+"acceptanceEncoding"(string), null if base64 encoded, "escaped" if escaped, loaded on request
 "priority"(Integer)---------------------------------------- data.priority
 "sprintId"(string)----------------------------------------- data.sprintId
 "comments": []--------------------------------------------- loaded on request
@@ -386,7 +388,7 @@ Documents of type "team" store information about a team.
 The history array stores joiningTeamEvent and leavingTeamEvent events.
 The messages array stores inter team messages:
 const newMessage = {
-	b64Msg: uniTob64(payload.newMessage),
+	b64Msg: encodeHtml(payload.newMessage),
 	from: rootState.userData.user,
 	timestamp: Date.now(),
 }

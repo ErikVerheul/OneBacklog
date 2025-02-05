@@ -22,9 +22,24 @@ function base64ToBytes(base64) {
   return Uint8Array.from(binString, (m) => m.codePointAt(0))
 }
 
-// convert base64 encoded ascii to unicode string
-function b64ToUni(bytes) {
-  return new TextDecoder().decode(base64ToBytes(bytes))
+function unescapeHTML(str) {
+  return str.replace(
+    /&amp;|&lt;|&gt;|&#39;|&quot;/g,
+    (tag) =>
+      ({
+        '&amp;': '&',
+        '&lt;': '<',
+        '&gt;': '>',
+        '&#39;': "'",
+        '&quot;': '"',
+      })[tag] || tag,
+  )
+}
+
+// convert escaped or base64 encoded ascii to unicode string
+function decodeHtml(str, encoding) {
+  if (encoding === 'escaped') return unescapeHTML(str)
+  return new TextDecoder().decode(base64ToBytes(str))
 }
 
 function replaceEmpty(text) {
@@ -132,10 +147,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
   }
 
   switch (eventType) {
-    case 'acceptanceEvent':
-      return createEmail(
-        `<h3>The acceptance criteria changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`,
-      )
+    case 'acceptanceEvent': {
+      const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
+      const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
+      return createEmail(s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding)))
+    }
     case 'newCommentEvent':
       return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)}</h3>
 			<h3>Select the ${getLevelText(dbName, doc.level, doc.subtype)} with short id ${doc._id.slice(-5)} to see the conversation</h3>`)
@@ -168,8 +184,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
       } else s = `The dependencies for items ${convertToShortIds(value[0])} (short Ids) were removed from this item.`
       return createEmail(`<h3>${s}</h3>`)
     }
-    case 'descriptionEvent':
-      return createEmail(`<h3>The description changed from:</h3><p>${replaceEmpty(b64ToUni(value[0]))}</p> to <p>${replaceEmpty(b64ToUni(value[1]))}</p>`)
+    case 'descriptionEvent': {
+      const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
+      const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
+      return createEmail(s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding)))
+    }
     case 'undoBranchRemovalEvent':
       return createEmail(
         `<h3>The ${getLevelText(dbName, value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`,

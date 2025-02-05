@@ -1,5 +1,5 @@
 import { LEVEL, MISC, STATE, SEV } from '../../constants.js'
-import { uniTob64 } from '../../common_functions.js'
+import { encodeHtml } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -299,7 +299,7 @@ const actions = {
 						}
 
 						// update the received messages from the new team
-						rootState.myB64TeamMessages = newTeamDoc.messages || []
+						rootState.teamMessages = newTeamDoc.messages || []
 
 						const oldTeamDocNewMembers = []
 						for (const m of oldTeamDoc.members) {
@@ -580,7 +580,7 @@ const actions = {
 		})
 			.then((res) => {
 				const teamDoc = res.data
-				rootState.myB64TeamMessages = teamDoc.messages || []
+				rootState.teamMessages = teamDoc.messages || []
 				commit('addToEventList', {
 					txt: `You have received '${rootState.msgBlinkIds.length}' new message(s)`,
 					severity: SEV.INFO,
@@ -603,7 +603,8 @@ const actions = {
 				const newMessage = {
 					teamMessage: [],
 					title: payload.newTitle,
-					b64Msg: uniTob64(payload.newMessage),
+					b64Msg: encodeHtml(payload.newMessage),
+					encoding: 'escaped',
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 				}
@@ -632,7 +633,7 @@ const actions = {
 						rootState.newMsgTitle = ''
 						rootState.myNewMessage = MISC.EMPTYQUILL
 						// refresh my team messages
-						rootState.myB64TeamMessages = teamDoc.messages || []
+						rootState.teamMessages = teamDoc.messages || []
 					},
 					caller: 'saveMyTeamMessageAction',
 				})
@@ -653,7 +654,8 @@ const actions = {
 				const updatedMessage = {
 					replacedTeamMessage: [],
 					title: payload.newTitle,
-					b64Msg: uniTob64(payload.newMessage),
+					b64Msg: encodeHtml(payload.newMessage),
+					encoding: 'escaped',
 					by: rootState.userData.user,
 					timestamp: Date.now(),
 				}
@@ -693,7 +695,7 @@ const actions = {
 							rootState.replaceMessage = false
 							rootState.replaceMessageTimestamp = undefined
 							// refresh my team messages
-							rootState.myB64TeamMessages = teamDoc.messages || []
+							rootState.teamMessages = teamDoc.messages || []
 						},
 						caller: 'updateMyTeamMessageAction',
 					})
