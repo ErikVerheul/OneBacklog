@@ -149,8 +149,10 @@ function mkHtml(dbName, eventType, value, event, doc) {
   switch (eventType) {
     case 'acceptanceEvent': {
       const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
-      const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
-      return createEmail(s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4])))
+      let txt = `<h3>The acceptance criteria ${insStr}: (from/to)<hr></h3>`
+      txt += `<h5>${replaceEmpty(decodeHtml(value[0], value[3]))}</h5>`
+      txt += `<h5>${replaceEmpty(decodeHtml(value[1], value[4]))}</h5>`
+      return createEmail(txt)
     }
     case 'newCommentEvent':
       return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)}</h3>
@@ -186,8 +188,10 @@ function mkHtml(dbName, eventType, value, event, doc) {
     }
     case 'descriptionEvent': {
       const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
-      const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
-      return createEmail(s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4])))
+      let txt = `<h3>The description ${insStr}: (from/to)<hr></h3>`
+      txt += `<h5>${replaceEmpty(decodeHtml(value[0], value[3]))}</h5>`
+      txt += `<h5>${replaceEmpty(decodeHtml(value[1], value[4]))}</h5>`
+      return createEmail(txt)
     }
     case 'undoBranchRemovalEvent':
       return createEmail(
