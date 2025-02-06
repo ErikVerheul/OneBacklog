@@ -42,7 +42,7 @@
             </BCol>
             <BCol cols="1">
               <BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)"
-                @keydown.enter="updateTsSize()" />
+                @blur="updateTsSize()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -52,7 +52,7 @@
             </BCol>
             <BCol cols="1">
               <BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @update:model-value="prepUpdate(store.state.currentDoc)"
-                @keydown.enter="updateStoryPoints()" />
+                @blur="updateStoryPoints()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -62,7 +62,7 @@
             </BCol>
             <BCol cols="1">
               <BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @update:model-value="prepUpdate(store.state.currentDoc)"
-                @keydown.enter="updatePersonHours()" />
+                @blur="updatePersonHours()" />
             </BCol>
             <BCol cols="2"></BCol>
           </template>
@@ -203,7 +203,7 @@
           <div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
             <div class="d-table w-100">
               <BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title"
-                @update:model-value="prepUpdate(store.state.currentDoc)" @keydown.enter="updateTitle()"></BFormInput>
+                @update:model-value="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
               <div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
               <div class="d-table-cell tar">
                 <BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
