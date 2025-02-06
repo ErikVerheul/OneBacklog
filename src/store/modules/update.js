@@ -636,13 +636,12 @@ const actions = {
 				// decode from escaped or base64
 				rootState.oldDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding)
 				const newHist = {
-					descriptionEvent: [tmpDoc.description, newEncodedDescription, payload.isUndoAction],
+					descriptionEvent: [tmpDoc.description, newEncodedDescription, payload.isUndoAction, tmpDoc.descriptionEncoding, 'escaped'],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
 					isListed: true,
-					encoding: 'escaped',
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
 				}
@@ -711,13 +710,12 @@ const actions = {
 				// decode from escaped or base64
 				rootState.oldAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding)
 				const newHist = {
-					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance, payload.isUndoAction],
+					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance, payload.isUndoAction, tmpDoc.acceptanceEncoding, 'escaped'],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
 					isListed: true,
-					encoding: 'escaped',
 					sessionId: rootState.mySessionId,
 					distributeEvent: true,
 				}

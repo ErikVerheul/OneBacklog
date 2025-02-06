@@ -150,7 +150,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'acceptanceEvent': {
       const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
       const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
-      return createEmail(s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding)))
+      return createEmail(s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4])))
     }
     case 'newCommentEvent':
       return createEmail(`<h3>The user created a comment to this ${getLevelText(dbName, doc.level, doc.subtype)}</h3>
@@ -187,7 +187,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'descriptionEvent': {
       const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
       const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
-      return createEmail(s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding)))
+      return createEmail(s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4])))
     }
     case 'undoBranchRemovalEvent':
       return createEmail(

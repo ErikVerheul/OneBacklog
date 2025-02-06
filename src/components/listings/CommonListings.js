@@ -77,7 +77,7 @@ const computed = {
 			if (event === 'ignoreEvent' || !histItem.isListed) continue
 
 			let allText = ''
-			if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event], histItem.encoding))
+			if (event === 'acceptanceEvent') allText += removeImages(this.mkAcceptanceEvent(histItem[event]))
 			if (event === 'addSprintIdsEvent') allText += this.mkAddSprintIdsEvent(histItem[event])
 			if (event === 'clonedBranchEvent') allText += this.mkClonedBranchEvent(histItem[event])
 			if (event === 'copyItemEvent') allText += this.mkCopyItemEvent(histItem[event])
@@ -86,7 +86,7 @@ const computed = {
 			if (event === 'createTaskEvent') allText += this.mkCreateTaskEvent(histItem[event])
 			if (event === 'createRootEvent') allText += this.mkCreateRootEvent(histItem[event])
 			if (event === 'dependencyRemovedEvent') allText += this.mkDependencyRemovedEvent(histItem[event])
-			if (event === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[event], histItem.encoding))
+			if (event === 'descriptionEvent') allText += removeImages(this.mkDescriptionEvent(histItem[event]))
 			if (event === 'importToSprintEvent') allText += this.mkImportToSprintEvent(histItem[event])
 			if (event === 'itemRestoredEvent') allText += this.mkItemRestoredEvent(histItem[event])
 			if (event === 'newChildEvent') allText += this.mkNewChildEvent(histItem[event])
@@ -231,10 +231,10 @@ const methods = {
 	},
 
 	/* Presentation methods */
-	mkAcceptanceEvent(value, encoding) {
+	mkAcceptanceEvent(value) {
 		const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
 		const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
-		return s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding))
+		return s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4]))
 	},
 
 	mkAddSprintIdsEvent(value) {
@@ -287,10 +287,10 @@ const methods = {
 		return `<h6>${s}</h6>`
 	},
 
-	mkDescriptionEvent(value, encoding) {
+	mkDescriptionEvent(value) {
 		const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
 		const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
-		return s + replaceEmpty(decodeHtml(value[0], encoding)) + '<hr>' + replaceEmpty(decodeHtml(value[1], encoding))
+		return s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4]))
 	},
 
 	mkImportToSprintEvent(value) {
