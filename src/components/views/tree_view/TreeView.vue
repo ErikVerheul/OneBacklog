@@ -17,7 +17,6 @@
               placeholder="Select on (short) Id">
             </BFormInput>
             <template #append>
-              <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
@@ -26,7 +25,6 @@
             <BFormInput id="searchInput" v-model="store.state.filterSelectSearch.keyword" @keydown.enter="doSeachOnTitle" placeholder="Search in titles">
             </BFormInput>
             <template #append>
-              <!--note: type="reset" removes the input of both BFormInputs -->
               <BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
             </template>
           </BInputGroup>
