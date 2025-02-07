@@ -150,8 +150,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'acceptanceEvent': {
       const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
       let txt = `<h3>The acceptance criteria ${insStr}: (from/to)<hr></h3>`
-      txt += `<h5>${replaceEmpty(decodeHtml(value[0], value[3]))}</h5>`
-      txt += `<h5>${replaceEmpty(decodeHtml(value[1], value[4]))}</h5>`
+      txt += `<p>${replaceEmpty(decodeHtml(value[0], value[3]))}<hr></p>`
+      txt += `<p>${replaceEmpty(decodeHtml(value[1], value[4]))}</p>`
       return createEmail(txt)
     }
     case 'newCommentEvent':
@@ -189,8 +189,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
     case 'descriptionEvent': {
       const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
       let txt = `<h3>The description ${insStr}: (from/to)<hr></h3>`
-      txt += `<h5>${replaceEmpty(decodeHtml(value[0], value[3]))}</h5>`
-      txt += `<h5>${replaceEmpty(decodeHtml(value[1], value[4]))}</h5>`
+      txt += `<p>${replaceEmpty(decodeHtml(value[0], value[3]))}<hr></p>`
+      txt += `<p>${replaceEmpty(decodeHtml(value[1], value[4]))}</p>`
       return createEmail(txt)
     }
     case 'undoBranchRemovalEvent':
@@ -370,7 +370,7 @@ function getAllDataBases() {
       checkForNewDataBases()
     })
     .catch((err) => {
-      console.log('getAllDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
+      console.log('getAllDataBases: An error is detected while loading the database names, ' + err)
     })
 }
 
