@@ -248,7 +248,7 @@ const methods = {
 	},
 
 	mkCommentAmendedEvent() {
-		return `<h6>The user changed his comment. See the contents for the new version at the same timestamp.</h6>`
+		return `<h6>The user changed his comment. Select Comments to see the new version at the same timestamp.</h6>`
 	},
 
 	mkConditionRemovedEvent(value) {
