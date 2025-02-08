@@ -500,7 +500,10 @@ const methods = {
 		})
 	},
 
-	/* Tree and database update methods */
+	/*
+	 * Tree and database update methods
+	 * The non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
+	 */
 	updateDescriptionAtBlur(node) {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
@@ -527,7 +530,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
-				newAcceptance: store.state.currentDoc.acceptanceCriteria,
+				newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
 		}
