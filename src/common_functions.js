@@ -68,8 +68,8 @@ export function decodeHtml(str, encoding) {
 	if (encoding === 'escaped') {
 		return unescapeHTML(str)
 	}
-	// fall through if not yet converted to escaped
-	return b64ToUni(str)
+	// fall through if not yet converted to escaped + remove the extra space (bug?)
+	return b64ToUni(str).replace(' </p>', '</p>')
 }
 
 /* Apply the retention rules to the history array of the document */
