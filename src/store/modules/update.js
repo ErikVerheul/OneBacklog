@@ -975,11 +975,8 @@ const actions = {
 				const parentHist = {
 					newChildEvent: [payload.newNode.level, payload.newNode.ind + 1],
 					by: rootState.userData.user,
-					email: rootState.userData.email,
-					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',
 					timestamp: Date.now(),
 					isListed: true,
-					sessionId: rootState.mySessionId,
 					distributeEvent: false,
 				}
 				parentDoc.lastOtherChange = Date.now()
