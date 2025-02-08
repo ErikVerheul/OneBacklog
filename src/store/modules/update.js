@@ -585,9 +585,9 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// decode from escaped or base64
-				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding)
-				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding)
+				// decode from escaped or base64 and replace any excaped blanks
+				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding).replace(/&nbsp;/g, ' ')
+				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding).replace(/&nbsp;/g, ' ')
 				if (decodedDescription === payload.newDescription && decodedAcceptance === payload.newAcceptance) {
 					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria are unchanged')
 					finishWithoutUpdate(payload)
@@ -626,15 +626,16 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
-				const newEncodedDescription = encodeHtml(payload.newDescription)
-				if (tmpDoc.description === newEncodedDescription) {
+				// decode from escaped or base64 and replace any excaped blanks
+				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding).replace(/&nbsp;/g, ' ')
+				if (decodedDescription === payload.newDescription) {
 					if (rootState.debug) console.log('saveDescription: description is unchanged')
 					return
 				}
 
+				const newEncodedDescription = encodeHtml(payload.newDescription)
 				// decode from escaped or base64
-				rootState.oldDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding)
+				rootState.oldDescription = decodedDescription
 				const newHist = {
 					descriptionEvent: [tmpDoc.description, newEncodedDescription, payload.isUndoAction, tmpDoc.descriptionEncoding, 'escaped'],
 					by: rootState.userData.user,
@@ -700,15 +701,16 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// encode to base64; note that the non-breaking spaces (&nbsp;) have been replaced bij blanks (' ')
-				const newEncodedAcceptance = encodeHtml(payload.newAcceptance)
-				if (tmpDoc.acceptanceCriteria === newEncodedAcceptance) {
+				// decode from escaped or base64 and replace any excaped blanks
+				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding).replace(/&nbsp;/g, ' ')
+				if (decodedAcceptance === payload.newAcceptance) {
 					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')
 					return
 				}
 
+				const newEncodedAcceptance = encodeHtml(payload.newAcceptance)
 				// decode from escaped or base64
-				rootState.oldAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding)
+				rootState.oldAcceptance = decodedAcceptance
 				const newHist = {
 					acceptanceEvent: [tmpDoc.acceptanceCriteria, newEncodedAcceptance, payload.isUndoAction, tmpDoc.acceptanceEncoding, 'escaped'],
 					by: rootState.userData.user,
