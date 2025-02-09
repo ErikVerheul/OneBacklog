@@ -66,10 +66,16 @@ export function encodeHtml(str) {
 
 export function decodeHtml(str, encoding) {
 	if (encoding === 'escaped') {
-		return unescapeHTML(str)
+		const html = unescapeHTML(str)
+		// fix legacy empty string definitions
+		if (html === '<p><br></p>' || html === '') return '<p></p>'
+		return html
 	}
 	// fall through if not yet converted to escaped + remove the extra space (bug?)
-	return b64ToUni(str).replace(' </p>', '</p>')
+	const html = b64ToUni(str).replace(' </p>', '</p>')
+	// fix legacy empty string definitions
+	if (html === '<p><br></p>' || html === '') return '<p></p>'
+	return html
 }
 
 /* Apply the retention rules to the history array of the document */

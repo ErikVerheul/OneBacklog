@@ -33,7 +33,7 @@ function removeImages(html) {
 }
 
 function replaceEmpty(text) {
-	if (text === '' || text === '<p></p>' || text === MISC.EMPTYQUILL) return 'EMPTY TEXT'
+	if (text === '' || text === '<p><br></p>' || text === MISC.EMPTYQUILL) return 'EMPTY TEXT'
 	return text
 }
 

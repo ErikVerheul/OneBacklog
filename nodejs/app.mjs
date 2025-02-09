@@ -38,8 +38,17 @@ function unescapeHTML(str) {
 
 // convert escaped or base64 encoded ascii to unicode string
 function decodeHtml(str, encoding) {
-  if (encoding === 'escaped') return unescapeHTML(str)
-  return new TextDecoder().decode(base64ToBytes(str))
+  if (encoding === 'escaped') {
+    const html = unescapeHTML(str)
+    // fix legacy empty string definitions
+    if (html === '<p><br></p>' || html === '') return '<p></p>'
+    return html
+  }
+  // fall through if not yet converted to escaped + remove the extra space (bug?)
+  const html = b64ToUni(str).replace(' </p>', '</p>')
+  // fix legacy empty string definitions
+  if (html === '<p><br></p>' || html === '') return '<p></p>'
+  return html
 }
 
 function replaceEmpty(text) {
