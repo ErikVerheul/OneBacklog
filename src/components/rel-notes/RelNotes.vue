@@ -3,6 +3,12 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.0.0 - 9 February 2025 Major refactoring</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>The html of the description, acceptance criteria and comments of new or changed items are now escaped instead of base64 encoded saving database
+            space and improving performance </li>
+        </ul>
         <h3>v.2.10.0 - 2 February 2025 New features, bug fix and refactoring</h3>
         <p>New features</p>
         <ul>
@@ -1326,41 +1332,41 @@
 </template>
 
 <script>
-import router from '../../router'
-import store from '../../store/store'
+  import router from '../../router'
+  import store from '../../store/store'
 
-function beforeMount() {
-  if (store.state.signedOut) {
-    // route back to signin
-    router.push('/init')
+  function beforeMount() {
+    if (store.state.signedOut) {
+      // route back to signin
+      router.push('/init')
+    }
   }
-}
 
-export default {
-  beforeMount,
-}
+  export default {
+    beforeMount,
+  }
 
 </script>
 
 <style scoped>
-.left-column {
-  text-align: left;
-  background-color: #408fae;
-  color: white;
-  border: 1px solid black;
-}
+  .left-column {
+    text-align: left;
+    background-color: #408fae;
+    color: white;
+    border: 1px solid black;
+  }
 
-p,
-li {
-  color: black;
-}
+  p,
+  li {
+    color: black;
+  }
 
-a {
-  color: black;
-  text-decoration: underline;
-}
+  a {
+    color: black;
+    text-decoration: underline;
+  }
 
-img {
-  margin-bottom: 10px;
-}
+  img {
+    margin-bottom: 10px;
+  }
 </style>
