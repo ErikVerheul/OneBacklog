@@ -38,19 +38,21 @@ function unescapeHTML(str) {
 
 // convert escaped or base64 encoded ascii to unicode string
 function decodeHtml(str, encoding) {
-  if (encoding === 'escaped') {
-    const html = unescapeHTML(str)
+  function modifyHtml(html) {
     // fix legacy empty string definitions
     if (html === '<p><br></p>' || html === '') return '<p></p>'
-    return html
+    // style the code-block elements
+    return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
+  }
+
+  if (encoding === 'escaped') {
+    return modifyHtml(unescapeHTML(str))
   }
   // fall through if not yet converted to escaped + remove the extra space (bug?)
-  const html = b64ToUni(str).replace(' </p>', '</p>')
-  // fix legacy empty string definitions
-  if (html === '<p><br></p>' || html === '') return '<p></p>'
-  return html
+  return modifyHtml(b64ToUni(str).replace(' </p>', '</p>'))
 }
 
+// show EMPTY TEXT when no text
 function replaceEmpty(text) {
   if (text === '' || text === '<p></p>' || text === '<p><br></p>') return 'EMPTY TEXT'
   return text
@@ -312,7 +314,7 @@ function listenForChanges(dbName) {
         console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
         runData[dbName].listening = false
       } else {
-        console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' :' + JSON.stringify(err, null, 2))
+        console.log('listenForChanges: An error is detected while processing messages in database ' + dbName + ' : ' + err)
         runData[dbName].listening = false
       }
     })
@@ -325,7 +327,7 @@ function getConfig(dbName) {
       listenForChanges(dbName)
     })
     .catch((err) => {
-      console.log('An error is detected while loading the configuration of database ' + dbName + ', ' + JSON.stringify(err, null, 2))
+      console.log('An error is detected while loading the configuration of database ' + dbName + ' : ' + err)
     })
 }
 
@@ -358,7 +360,7 @@ function checkForNewDataBases() {
         })
       })
       .catch((err) => {
-        console.log('checkForNewDataBases: An error is detected while loading the database names, ' + JSON.stringify(err, null, 2))
+        console.log('checkForNewDataBases: An error is detected while loading the database names: ' + err)
       })
   }, 60000)
 }
@@ -379,7 +381,7 @@ function getAllDataBases() {
       checkForNewDataBases()
     })
     .catch((err) => {
-      console.log('getAllDataBases: An error is detected while loading the database names, ' + err)
+      console.log('getAllDataBases: An error is detected while loading the database names: ' + err)
     })
 }
 
