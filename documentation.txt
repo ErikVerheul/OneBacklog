@@ -51,7 +51,7 @@ Database--------- backlogItem document -------------------- node
 "dependencies": []----------------------------------------- dependencies
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
-"followers": []-------------------------------------------- data.followers; contains user names
+"followers": []-------------------------------------------- data.followers; contains objects with user name and email address
 "description"(string, encoded on save, decoded on load), loaded on request
 "descriptionEncoding"(string), null if base64 encoded, "escaped" if escaped, loaded on request
 "acceptanceCriteria"(string, encoded on save, decoded on load), loaded on request

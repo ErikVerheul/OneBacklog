@@ -309,6 +309,17 @@ export function initMessaging(store) {
 	store.state.showGoMessaging = true
 }
 
+/* Update the email address of the registered followers to the current email address of the user */
+export function updateFollowers(rootState, doc) {
+	const updatedFollowers = []
+	for (const fObj of doc.followers) {
+		if (fObj.user === rootState.userData.user) fObj.email = rootState.userData.email
+		updatedFollowers.push(fObj)
+	}
+	doc.followers = updatedFollowers
+	return doc
+}
+
 export default {
 	encodeHtml,
 	decodeHtml,
@@ -331,4 +342,5 @@ export default {
 	prepareDocForPresentation,
 	startMsgSquareBlink,
 	initMessaging,
+	updateFollowers,
 }
