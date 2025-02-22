@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { applyRetention, encodeHtml, decodeHtml, prepareDocForPresentation } from '../../common_functions.js'
+import { applyRetention, encodeHtml, decodeHtml, prepareDocForPresentation, updateFollowers } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -886,20 +886,22 @@ const actions = {
 	 * Executes a onSuccessCallback and onFailureCallback if provided in the payload.
 	 */
 	updateDoc({ rootState, dispatch }, payload) {
-		const id = payload.updatedDoc._id
-
+		let doc = payload.updatedDoc
+		const id = doc._id
 		if (rootState.debug) console.log(`updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
+		// update followers for this user in case the user changed his email address
+		updateFollowers(rootState, doc)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + id,
-			data: payload.updatedDoc,
+			data: doc,
 		})
 			.then(() => {
 				// execute passed function if provided
 				if (payload.onSuccessCallback) payload.onSuccessCallback()
 				if (rootState.currentDoc && id === rootState.currentDoc._id) {
 					// set default team and decode text fields
-					rootState.currentDoc = prepareDocForPresentation(payload.updatedDoc)
+					rootState.currentDoc = prepareDocForPresentation(doc)
 				}
 				// execute passed actions if provided
 				dispatch('dispatchAdditionalActions', payload)
@@ -919,10 +921,15 @@ const actions = {
 	 * Executes a onSuccessCallback, onFailureCallback and dispatchAdditionalActions callback if provided in the payload.
 	 */
 	updateBulk({ rootState, commit, dispatch }, payload) {
+		let docs = payload.docs
+		for (let doc of docs) {
+			// update followers for this user in case the user changed his email address
+			updateFollowers(rootState, doc)
+		}
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
-			data: { docs: payload.docs },
+			data: { docs },
 		})
 			.then((res) => {
 				let updateOkCount = 0
@@ -947,7 +954,7 @@ const actions = {
 				} else {
 					// execute passed function if provided
 					if (payload.onSuccessCallback) payload.onSuccessCallback()
-					for (const doc of payload.docs) {
+					for (const doc of docs) {
 						if (doc._id === rootState.currentDoc._id) {
 							// set default team and decode text fields
 							rootState.currentDoc = prepareDocForPresentation(doc)
@@ -960,7 +967,7 @@ const actions = {
 			.catch((error) => {
 				// execute passed function if provided
 				if (payload.onFailureCallback) payload.onFailureCallback()
-				const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents with ids ${payload.docs.map((doc) => doc._id)}. ${error}`
+				const msg = `updateBulk: (called by ${payload.caller}) Could not update batch of documents with ids ${docs.map((doc) => doc._id)}. ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},

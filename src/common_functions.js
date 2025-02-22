@@ -311,13 +311,14 @@ export function initMessaging(store) {
 
 /* Update the email address of the registered followers to the current email address of the user */
 export function updateFollowers(rootState, doc) {
-	const updatedFollowers = []
-	for (const fObj of doc.followers) {
-		if (fObj.user === rootState.userData.user) fObj.email = rootState.userData.email
-		updatedFollowers.push(fObj)
+	if (doc.followers && doc.followers.length > 0) {
+		const updatedFollowers = []
+		for (const fObj of doc.followers) {
+			if (fObj.user === rootState.userData.user) fObj.email = rootState.userData.email
+			updatedFollowers.push(fObj)
+		}
+		doc.followers = updatedFollowers
 	}
-	doc.followers = updatedFollowers
-	return doc
 }
 
 export default {
