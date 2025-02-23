@@ -51,7 +51,7 @@ Database--------- backlogItem document -------------------- node
 "dependencies": []----------------------------------------- dependencies
 "conditionalFor": []--------------------------------------- conditionalFor
 "title"(string)-------------------------------------------- title
-"followers": []-------------------------------------------- data.followers; contains objects with user name and email address
+"followers": []-------------------------------------------- loaded on request; contains objects with user name and email address
 "description"(string, encoded on save, decoded on load), loaded on request
 "descriptionEncoding"(string), null if base64 encoded, "escaped" if escaped, loaded on request
 "acceptanceCriteria"(string, encoded on save, decoded on load), loaded on request
@@ -101,7 +101,6 @@ data: {
 	team: doc.team, // the team membership of the user. Is updated automatically if a user changes the state of the task
 	taskOwner: doc.taskOwner, // the task owner, member of the team, is responsible for having the task done but he need not to do that work him self
 	subtype: doc.subtype,
-	followers: doc.followers,
 	reqAreaItemColor: doc.color, // only applicable for req area documents (productId = MISC.AREA_PRODUCTID, level = 3)
 	lastPositionChange: doc.lastPositionChange,
 	lastStateChange: doc.lastStateChange,

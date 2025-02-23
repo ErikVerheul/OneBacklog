@@ -80,7 +80,6 @@ const actions = {
 						lastPositionChange: doc.lastPositionChange || 0,
 						lastStateChange: doc.lastStateChange || 0,
 						lastOtherChange: doc.lastOtherChange || 0,
-						followers: doc.followers || [],
 					},
 					tmp: {},
 				}
@@ -662,7 +661,6 @@ const actions = {
 				node.parentId = parentId
 				node.level = level
 				node.ind = ind
-				node.data.followers = targetParentNode.data.followers || []
 
 				if (options.calculatePrios || options.calculatePrios === undefined) {
 					rootState.helpersRef.assignNewPrios([node], predecessorNode, successorNode)
@@ -722,7 +720,6 @@ const actions = {
 				options.createParentUpdateSets = true
 				for (let n of nodes) {
 					rootState.helpersRef.applyNodeInsertionRules(targetParentNode, n, options)
-					n.data.followers = targetParentNode.data.followers || []
 					if (options.isMove) n.data.lastPositionChange = Date.now()
 				}
 			},

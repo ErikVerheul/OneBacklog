@@ -1043,7 +1043,6 @@ const actions = {
 								team: rootState.userData.myTeam,
 								taskOwner: rootState.userData.user,
 								lastOtherChange: Date.now(),
-								followers: newDoc.followers,
 							},
 							tmp: {},
 						}

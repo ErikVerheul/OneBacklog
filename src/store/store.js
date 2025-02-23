@@ -640,9 +640,6 @@ const store = createStore({
 							case 'dependenciesRemoved':
 								node.dependencies = payload.dependenciesRemoved
 								break
-							case 'followers':
-								node.data.followers = payload.followers
-								break
 							case 'isExpanded':
 								if (payload.isExpanded) {
 									expandNode(node)

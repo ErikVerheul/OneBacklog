@@ -124,7 +124,6 @@ const actions = {
 							priority: product.priority,
 							team: product.team,
 							lastOtherChange: Date.now(),
-							followers: product.followers,
 						},
 						tmp: {},
 					}

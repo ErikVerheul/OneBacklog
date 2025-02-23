@@ -163,7 +163,6 @@ const methods = {
 			dependencies: [],
 			conditionalFor: [],
 			title: newNode.title,
-			followers: newNode.data.followers || [],
 			description: encodeHtml(currentDoc.description),
 			descriptionEncoding: 'escaped',
 			acceptanceCriteria: encodeHtml(currentDoc.acceptanceCriteria),
@@ -251,7 +250,6 @@ const methods = {
 				dependencies: [],
 				conditionalFor: [],
 				title: newNode.title,
-				followers: newNode.data.followers || [],
 				description: encodeHtml(MISC.EMPTYQUILL),
 				descriptionEncoding: 'escaped',
 				acceptanceCriteria:
