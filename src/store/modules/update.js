@@ -879,7 +879,7 @@ const actions = {
 			})
 	},
 
-	/* When a user changes his email address: Find the items in all assigned products with the old email address and replace that addrees with the new email */
+	/* When a user changes his email address: Find the items in all assigned products with the old email address and replace that address with the new email */
 	updateFollowers({ rootState, commit, dispatch }, newEmail) {
 		globalAxios({
 			method: 'GET',
