@@ -142,6 +142,14 @@ const actions = {
 						for (const node of descendants) {
 							commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
 						}
+						if (selectedItemWasFollowed) {
+							commit('addToEventList', { txt: `Sending change notices for this item and its descendants is stopped`, severity: SEV.INFO })
+						} else {
+							commit('addToEventList', {
+								txt: `Change notices for this item and its descendants will be send to your e-mail address ${rootState.userData.email}`,
+								severity: SEV.INFO,
+							})
+						}
 					},
 				})
 			})
