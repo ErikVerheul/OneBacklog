@@ -53,7 +53,7 @@ const actions = {
 					updatedDoc: tmpDoc,
 					caller: 'changeSubsription',
 					onSuccessCallback: () => {
-						commit('updateNodewithDocChange', { node, followers: tmpFollowers, lastOtherChange: payload.timestamp })
+						commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
 					},
 				})
 			})
@@ -72,7 +72,6 @@ const actions = {
 
 	changeSubsriptionsBulk({ rootState, commit, rootGetters, dispatch }, payload) {
 		const node = payload.node
-		let currentNodeFollowers = []
 		const descendantsInfo = rootState.helpersRef.getDescendantsInfo(node)
 		const docIdsToGet = [{ id: node._id }]
 		for (const id of descendantsInfo.ids) {
@@ -126,9 +125,6 @@ const actions = {
 							isListed: true,
 							distributeEvent: false,
 						}
-						if (doc._id === node._id) {
-							currentNodeFollowers = tmpFollowers.slice()
-						}
 						doc.followers = tmpFollowers
 						doc.history.unshift(newHist)
 						doc.lastOtherChange = payload.timestamp
@@ -141,7 +137,11 @@ const actions = {
 					caller: 'changeSubsriptionsBulk',
 					onSuccessCallback: () => {
 						rootState.busyChangingSubscriptions = false
-						commit('updateNodewithDocChange', { node, followers: currentNodeFollowers, lastOtherChange: payload.timestamp })
+						commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
+						const descendants = rootState.helpersRef.getDescendantsInfo(node).descendants
+						for (const node of descendants) {
+							commit('updateNodewithDocChange', { node, lastOtherChange: payload.timestamp })
+						}
 					},
 				})
 			})
