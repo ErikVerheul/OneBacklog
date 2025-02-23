@@ -218,7 +218,8 @@ const actions = {
 							seqKey: rootState.seqKey++,
 							msg: `changeMyEmailAction: The profile of user '${userData.name}' is updated successfully`,
 						})
-						rootState.userData.email = newEmail
+						// update the email address in the items i am following for change notices
+						dispatch('updateFollowers', newEmail)
 					})
 					.catch((error) => {
 						const msg = `changeMyEmailAction: Could not update the profile of user '${userData.name}', ${error}`

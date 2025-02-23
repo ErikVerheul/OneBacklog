@@ -343,6 +343,16 @@ const actions = {
 							if (doc.type == "backlogItem" && !doc.delmark) emit([doc.parentId, -doc.priority], 1)
 						}`,
 					},
+					/* Filter on email address of the followers to change notices. Is used to replace the address if changed */
+					hasFollowers: {
+						map: `function(doc) {
+							if (doc.type == "backlogItem" && !doc.delmark && doc.followers && doc.followers.length > 0) {
+								for (const fObj of doc.followers)  {
+									emit( fObj.user, fObj.email, 1);
+								}
+							}
+						}`,
+					},
 					/* Filter on tasks assigned to sprints not done */
 					itemsNotDone: {
 						map: `function(doc) {

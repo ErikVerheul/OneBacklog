@@ -1,5 +1,5 @@
 import { SEV, LEVEL } from '../../constants.js'
-import { applyRetention, encodeHtml, decodeHtml, prepareDocForPresentation, updateFollowers } from '../../common_functions.js'
+import { applyRetention, encodeHtml, decodeHtml, prepareDocForPresentation } from '../../common_functions.js'
 import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -879,6 +879,51 @@ const actions = {
 			})
 	},
 
+	/* When a user changes his email address: Find the items in all assigned products with the old email address and replace that addrees with the new email */
+	updateFollowers({ rootState, commit, dispatch }, newEmail) {
+		globalAxios({
+			method: 'GET',
+			url: `${rootState.userData.currentDb}/_design/design1/_view/hasFollowers?key="${rootState.userData.user}"&include_docs=true`,
+		})
+			.then((res) => {
+				const results = res.data.rows
+				const docs = []
+				const productIds = []
+				for (const r of results) {
+					const doc = r.doc
+					for (let fObj of doc.followers) {
+						if (fObj.user === rootState.userData.user) {
+							fObj.email = newEmail
+							const newHist = {
+								ignoreEvent: ['updateFollowers'],
+								timestamp: Date.now(),
+							}
+							doc.history.unshift(newHist)
+							docs.push(doc)
+							if (!productIds.includes(doc.productId)) productIds.push(doc.productId)
+						}
+					}
+				}
+				dispatch('updateBulk', {
+					dbName: rootState.userData.currentDb,
+					docs,
+					caller: 'updateFollowers',
+					onSuccessCallback: () => {
+						// update the in-memory userData
+						rootState.userData.email = newEmail
+						commit('addToEventList', {
+							txt: `${docs.length} items are updated in ${productIds.length} products with the new email address`,
+							severity: SEV.INFO,
+						})
+					},
+				})
+			})
+			.catch((error) => {
+				const msg = `updateFollowers: Failed to change email addresses of followers in database ${rootState.userData.currentDb}. ${error}`
+				dispatch('doLog', { event: msg, level: SEV.ERROR })
+			})
+	},
+
 	/*
 	 * Create or update an existing document by creating a new revision.
 	 * Must call loadDoc on success to update the current doc visable to the user.
@@ -889,8 +934,6 @@ const actions = {
 		let doc = payload.updatedDoc
 		const id = doc._id
 		if (rootState.debug) console.log(`updateDoc: called by ${payload.caller} is updating document with _id ${id} in database ${payload.dbName}`)
-		// update followers for this user in case the user changed his email address
-		updateFollowers(rootState, doc)
 		globalAxios({
 			method: 'PUT',
 			url: payload.dbName + '/' + id,
@@ -922,10 +965,6 @@ const actions = {
 	 */
 	updateBulk({ rootState, commit, dispatch }, payload) {
 		let docs = payload.docs
-		for (let doc of docs) {
-			// update followers for this user in case the user changed his email address
-			updateFollowers(rootState, doc)
-		}
 		globalAxios({
 			method: 'POST',
 			url: payload.dbName + '/_bulk_docs',
@@ -937,7 +976,10 @@ const actions = {
 				let otherErrorCount = 0
 				for (const result of res.data) {
 					if (result.ok) updateOkCount++
-					if (result.error === 'conflict') updateConflictCount++
+					if (result.error === 'conflict') {
+						updateConflictCount++
+						console.log('updateBulk: result = ' + JSON.stringify(result))
+					}
 					if (result.error && result.error != 'conflict') otherErrorCount++
 				}
 				if (updateConflictCount > 0 || otherErrorCount > 0) {
