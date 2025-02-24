@@ -100,17 +100,9 @@ const authorization = {
 					this.showLastEvent(`Sorry, you must be an APO (requirement Areas Product Owner) to make changes here`, SEV.WARNING)
 					return false
 				}
-			} else {
-				// an APO cannot move user stories or tasks
-				if (this.isAPO && level < LEVEL.US) return true
 			}
 
-			if (productId !== MISC.AREA_PRODUCTID && this.getMyProductsRoles[productId] == undefined) {
-				// do not show this message if the user tries to move a regular item into the requirement areas dummy product
-				this.showLastEvent(`Sorry, the item belongs to a product that is not assigned to you. Check with your administrator for a fix.`, SEV.WARNING)
-				return false
-			}
-
+			// admins and apos need not be member of the owning team to be able to change item state
 			const skipTestOnTeam = itemTeam === '*' || this.isAdmin || this.isAPO || level <= LEVEL.EPIC
 			const canAccessOnTeam = skipTestOnTeam || (itemTeam && itemTeam === this.myTeam)
 			const canAccessOnLevel = this.haveWritePermission(productId, level) || (allowExtraLevel && this.haveWritePermission(productId, level + 1))
