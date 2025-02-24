@@ -4,12 +4,6 @@ import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
-function concatMsg(oldMsg, newMsg) {
-	if (newMsg === undefined) return oldMsg
-	if (oldMsg === undefined || oldMsg.length === 0) return newMsg
-	return oldMsg + ' ' + newMsg
-}
-
 /*
  * Toggle the subscription for email change notifications of the selected item.
  * Also update the current document to see an immediate update of the button text and the history.
@@ -402,13 +396,11 @@ const actions = {
 						let warnMsg = undefined
 						// check on team
 						const parentNode = rootState.helpersRef.getParentNode(node)
-						if (parentNode && parentNode._id != 'root' && !rootGetters.isAPO && !rootGetters.isAdmin && tmpDoc.level >= LEVEL.FEATURE) {
+						if (!rootGetters.isAPO && !rootGetters.isAdmin && tmpDoc.level >= LEVEL.FEATURE) {
 							if (parentNode.data.team !== rootGetters.myTeam) {
-								warnMsg = concatMsg(
-									warnMsg,
-									`The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match.
-							Consider to assign team '${parentNode.data.team}' to this item`,
-								)
+								warnMsg = `The team of parent '${parentNode.title}' (${parentNode.data.team}) and your team (${rootGetters.myTeam}) do not match. 
+								Consider to assign team '${parentNode.data.team}' to this item`
+								commit('addToEventList', { txt: warnMsg, severity: SEV.WARNING })
 							}
 						}
 						if (!payload.isUndoAction || payload.isUndoAction === undefined) {
@@ -426,12 +418,7 @@ const actions = {
 							infoMsg = 'Change of item state is undone'
 							rootState.busyWithLastUndo = false
 						}
-						// show warnings or infos
-						if (warnMsg) {
-							commit('addToEventList', { txt: warnMsg, severity: SEV.WARNING })
-						} else {
-							if (infoMsg) commit('addToEventList', { txt: infoMsg, severity: SEV.INFO })
-						}
+						commit('addToEventList', { txt: infoMsg, severity: SEV.INFO })
 					},
 					onFailureCallback: () => {
 						if (payload.isUndoAction) rootState.busyWithLastUndo = false
