@@ -451,7 +451,7 @@ const methods = {
 				store.dispatch('undoSetDependencyAsync', entry)
 				break
 			case 'undoStateChange':
-				store.dispatch('setState', { node: entry.node, newState: entry.oldState, position: entry.node.ind, timestamp: entry.prevLastChange, isUndoAction })
+				store.dispatch('setState', { node: entry.node, newState: entry.oldState, timestamp: entry.prevLastChange, isUndoAction })
 				break
 			case 'undoStoryPointsChange':
 				store.dispatch('setStoryPoints', { node: entry.node, newPoints: entry.oldPoints, timestamp: entry.prevLastChange, isUndoAction })
@@ -625,7 +625,6 @@ const methods = {
 				store.dispatch('setState', {
 					node,
 					newState,
-					position: node.ind,
 					timestamp: Date.now(),
 				})
 			}

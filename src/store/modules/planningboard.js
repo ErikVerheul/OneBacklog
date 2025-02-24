@@ -618,17 +618,15 @@ const actions = {
 		if (afterMoveIds.length > beforeMoveIds.length) {
 			// task was added
 			let newTaskId
-			let newTaskPosition = 0
 			for (const id of afterMoveIds) {
 				if (!beforeMoveIds.includes(id)) {
 					newTaskId = id
 					break
 				}
-				newTaskPosition++
 			}
 
 			const node = rootState.helpersRef.getNodeById(newTaskId)
-			if (node) dispatch('setState', { node, newState: payload.taskState, position: newTaskPosition, timestamp: Date.now() })
+			if (node) dispatch('setState', { node, newState: payload.taskState, timestamp: Date.now() })
 		} else {
 			if (afterMoveIds.length === beforeMoveIds.length) {
 				// task changed position, task did not change state; must swap priorities
