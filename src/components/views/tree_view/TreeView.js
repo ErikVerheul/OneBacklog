@@ -234,6 +234,13 @@ const computed = {
 }
 
 const methods = {
+	focusInput() {
+		console.log('focusInput is called')
+		// call the doFocus method on the custom input component
+		console.log('this.$refs = ' + JSON.stringify(this.$refs))
+		this.$refs.focusOnTree.doFocus()
+	},
+
 	goMessaging() {
 		initMessaging(store)
 	},
@@ -505,6 +512,7 @@ const methods = {
 	 * The non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
 	 */
 	updateDescriptionAtBlur(node) {
+		console.log('updateDescriptionAtBlur is called')
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
@@ -515,6 +523,7 @@ const methods = {
 	},
 
 	updateDocOnNodeSelect(payload) {
+		console.log('updateDocOnNodeSelect is called')
 		const node = store.state.helpersRef.getNodeById(payload.lastId)
 		// the currentDoc acceptanceCriteria or description might be edited while the previous node was selected
 		store.dispatch('updateDescriptionOrAcceptance', {
@@ -527,6 +536,7 @@ const methods = {
 	},
 
 	updateAcceptanceAtBlur(node) {
+		console.log('updateAcceptanceAtBlur is called')
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
@@ -766,6 +776,8 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected() {
+		console.log('onNodesSelected is called')
+		this.focusInput()
 		const onSuccessCallback = () => {
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)

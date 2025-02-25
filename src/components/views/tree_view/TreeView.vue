@@ -110,7 +110,7 @@
         <span class="syncOLSquare" :style="{ 'background-color': getSquareColor }">{{ getSquareText }}</span>
 
         <div class="tree-container">
-          <sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
+          <sl-vue-tree ref="focusOnTree" tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
             @drop="nodeDropped">
             <template v-slot:title="{ node }">
               <span class="item-icon">
@@ -274,7 +274,7 @@
                   v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive"
                   variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
                 <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView
-                  }}
+                }}
                   filter</BButton>
                 <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
               </div>
@@ -346,7 +346,7 @@
       <div v-if="store.state.eventList.length > 0">
         <div v-for="item in store.state.eventList" :key="item.eventKey">
           <p class="event-list" :style="{ 'background-color': item.backgroundColor, 'color': item.textColor }">{{ item.time }} {{ item.severity }}: {{ item.txt
-            }}
+          }}
           </p>
         </div>
       </div>

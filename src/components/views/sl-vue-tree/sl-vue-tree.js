@@ -80,6 +80,12 @@ const computed = {
 }
 
 const methods = {
+	doFocus() {
+		console.log('sl-vue-tree.doFocus is called')
+		console.log('this.$refs = ' + JSON.stringify(this.$refs))
+		this.$refs.focusTreeItem[0].$el.focus()
+	},
+
 	getParentComponent() {
 		return this.$parent
 	},
