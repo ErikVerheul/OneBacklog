@@ -560,57 +560,6 @@ const actions = {
 			})
 	},
 
-	/*
-	 * The currentDoc acceptanceCriteria and description might be edited while the previous node was selected
-	 * The non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
-	 */
-	updateDescriptionOrAcceptance({ rootState, dispatch }, payload) {
-		function finishWithoutUpdate(payload) {
-			// execute passed actions if provided
-			dispatch('dispatchAdditionalActions', payload)
-			// execute passed function if provided
-			if (payload.onSuccessCallback) payload.onSuccessCallback()
-		}
-		const node = payload.node
-		const id = node._id
-		if (payload.isUndoAction) rootState.busyWithLastUndo = true
-		globalAxios({
-			method: 'GET',
-			url: rootState.userData.currentDb + '/' + id,
-		})
-			.then((res) => {
-				const tmpDoc = applyRetention(rootState, res.data)
-				// decode from escaped or base64 and replace any excaped blanks
-				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding).replace(/&nbsp;/g, ' ')
-				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding).replace(/&nbsp;/g, ' ')
-				if (decodedDescription === payload.newDescription && decodedAcceptance === payload.newAcceptance) {
-					if (rootState.debug) console.log('updateDescriptionOrAcceptance: description and acceptance criteria are unchanged')
-					finishWithoutUpdate(payload)
-					return
-				} else if (decodedDescription !== payload.newDescription && decodedAcceptance !== payload.newAcceptance) {
-					const msg = `updateDescriptionOrAcceptance: description and acceptance criteria should not be changed together`
-					dispatch('doLog', { event: msg, level: SEV.ERROR })
-					finishWithoutUpdate(payload)
-					return
-				}
-
-				// the description or the acceptance criteria have changed (not both)
-
-				if (decodedDescription !== payload.newDescription) {
-					dispatch('saveDescription', payload)
-				}
-
-				if (decodedAcceptance !== payload.newAcceptance) {
-					dispatch('saveAcceptance', payload)
-				}
-			})
-			.catch((error) => {
-				if (payload.isUndoAction) rootState.busyWithLastUndo = false
-				const msg = `updateDescriptionOrAcceptance: Could not read document with id ${id}. ${error}`
-				dispatch('doLog', { event: msg, level: SEV.ERROR })
-			})
-	},
-
 	saveDescription({ rootState, commit, dispatch }, payload) {
 		const node = payload.node
 		const id = node._id
@@ -824,10 +773,7 @@ const actions = {
 				for (let i = 0; i < tmpDoc.comments.length; i++) {
 					const uneditedCommentObj = tmpDoc.comments[i]
 					const eventName = Object.keys(uneditedCommentObj)[0]
-					if (
-						(eventName === 'addCommentEvent' || eventName === 'replaceCommentEvent') &&
-						uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp
-					) {
+					if ((eventName === 'addCommentEvent' || eventName === 'replaceCommentEvent') && uneditedCommentObj.timestamp === payload.commentObjToBeReplaced.timestamp) {
 						originalTimestamp = tmpDoc.comments[i].timestamp
 						// replace the comment with the amended version and a new timestamp
 						tmpDoc.comments[i] = {

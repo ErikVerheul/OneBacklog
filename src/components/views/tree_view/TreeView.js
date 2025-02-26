@@ -514,18 +514,6 @@ const methods = {
 		}
 	},
 
-	updateDocOnNodeSelect(payload) {
-		const node = store.state.helpersRef.getNodeById(payload.lastId)
-		// the currentDoc acceptanceCriteria or description might be edited while the previous node was selected
-		store.dispatch('updateDescriptionOrAcceptance', {
-			node,
-			newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
-			newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
-			timestamp: Date.now(),
-			toDispatch: [{ loadDoc: { id: payload.newId, onSuccessCallback: payload.onSuccessCallback } }],
-		})
-	},
-
 	updateAcceptanceAtBlur(node) {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
@@ -543,10 +531,7 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change T-shirt size. */
 	updateTsSize() {
-		if (
-			this.docToUpdate &&
-			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the t-shirt size of this item')
-		) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the t-shirt size of this item')) {
 			const size = document.getElementById('tShirtSizeId').value.toUpperCase()
 			const sizeArray = store.state.configData.tsSize
 			if (sizeArray.includes(size)) {
@@ -570,10 +555,7 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change story points. */
 	updateStoryPoints() {
-		if (
-			this.docToUpdate &&
-			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the story points size of this item')
-		) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change the story points size of this item')) {
 			const el = document.getElementById('storyPointsId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -592,10 +574,7 @@ const methods = {
 
 	/* Only authorized users who are member of the owning team can change person hours. */
 	updatePersonHours() {
-		if (
-			this.docToUpdate &&
-			this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change story person hours of this item')
-		) {
+		if (this.docToUpdate && this.haveAccessInTree(this.docToUpdate.productId, this.docToUpdate.level, this.docToUpdate.team, 'change story person hours of this item')) {
 			const el = document.getElementById('personHoursId')
 			if (isNaN(el.value) || el.value < 0) {
 				el.value = '?'
@@ -771,16 +750,8 @@ const methods = {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
-		if (
-			this.haveAccessInTree(
-				store.state.currentProductId,
-				this.getCurrentItemLevel,
-				store.state.currentDoc.team,
-				'change the description or acceptance criteria of this item',
-			)
-		) {
-			// update explicitly as the tree is not receiving focus due to the "user-select: none" css setting causing that @blur on the editor is not emitted
-			this.updateDocOnNodeSelect({ lastId: store.state.lastLoadedDocId, newId: this.getSelectedNode._id, onSuccessCallback })
+		if (this.haveAccessInTree(store.state.currentProductId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description or acceptance criteria of this item')) {
+			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
 		}
 	},
 
@@ -800,10 +771,7 @@ const methods = {
 		if ((draggingNodes[0].parentId !== MISC.AREA_PRODUCTID && parentNode._id === MISC.AREA_PRODUCTID) || position.nodeModel._id === MISC.AREA_PRODUCTID) {
 			// do not move regular nodes in or above the REQUIREMENTS AREA
 			cancel(true)
-		} else if (
-			draggingNodes[0]._id === MISC.AREA_PRODUCTID ||
-			(draggingNodes[0].parentId === MISC.AREA_PRODUCTID && position.nodeModel.parentId !== MISC.AREA_PRODUCTID)
-		) {
+		} else if (draggingNodes[0]._id === MISC.AREA_PRODUCTID || (draggingNodes[0].parentId === MISC.AREA_PRODUCTID && position.nodeModel.parentId !== MISC.AREA_PRODUCTID)) {
 			// do not move REQUIREMENTS AREA nodes to the regular nodes
 			cancel(true)
 		} else if (parentNode && this.haveAccessInTree(position.nodeModel.productId, position.nodeModel.level, parentNode.data.team, 'drop on this position')) {
