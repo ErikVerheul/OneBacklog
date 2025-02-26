@@ -108,15 +108,17 @@ const methods = {
 			this.lastSelectCursorPosition = cPos
 			const selNode = cPos.nodeModel
 			// single selection mode
-			store.commit('renewSelectedNodes', selNode)
-			this.emitSelect()
-
+			this.emitSelect(selNode)
 			this.eventBus.emit('context-menu', node)
 		}
 	},
 
-	emitSelect() {
-		this.getRootComponent().$emit('nodes-are-selected')
+	emitSelect(selNode) {
+		// delay the emit 10 ms to allow a blur event of the Quill editor to be executed first
+		setTimeout(() => {
+			if (selNode) store.commit('renewSelectedNodes', selNode)
+			this.getRootComponent().$emit('nodes-are-selected')
+		}, 10)
 	},
 
 	/* Return the node closest to the current cursor position or null if not found */
@@ -196,6 +198,7 @@ const methods = {
 			this.getRootComponent().mouseDownLeftHandler(event, node)
 			return
 		}
+
 		// disallow selection of the root node
 		if (node.level === LEVEL.DATABASE) return
 
@@ -317,11 +320,11 @@ const methods = {
 						}
 					}
 				}
+				this.emitSelect()
 			} else {
 				// single selection mode
-				store.commit('renewSelectedNodes', selNode)
+				this.emitSelect(selNode)
 			}
-			this.emitSelect()
 		}
 	},
 
