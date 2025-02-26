@@ -194,7 +194,7 @@
         </div>
       </div>
 
-      <MultipaneResizer></MultipaneResizer>
+      <MultipaneResizer />
       <div class="pane" :style="{ flexGrow: 1, minWidth: '30%', width: '50%', minHeight: '100%' }">
         <!-- inner horizontal panes -->
         <multipane class="horizontal-panes" layout="horizontal">
@@ -242,10 +242,9 @@
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <!-- store.state.currentDoc.description is not encoded but the blanks are escaped after changes -->
-            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @blur="updateDescriptionAtBlur(getSelectedNode)">
-            </QuillyEditor>
+            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @blur="updateDescriptionAtBlur(getSelectedNode)" />
           </div>
-          <MultipaneResizer></MultipaneResizer>
+          <MultipaneResizer />
           <div class="pane" :style="{ height: '45px', top: '5px' }">
             <div>
               <h5>Acceptance criteria</h5>
@@ -253,10 +252,9 @@
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <!-- store.state.currentDoc.acceptanceCriteria is not encoded but the blanks are escaped after changes -->
-            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @blur="updateAcceptanceAtBlur(getSelectedNode)">
-            </QuillyEditor>
+            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @blur="updateAcceptanceAtBlur(getSelectedNode)" />
           </div>
-          <MultipaneResizer></MultipaneResizer>
+          <MultipaneResizer />
           <div class="pane" :style="{ height: '75px', top: '5px' }">
             <div class="d-table w-100">
               <div class="d-table-cell tal">
@@ -274,7 +272,7 @@
                   v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive"
                   variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
                 <BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView
-                  }}
+                }}
                   filter</BButton>
                 <BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
               </div>
@@ -346,7 +344,7 @@
       <div v-if="store.state.eventList.length > 0">
         <div v-for="item in store.state.eventList" :key="item.eventKey">
           <p class="event-list" :style="{ 'background-color': item.backgroundColor, 'color': item.textColor }">{{ item.time }} {{ item.severity }}: {{ item.txt
-            }}
+          }}
           </p>
         </div>
       </div>
