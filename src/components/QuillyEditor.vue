@@ -4,7 +4,7 @@
 
 <script setup>
   import { MISC } from '../constants.js'
-  import { defineEmits, onMounted, ref } from 'vue'
+  import { onMounted, ref } from 'vue'
   import Quill from 'quill'
   import { QuillyEditor } from 'vue-quilly'
   import 'quill/dist/quill.snow.css'
@@ -31,6 +31,7 @@
   onMounted(() => {
     const quill = editor.value.initialize(Quill)
     quill.root.addEventListener('blur', () => {
+      console.log('QuillyEditor emits EXTRA blur')
       emit('blur', quill)
     })
   })
