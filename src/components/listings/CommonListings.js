@@ -390,7 +390,7 @@ const methods = {
 	},
 
 	mkSetTitleEvent(value) {
-		return "<h6>The item title has changed from: </h6>'" + value[0] + "' to '" + value[1] + "'."
+		return `<h6>The item title has changed from:<br><br><b>${value[0]}</b><br>&nbsp;&nbsp;to<br><b>${value[1]}</b></h6>`
 	},
 
 	mkSubscribeEvent(value) {
