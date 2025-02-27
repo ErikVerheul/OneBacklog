@@ -500,14 +500,12 @@ const methods = {
 		})
 	},
 
-	/*
-	 * Tree and database update methods
-	 * The non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
-	 */
+	/* Tree and database update methods */
 	updateDescriptionAtBlur(node) {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
+				// the non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
 				newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
@@ -518,6 +516,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
+				// the non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
 				newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
@@ -745,14 +744,16 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected() {
+		console.log('onNodesSelected is called')
 		const onSuccessCallback = () => {
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
-		if (this.haveAccessInTree(store.state.currentProductId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description or acceptance criteria of this item')) {
+		if (this.getSelectedNode._id !== store.state.lastLoadedDocId) {
+			// prevent loading the document again if allready in memory
 			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
-		}
+		} else console.log('Prevented loading the document again if allready in memory')
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
