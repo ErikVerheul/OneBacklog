@@ -3,6 +3,22 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.1.0 - 28 Februari 2025 New feature, bug fixes and refactoring</h3>
+        <p>New feature</p>
+        <ul>
+          <li>When a user changes his email address find the users change notice subscriptions with the old email address and update that address</li>
+          <li>IMPORTANT: for this feature to work the CouchDB version must be 3.3.3 or above (new javascript engine)</li>
+        </ul>
+        <p>Bug fixes</p>
+        <ul>
+          <li>Fix the formatting of code-blocks in the change notice email</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>No need to have the followers data on the nodes</li>
+          <li>Fix the missing blur when clicking on the tree view after editing a description or acceptance criteria</li>
+          <li>Remove the workaround needed before the above fix</li>
+        </ul>
         <h3>v.3.0.0 - 9 February 2025 Major refactoring</h3>
         <p>Refactoring</p>
         <ul>

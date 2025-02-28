@@ -83,7 +83,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '3.0.0',
+			appVersion: '3.1.0',
 			// generic helper functions
 			helpersRef: null,
 			// console log settings
@@ -428,18 +428,12 @@ const store = createStore({
 					// prevent updating the user's profile twice
 					if (payload.isSameUserInDifferentSession) {
 						state.userData.myDatabases[state.userData.currentDb].productsRoles[payload.productId] = payload.newRoles
-						state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(
-							state.userData.myDatabases[state.userData.currentDb].subscriptions,
-							payload.productId,
-						)
+						state.userData.myDatabases[state.userData.currentDb].subscriptions = addToArray(state.userData.myDatabases[state.userData.currentDb].subscriptions, payload.productId)
 						updateProducts()
 					} else {
 						const tmpUserData = res.data
 						tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId] = payload.newRoles
-						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(
-							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions,
-							payload.productId,
-						)
+						tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = addToArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
 						dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
 					}
 				})
@@ -483,10 +477,7 @@ const store = createStore({
 						delete tmpUserData.myDatabases[tmpUserData.currentDb].productsRoles[payload.productId]
 						if (getters.getMyProductSubscriptionIds.includes(payload.productId)) {
 							// delete the id from my subscriptions
-							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(
-								tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions,
-								payload.productId,
-							)
+							tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions = removeFromArray(tmpUserData.myDatabases[tmpUserData.currentDb].subscriptions, payload.productId)
 						}
 						dispatch('updateUserDb', { data: tmpUserData, onSuccessCallback: updateProducts })
 					}
@@ -726,8 +717,7 @@ const store = createStore({
 								node.title = payload.title
 								break
 							default:
-								if (state.debug)
-									console.log(`updateNodewithDocChange.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
+								if (state.debug) console.log(`updateNodewithDocChange.update node: property '${k}' has no matching update, node.title = ${node.title}, keys = ${keys}`)
 						}
 					}
 				} else {
