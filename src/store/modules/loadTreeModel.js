@@ -58,7 +58,6 @@ const mutations = {
 			const lastContentChange = item.value[13] || 0
 			const lastPositionChange = item.value[14] || 0
 			const lastStateChange = item.value[15] || 0
-			const followers = item.value[16] || []
 
 			if (_id === 'messenger') {
 				// skip messenger document
@@ -217,10 +216,7 @@ const actions = {
 			.then((res) => {
 				// after this assignment the access rights can be set in the store
 				rootState.currentProductTitle = res.data.title
-				if (rootState.debug)
-					console.log(
-						'checkProductAndStartLoading: the current product document is found. Start loading the tree from database ' + rootState.userData.currentDb,
-					)
+				if (rootState.debug) console.log('checkProductAndStartLoading: the current product document is found. Start loading the tree from database ' + rootState.userData.currentDb)
 				// start loading the tree and open the detail products view by default
 				dispatch('loadAssignedAndSubscribed', {
 					onSuccessCallback: () => {

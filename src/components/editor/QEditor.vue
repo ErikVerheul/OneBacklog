@@ -28,7 +28,7 @@
   })
 
   onMounted(() => {
-    const quill = editor.value.initialize(Quill)
+    editor.value.initialize(Quill)
   })
 
 </script>
