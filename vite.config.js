@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import dts from 'vite-plugin-dts'
 import { fileURLToPath } from 'node:url'
 import Components from 'unplugin-vue-components/vite'
 import { BootstrapVueNextResolver } from 'bootstrap-vue-next'
@@ -13,6 +14,7 @@ export default defineConfig({
 	},
 	plugins: [
 		vue(),
+		dts(),
 		Components({
 			resolvers: [BootstrapVueNextResolver()],
 		}),
