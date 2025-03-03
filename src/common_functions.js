@@ -65,17 +65,18 @@ export function encodeHtml(str) {
 }
 
 export function decodeHtml(str, encoding) {
-	if (encoding === 'escaped') {
-		const html = unescapeHTML(str)
+	function modifyHtml(html) {
 		// fix legacy empty string definitions
 		if (html === '<p><br></p>' || html === '') return '<p></p>'
-		return html
+		// style the code-block elements
+		return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
+	}
+
+	if (encoding === 'escaped') {
+		return modifyHtml(unescapeHTML(str))
 	}
 	// fall through if not yet converted to escaped + remove the extra space (bug?)
-	const html = b64ToUni(str).replace(' </p>', '</p>')
-	// fix legacy empty string definitions
-	if (html === '<p><br></p>' || html === '') return '<p></p>'
-	return html
+	return modifyHtml(b64ToUni(str).replace(' </p>', '</p>'))
 }
 
 /* Apply the retention rules to the history array of the document */
@@ -265,8 +266,7 @@ export function getSprintNameById(id, calendar) {
 
 /* Return true if the email address is valid, false otherwise */
 export function isValidEmail(email) {
-	const re =
-		/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+	const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 	return re.test(email)
 }
 
