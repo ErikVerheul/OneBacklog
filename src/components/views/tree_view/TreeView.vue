@@ -242,7 +242,7 @@
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <!-- store.state.currentDoc.description is not encoded but the blanks are escaped after changes -->
-            <QuillyEditor v-model="store.state.currentDoc.description" :is-semantic-html-model="true" @blur="updateDescriptionAtBlur(getSelectedNode)" />
+            <QEditor v-model="store.state.currentDoc.description" @blur="updateDescriptionAtBlur(getSelectedNode)" />
           </div>
           <MultipaneResizer />
           <div class="pane" :style="{ height: '45px', top: '5px' }">
@@ -252,7 +252,7 @@
           </div>
           <div class="pane" :style="{ height: '30%', maxHeight: '60%', minWidth: '100%', maxWidth: '100%' }">
             <!-- store.state.currentDoc.acceptanceCriteria is not encoded but the blanks are escaped after changes -->
-            <QuillyEditor v-model="store.state.currentDoc.acceptanceCriteria" :is-semantic-html-model="true" @blur="updateAcceptanceAtBlur(getSelectedNode)" />
+            <QEditor v-model="store.state.currentDoc.acceptanceCriteria" @blur="updateAcceptanceAtBlur(getSelectedNode)" />
           </div>
           <MultipaneResizer />
           <div class="pane" :style="{ height: '75px', top: '5px' }">
@@ -319,7 +319,7 @@
     </BModal>
 
     <BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-      <QuillyEditor v-model=newComment :is-semantic-html-model="true"></QuillyEditor>
+      <QEditor v-model=newComment />
     </BModal>
 
     <BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
