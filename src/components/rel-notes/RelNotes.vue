@@ -3,6 +3,13 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.2.0 - 3 March 2025 Major refactoring</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>Include the modified Quilly component that handles the editor blur event when clicking outside the editor or in the toolbar but not on a toolbar
+            button</li>
+          <li>Style the code-block elements in the history list</li>
+        </ul>
         <h3>v.3.1.0 - 28 Februari 2025 New feature, bug fixes and refactoring</h3>
         <p>New feature</p>
         <ul>
