@@ -744,7 +744,6 @@ const methods = {
 
 	/* event handling */
 	onNodesSelected() {
-		console.log('onNodesSelected is called')
 		const onSuccessCallback = () => {
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
 				this.showSelectionEvent(store.state.selectedNodes)
@@ -753,7 +752,7 @@ const methods = {
 		if (this.getSelectedNode._id !== store.state.lastLoadedDocId) {
 			// prevent loading the document again if allready in memory
 			store.dispatch('loadDoc', { id: this.getSelectedNode._id, onSuccessCallback })
-		} else console.log('Prevented loading the document again if allready in memory')
+		}
 	},
 
 	/* Use this event to check if the drag is allowed. If not, issue a warning */
