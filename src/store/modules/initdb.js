@@ -128,8 +128,7 @@ const actions = {
 			.catch((error) => {
 				if (error.response && error.response.status === 409) {
 					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Success, the view on the _users database already exits' })
-				} else
-					rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Failure, cannot create the view on the _users database, ' + error })
+				} else rootState.backendMessages.push({ seqKey: rootState.seqKey++, msg: 'initUserDb: Failure, cannot create the view on the _users database, ' + error })
 			})
 	},
 
@@ -333,7 +332,7 @@ const actions = {
 							// negate priority to sort the highest abosolute priority value on top
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, doc.productId, doc.parentId, -doc.priority],
 								[doc.reqarea, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId, doc.lastAttachmentAddition, 
-								doc.lastAttachmentRemoval, doc.lastOtherChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange, doc.followers])
+								doc.lastAttachmentRemoval, doc.lastOtherChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`,
 					},
 					/* Filter on parentIds to map documents to their parent */
