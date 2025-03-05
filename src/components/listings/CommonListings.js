@@ -234,7 +234,7 @@ const methods = {
 	mkAcceptanceEvent(value) {
 		const insStr = value[2] ? 'changes for this item are <b>undone</b>' : 'for this item have changed'
 		const s = '<h6>The acceptance criteria ' + insStr + ': (from/to)<hr></h6>'
-		return s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4]))
+		return s + replaceEmpty(decodeHtml(value[0], value[3], 'mkAcceptanceEvent')) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4], 'mkAcceptanceEvent'))
 	},
 
 	mkAddSprintIdsEvent(value) {
@@ -290,7 +290,7 @@ const methods = {
 	mkDescriptionEvent(value) {
 		const insStr = value[2] ? 'change of this item is <b>undone</b>' : 'of this item has changed'
 		const s = '<h6>The description ' + insStr + ': (from/to)<hr></h6>'
-		return s + replaceEmpty(decodeHtml(value[0], value[3])) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4]))
+		return s + replaceEmpty(decodeHtml(value[0], value[3], 'mkDescriptionEvent')) + '<hr>' + replaceEmpty(decodeHtml(value[1], value[4], 'mkDescriptionEvent'))
 	},
 
 	mkImportToSprintEvent(value) {
@@ -418,7 +418,7 @@ const methods = {
 	},
 
 	mkComment(value, encoding) {
-		return replaceEmpty(decodeHtml(value[0], encoding))
+		return replaceEmpty(decodeHtml(value[0], encoding, 'mkComment'))
 	},
 
 	mkResetCommentsEvent(value) {

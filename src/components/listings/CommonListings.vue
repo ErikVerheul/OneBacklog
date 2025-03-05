@@ -117,7 +117,7 @@
 
     startEditMyComment(event) {
       this.commentObjToBeReplaced = event
-      this.myLastText = decodeHtml(this.getEventValue(event)[0], event.encoding)
+      this.myLastText = decodeHtml(this.getEventValue(event)[0], event.encoding, 'startEditMyComment')
       this.editMyText = true
     },
 
@@ -135,11 +135,11 @@
       store.state.replaceMessage = true
       store.state.replaceMessageTimestamp = msgEvent.timestamp
       store.state.newMsgTitle = msgEvent.title
-      store.state.myNewMessage = decodeHtml(msgEvent.b64Msg, msgEvent.encoding)
+      store.state.myNewMessage = decodeHtml(msgEvent.encodedTeamMsg, msgEvent.encoding, 'startEditMyMessText')
     },
 
     getMsgContent(msgEvent) {
-      return decodeHtml(msgEvent.b64Msg, msgEvent.encoding)
+      return decodeHtml(msgEvent.encodedTeamMsg, msgEvent.encoding, 'getMsgContent')
     },
 
     mkMsgFooter(msgEvent) {
