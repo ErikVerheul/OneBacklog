@@ -603,7 +603,7 @@ const actions = {
 				const newMessage = {
 					teamMessage: [],
 					title: payload.newTitle,
-					b64Msg: encodeHtml(payload.newMessage),
+					encodedTeamMsg: encodeHtml(payload.newMessage),
 					encoding: 'escaped',
 					by: rootState.userData.user,
 					timestamp: Date.now(),
@@ -621,10 +621,7 @@ const actions = {
 					distributeEvent: true,
 				}
 				// sending this trigger must be the last action in the chain of events and save the current number of messages in my profile
-				const toDispatch = [
-					{ sendMessageAsync: trigger },
-					{ saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } },
-				]
+				const toDispatch = [{ sendMessageAsync: trigger }, { saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } }]
 				dispatch('updateDoc', {
 					dbName: payload.dbName,
 					updatedDoc: teamDoc,
@@ -654,7 +651,7 @@ const actions = {
 				const updatedMessage = {
 					replacedTeamMessage: [],
 					title: payload.newTitle,
-					b64Msg: encodeHtml(payload.newMessage),
+					encodedTeamMsg: encodeHtml(payload.newMessage),
 					encoding: 'escaped',
 					by: rootState.userData.user,
 					timestamp: Date.now(),
@@ -679,10 +676,7 @@ const actions = {
 						distributeEvent: true,
 					}
 					// sending this trigger must be the last action in the chain of events and save the current number of messages in my profile
-					const toDispatch = [
-						{ sendMessageAsync: trigger },
-						{ saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } },
-					]
+					const toDispatch = [{ sendMessageAsync: trigger }, { saveMyMessagesNumberAction: { teamName: teamDoc.teamName, currentNumberOfMessages: teamDoc.messages.length } }]
 					dispatch('updateDoc', {
 						dbName: payload.dbName,
 						updatedDoc: teamDoc,
