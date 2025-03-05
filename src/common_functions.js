@@ -64,12 +64,14 @@ export function encodeHtml(str) {
 	return escapeHTML(str)
 }
 
-export function decodeHtml(str, encoding) {
+export function decodeHtml(str, encoding, caller) {
 	function modifyHtml(html) {
 		// fix legacy empty string definitions
 		if (html === '<p><br></p>' || html === '') return '<p></p>'
-		// style the code-block elements
-		return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
+		if (caller === 'mkDescriptionEvent' || caller === 'mkAcceptanceEvent' || caller === 'mkComment' || caller === 'getMsgContent') {
+			// style the code-block elements
+			return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
+		} else return html
 	}
 
 	if (encoding === 'escaped') {
@@ -100,8 +102,8 @@ export function applyRetention(rootState, doc) {
 export function prepareDocForPresentation(doc) {
 	// set default team
 	if (doc.level > LEVEL.EPIC && !doc.team) doc.team = MISC.NOTEAM
-	doc.description = decodeHtml(doc.description, doc.descriptionEncoding)
-	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding)
+	doc.description = decodeHtml(doc.description, doc.descriptionEncoding, 'prepareDocForPresentation')
+	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding, 'prepareDocForPresentation')
 	return doc
 }
 
