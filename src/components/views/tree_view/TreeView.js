@@ -505,8 +505,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
-				// the non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
-				newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
+				newDescription: store.state.currentDoc.description,
 				timestamp: Date.now(),
 			})
 		}
@@ -516,8 +515,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
-				// the non-breaking spaces (&nbsp;) are replaced with normal spaces (' ') to maintain compatibility with non-semantic-html saved documents
-				newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
+				newAcceptance: store.state.currentDoc.acceptanceCriteria,
 				timestamp: Date.now(),
 			})
 		}
