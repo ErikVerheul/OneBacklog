@@ -387,7 +387,7 @@ Documents of type "team" store information about a team.
 The history array stores joiningTeamEvent and leavingTeamEvent events.
 The messages array stores inter team messages:
 const newMessage = {
-	b64Msg: encodeHtml(payload.newMessage),
+	encodedTeamMsg: encodeHtml(payload.newMessage),
 	from: rootState.userData.user,
 	timestamp: Date.now(),
 }
