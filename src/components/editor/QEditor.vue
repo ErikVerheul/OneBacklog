@@ -1,5 +1,5 @@
 <template>
-  <quilly-editor ref="editor" v-model="content" :options="options" :isSemanticHtmlModel="false" />
+  <quilly-editor ref="editor" v-model="content" :options="options" :isSemanticHtmlModel="true" />
 </template>
 
 <script setup>
