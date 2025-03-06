@@ -89,11 +89,7 @@ const actions = {
 		runningThreadsCount++
 		globalAxios({
 			method: 'GET',
-			url:
-				rootState.userData.currentDb +
-				'/_design/design1/_view/removedDocToParentMap?' +
-				composeRangeString(globalEntry.delmark, payload.parentId) +
-				'&include_docs=true',
+			url: rootState.userData.currentDb + '/_design/design1/_view/removedDocToParentMap?' + composeRangeString(globalEntry.delmark, payload.parentId) + '&include_docs=true',
 		})
 			.then((res) => {
 				runningThreadsCount--
@@ -299,7 +295,6 @@ const actions = {
 							const node = rootState.helpersRef.getNodeById(c.id)
 							if (node !== null) node.conditionalFor.push(c.conditionalFor)
 						}
-						commit('updateNodewithDocChange', { newDoc: updatedParentDoc })
 						commit('addToEventList', {
 							txt: `The ${rootState.helpersRef.getLevelText(globalEntry.removedNode.level)} and ${descendantNodesRestoredCount} descendants are restored`,
 							severity: SEV.INFO,
@@ -379,8 +374,7 @@ const actions = {
 					const msg = `restoreExtDepsAndConds: The dependencies or conditions of these documents cannot be restored. ${errorStr}`
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
 				}
-				const toDispatch =
-					globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateRemovedBranchParentHist: globalEntry }]
+				const toDispatch = globalEntry.removedNode.productId === MISC.AREA_PRODUCTID ? [{ restoreReqarea: globalEntry }] : [{ updateRemovedBranchParentHist: globalEntry }]
 				dispatch('updateBulk', {
 					dbName: rootState.userData.currentDb,
 					docs,
