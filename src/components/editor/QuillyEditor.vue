@@ -61,8 +61,8 @@
       emit('selection-change', { range, oldRange, source })
     })
 
-    // Handle editor blur event when clicking outside the editor or in the toolbar
-    quill.root.addEventListener('blur', function () {
+    // Emit a blur event when the cursor leaves the editor (or moves to the editor toolbar)
+    quill.root.addEventListener('mouseleave', function () {
       emit('blur', quill)
     })
 

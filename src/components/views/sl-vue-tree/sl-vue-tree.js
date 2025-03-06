@@ -114,11 +114,8 @@ const methods = {
 	},
 
 	emitSelect(selNode) {
-		// delay the emit 10 ms to allow a blur event of the Quill editor to be executed first
-		setTimeout(() => {
-			if (selNode) store.commit('renewSelectedNodes', selNode)
-			this.getRootComponent().$emit('nodes-are-selected')
-		}, 10)
+		if (selNode) store.commit('renewSelectedNodes', selNode)
+		this.getRootComponent().$emit('nodes-are-selected')
 	},
 
 	/* Return the node closest to the current cursor position or null if not found */
