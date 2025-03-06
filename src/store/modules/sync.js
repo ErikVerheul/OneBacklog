@@ -152,8 +152,7 @@ const actions = {
 				// skip items that are not available in the tree
 				return
 			}
-			if (node.level === LEVEL.US || node.level === LEVEL.TASK)
-				commit('updateNodewithDocChange', { node, sprintId: targetSprintId, lastOtherChange: Date.now() })
+			if (node.level === LEVEL.US || node.level === LEVEL.TASK) commit('updateNodewithDocChange', { node, sprintId: targetSprintId, lastOtherChange: Date.now() })
 			const locationInfo = getLocationInfo(newPriority, newParentNode)
 			if (rootState.helpersRef.comparePaths(locationInfo.newPath, node.path) !== 0) {
 				// move the node to the new position w/r to its siblings; first remove the node, then insert
@@ -448,11 +447,7 @@ const actions = {
 										commit('renewSelectedNodes', nowSelectedNode)
 									}
 									rootState.helpersRef.removeNodes([node])
-									showSyncMessage(
-										`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`,
-										SEV.INFO,
-										MISC.SPECIAL_TEXT,
-									)
+									showSyncMessage(`from team '${team}' removed task '${taskTitle}' from product '${getProductTitle(rootState, doc.productId)}'`, SEV.INFO, MISC.SPECIAL_TEXT)
 								}
 							}
 							break
