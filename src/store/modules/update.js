@@ -570,8 +570,8 @@ const actions = {
 		})
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
-				// decode from escaped or base64 and replace any excaped blanks
-				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding).replace(/&nbsp;/g, ' ', 'saveDescription')
+				// decode from escaped or base64
+				const decodedDescription = decodeHtml(tmpDoc.description, tmpDoc.descriptionEncoding, 'saveDescription')
 				if (decodedDescription === payload.newDescription) {
 					if (rootState.debug) console.log('saveDescription: description is unchanged')
 					return
@@ -646,7 +646,7 @@ const actions = {
 			.then((res) => {
 				const tmpDoc = applyRetention(rootState, res.data)
 				// decode from escaped or base64 and replace any excaped blanks
-				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding).replace(/&nbsp;/g, ' ', 'saveAcceptance')
+				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding, 'saveAcceptance')
 				if (decodedAcceptance === payload.newAcceptance) {
 					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')
 					return
