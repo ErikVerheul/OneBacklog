@@ -3,6 +3,15 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.2.1 - 6 March 2025 Bug fix and refactoring</h3>
+        <p>Bug fix</p>
+        <ul>
+          <li>Fix erratic Quill behaviour by only changing the code-block class to display content outside the editor</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>Listen for 'mouseleave' event to emit a blur on the editor. No need for a delay in executing a node select event anymore</li>
+        </ul>
         <h3>v.3.2.0 - 3 March 2025 Major refactoring</h3>
         <p>Refactoring</p>
         <ul>
