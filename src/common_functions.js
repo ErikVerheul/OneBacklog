@@ -102,8 +102,8 @@ export function applyRetention(rootState, doc) {
 export function prepareDocForPresentation(doc) {
 	// set default team
 	if (doc.level > LEVEL.EPIC && !doc.team) doc.team = MISC.NOTEAM
-	doc.description = decodeHtml(doc.description, doc.descriptionEncoding, 'prepareDocForPresentation')
-	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding, 'prepareDocForPresentation')
+	doc.description = decodeHtml(doc.description, doc.descriptionEncoding, 'prepareDocForPresentation').replace(/&nbsp;/g, ' ')
+	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding, 'prepareDocForPresentation').replace(/&nbsp;/g, ' ')
 	return doc
 }
 

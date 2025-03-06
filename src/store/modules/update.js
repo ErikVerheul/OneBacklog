@@ -577,6 +577,9 @@ const actions = {
 					return
 				}
 
+				console.log('saveDescription: decodedDescription     = ' + decodedDescription)
+				console.log('saveDescription: payload.newDescription = ' + payload.newDescription)
+
 				const newEncodedDescription = encodeHtml(payload.newDescription)
 				// decode from escaped or base64
 				rootState.oldDescription = decodedDescription
@@ -648,9 +651,12 @@ const actions = {
 				// decode from escaped or base64 and replace any excaped blanks
 				const decodedAcceptance = decodeHtml(tmpDoc.acceptanceCriteria, tmpDoc.acceptanceEncoding, 'saveAcceptance')
 				if (decodedAcceptance === payload.newAcceptance) {
-					if (rootState.debug) console.log('saveDescription: acceptanceCriteria are unchanged')
+					if (rootState.debug) console.log('saveAcceptance: acceptanceCriteria are unchanged')
 					return
 				}
+
+				console.log('saveAcceptance: decodedAcceptance     = ' + decodedAcceptance)
+				console.log('saveAcceptance: payload.newAcceptance = ' + payload.newAcceptance)
 
 				const newEncodedAcceptance = encodeHtml(payload.newAcceptance)
 				// decode from escaped or base64
