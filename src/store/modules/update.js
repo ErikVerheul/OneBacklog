@@ -925,7 +925,7 @@ const actions = {
 					if (result.ok) updateOkCount++
 					if (result.error === 'conflict') {
 						updateConflictCount++
-						console.log('updateBulk: result = ' + JSON.stringify(result))
+						if (rootState.debug) console.log('updateBulk: result = ' + JSON.stringify(result))
 					}
 					if (result.error && result.error != 'conflict') otherErrorCount++
 				}
