@@ -505,7 +505,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the description of this item')) {
 			store.dispatch('saveDescription', {
 				node,
-				newDescription: store.state.currentDoc.description,
+				newDescription: store.state.currentDoc.description.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
 		}
@@ -515,7 +515,7 @@ const methods = {
 		if (this.haveAccessInTree(node.productId, this.getCurrentItemLevel, store.state.currentDoc.team, 'change the acceptance criteria of this item')) {
 			store.dispatch('saveAcceptance', {
 				node,
-				newAcceptance: store.state.currentDoc.acceptanceCriteria,
+				newAcceptance: store.state.currentDoc.acceptanceCriteria.replace(/&nbsp;/g, ' '),
 				timestamp: Date.now(),
 			})
 		}
