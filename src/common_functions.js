@@ -64,6 +64,12 @@ export function encodeHtml(str) {
 	return escapeHTML(str)
 }
 
+/* 
+* If encoding === 'escaped' decode from escaped else decode from b64 encoding. If the result is needed only for html presentation
+* also replace the class for the code presentation for an inline style.
+* Replace the legacy empty string definition <p><br></p> with <p></p>.
+* Replace any excaped spaces in returned html.
+*/
 export function decodeHtml(str, encoding, caller) {
 	function modifyHtml(html) {
 		// fix legacy empty string definitions
@@ -71,14 +77,14 @@ export function decodeHtml(str, encoding, caller) {
 		if (caller === 'mkDescriptionEvent' || caller === 'mkAcceptanceEvent' || caller === 'mkComment' || caller === 'getMsgContent') {
 			// style the code-block elements
 			return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
-		} else return html
+		} else return html.replace(/&nbsp;/g, ' ')
 	}
 
 	if (encoding === 'escaped') {
 		return modifyHtml(unescapeHTML(str))
 	}
-	// fall through if not yet converted to escaped + remove the extra space (bug?)
-	return modifyHtml(b64ToUni(str).replace(' </p>', '</p>'))
+	// fall through if not yet converted to escaped
+	return modifyHtml(b64ToUni(str))
 }
 
 /* Apply the retention rules to the history array of the document */
@@ -102,8 +108,8 @@ export function applyRetention(rootState, doc) {
 export function prepareDocForPresentation(doc) {
 	// set default team
 	if (doc.level > LEVEL.EPIC && !doc.team) doc.team = MISC.NOTEAM
-	doc.description = decodeHtml(doc.description, doc.descriptionEncoding, 'prepareDocForPresentation').replace(/&nbsp;/g, ' ')
-	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding, 'prepareDocForPresentation').replace(/&nbsp;/g, ' ')
+	doc.description = decodeHtml(doc.description, doc.descriptionEncoding, 'prepareDocForPresentation')
+	doc.acceptanceCriteria = decodeHtml(doc.acceptanceCriteria, doc.acceptanceEncoding, 'prepareDocForPresentation')
 	return doc
 }
 
