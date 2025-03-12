@@ -422,7 +422,10 @@ const methods = {
 	},
 
 	mkResetCommentsEvent(value) {
-		return `<h6>${value[0]} Comment items older than ${new Date(value[1]).toString().substring(0, 33)} are removed in a cleanup initiated by an administrator.</h6>`
+		if (value[1]) {
+			// return an empty string if the event was a legacy event
+			return `<h6>${value[0]} Comment items older than ${new Date(value[1]).toString().substring(0, 33)} are removed in a cleanup initiated by an administrator.</h6>`
+		} else return ''
 	},
 
 	mkBy(value) {
