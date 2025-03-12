@@ -3,6 +3,15 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.2.2 - 12 March 2025 Bug fix and refactoring</h3>
+        <p>Bug fix</p>
+        <ul>
+          <li>Fix regression when showing legacy comments purged event</li>
+        </ul>
+        <p>Refactoring</p>
+        <ul>
+          <li>Emit the brur event when de editor has focus</li>
+        </ul>
         <h3>v.3.2.1 - 6 March 2025 Bug fix and refactoring</h3>
         <p>Bug fix</p>
         <ul>
