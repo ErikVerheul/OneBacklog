@@ -1,5 +1,10 @@
+/*
+* This component is based on the adapted QuillyEditor component with a set theme and toolbar.
+* It emits a blur when leaving the editor area to the toolbar or anywhere else.
+*/
+
 <template>
-  <quilly-editor ref="editor" v-model="content" :options="options" :isSemanticHtmlModel="true" />
+  <quilly-editor ref="editor" v-model="content" :options="options" :isSemanticHtmlModel="true" @mouseleave="emitBlur" />
 </template>
 
 <script setup>
@@ -9,8 +14,10 @@
   import QuillyEditor from './QuillyEditor.vue'
   import 'quill/dist/quill.snow.css'
 
+  let quill = null
   const editor = ref()
   const content = ref(MISC.EMPTYQUILL)
+  const emit = defineEmits(['blur'])
   const options = ref({
     theme: 'snow',
     modules: {
@@ -27,8 +34,16 @@
     readOnly: false
   })
 
+  // Emit a blur event when the cursor leaves the editor (or moves to the editor toolbar)
+  const emitBlur = () => {
+    // hasFocus: Checks if editor has focus. Note focus on toolbar, tooltips, does not count as the editor
+    if (quill && quill.hasFocus()) {
+      emit('blur', quill)
+    }
+  }
+
   onMounted(() => {
-    editor.value.initialize(Quill)
+    quill = editor.value.initialize(Quill)
   })
 
 </script>

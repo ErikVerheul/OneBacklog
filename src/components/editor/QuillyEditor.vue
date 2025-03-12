@@ -1,6 +1,7 @@
 /*
-* This code is originates from https://github.com/alekswebnet/vue-quilly and is adapted to also emit a blur event when clicking on a non input field outside
-* the editor
+* This code originates from https://github.com/alekswebnet/vue-quilly and is adapted to not emit a blur event.
+* The original blur was not emitted when selecting a non input element outside the editor.
+* The original code is licensed under MIT License.
 */
 
 <script setup lang="ts">
@@ -17,16 +18,9 @@
 
   const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
-    (
-      e: 'text-change',
-      { delta, oldContent, source }: { delta: Delta; oldContent: Delta; source: EmitterSource }
-    ): void
-    (
-      e: 'selection-change',
-      { range, oldRange, source }: { range: Range; oldRange: Range; source: EmitterSource }
-    ): void
+    (e: 'text-change', { delta, oldContent, source }: { delta: Delta; oldContent: Delta; source: EmitterSource }): void
+    (e: 'selection-change', { range, oldRange, source }: { range: Range; oldRange: Range; source: EmitterSource }): void
     (e: 'editor-change', eventName: 'text-change' | 'selection-change'): void
-    (e: 'blur', quill: Quill): void
     (e: 'focus', quill: Quill): void
     (e: 'ready', quill: Quill): void
   }>()
@@ -53,17 +47,12 @@
       pasteHTML(quill)
     }
 
-    // Handle editor selection change, emit blur and focus
+    // Handle editor selection change, emit focus. Do not emit blur here
     quill.on('selection-change', (range, oldRange, source) => {
       if (range) {
         emit('focus', quill)
       }
       emit('selection-change', { range, oldRange, source })
-    })
-
-    // Emit a blur event when the cursor leaves the editor (or moves to the editor toolbar)
-    quill.root.addEventListener('mouseleave', function () {
-      emit('blur', quill)
     })
 
     // Handle editor text change
