@@ -10,6 +10,7 @@ const TASKLEVEL = 6
 var db
 var configData = {}
 var runData = {}
+var lastSeq = undefined
 
 /* The "Unicode Problem" See https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
 Since btoa interprets the code points of its input string as byte values, 
@@ -205,9 +206,7 @@ function mkHtml(dbName, eventType, value, event, doc) {
       return createEmail(txt)
     }
     case 'undoBranchRemovalEvent':
-      return createEmail(
-        `<h3>The ${getLevelText(dbName, value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`,
-      )
+      return createEmail(`<h3>The ${getLevelText(dbName, value[9], value[10])} with title '${value[11]}' and ${value[1]} descendants are restored from removal</h3>`)
     case 'newChildEvent':
       return createEmail(`<h3>A ${getLevelText(dbName, value[0], 0)} was created as a child of this item at position ${value[1]}</h3>`)
     case 'nodeMovedEvent': {
@@ -276,10 +275,11 @@ function mkHtml(dbName, eventType, value, event, doc) {
   }
 }
 
-function listenForChanges(dbName) {
+function listenForChanges(dbName, since) {
   nano.db
-    .changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since: 'now' })
+    .changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since })
     .then((body) => {
+      lastSeq = body.data.last_seq
       // console.log('body = ' + JSON.stringify(body, null, 2))
       const results = body.results
       for (let r of results) {
@@ -305,11 +305,11 @@ function listenForChanges(dbName) {
         }
       }
       console.log('listenForChanges: listening to database ' + dbName)
-      listenForChanges(dbName)
+      listenForChanges(dbName, lastSeq)
     })
     .catch((err) => {
       if (err.code === 'ESOCKETTIMEDOUT') {
-        listenForChanges(dbName)
+        listenForChanges(dbName, 'now')
       } else if (err.statusCode === 404) {
         console.log('listenForChanges: The database ' + dbName + ' cannot be reached. Stop listening')
         runData[dbName].listening = false
@@ -324,7 +324,7 @@ function getConfig(dbName) {
   db.get('config')
     .then((body) => {
       configData[dbName] = body
-      listenForChanges(dbName)
+      listenForChanges(dbName, 'now')
     })
     .catch((err) => {
       console.log('An error is detected while loading the configuration of database ' + dbName + ' : ' + err)
