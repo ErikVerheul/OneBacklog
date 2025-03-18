@@ -16,15 +16,10 @@ function base64ToBytes(base64) {
 	return Uint8Array.from(binString, (m) => m.codePointAt(0))
 }
 
-/* these functions are obsolete starting at v.3.0.0 */
+/* this functions is obsolete starting at v.3.0.0 */
 // function bytesToBase64(bytes) {
 // 	const binString = Array.from(bytes, (x) => String.fromCodePoint(x)).join('')
 // 	return window.btoa(binString)
-// }
-
-// /* Convert unicode string to base64 encoded ascii */
-// function uniTob64(str) {
-// 	return bytesToBase64(new TextEncoder().encode(str))
 // }
 
 /* Convert base64 encoded ascii to unicode string */
@@ -64,12 +59,12 @@ export function encodeHtml(str) {
 	return escapeHTML(str)
 }
 
-/* 
-* If encoding === 'escaped' decode from escaped else decode from b64 encoding. If the result is needed only for html presentation
-* also replace the class for the code presentation for an inline style.
-* Replace the legacy empty string definition <p><br></p> with <p></p>.
-* Replace any excaped spaces in returned html.
-*/
+/*
+ * If encoding === 'escaped' decode from escaped else decode from b64 encoding. If the result is needed only for html presentation
+ * also replace the class for the code presentation for an inline style.
+ * Replace the legacy empty string definition <p><br></p> with <p></p>.
+ * Replace any excaped spaces in returned html.
+ */
 export function decodeHtml(str, encoding, caller) {
 	function modifyHtml(html) {
 		// fix legacy empty string definitions
