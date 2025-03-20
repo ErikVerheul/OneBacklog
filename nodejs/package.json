@@ -11,8 +11,8 @@
   "licence": "GPL-3.0",
   "dependencies": {
     "dotenv": "^16.4.7",
-    "form-data": "^4.0.1",
-    "mailgun.js": "^11.1.0",
+    "form-data": "^4.0.2",
+    "mailgun.js": "^12.0.1",
     "nano": "^10.1.4"
   }
 }
