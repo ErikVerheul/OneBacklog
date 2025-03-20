@@ -3,8 +3,13 @@ import Dotenv from 'dotenv'
 new Dotenv.config()
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
-import Mailgun from 'mailgun-js'
-const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
+import FormData from 'form-data'
+import Mailgun from 'mailgun.js'
+// const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
+
+const mailgun = new Mailgun(FormData)
+const mg = mailgun.client({ username: 'api', key: process.env.API_KEY || 'API_KEY', url: 'https://api.eu.mailgun.net/v3' })
+
 const USLEVEL = 5
 const TASKLEVEL = 6
 var db
@@ -21,6 +26,11 @@ it is necessary to first convert the string to its constituent bytes in UTF-8, a
 function base64ToBytes(base64) {
   const binString = atob(base64)
   return Uint8Array.from(binString, (m) => m.codePointAt(0))
+}
+
+/* Convert base64 encoded ascii to unicode string */
+function b64ToUni(bytes) {
+  return new TextDecoder().decode(base64ToBytes(bytes))
 }
 
 function unescapeHTML(str) {
@@ -275,12 +285,35 @@ function mkHtml(dbName, eventType, value, event, doc) {
   }
 }
 
+async function sendEmail(fObj, dbName, eventName, event, doc) {
+  try {
+    const data = await mg.messages.create('mg.onebacklog.net', {
+      // from: 'no-reply@onebacklog.net',
+      // to: [fObj.email],
+      // subject: 'Event ' + eventName + ' occurred',
+      // // text: 'Congratulations Erik Verheul, you just sent an email with Mailgun! You are truly awesome!',
+      // html: mkHtml(dbName, eventName, event[eventName], event, doc),
+      from: 'Mailgun Sandbox <postmaster@mg.onebacklog.net>',
+      to: ['Erik Verheul <tech@verheulconsultants.nl>'],
+      subject: 'Hello Erik Verheul',
+      text: 'Congratulations Erik Verheul, you just sent an email with Mailgun! You are truly awesome!',
+    })
+    console.log(data) // logs response data
+  } catch (error) {
+    if (error.response && error.response.body) {
+      console.log(error.response.body) // logs API error response
+    } else {
+      console.error('An unexpected error occurred:', error) // logs unexpected errors
+    }
+  }
+}
+
 function listenForChanges(dbName, since) {
   nano.db
     .changes(dbName, { feed: 'longpoll', include_docs: true, filter: 'filters/email_filter', since })
     .then((body) => {
-      lastSeq = body.data.last_seq
       // console.log('body = ' + JSON.stringify(body, null, 2))
+      lastSeq = body.last_seq
       const results = body.results
       for (let r of results) {
         let doc = r.doc
@@ -292,15 +325,17 @@ function listenForChanges(dbName, since) {
           for (let fObj of doc.followers) {
             if (event.doNotMessageMyself && fObj.user === event.by) continue
 
-            const data = {
-              from: 'no-reply@onebacklog.net',
-              to: fObj.email,
-              subject: 'Event ' + eventName + ' occurred',
-              html: mkHtml(dbName, eventName, event[eventName], event, doc),
-            }
-            mailgun.messages().send(data, (error, body) => {
-              console.log(body)
-            })
+            // const data = {
+            //   from: 'no-reply@onebacklog.net',
+            //   to: fObj.email,
+            //   subject: 'Event ' + eventName + ' occurred',
+            //   html: mkHtml(dbName, eventName, event[eventName], event, doc),
+            // }
+            // mailgun.messages().send(data, (error, body) => {
+            //   console.log(body)
+            // })
+
+            sendEmail(fObj, dbName, eventName, event, doc)
           }
         }
       }
@@ -384,5 +419,5 @@ function getAllDataBases() {
       console.log('getAllDataBases: An error is detected while loading the database names: ' + err)
     })
 }
-
+console.log('process.env.API_KEY = ' + process.env.API_KEY)
 getAllDataBases()
