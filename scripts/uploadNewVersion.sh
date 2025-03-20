@@ -10,4 +10,6 @@ scp  -r dist/assets dist/img $TARGET_DIR
 echo "Copy the e-mail service app"
 scp dist/../nodejs/package.json $TARGET_DIR
 scp dist/../nodejs/app.mjs $TARGET_DIR
+cd ./nodejs
+scp .env $TARGET_DIR
 echo "Upload is done"
