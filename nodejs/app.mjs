@@ -3,12 +3,23 @@ import Dotenv from 'dotenv'
 new Dotenv.config()
 import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
+
+/*
+From the Mailgun example - which gives error:
+An unexpected error occurred: [Ni [Error]: Method Not Allowed] {
+  status: 405,
+  details: 'Request failed with status code 405',
+  type: 'MailgunAPIError'
+}
 import FormData from 'form-data'
 import Mailgun from 'mailgun.js'
-// const mailgun = new Mailgun({ apiKey: process.env.API_KEY, domain: process.env.DOMAIN, host: 'api.eu.mailgun.net' })
-
 const mailgun = new Mailgun(FormData)
-const mg = mailgun.client({ username: 'api', key: process.env.API_KEY || 'API_KEY', url: 'https://api.eu.mailgun.net/v3' })
+const mg = mailgun.client({
+  username: 'api',
+  key: process.env.API_KEY || 'API_KEY',
+  url: 'https://api.eu.mailgun.net/v3',
+})
+*/
 
 const USLEVEL = 5
 const TASKLEVEL = 6
@@ -286,24 +297,45 @@ function mkHtml(dbName, eventType, value, event, doc) {
 }
 
 async function sendEmail(fObj, dbName, eventName, event, doc) {
+  // From the Mailgun example:
+  // try {
+  //   const data = await mg.messages.create('mg.onebacklog.net', {
+  //     from: 'no-reply@onebacklog.net',
+  //     to: [fObj.email],
+  //     subject: 'Event ' + eventName + ' occurred',
+  //     html: mkHtml(dbName, eventName, event[eventName], event, doc),
+  //   })
+  //   console.log(data) // logs response data
+  // } catch (error) {
+  //   if (error.response && error.response.body) {
+  //     console.log(error.response.body) // logs API error response
+  //   } else {
+  //     console.error('An unexpected error occurred:', error) // logs unexpected errors
+  //   }
+  // }
+
   try {
-    const data = await mg.messages.create('mg.onebacklog.net', {
-      // from: 'no-reply@onebacklog.net',
-      // to: [fObj.email],
-      // subject: 'Event ' + eventName + ' occurred',
-      // // text: 'Congratulations Erik Verheul, you just sent an email with Mailgun! You are truly awesome!',
-      // html: mkHtml(dbName, eventName, event[eventName], event, doc),
-      from: 'Mailgun Sandbox <postmaster@mg.onebacklog.net>',
-      to: ['Erik Verheul <tech@verheulconsultants.nl>'],
-      subject: 'Hello Erik Verheul',
-      text: 'Congratulations Erik Verheul, you just sent an email with Mailgun! You are truly awesome!',
+    const body = new URLSearchParams({
+      from: 'no-reply@onebacklog.net',
+      to: [fObj.email],
+      subject: 'Event ' + eventName + ' occurred',
+      html: mkHtml(dbName, eventName, event[eventName], event, doc),
     })
-    console.log(data) // logs response data
+
+    const res = await fetch('https://api.eu.mailgun.net/v3/mg.onebacklog.net/messages', {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${btoa(`api:${process.env.API_KEY}`)}`,
+      },
+      body,
+    })
+    const result = await res.json()
+    console.log(result)
   } catch (error) {
     if (error.response && error.response.body) {
       console.log(error.response.body) // logs API error response
     } else {
-      console.error('An unexpected error occurred:', error) // logs unexpected errors
+      console.error('sendEmail: An unexpected error occurred:', error) // logs unexpected errors
     }
   }
 }
@@ -324,16 +356,6 @@ function listenForChanges(dbName, since) {
           // process new event in history; comment additions and changes are also registered in history. However, the content is not.
           for (let fObj of doc.followers) {
             if (event.doNotMessageMyself && fObj.user === event.by) continue
-
-            // const data = {
-            //   from: 'no-reply@onebacklog.net',
-            //   to: fObj.email,
-            //   subject: 'Event ' + eventName + ' occurred',
-            //   html: mkHtml(dbName, eventName, event[eventName], event, doc),
-            // }
-            // mailgun.messages().send(data, (error, body) => {
-            //   console.log(body)
-            // })
 
             sendEmail(fObj, dbName, eventName, event, doc)
           }
@@ -419,5 +441,5 @@ function getAllDataBases() {
       console.log('getAllDataBases: An error is detected while loading the database names: ' + err)
     })
 }
-console.log('process.env.API_KEY = ' + process.env.API_KEY)
+
 getAllDataBases()
