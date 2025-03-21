@@ -5,20 +5,22 @@ import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 
 /*
-From the Mailgun example - which gives error:
-An unexpected error occurred: [Ni [Error]: Method Not Allowed] {
-  status: 405,
-  details: 'Request failed with status code 405',
-  type: 'MailgunAPIError'
-}
-import FormData from 'form-data'
-import Mailgun from 'mailgun.js'
-const mailgun = new Mailgun(FormData)
-const mg = mailgun.client({
-  username: 'api',
-  key: process.env.API_KEY || 'API_KEY',
-  url: 'https://api.eu.mailgun.net/v3',
-})
+  From the Mailgun example - which gives error:
+  An unexpected error occurred: [Ni [Error]: Method Not Allowed] {
+    status: 405,
+    details: 'Request failed with status code 405',
+    type: 'MailgunAPIError'
+  }
+  import FormData from 'form-data'
+  import Mailgun from 'mailgun.js'
+  const mailgun = new Mailgun(FormData)
+  const mg = mailgun.client({
+    username: 'api',
+    key: process.env.API_KEY || 'API_KEY',
+    url: 'https://api.eu.mailgun.net/v3',
+  })
+
+  Note: According to https://github.com/mailgun/mailgun.js/issues/423 removing the v3 in the url should solve the problem.
 */
 
 const USLEVEL = 5
