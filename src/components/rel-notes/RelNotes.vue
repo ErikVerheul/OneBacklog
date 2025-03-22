@@ -3,6 +3,11 @@
     <BRow>
       <BCol cols="12" class="left-column">
         <h1>RELEASE NOTES</h1>
+        <h3>v.3.2.3 - 22 March 2025 Mail service update</h3>
+        <p>Refactoring</p>
+        <ul>
+          <li>Use the latest dependencies from Mailgun and bug fixed example code</li>
+        </ul>
         <h3>v.3.2.2 - 12 March 2025 Bug fix and refactoring</h3>
         <p>Bug fix</p>
         <ul>
