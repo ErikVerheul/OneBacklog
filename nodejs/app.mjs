@@ -5,23 +5,22 @@ import Nano from 'nano'
 const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COUCH_PW + '@localhost:5984')
 
 /*
-  From the Mailgun example - which gives error:
+  From the Mailgun example - which gives this error when url: 'https://api.eu.mailgun.net/v3' is used:
   An unexpected error occurred: [Ni [Error]: Method Not Allowed] {
     status: 405,
     details: 'Request failed with status code 405',
     type: 'MailgunAPIError'
   }
-  import FormData from 'form-data'
-  import Mailgun from 'mailgun.js'
-  const mailgun = new Mailgun(FormData)
-  const mg = mailgun.client({
-    username: 'api',
-    key: process.env.API_KEY || 'API_KEY',
-    url: 'https://api.eu.mailgun.net/v3',
-  })
-
-  Note: According to https://github.com/mailgun/mailgun.js/issues/423 removing the v3 in the url should solve the problem.
+  According to https://github.com/mailgun/mailgun.js/issues/423 removing the v3 in the url should solve the problem.
 */
+import FormData from 'form-data'
+import Mailgun from 'mailgun.js'
+const mailgun = new Mailgun(FormData)
+const mg = mailgun.client({
+  username: 'api',
+  key: process.env.API_KEY || 'API_KEY',
+  url: 'https://api.eu.mailgun.net',
+})
 
 const USLEVEL = 5
 const TASKLEVEL = 6
@@ -300,46 +299,47 @@ function mkHtml(dbName, eventType, value, event, doc) {
 
 async function sendEmail(fObj, dbName, eventName, event, doc) {
   // From the Mailgun example:
-  // try {
-  //   const data = await mg.messages.create('mg.onebacklog.net', {
-  //     from: 'no-reply@onebacklog.net',
-  //     to: [fObj.email],
-  //     subject: 'Event ' + eventName + ' occurred',
-  //     html: mkHtml(dbName, eventName, event[eventName], event, doc),
-  //   })
-  //   console.log(data) // logs response data
-  // } catch (error) {
-  //   if (error.response && error.response.body) {
-  //     console.log(error.response.body) // logs API error response
-  //   } else {
-  //     console.error('An unexpected error occurred:', error) // logs unexpected errors
-  //   }
-  // }
-
   try {
-    const body = new URLSearchParams({
+    const data = await mg.messages.create('mg.onebacklog.net', {
       from: 'no-reply@onebacklog.net',
       to: [fObj.email],
       subject: 'Event ' + eventName + ' occurred',
       html: mkHtml(dbName, eventName, event[eventName], event, doc),
     })
-
-    const res = await fetch('https://api.eu.mailgun.net/v3/mg.onebacklog.net/messages', {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${btoa(`api:${process.env.API_KEY}`)}`,
-      },
-      body,
-    })
-    const result = await res.json()
-    console.log(result)
+    console.log(data) // logs response data
   } catch (error) {
     if (error.response && error.response.body) {
       console.log(error.response.body) // logs API error response
     } else {
-      console.error('sendEmail: An unexpected error occurred:', error) // logs unexpected errors
+      console.error('An unexpected error occurred:', error) // logs unexpected errors
     }
   }
+
+  // A workaround for the Mailgun problem:
+  // try {
+  //   const body = new URLSearchParams({
+  //     from: 'no-reply@onebacklog.net',
+  //     to: [fObj.email],
+  //     subject: 'Event ' + eventName + ' occurred',
+  //     html: mkHtml(dbName, eventName, event[eventName], event, doc),
+  //   })
+
+  //   const res = await fetch('https://api.eu.mailgun.net/v3/mg.onebacklog.net/messages', {
+  //     method: 'POST',
+  //     headers: {
+  //       Authorization: `Basic ${btoa(`api:${process.env.API_KEY}`)}`,
+  //     },
+  //     body,
+  //   })
+  //   const result = await res.json()
+  //   console.log(result)
+  // } catch (error) {
+  //   if (error.response && error.response.body) {
+  //     console.log(error.response.body) // logs API error response
+  //   } else {
+  //     console.error('sendEmail: An unexpected error occurred:', error) // logs unexpected errors
+  //   }
+  // }
 }
 
 function listenForChanges(dbName, since) {
