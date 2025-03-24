@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "hmr": "vite --debug hmr",
-    "lint": "eslint --fix"
+    "lint": "eslint --fix",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "Scrum",
@@ -37,14 +40,15 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.23.0",
+    "@vitejs/plugin-vue": "^5.2.3",
     "eslint": "^9.23.0",
     "eslint-plugin-vue": "^9.33.0",
     "globals": "^16.0.0",
     "prettier": "3.5.3",
     "typescript": "^5.8.2",
     "unplugin-vue-components": "^28.4.1",
-    "vite": "^6.2.2",
-    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.2.3",
+    "vitepress": "^1.6.3",
     "vue-tsc": "^2.2.8"
   },
   "eslintConfig": {
