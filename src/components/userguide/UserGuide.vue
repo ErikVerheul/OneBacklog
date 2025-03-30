@@ -363,59 +363,43 @@
 	</BContainer>
 </template>
 
-<script>
-import router from '../../router'
-import store from '../../store/store'
+<script setup>
 
-function beforeMount() {
-	if (store.state.signedOut) {
-		// route back to signin
-		router.push('/init')
-	}
-}
-
-const methods = {
-	getImgUrl(img) {
+	function getImgUrl(img) {
 		return import.meta.env.VITE_SITE_URL + '/' + img
 	}
-}
-
-export default {
-	beforeMount,
-	methods
-}
 
 </script>
 
 <style scoped>
-.left-column {
-	text-align: left;
-	background-color: #408fae;
-	color: white;
-	border: 1px solid black;
-}
+	.left-column {
+		text-align: left;
+		background-color: #408fae;
+		color: white;
+		border: 1px solid black;
+	}
 
-p,
-ul {
-	margin-left: 10px;
-	color: black;
-}
+	p,
+	ul {
+		margin-left: 10px;
+		color: black;
+	}
 
-.pro-user {
-	color: gold
-}
+	.pro-user {
+		color: gold
+	}
 
-.indent20 {
-	margin-left: 20px;
-	color: black;
-}
+	.indent20 {
+		margin-left: 20px;
+		color: black;
+	}
 
-a {
-	color: black;
-	text-decoration: underline;
-}
+	a {
+		color: black;
+		text-decoration: underline;
+	}
 
-img {
-	margin-bottom: 10px;
-}
+	img {
+		margin-bottom: 10px;
+	}
 </style>
