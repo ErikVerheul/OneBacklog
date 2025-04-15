@@ -22,7 +22,8 @@ const methods = {
 		this.getUserFirst = true
 		this.isUserDbSelected = false
 		this.canRemoveLastProduct = true
-		;(this.canRemoveDatabase = true), (this.localMessage = '')
+		this.canRemoveDatabase = true
+		this.localMessage = ''
 		store.state.backendMessages = []
 		store.state.isUserFound = false
 		store.state.areDatabasesFound = false
