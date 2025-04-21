@@ -20,9 +20,6 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
-# VitePress
-docs/.vitepress/dist
-docs/.vitepress/cache
 # any test file containing Mailgun keys
 nodejs/test.*
 # node.js environment file
