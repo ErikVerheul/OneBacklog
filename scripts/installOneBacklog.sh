@@ -5,6 +5,7 @@ PM2_DIR=/home/pm2
 rm  -rf $WEB_DIR/*
 echo "The directory should be clean"
 ls -al $WEB_DIR
+echo "Copying files to the WEB directory"
 cp index.html $WEB_DIR
 cp favicon.ico $WEB_DIR
 cp maintenance.html $WEB_DIR
