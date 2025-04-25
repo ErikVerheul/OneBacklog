@@ -8,8 +8,8 @@ scp dist/index.html dist/favicon.ico dist/maintenance.html $TARGET_DIR
 echo "The folders assets and img will be copied to your target directory:"
 scp  -r dist/assets dist/img $TARGET_DIR
 echo "Copy the e-mail service app"
-scp dist/../nodejs/package.json $TARGET_DIR
-scp dist/../nodejs/app.mjs $TARGET_DIR
-cd ./nodejs
+scp dist/../mailservice/package.json $TARGET_DIR
+scp dist/../mailservice/app.mjs $TARGET_DIR
+cd ./mailservice
 scp .env $TARGET_DIR
 echo "Upload is done"

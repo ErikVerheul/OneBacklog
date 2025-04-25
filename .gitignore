@@ -21,6 +21,6 @@ pnpm-debug.log*
 *.sln
 *.sw?
 # any test file containing Mailgun keys
-nodejs/test.*
-# node.js environment file
-nodejs/.env
+mailservice/test.*
+# mailservice environment file
+mailservice/.env

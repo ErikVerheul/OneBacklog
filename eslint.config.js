@@ -8,6 +8,6 @@ export default [
 	pluginJs.configs.recommended,
 	...pluginVue.configs['flat/essential'],
 	{
-		ignores: ['**/dist/', '**/nodejs/'],
+		ignores: ['**/dist/', '**/mailservice/'],
 	},
 ]
