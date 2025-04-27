@@ -331,7 +331,7 @@ const actions = {
 						map: `function(doc) {
 							// negate priority to sort the highest abosolute priority value on top
 							if (doc.type == "backlogItem" && !doc.delmark && doc.level) emit([doc.level, doc.productId, doc.parentId, -doc.priority],
-								[doc.reqarea, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId, doc.lastAttachmentAddition, 
+								[doc.reqarea, doc.state, doc.title, doc.team, doc.subtype, doc.dependencies, doc.conditionalFor, doc.color, doc.sprintId, doc.lastAttachmentAddition,
 								doc.lastAttachmentRemoval, doc.lastOtherChange, doc.lastCommentAddition, doc.lastContentChange, doc.lastPositionChange, doc.lastStateChange])
 						}`,
 					},
@@ -379,7 +379,7 @@ const actions = {
 					removedDocToParentMap: {
 						map: `function(doc) {
 							// doc.delmark can be undefined or an id; doc.priority is used to order the results when on the same doc.level
-  						if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority])
+  						if (doc.type == "backlogItem" && doc.delmark) emit([doc.delmark, doc.parentId, -doc.priority], 1)
 						}`,
 					},
 					/* Filter on document type 'backlogItem', then sort on shortId. */
