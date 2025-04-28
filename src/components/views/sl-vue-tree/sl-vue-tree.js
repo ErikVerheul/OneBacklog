@@ -199,9 +199,6 @@ const methods = {
 		// disallow selection of the root node
 		if (node.level === LEVEL.DATABASE) return
 
-		// set preventProductDrag (true if clicked on a product node and the node is not expanded)
-		this.preventProductDrag = node.tmpPreventDrag && !node.isExpanded
-
 		if (!this.isDragging) {
 			// cursorPosition not available, so get it
 			const cPos = this.getCursorModelPositionFromCoords(event.clientX, event.clientY)
