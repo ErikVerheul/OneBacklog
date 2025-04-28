@@ -1,9 +1,11 @@
 
-To install a new version of OneBacklog on your Linux server follow these steps:
-First adjust in your development environment the following parameters in the scripts to your installation:
-TARGET_DIR=< the target (home) directory on the remote host >
-WEB_DIR=< the directory on the remote host containing the public html files >
-PM2_DIR=< the home directory of the account on the remote host running PM2 >
+To install a new version of OneBacklog on your Linux web server follow these steps:
+Build the app with NPM run build to create the files in dist.
+Also adjust in your development environment the following parameters in the .env file in the app install root directory:
+DOMAIN_NAME=< the domain name of your web server >
+TARGET_DIR=< the target (home) directory on the remote host > // TARGET_DIR=you@<your domain name>:/home/you if you have SSH access to the web server
+WEB_DIR=< the directory on the remote host containing the public html files > // WEB_DIR=/var/www/html for Apache web server
+PM2_DIR=< the home directory of the account on the remote host running PM2 > // PM2_DIR=/home/pm2 when PM2 is installed and used as program management tool
 
 cd to the root directory of the app on your development machine.
 Then open a bash shell (eg. GIT bash) and type:
@@ -16,6 +18,6 @@ Then open a bash shell (eg. GIT bash) and type:
 
 4. ssh to the server
 5. sudo ./installOneBacklog.sh to install the new version.
-6. Ctrl-F5 the OneBacklog.net page in your browser to check if the version number has changed.
+6. Ctrl-F5 the <your domain name> page in your browser to check if the version number has changed.
 
 Note: cd ../pm2 to open the directory with the mailservice app
