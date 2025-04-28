@@ -11,7 +11,7 @@ Direct links to subjects:
 [Sprint Backlog](#sprint-backlog)<br>
 [The events and their usage](#the-events-and-their-usage)<br>
 [Team documents](#team-documents)<br>
-[Team, sprintId and taskOwner assignment](#team-and-sprintid-and-taskowner-assignment)<br>
+[Team, sprintId and taskOwner assignment](#team-sprintid-and-taskowner-assignment)<br>
 [Install CouchDB](#install-couchdb)<br>
 [Finally](#finally)<br>
 [Known errors and issues](#known-errors-and-issues)
@@ -24,49 +24,72 @@ Clone the OneBacklog software from Github.
 
 cd to the directory of this app
 
-```bash
-npm install
-```
+    npm install
 
-### adapt two files with environment settings for development and production
+### Adapt four files with environment settings for development and production (and the mail service)
 
-Note: both files have lines you MUST change for your instance.</br>
-cd to the root directory of this app and use your favorite editor to modify the file named `.env.development` and enter:
+#### Update the generic .env file
 
-VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
-VITE_DEBUG=false // set to true to see console log messages on most critical events
-VITE_DEBUG_ACCESS=false // set to true to see console log messages regarding the user access rigths
-VITE_DEBUG_CONNECTION=false // set to true to see console log messages regarding the CouchDb cookie authentication renewal
-VITE_SITE_URL=http://localhost:8080
-VITE_API_URL=http://localhost:5984
+cd to the root directory of this app and change the following parameters in the .env file in the app install root directory:
 
-cd to the root directory of this app and use your favorite editor to modify the file named `.env.production` and enter:
+    DOMAIN_NAME=< the (sub)domain name of your web server > // eg. DOMAIN_NAME=ourBacklog.ourcompanyname.com
+    TARGET_DIR=< the target (home) directory on the remote host > // TARGET_DIR=you@<your (sub)domain name>:/home/you if you have SSH access to the web server
+    WEB_DIR=< the directory on the remote host containing the public html files > // WEB_DIR=/var/www/html for Apache web server
+    PM2_DIR=< the home directory of the account on the remote host running PM2 for the mail service> // PM2_DIR=/home/pm2 when PM2 is installed and used as process management tool
+    LOCAL_HOST=localhost
+    LOCAL_PORT=8080
 
-VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
-VITE_SITE_URL=https://< your domain name > // MUST CHANGE
-VITE_API_URL=https://< your domain name >:6984 // MUST CHANGE
+#### Update the Vite .env files (optional)
+
+cd to the root directory of this app and use your favorite editor to modify the file named `.env.development` and change the boolean values to true if needed:
+
+    VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
+    VITE_DEBUG=false // set to true to see console log messages on most critical events
+    VITE_DEBUG_ACCESS=false // set to true to see console log messages regarding the user access rigths
+    VITE_DEBUG_CONNECTION=false // set to true to see console log messages regarding the CouchDb cookie authentication renewal
+    // the set values in your .env file are used to set the local host and port
+    VITE_LOCAL_PORT=${LOCAL_PORT}
+    VITE_SITE_URL=http://${LOCAL_HOST}:${LOCAL_PORT}
+    VITE_API_URL=http://${LOCAL_HOST}:5984
+
+cd to the root directory of this app and use your favorite editor to modify the file named `.env.production` and change the boolean value to true if needed:
+
+    VITE_IS_DEMO=false // set to true only when you have created a demoUser with limited authorization
+    // the DOMAIN_NAME value set in your .env file is used to set the remote host for the web server
+    VITE_SITE_URL=https://${DOMAIN_NAME}
+    // the DOMAIN_NAME value set in your .env file is used to set the remote host for the CouchDB API
+    VITE_API_URL=https://${DOMAIN_NAME}:6984
+
+#### CREATE the mail service .env file (optional)
+
+When using an email provider like Mailgun add a .env file in the mailservice directory with your CouchDb and Mailgun credentials.<br>
+`Prevent the publication of this sensitive information in your .gitignore file` like so:
+
+    # mailservice environment file
+    mailservice/.env
+
+and create your .env file like so:
+
+    DOMAIN_NAME=<your (sub)domain name>
+    COUCH_USER=name
+    COUCH_PW=password
+    API_KEY=your key
 
 ### serve with hot reload for development at localhost:8080
 
-```bash
-npm run dev
-```
+    npm run dev
 
 ### lints and fixes files
 
-```bash
-npm run lint
-```
+    npm run lint
 
 ### build for production with minification
 
-```bash
-npm run build
-```
+    npm run build
 
 ### Customize configuration
 
-See [Configuration Reference](https://vitejs.dev/config/).
+See the [Vite Configuration Reference](https://vitejs.dev/config/)
 
 ## Database fields mapping to node props
 
@@ -160,7 +183,6 @@ The node level determines the item type. See [Item types](#item-types)
 #### Temporary and private use, not stored, not synced with other on-line users
 
     node.data.tmp = { targetParentId: targetParentNode._id, team: node.data.team } set if options.createParentUpdateSets === true in applyNodeInsertionRules
-    tmpPreventDrag: false // a temporary state to prevent a selected product node to enter the dragging mode after selection
 
     tmp: {
         isHighlighted_1: boolean // light blue
@@ -295,7 +317,7 @@ A team calendar will be removed by an admin if the team is removed.
     ...
     ]
 
-In the CONFIG document the user story subtypes are defined
+In the CONFIG document the user story subtypes are defined:
 
     "subtype": [
         "User story", (the default)
@@ -324,10 +346,10 @@ The teams, their members and the optional team calendar are stored in documents 
     },
     teamCalendar: []
 
-The default team is "not assigned yet". A user can be member of one team only at the time.
+The default team is "not assigned yet". A user can be member of one team only at the time.<br>
 
-The store holds an object with the data of the current user. This object is initialised with the \_session data.
-email, myTeam, currentDb, myDatabases and myProductViewFilterSettings are updated when otherUserData and config are read
+The store holds an object with the data of the current user. This object is initialised with the \_session data.<br>
+email, myTeam, currentDb, myDatabases and myProductViewFilterSettings are updated when otherUserData and config are read.
 
     state.userData = {
         user: res.data.name, // when loading the session
@@ -343,7 +365,7 @@ email, myTeam, currentDb, myDatabases and myProductViewFilterSettings are update
         doNotMessageMyself: 'false' // if 'true' do not send an email notification on changes I caused myself
     }
 
-The entry for undoing the remove in a last-in first-out sequence
+The entry for undoing the remove in a last-in first-out sequence<br>
 The removed node is the parent of the removed children.
 Example:
 
@@ -465,7 +487,7 @@ The messages array stores inter team messages:
         timestamp: Date.now(),
     }
 
-## Team and sprintId and taskOwner assignment
+## Team\, sprintId and taskOwner assignment
 
 Done items cannot be changed in team, sprintId and taskOwner assignment
 
@@ -511,17 +533,15 @@ Other browsers must have a simular solution.
 
 ## Install CouchDB
 
-Install the CouchDb version 3.0.0 or higher on the remote host and create a server admin account.
+Install the CouchDb version 3.3.0 or higher on the remote host and create a server admin account.
 Add/change these lines in/to the local.ini file.
 
-```
-[httpd]
-enable cors = true
+    [httpd]
+    enable cors = true
 
-[cors]
-origins = *
-credentials = true
-```
+    [cors]
+    origins = *
+    credentials = true
 
 ### install CouchDB v.3.x.x locally
 
@@ -535,33 +555,28 @@ When starting the app the first time use the server admin credentials you create
 Obtain a www ssl certificate (e.g. from LetsEncrypt)</br>
 Use the Config screen in Fauxton or edit the `local.ini` file in `< couchdb install directory >/couchdb/etc/`:</br>
 
-```
-
-[ssl]
-enable = true
-port = 6984 ; the default
-cert_file = /opt/couchdb/letsencript/live/< your domain name >/cert.pem
-key_file = /opt/couchdb/letsencript/live/< your domain name >/privkey.pem
-cacert_file = /opt/couchdb/letsencript/live/< your domain name >/fullchain.pem
-```
+    [ssl]
+    enable = true
+    port = 6984 ; the default
+    cert_file = /opt/couchdb/letsencript/live/< your domain name >/cert.pem
+    key_file = /opt/couchdb/letsencript/live/< your domain name >/privkey.pem
+    cacert_file = /opt/couchdb/letsencript/live/< your domain name >/fullchain.pem
 
 As this is a single page application we need to redirect to index.html if the url doesn’t match any assets uploaded to the server that we want to load.
 When using Apache2 as your web server add these lines to the `/etc/apache2/sites-available/000-default-le-ssl.conf` file:
 
-```
-<IfModule mod_ssl.c>
-<VirtualHost *:443>
-    ServerName onebacklog.net
-    Include /etc/letsencrypt/options-ssl-apache.conf
-    ServerAlias www.onebacklog.net
-    SSLCertificateFile /etc/letsencrypt/live/< domain name >/fullchain.pem
-    SSLCertificateKeyFile /etc/letsencrypt/live/< domain name >/privkey.pem
-    # added lines
-    DirectoryIndex index.html
-    FallbackResource /index.html
-</VirtualHost>
-</IfModule>
-```
+    <IfModule mod_ssl.c>
+    <VirtualHost *:443>
+        ServerName <your domain name>
+        Include /etc/letsencrypt/options-ssl-apache.conf
+        ServerAlias www.<your domain name>
+        SSLCertificateFile /etc/letsencrypt/live/< domain name >/fullchain.pem
+        SSLCertificateKeyFile /etc/letsencrypt/live/< domain name >/privkey.pem
+        # added lines
+        DirectoryIndex index.html
+        FallbackResource /index.html
+    </VirtualHost>
+    </IfModule>
 
 ## install the e-mail server
 
@@ -571,12 +586,10 @@ See the [pm2 docs](https://pm2.keymetrics.io/docs/usage/quick-start/) to enable 
 The application uses an subscription on [mailgun](https://www.mailgun.com/).
 The .env file for the application looks like this:
 
-```
-COUCH_USER= < server admin user name >
-COUCH_PW= < server admin password >
-DOMAIN= mg.< your domain name >
-API_KEY=< the API key you received from mailgun >
-```
+    COUCH_USER= < server admin user name >
+    COUCH_PW= < server admin password >
+    DOMAIN= mg.< your domain name >
+    API_KEY=< the API key you received from mailgun >
 
 IMPORTANT: add this file to your .gitignore file as these credentials should never get exposed to the Internet!
 
