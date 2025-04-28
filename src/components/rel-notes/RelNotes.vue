@@ -3,6 +3,12 @@
 		<BRow>
 			<BCol cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
+				<h3>v.3.2.4 - 28 April 2025 Update environment files and documentation</h3>
+				<p>Refactoring</p>
+				<ul>
+					<li>Centralize domain name, development and production props and server side install directories in three .env files</li>
+					<li>Move the updated technical documentation to a markdown file</li>
+				</ul>
 				<h3>v.3.2.3 - 22 March 2025 Mail service update</h3>
 				<p>Refactoring</p>
 				<ul>
