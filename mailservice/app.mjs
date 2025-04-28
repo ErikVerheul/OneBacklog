@@ -15,6 +15,7 @@ const nano = new Nano('http://' + process.env.COUCH_USER + ':' + process.env.COU
 */
 import FormData from 'form-data'
 import Mailgun from 'mailgun.js'
+const DOMAIN_NAME = process.env.DOMAIN_NAME
 const mailgun = new Mailgun(FormData)
 const mg = mailgun.client({
   username: 'api',
@@ -300,8 +301,8 @@ function mkHtml(dbName, eventType, value, event, doc) {
 async function sendEmail(fObj, dbName, eventName, event, doc) {
   // From the Mailgun example:
   try {
-    const data = await mg.messages.create('mg.onebacklog.net', {
-      from: 'no-reply@onebacklog.net',
+    const data = await mg.messages.create(`mg.${DOMAIN_NAME}`, {
+      from: `no-reply@${DOMAIN_NAME}`,
       to: [fObj.email],
       subject: 'Event ' + eventName + ' occurred',
       html: mkHtml(dbName, eventName, event[eventName], event, doc),
