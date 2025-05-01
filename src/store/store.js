@@ -95,7 +95,7 @@ const store = createStore({
 			// authentication
 			mySessionId: null,
 			// startup
-			onLargeScreen: false,
+			onLargeScreen: window.innerWidth >= 1400,
 			availableProductIds: [],
 			currentProductId: null,
 			currentProductTitle: '',
