@@ -256,11 +256,13 @@ const actions = {
 				rootState.loadedSprintId = null
 				rootState.productTitlesMap = {}
 				commit('createTreeModel', { rootState, rootGetters, batch: res.data.rows })
+				if (rootState.debug) console.log('loadAssignedAndSubscribed: the tree model is created')
 
 				// all backlog items are read and all nodes created; reset load parameters
 				parentNodes = {}
 
 				if (rootState.onLargeScreen) {
+					if (rootState.debug) console.log('loadAssignedAndSubscribed: continue to show the tree view on a large screen')
 					if (rootState.selectedNodes.length === 0) {
 						const msg = `No match found for the last selected node in lastSessionData; assign the current default product node`
 						dispatch('doLog', { event: msg, level: SEV.WARNING })
@@ -295,6 +297,7 @@ const actions = {
 					rootState.helpersRef.revealDependencyViolations(true)
 					router.push('/treeView')
 				} else {
+					if (rootState.debug) console.log('loadAssignedAndSubscribed: continue to show the planning board on a small screen')
 					// on small screen, open the planning board by default
 					dispatch('loadPlanningBoard', {
 						sprintId: getCurrentOrLastSprint().id,

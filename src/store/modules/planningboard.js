@@ -366,6 +366,11 @@ const actions = {
 						}
 					}
 
+					if (payload.onSuccessCallback) {
+						console.log('loadPlanningBoard is calling onSuccessCallback')
+						payload.onSuccessCallback()
+					}
+
 					const paintSprintLanes = () => {
 						commit('createSprint', { helpersRef: rootState.helpersRef, usResults: state.usResults, taskResults })
 						busyLoading = false
