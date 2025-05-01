@@ -217,15 +217,8 @@ const actions = {
 				// after this assignment the access rights can be set in the store
 				rootState.currentProductTitle = res.data.title
 				if (rootState.debug) console.log('checkProductAndStartLoading: the current product document is found. Start loading the tree from database ' + rootState.userData.currentDb)
-				// start loading the tree and open the detail products view by default
-				dispatch('loadAssignedAndSubscribed', {
-					onSuccessCallback: () => {
-						rootState.helpersRef.setDescendantsReqArea()
-						// show a warning if violations found
-						rootState.helpersRef.revealDependencyViolations(true)
-						router.push('/treeView')
-					},
-				})
+				// start loading the tree
+				dispatch('loadAssignedAndSubscribed')
 			})
 			.catch((error) => {
 				let msg = `checkProductAndStartLoading: Could not read current product document with id ${_id} from database ${rootState.userData.currentDb}`
@@ -236,8 +229,23 @@ const actions = {
 			})
 	},
 
-	/* Get all items from the current database */
-	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }, payload) {
+	/*
+	 * Get all items from the current database
+	 * The items are sorted by level, productId, parentId and priority.
+	 * The items are inserted into the tree model and the tree is created.
+	 * Show the tree on a large screen or the the planning board on a small screen.
+	 */
+	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }) {
+		function getCurrentOrLastSprint() {
+			for (const s of rootState.myCurrentSprintCalendar) {
+				const isCurrent = Date.now() > s.startTimestamp && Date.now() < s.startTimestamp + s.sprintLength
+				if (isCurrent) {
+					return s
+				}
+			}
+			return rootState.myCurrentSprintCalendar.slice(-1)[0]
+		}
+
 		dispatch('createHelpers') // initialize the helpers function
 		globalAxios({
 			method: 'GET',
@@ -252,36 +260,51 @@ const actions = {
 				// all backlog items are read and all nodes created; reset load parameters
 				parentNodes = {}
 
-				if (rootState.selectedNodes.length === 0) {
-					const msg = `No match found for the last selected node in lastSessionData; assign the current default product node`
-					dispatch('doLog', { event: msg, level: SEV.WARNING })
-					state.currentDefaultProductNode.isSelected = true
-					rootState.selectedNodes = [state.currentDefaultProductNode]
-				}
-				// load the the selected node
-				dispatch('loadDoc', {
-					id: rootGetters.getSelectedNode._id,
-				})
-				const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
-				commit('addToEventList', { txt: createLoadEventText(state), severity })
-				// log any detected orphans, if present
-				if (state.orphansCount > 0) {
-					for (const o of orphansFound) {
-						const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
-						dispatch('doLog', { event: msg, level: SEV.CRITICAL })
+				if (rootState.onLargeScreen) {
+					if (rootState.selectedNodes.length === 0) {
+						const msg = `No match found for the last selected node in lastSessionData; assign the current default product node`
+						dispatch('doLog', { event: msg, level: SEV.WARNING })
+						state.currentDefaultProductNode.isSelected = true
+						rootState.selectedNodes = [state.currentDefaultProductNode]
 					}
-				}
-				// log any detected level errors, if present
-				if (state.levelErrorCount > 0) {
-					for (const l of levelErrorsFound) {
-						const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
-						const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
-						dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
+					// load the the selected node
+					dispatch('loadDoc', {
+						id: rootGetters.getSelectedNode._id,
+					})
+					const severity = state.orphansCount === 0 ? SEV.INFO : SEV.CRITICAL
+					commit('addToEventList', { txt: createLoadEventText(state), severity })
+					// log any detected orphans, if present
+					if (state.orphansCount > 0) {
+						for (const o of orphansFound) {
+							const msg = `Orphan found with Id = ${o.id}, parentId = ${o.parentId} and productId = ${o.productId}`
+							dispatch('doLog', { event: msg, level: SEV.CRITICAL })
+						}
 					}
-				}
+					// log any detected level errors, if present
+					if (state.levelErrorCount > 0) {
+						for (const l of levelErrorsFound) {
+							const msg1 = `Level error found with Id = ${l.id}, parentId = ${l.parentId} and productId = ${l.productId}.`
+							const msg2 = `The level read in the document is ${l.dbLevel}. According to the read parent the level should be ${l.pathLength}.`
+							dispatch('doLog', { event: msg1 + ' ' + msg2, level: SEV.CRITICAL })
+						}
+					}
 
-				if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
-				if (payload.onSuccessCallback) payload.onSuccessCallback()
+					if (rootState.debug) console.log(res.data.rows.length + ' backlogItem documents are processed')
+					rootState.helpersRef.setDescendantsReqArea()
+					// show a warning if violations found
+					rootState.helpersRef.revealDependencyViolations(true)
+					router.push('/treeView')
+				} else {
+					// on small screen, open the planning board by default
+					dispatch('loadPlanningBoard', {
+						sprintId: getCurrentOrLastSprint().id,
+						team: rootState.userData.myTeam,
+						onSuccessCallback: () => {
+							router.push('/board')
+						},
+						caller: 'loadAssignedAndSubscribed',
+					})
+				}
 			})
 			.catch((error) => {
 				if (rootState.debug) console.log(`loadAssignedAndSubscribed: Could not read a product from database ${rootState.userData.currentDb}, ${error}`)
