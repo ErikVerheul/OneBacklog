@@ -236,6 +236,7 @@ const actions = {
 	 * Show the tree on a large screen or the the planning board on a small screen.
 	 */
 	loadAssignedAndSubscribed({ rootState, rootGetters, state, commit, dispatch }) {
+		dispatch('createHelpers') // initialize the helpers function
 		function getCurrentOrLastSprint() {
 			for (const s of rootState.myCurrentSprintCalendar) {
 				const isCurrent = Date.now() > s.startTimestamp && Date.now() < s.startTimestamp + s.sprintLength
@@ -246,7 +247,6 @@ const actions = {
 			return rootState.myCurrentSprintCalendar.slice(-1)[0]
 		}
 
-		dispatch('createHelpers') // initialize the helpers function
 		globalAxios({
 			method: 'GET',
 			url: rootState.userData.currentDb + '/_design/design1/_view/details',
