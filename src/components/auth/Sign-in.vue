@@ -47,10 +47,8 @@
 	import { useStore } from 'vuex'
 	import logo from '../../assets/logo.png'
 	const store = useStore()
-	// store the type of screen the user singed in on
-	store.state.onLargeScreen = window.innerWidth >= 1400
 	const state = reactive({
-		isDemo: import.meta.env.VITE_IS_DEMO = 'true',
+		isDemo: import.meta.env.VITE_IS_DEMO === 'true',
 		logo: logo,
 		name: '',
 		password: '',
