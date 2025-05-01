@@ -1,10 +1,10 @@
 <template>
 	<BContainer>
 		<BRow>
-			<div class="col-lg-12 col-sm-12">
-				<BImg :src="logo" placement="center" alt="OneBacklog logo" />
-			</div>
-			<div class="col-lg-12 col-sm-12" id="signin">
+			<BCol cols="12">
+				<BImg hight="250" width="250" :src="logo" placement="center" alt="OneBacklog logo" />
+			</BCol>
+			<BCol cols="12" id="signin">
 				<div class="signin-form">
 					<div class="input">
 						<label for="name">Name</label>
@@ -24,23 +24,20 @@
 					</div>
 				</div>
 				<div class="text-center">
-					<p class="mb-1">No account yet? Ask your SM or PO to create one</p>
-					<p> or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
+					<p class="mb-1">No account yet?<br>Ask your SM or PO to create one</p>
+					<p v-if="state.isDemo">or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
 					<p class="mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</p>
-					<p> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-						FITNESS FOR A PARTICULAR PURPOSE</p>
+					<p class="smallerFont"> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
+						MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE</p>
 
 					<div class="demo-user" v-if="state.name === 'demoUser'">
-						<h4>You're welcome to give this app a try</h4>
+						<h4>You're welcome to give this app</h4>
 						<p>Demo users share a database with some predefined products. Your changes can be overridden by others or by a database restore. Please leave your
-							findings
-							in
-							<a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu and
-							select 'My authorizations' to see the roles that are assigned to this account.
-						</p>
+							findings in <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu
+							and select 'My authorizations' to see the roles that are assigned to this account.</p>
 					</div>
 				</div>
-			</div>
+			</BCol>
 		</BRow>
 	</BContainer>
 </template>
@@ -50,7 +47,10 @@
 	import { useStore } from 'vuex'
 	import logo from '../../assets/logo.png'
 	const store = useStore()
+	// store the type of screen the user singed in on
+	store.state.onLargeScreen = window.innerWidth >= 1400
 	const state = reactive({
+		isDemo: import.meta.env.VITE_IS_DEMO = 'true',
 		logo: logo,
 		name: '',
 		password: '',
@@ -73,7 +73,7 @@
 
 <style scoped>
 	.signin-form {
-		width: 400px;
+		width: 250px;
 		margin: 30px auto;
 		border: 1px solid #eee;
 		padding: 20px;
@@ -120,5 +120,9 @@
 		background-color: transparent;
 		color: #ccc;
 		cursor: not-allowed;
+	}
+
+	.smallerFont {
+		font-size: small;
 	}
 </style>
