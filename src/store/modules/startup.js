@@ -17,7 +17,7 @@ const actions = {
 	 * 5. getAllTeams and load the team calendar if present, extend the team calendar automatically if ran out of sprints
 	 * 6. if the default sprint calendar is present and ran out of sprints, extend this calender with new sprints and save the config document
 	 * 7. if the team calendar is present and ran out of sprints, extend this calender with new sprints and save the team document
-	 * 8. getRoot and route to products view
+	 * 8. getRoot and start loading the tree model
 	 */
 
 	/*
@@ -373,7 +373,7 @@ const actions = {
 				commit('updateNodewithDocChange', { newDoc: res.data })
 
 				if (rootState.debug) console.log('getRoot: The root document is read')
-				// start loading the tree and open the detail products view by default
+				// start loading the tree model
 				dispatch('checkProductAndStartLoading')
 			})
 			.catch((error) => {
