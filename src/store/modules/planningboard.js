@@ -163,7 +163,7 @@ const mutations = {
 		for (let i = 0; i < allStories.length; i++) {
 			allStories[i].idx = i
 		}
-		// console.log('createSprint: allStories.map(s => s.priorityChain + s.title) = ' + allStories.map(s => '\n idx = ' + s.idx + ', ' + s.priorityChain + ', ' + s.title))
+		// console.log('createSprint: allStories.map(s => s.priorityChain + s.title) = ' + allStories.map((s) => '\n idx = ' + s.idx + ', ' + s.priorityChain + ', ' + s.title))
 		state.stories = allStories
 	},
 
@@ -257,13 +257,7 @@ const getters = {
 	getStoryPointsDone(state) {
 		let sum = 0
 		for (const s of state.stories) {
-			if (
-				s.tasks[STATE.TODO].length === 0 &&
-				s.tasks[STATE.INPROGRESS].length === 0 &&
-				s.tasks[STATE.TESTREVIEW].length === 0 &&
-				s.tasks[STATE.DONE].length > 0
-			)
-				sum += s.size
+			if (s.tasks[STATE.TODO].length === 0 && s.tasks[STATE.INPROGRESS].length === 0 && s.tasks[STATE.TESTREVIEW].length === 0 && s.tasks[STATE.DONE].length > 0) sum += s.size
 		}
 		return sum
 	},
@@ -523,8 +517,7 @@ const actions = {
 						}
 					}
 				}
-				if (cannotImportProducts.length > 0)
-					rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportProducts.length} product(s) are not assigned to you`
+				if (cannotImportProducts.length > 0) rootState.warningText = `You cannot import all unfinished tasks as ${cannotImportProducts.length} product(s) are not assigned to you`
 			})
 			.catch((error) => {
 				const msg = `loadUnfinished: Could not read the items from database ${rootState.userData.currentDb}. ${error}`
