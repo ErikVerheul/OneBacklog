@@ -391,7 +391,7 @@ const actions = {
 				dispatch('updateUserDb', { data: tmpUserData })
 			})
 			.catch((error) => {
-				const msg = `registerMyNoSprintImport: Could not update do not ask for import for user '${rootState.userData.user}', ${error}`
+				const msg = `registerMyNoSprintImport: Could not update 'do not ask for import' for user '${rootState.userData.user}', ${error}`
 				dispatch('doLog', { event: msg, level: SEV.ERROR })
 			})
 	},
