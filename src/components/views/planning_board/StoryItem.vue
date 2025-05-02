@@ -22,8 +22,10 @@
 		<BListGroup>
 			<BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
 				clipboard</BListGroupItem>
-			<BListGroupItem button :active="contextOptionSelected === VIEW_STORY_IN_TREE" variant="dark" @click="prepSelected(VIEW_STORY_IN_TREE)">View this {{
-				storyType }} in the tree backlog view</BListGroupItem>
+			<template v-if="onLargeScreen">
+				<BListGroupItem button :active="contextOptionSelected === VIEW_STORY_IN_TREE" variant="dark" @click="prepSelected(VIEW_STORY_IN_TREE)">View this {{
+					storyType }} in the tree backlog view</BListGroupItem>
+			</template>
 			<BListGroupItem button :active="contextOptionSelected === REMOVE_STORY" variant="danger" @click="prepSelected(REMOVE_STORY)">Remove this {{ storyType }}
 				from the sprint</BListGroupItem>
 		</BListGroup>
@@ -64,6 +66,7 @@
 
 		data() {
 			return {
+				onLargeScreen: store.state.onLargeScreen,
 				debugMode: store.state.debug,
 				showContextMenu: false,
 				contextOptionSelected: undefined,
