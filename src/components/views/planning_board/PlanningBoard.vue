@@ -75,9 +75,6 @@
 	import AppHeader from '../../header/AppHeader.vue'
 	import StoryLane from './StoryLane.vue'
 	import store from '../../../store/store.js'
-	import { useScreenOrientation } from '@vueuse/core'
-
-	const { isSupported, orientation, angle, lockOrientation, unlockOrientation } = useScreenOrientation()
 
 	export default {
 		mixins: [utilities],
@@ -106,30 +103,13 @@
 			}
 		},
 
-		beforeMount() {
-			if (!store.state.onLargeScreen) {
-				// lock the screen orientation to landscape for mobile devices
-				if (isSupported) {
-					console.log('Locking screen orientation to landscape-primary')
-					lockOrientation('landscape-primary')
-				} else
-					console.log('Screen orientation is not supported')
-			}
-		},
-
 		beforeUnmount() {
 			// reset the loaded sprint id to 0 when leaving the planning board
 			store.state.loadedSprintId = 0
-			if (!store.state.onLargeScreen && isSupported) {
-				// lock the screen orientation to landscape for mobile devices
-				console.log('unLocking screen orientation')
-				unlockOrientation()
-			}
 		},
 
 		data() {
 			return {
-				isSupported, orientation, angle,
 				contextOptionSelected: undefined,
 				selectedSprint: null,
 				currentSprintLoaded: false
