@@ -1,40 +1,70 @@
 <template>
 	<div>
-		<app-header>
+		<app-header v-if="onLargeScreen">
 			<!-- Right aligned nav items -->
 			<BNavbarNav class="ml-auto">
 				<BNavText>Start: {{ getStartDateString }}</BNavText>
 				<div class="divider" />
 			</BNavbarNav>
-
 			<BNavbarNav>
 				<BNavForm>
 					<BFormSelect v-model="selectedSprint" :options="sprintTitleOptions"></BFormSelect>
 				</BNavForm>
 			</BNavbarNav>
-
 			<BNavbarNav>
 				<div class="divider" />
 				<BNavText>End: {{ getEndDateString }}</BNavText>
 			</BNavbarNav>
 		</app-header>
+		<app-header v-else>
+			<!-- for small screen -->
+			<BNavbarNav>
+				<BNavForm>
+					<BFormSelect v-model="selectedSprint" :options="sprintTitleOptions"></BFormSelect>
+				</BNavForm>
+			</BNavbarNav>
+			<BNavbarNav>
+				<BNavText class="short-date">Ends {{ getEndDateStringShort }}</BNavText>
+			</BNavbarNav>
+			<BNavbarNav>
+				<BNavItem class="messSquareSmall" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
+					@click="goMessaging">mess</BNavItem>
+			</BNavbarNav>
+			<BNavbarNav>
+				<BNavItem class="syncOLSquareSmall" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</BNavItem>
+			</BNavbarNav>
+		</app-header>
+
 		<BContainer fluid>
 			<BRow v-if="!showWarning" class="title-bar">
-				<BCol cols="5">
-					<h5>Welcome {{ userData.user }} from team '{{ selectedTeam }}'</h5>
-				</BCol>
-				<BCol cols="4">
-					<h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
-					<h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
-				</BCol>
-				<BCol cols="2">
-					<h5>points done: {{ getStoryPointsDone }}</h5>
-				</BCol>
-				<BCol cols="1">
-					<span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
-						@click="goMessaging">mess</span>
-					<span class="syncOLSquare" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
-				</BCol>
+				<template v-if="onLargeScreen">
+					<BCol cols="5">
+						<h5>Welcome {{ userData.user }} from team '{{ selectedTeam }}'</h5>
+					</BCol>
+					<BCol cols="4">
+						<h5 v-if="getPersonHours > 0">{{ getStoryPoints }} story points and {{ getPersonHours }} hours for spikes in this sprint</h5>
+						<h5 v-else>{{ getStoryPoints }} story points in this sprint</h5>
+					</BCol>
+					<BCol cols="2">
+						<h5>points done: {{ getStoryPointsDone }}</h5>
+					</BCol>
+					<BCol cols="1">
+						<span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
+							@click="goMessaging">mess</span>
+						<span class="syncOLSquare" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
+					</BCol>
+				</template>
+				<template v-else>
+					<BCol cols="5">
+						<h5>Welcome {{ userData.user }} from team '{{ selectedTeam }}'</h5>
+					</BCol>
+					<BCol cols="4">
+						<h5>{{ getStoryPoints }} story points this sprint</h5>
+					</BCol>
+					<BCol cols="3">
+						<h5>points done: {{ getStoryPointsDone }}</h5>
+					</BCol>
+				</template>
 			</BRow>
 			<BRow v-else class="warning-bar">
 				<BCol cols="11">
@@ -110,6 +140,7 @@
 
 		data() {
 			return {
+				onLargeScreen: store.state.onLargeScreen,
 				contextOptionSelected: undefined,
 				selectedSprint: null,
 				currentSprintLoaded: false
@@ -157,6 +188,11 @@
 
 			getEndDateString() {
 				if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength).toString().substring(0, 33)
+				return ''
+			},
+
+			getEndDateStringShort() {
+				if (this.selectedSprint) return new Date(this.selectedSprint.startTimestamp + this.selectedSprint.sprintLength).toString().substring(0, 21)
 				return ''
 			},
 
@@ -265,6 +301,23 @@
 		background-color: orange;
 		padding-top: 4px;
 		padding-bottom: 4px;
+	}
+
+	.messSquareSmall {
+		padding: 5px;
+		margin-left: 10px;
+		margin-bottom: 4px;
+	}
+
+	.short-date {
+		margin-left: 10px;
+	}
+
+	.syncOLSquareSmall {
+		width: 42px;
+		padding: 5px;
+		margin-left: 10px;
+		margin-bottom: 4px;
 	}
 
 	.messSquare {
