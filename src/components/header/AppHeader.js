@@ -20,6 +20,7 @@ function created() {
 
 function data() {
 	return {
+		onLargeScreen: store.state.onLargeScreen,
 		appVersion: store.state.appVersion,
 		logo: logo,
 		disableOkButton: false,
@@ -41,10 +42,6 @@ function data() {
 }
 
 const computed = {
-	canMessage() {
-		return true
-	},
-
 	canChangeDb() {
 		return store.state.userData.myOptions && store.state.userData.myOptions.proUser === 'true' && store.state.myAssignedDatabases.length > 1
 	},
