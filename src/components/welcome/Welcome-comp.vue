@@ -10,9 +10,7 @@
 			<BCol cols="12" class="text-center">
 				<h3>Welcome to the OneBacklog single page web application</h3>
 				<p>This application is an aid to define, share and execute the realization of multiple products in a organization,
-					large or small.<br>
-					Your role determines what you can do. Run this application on a desktop computer or tablet with a pointing
-					device.</p>
+					large or small. Your role determines what you can do. Run this application on a desktop computer or tablet with a pointing device.</p>
 			</BCol>
 		</BRow>
 		<BRow v-else>
@@ -25,10 +23,9 @@
 			<BCol cols="12" class="text-center">
 				<h3>Welcome to the OneBacklog single page web application</h3>
 				<p>This application is an aid to define, share and execute the realization of multiple products in a organization,
-					large or small. Your role determines what you can do. Run this application on a desktop computer or tablet with a pointing device.</p>
-				<h5 class="smallerFont">The app detected that you are using a device with a screen width of {{ state.screenWidth }} pixels. Please note that
-					you can only
-					use the planning board on this device.</h5>
+					large or small. Your role determines what you can do.</p>
+				<p class="smallerFont">The app detected that you are using a device with a screen width of {{ state.screenWidth }} pixels. Please note that
+					you can only use the planning board on this device.</p>
 			</BCol>
 		</BRow>
 	</BContainer>
