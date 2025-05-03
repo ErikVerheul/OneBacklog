@@ -164,7 +164,7 @@
 					case '[On hold]':
 					case 'Todo':
 					case 'In progress':
-					case 'Test / review':
+					case 'Test/rev.':
 						return 'b-card task-column-item'
 					case 'Done':
 						return 'b-card task-column-done'
