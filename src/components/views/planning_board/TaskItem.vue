@@ -32,9 +32,8 @@
 			</div>
 
 			<div v-if="ctxOptSelected === CHANGE_OWNER" class="title_block">
-				<h5>Select a team member to own this task</h5>
 				<BRow class="my-1">
-					<BCol sm="12">Start typing an username or select from the list:</BCol>
+					<BCol sm="12">Select team member name:</BCol>
 					<BCol sm="6">
 						<BFormGroup>
 							<BFormSelect v-model="selectedUser" :options="userOptions"></BFormSelect>
