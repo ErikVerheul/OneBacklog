@@ -26,7 +26,8 @@
 				<div class="text-center">
 					<p class="mb-1">No account yet?<br>Ask your SM or PO to create one</p>
 					<p v-if="state.isDemo">or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
-					<p class="mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</p>
+					<p v-if="state.onLargeScreen" class="mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</p>
+					<p v-else class="mb-4">Tip: Enable landscape mode on our device for best experience</p>
 					<p class="smallerFont"> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
 						MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE</p>
 
@@ -48,6 +49,7 @@
 	import logo from '../../assets/logo.png'
 	const store = useStore()
 	const state = reactive({
+		onLargeScreen: store.state.onLargeScreen,
 		isDemo: import.meta.env.VITE_IS_DEMO === 'true',
 		logo: logo,
 		name: '',
