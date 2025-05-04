@@ -304,9 +304,7 @@
 	}
 
 	.messSquareSmall {
-		padding: 5px;
 		margin-left: 10px;
-		margin-bottom: 4px;
 	}
 
 	.short-date {
@@ -314,10 +312,7 @@
 	}
 
 	.syncOLSquareSmall {
-		width: 42px;
-		padding: 5px;
 		margin-left: 10px;
-		margin-bottom: 4px;
 	}
 
 	.messSquare {
