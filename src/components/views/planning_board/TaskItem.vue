@@ -5,7 +5,7 @@
 			<br />
 			{{ item.taskOwner }}
 		</div>
-		<BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
+		<BModal v-model="showContextMenu" size="sm" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="Task menu">
 			<BListGroup>
 				<BListGroupItem button :active="ctxOptSelected === ADD_TASK" variant="dark" @click="prepSelected(ADD_TASK)">Add a new task </BListGroupItem>
 				<BListGroupItem button :active="ctxOptSelected === CHANGE_TITLE" variant="dark" @click="prepSelected(CHANGE_TITLE)">Change task title

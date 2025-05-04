@@ -18,7 +18,7 @@
 			</p>
 		</div>
 	</div>
-	<BModal v-model="showContextMenu" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
+	<BModal v-model="showContextMenu" size="sm" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" title="User story menu">
 		<BListGroup>
 			<BListGroupItem button :active="contextOptionSelected === ID_TO_CLIPBOARD" variant="dark" @click="prepSelected(ID_TO_CLIPBOARD)">Copy short id to
 				clipboard</BListGroupItem>
