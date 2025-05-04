@@ -3,6 +3,11 @@
 		<BRow>
 			<BCol cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
+				<h3>v.3.3.0 - 4 May 2025 Planning board on mobile devices</h3>
+				<p>New feature</p>
+				<ul>
+					<li>Allow users of devices with a screen width of less than 1400 px to use the planning board</li>
+				</ul>
 				<h3>v.3.2.4 - 28 April 2025 Update environment files and documentation</h3>
 				<p>Refactoring</p>
 				<ul>
