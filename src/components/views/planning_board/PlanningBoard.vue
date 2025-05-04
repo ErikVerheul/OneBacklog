@@ -27,8 +27,7 @@
 				<BNavText class="short-date">Ends {{ getEndDateStringShort }}</BNavText>
 			</BNavbarNav>
 			<BNavbarNav>
-				<BNavItem class="messSquareSmall" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
-					@click="goMessaging">mess</BNavItem>
+				<BNavItem class="messSquareSmall" :style="{ 'background-color': store.state.messSquareColor }" @click="goMessaging">mess</BNavItem>
 			</BNavbarNav>
 			<BNavbarNav>
 				<BNavItem class="syncOLSquareSmall" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</BNavItem>
@@ -49,8 +48,7 @@
 						<h5>points done: {{ getStoryPointsDone }}</h5>
 					</BCol>
 					<BCol cols="1">
-						<span class="messSquare" v-b-popover.hover.bottomright="'Click to do messaging'" :style="{ 'background-color': store.state.messSquareColor }"
-							@click="goMessaging">mess</span>
+						<span class="messSquare" :style="{ 'background-color': store.state.messSquareColor }" @click="goMessaging">mess</span>
 						<span class="syncOLSquare" v-bind:style="{ 'background-color': squareColor }">{{ squareText }}</span>
 					</BCol>
 				</template>
