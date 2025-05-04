@@ -53,7 +53,7 @@
 	</template>
 	<template v-else>
 		<!-- for small screen -->
-		<BNavbar toggleable="lg" class="navbar-dark bg-dark">
+		<BNavbar class="navbar-dark bg-dark">
 			<BImg class="logo" :src="logo" alt="OneBacklog logo" />
 			<BNavbar-brand to="../../rel-notes">{{ appVersion }}</BNavbar-brand>
 
