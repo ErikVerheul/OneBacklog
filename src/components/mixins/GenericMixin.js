@@ -85,8 +85,7 @@ const authorization = {
 				if (store.state.debugAccess)
 					console.log(`haveWritePermission: For productId ${productId} my roles are ${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}`)
 
-				if (store.state.debugAccess)
-					console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, user story, TASK]: ${levels}`)
+				if (store.state.debugAccess) console.log(`haveWritePermission: My write levels are [NOT-USED, DATABASE, PRODUCT, EPIC, FEATURE, user story, TASK]: ${levels}`)
 			}
 			return levels[level]
 		},
@@ -119,10 +118,7 @@ const authorization = {
 				this.showLastEvent(`You must be member of team '${itemTeam}' to ${forAction}`, SEV.WARNING)
 			}
 			if (canAccessOnTeam && !canAccessOnLevel) {
-				this.showLastEvent(
-					`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`,
-					SEV.WARNING,
-				)
+				this.showLastEvent(`Sorry, your assigned role(s) [${this.getMyProductsRoles[productId].concat(this.getMyGenericRoles)}] disallow you to ${forAction}`, SEV.WARNING)
 			}
 			return false
 		},
