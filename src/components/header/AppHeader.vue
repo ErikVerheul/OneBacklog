@@ -236,7 +236,7 @@
 
 		<h5 class="spacer">When changes have been made in the tree view</h5>
 		<label for="range1">Set the time recent changes to backlog items are annotated with a badge icon:</label>
-		<BFormInput id="range-1" v-model="store.state.userData.myOptions.badgeShowTime" type="range" min="0" max="300" />
+		<BFormInput id="range1" v-model="store.state.userData.myOptions.badgeShowTime" type="range" min="0" max="300" />
 		<div class="mt-2">Set value: {{ store.state.userData.myOptions.badgeShowTime }} minutes</div>
 
 		<h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
