@@ -134,24 +134,24 @@
 		</BContainer>
 	</BModal>
 
-	<BModal size="lg" ref="changePwRef" @ok="doChangeMyPassWord" title="Change your password">
+	<BModal size="lg" ref="changePwRef" :ok-disabled=!passwordIsCheckedOk @ok="doChangeMyPassWord" title="Change your password">
 		<BContainer align-v="true">
 			<BRow class="my-1">
 				<BCard bg-variant="light">
 					<BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0"
 						class="mb-0">
-						<BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right" label-for="currentPW">
-							<BFormInput v-model="oldPassword" id="currentPW" type="password"></BFormInput>
+						<BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right">
+							<BFormInput v-model="oldPassword" type="password"></BFormInput>
 						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right" label-for="newPW1">
-							<BFormInput v-model="newPassword1" id="newPW1" type="password"></BFormInput>
+						<BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right">
+							<BFormInput v-model="newPassword1" type="password"></BFormInput>
 						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right" label-for="newPW2">
-							<BFormInput v-model="newPassword2" id="newPW2" type="password"></BFormInput>
+						<BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right">
+							<BFormInput v-model="newPassword2" type="password"></BFormInput>
 						</BFormGroup>
 					</BFormGroup>
 				</BCard>
-				You will be forced to sign-in again
+				<p>You will be forced to sign-in again</p>
 			</BRow>
 		</BContainer>
 	</BModal>
@@ -161,14 +161,14 @@
 			<BRow class="my-1">
 				<BCard bg-variant="light">
 					<BFormGroup label-cols-lg="5" label="Change notices are send to this email address" label-size="lg" label-class="font-weight-bold pt-0" class="mb-0">
-						<BFormGroup label-cols-sm="5" label="Current email:" label-align-sm="right" label-for="currentEmail">
-							<BCardText id="currentEmail">{{ store.state.userData.email }}</BCardText>
+						<BFormGroup label-cols-sm="5" label="Current email:" label-align-sm="right">
+							<BCardText>{{ store.state.userData.email }}</BCardText>
 						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="New email:" label-align-sm="right" label-for="newEmail1">
-							<BFormInput v-model="newEmail1" id="newEmail1" type="email"></BFormInput>
+						<BFormGroup label-cols-sm="5" label="New email:" label-align-sm="right">
+							<BFormInput v-model="newEmail1" type="email"></BFormInput>
 						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="Retype new email:" label-align-sm="right" label-for="newEmail2">
-							<BFormInput v-model="newEmail2" id="newEmail2" type="email"></BFormInput>
+						<BFormGroup label-cols-sm="5" label="Retype new email:" label-align-sm="right">
+							<BFormInput v-model="newEmail2" type="email"></BFormInput>
 						</BFormGroup>
 					</BFormGroup>
 				</BCard>

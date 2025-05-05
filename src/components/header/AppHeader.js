@@ -49,6 +49,10 @@ const computed = {
 	emailIsCheckedOk() {
 		return this.newEmail1 === this.newEmail2 && isValidEmail(this.newEmail1)
 	},
+
+	passwordIsCheckedOk() {
+		return this.newPassword1 === this.newPassword2 && this.newPassword1.length >= MINPASSWORDLENGTH
+	},
 }
 
 const methods = {
@@ -101,13 +105,17 @@ const methods = {
 	},
 
 	changeMyPassword() {
+		this.newPassword1 = ''
+		this.newPassword2 = ''
 		if (this.isServerAdmin) {
 			alert("As a 'server admin' you cannot change your password here. Use Fauxton instead")
 		} else this.$refs.changePwRef.show()
 	},
 
 	changeMyEmail() {
-		;(this.newEmail1 = ''), (this.newEmail2 = ''), this.$refs.changeEmailRef.show()
+		this.newEmail1 = ''
+		this.newEmail2 = ''
+		this.$refs.changeEmailRef.show()
 	},
 
 	showMyRoles() {
@@ -147,14 +155,6 @@ const methods = {
 	doChangeMyPassWord() {
 		if (this.oldPassword !== store.state.userData.password) {
 			alert('Your current password is incorrect. Please try again.')
-			return
-		}
-		if (this.newPassword1 !== this.newPassword2) {
-			alert('You entered two different new passwords. Please try again.')
-			return
-		}
-		if (this.newPassword1.length < MINPASSWORDLENGTH) {
-			alert('Your new password must be 8 characters or longer. Please try again.')
 			return
 		}
 		store.dispatch('changeMyPasswordAction', this.newPassword1)
