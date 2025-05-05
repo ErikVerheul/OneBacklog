@@ -70,11 +70,11 @@
 					</BCol>
 					<template
 						v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
-						<BCol cols="2"></BCol>
+						<BCol cols="1"></BCol>
 						<BCol cols="1">
 							<h3 align="right">State:</h3>
 						</BCol>
-						<BCol cols="1">
+						<BCol cols="2">
 							<h3 align="right">
 								<BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right :text=getItemStateText(store.state.currentDoc.state)>
 									<BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
