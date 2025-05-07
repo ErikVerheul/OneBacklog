@@ -612,22 +612,3 @@ chown -R couchdb:couchdb /opt/couchdb/letsencrypt/
 ## Finally
 
 When starting the app the first time use the server admin credentials you created to install CouchDb.
-
-## Known errors and issues
-
-CouchDB issue in version 2.3.<br>
-When a document has a danglin attachtent like:
-
-    "_attachments": {
-        "Pro Git - Scott Chacon.pdf": {
-        "content_type": "application/pdf",
-        "revpos": 221,
-        "digest": "md5-bA6v24zTZ6r9aLg9+rtycg==",
-        "length": 4400898,
-        "stub": true
-    }
-
-    A bulk put will fail with error 412
-
-See [issue 584](https://github.com/apache/couchdb/issues/584) on Github.<br>
-Note: The error did not occur in CouchDb version 3.x.x until now.
