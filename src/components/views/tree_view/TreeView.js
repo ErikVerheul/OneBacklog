@@ -469,10 +469,14 @@ const methods = {
 	},
 
 	subscribeClicked() {
-		if (store.state.userData.myOptions.subscribeDescendants === 'do_not_subscribe_descendants')
-			store.dispatch('changeSubsription', { node: this.getSelectedNode, timestamp: Date.now() })
-		if (!store.state.busyChangingSubscriptions && store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
-			store.dispatch('changeSubsriptionsBulk', { node: this.getSelectedNode, timestamp: Date.now() })
+		if (store.state.userData.user !== 'demoUser') {
+			if (store.state.userData.myOptions.subscribeDescendants === 'do_not_subscribe_descendants')
+				store.dispatch('changeSubsription', { node: this.getSelectedNode, timestamp: Date.now() })
+			if (!store.state.busyChangingSubscriptions && store.state.userData.myOptions.subscribeDescendants === 'do_subscribe_descendants')
+				store.dispatch('changeSubsriptionsBulk', { node: this.getSelectedNode, timestamp: Date.now() })
+		} else {
+			this.showLastEvent('Sorry, you cannot change subscriptions as demo user', SEV.WARNING)
+		}
 	},
 
 	filterComments() {
@@ -545,7 +549,7 @@ const methods = {
 				for (let i = 0; i < sizeArray.length - 1; i++) {
 					sizes += sizeArray[i] + ', '
 				}
-				alert(size + ' is not a known T-shirt size. Valid values are: ' + sizes + ' and ' + sizeArray[sizeArray.length - 1])
+				this.showLastEvent(`${size} is not a known T-shirt size. Valid values are: ${sizes} and ${sizeArray[sizeArray.length - 1]}`, SEV.WARNING)
 			}
 		}
 	},
