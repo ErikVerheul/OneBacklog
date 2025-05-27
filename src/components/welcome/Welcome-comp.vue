@@ -34,8 +34,13 @@
 <script setup>
 	import { reactive } from 'vue'
 	import logo from '../../assets/logo.png'
+
+	const debug = import.meta.env.VITE_DEBUG === 'true' || false
+
 	const state = reactive({
-		screenWidth: window.innerWidth
+		// use outerWidth for production to get the actual width of the browser window
+		// use innerWidth for debugging to see the width of the viewport
+		screenWidth: debug ? window.innerWidth : window.outerWidth
 	})
 
 	function isScreenWidthSufficient() {
