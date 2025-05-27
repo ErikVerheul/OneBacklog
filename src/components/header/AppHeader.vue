@@ -239,14 +239,16 @@
 		<BFormInput id="range1" v-model="store.state.userData.myOptions.badgeShowTime" type="range" min="0" max="300" />
 		<div class="mt-2">Set value: {{ store.state.userData.myOptions.badgeShowTime }} minutes</div>
 
-		<h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
-		<BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants"
-			unchecked-value="do_not_subscribe_descendants">
-			Also subscribe to the change notices of all descendants of the selected item
-		</BFormCheckbox>
-		<BFormCheckbox v-model="store.state.userData.myOptions.doNotMessageMyself" value="true" unchecked-value="false">
-			Do not send change notices to myself
-		</BFormCheckbox>
+		<template v-if="store.state.userData.user !== 'demoUser'">
+			<h5 class="spacer">When hitting the "Subscribe to change notices" button</h5>
+			<BFormCheckbox v-model="store.state.userData.myOptions.subscribeDescendants" value="do_subscribe_descendants"
+				unchecked-value="do_not_subscribe_descendants">
+				Also subscribe to the change notices of all descendants of the selected item
+			</BFormCheckbox>
+			<BFormCheckbox v-model="store.state.userData.myOptions.doNotMessageMyself" value="true" unchecked-value="false">
+				Do not send change notices to myself
+			</BFormCheckbox>
+		</template>
 
 		<h5 class="spacer">For the Planning board</h5>
 		<BFormCheckbox v-model="store.state.userData.myOptions.showOnHold" value="do_show_on_hold" unchecked-value="do_not_show_on_hold">
