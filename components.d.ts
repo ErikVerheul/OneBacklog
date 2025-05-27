@@ -73,7 +73,7 @@ declare module 'vue' {
     UserGuide: typeof import('./src/components/userguide/UserGuide.vue')['default']
     WelcomeComp: typeof import('./src/components/welcome/Welcome-comp.vue')['default']
   }
-  export interface ComponentCustomProperties {
+  export interface GlobalDirectives {
     vBModal: typeof import('bootstrap-vue-next/directives/BModal')['vBModal']
     vBPopover: typeof import('bootstrap-vue-next/directives/BPopover')['vBPopover']
   }
