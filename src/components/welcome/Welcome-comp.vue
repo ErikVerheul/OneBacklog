@@ -39,7 +39,7 @@
 
 	const state = reactive({
 		// use outerWidth for production to get the actual width of the browser window
-		// use innerWidth for debugging to see the width of the viewport
+		// use innerWidth for simulating narrow screens to use the width of the viewport
 		screenWidth: debug ? window.innerWidth : window.outerWidth
 	})
 
