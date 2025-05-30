@@ -168,6 +168,8 @@ const utilities = {
 	},
 
 	methods: {
+		// Returns the state name for item levels < LEVEL.TASK
+		// see itemState in constants.js idx = 0: not in use, ON_HOLD, 1: NEW, 2: TODO, 3: READY, 4: INPROGRESS, 5: TESTREVIEW, 6: DONE
 		getItemStateText(idx) {
 			if (idx < 0 || idx >= store.state.configData.itemState.length) {
 				return 'Error: unknown state'
@@ -175,36 +177,18 @@ const utilities = {
 			return store.state.configData.itemState[idx]
 		},
 
+		// Convenient method. Return the description of the given level, or the subtype description if the level equals the user story level
 		getLevelText(level, subtype = 0) {
-			if (store.state.helpersRef) return store.state.helpersRef.getLevelText(level, subtype)
+			return store.state.helpersRef.getLevelText(level, subtype)
 		},
 
+		// Convenient method. Return the subtype description (on user story level only)
 		getSubType(idx) {
-			if (store.state.helpersRef) return store.state.helpersRef.getSubType(idx)
+			return store.state.helpersRef.getSubType(idx)
 		},
 
-		getNodeStateText(node) {
-			const idx = node.data.state
-			if (node.level < LEVEL.TASK) {
-				if (idx < 0 || idx >= store.state.configData.itemState.length) {
-					return 'Error: unknown state'
-				}
-				return store.state.configData.itemState[idx]
-			} else {
-				if (idx < 0 || idx >= store.state.configData.taskState.length) {
-					return 'Error: unknown state'
-				}
-				return store.state.configData.taskState[idx]
-			}
-		},
-
-		getTaskStateText(idx) {
-			if (idx < 0 || idx >= store.state.configData.taskState.length) {
-				return 'Error: unknown state'
-			}
-			return store.state.configData.taskState[idx]
-		},
-
+		// Returns the T-shirt size text for the given index
+		// idx = 0: XS, 1: S, 2: M, 3: L, 4: XL, 5: XXL
 		getTsSize(idx) {
 			if (idx < 0 || idx >= store.state.configData.tsSize.length) {
 				return 'Error: unknown T-shirt size'
@@ -212,61 +196,10 @@ const utilities = {
 			return store.state.configData.tsSize[idx]
 		},
 
-		itemTitleTrunc(length, title) {
-			if (title.length <= length) return title
-			return title.substring(0, length - 4) + '...'
-		},
-
+		// Adds the txt to the top of the event list
+		// severity is one of SEV constants
 		showLastEvent(txt, severity) {
 			store.commit('addToEventList', { txt, severity })
-		},
-
-		showSelectionEvent(selNodes) {
-			function printRoles(roles) {
-				if (roles.length === 0) return 'roles for this product are not set by your administrator'
-				if (roles.length === 1) return `role for this product is ${roles[0]}.`
-				if (roles.length === 2) return `roles for this product are ${roles[0]} and ${roles[1]}.`
-				if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}.`
-				if (roles.length === 4) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]} and ${roles[3]}.`
-				if (roles.length === 5) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]}, ${roles[3]} and ${roles[4]}.`
-				return `roles cannot have more than 5 values!`
-			}
-			// update the event message bar
-			let evt = ''
-			const lastSelectedNodeTitle = this.itemTitleTrunc(60, this.getSelectedNode.title)
-			const itemType = this.getLevelText(this.getSelectedNode.level, this.getSelectedNode.data.subtype)
-			if (selNodes.length === 1) {
-				evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
-				if (this.getSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getSelectedNode._id])}`
-				if (store.state.userData.myOptions.proUser === 'true' && this.getSelectedNode.data.reqarea)
-					evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getSelectedNode.data.reqarea]}'`
-			} else {
-				const multiNodesTitle = `${lastSelectedNodeTitle}' + ${selNodes.length - 1} other item(s)`
-				evt = `${itemType} ${multiNodesTitle} are selected.`
-			}
-			this.showLastEvent(evt, SEV.INFO)
-		},
-
-		//////////////////////////////////////// move items //////////////////////////////////////
-
-		checkMove(nodes, cursorPosition) {
-			const sourceLevel = nodes[0].level
-			const targetNode = cursorPosition.nodeModel
-			let targetLevel
-			if (cursorPosition.placement === 'inside') {
-				targetLevel = targetNode.level + 1
-			} else {
-				targetLevel = targetNode.level
-			}
-
-			const levelShift = targetLevel - sourceLevel
-			return {
-				nodes,
-				cursorPosition,
-				sourceLevel,
-				targetLevel,
-				levelShift,
-			}
 		},
 	},
 }

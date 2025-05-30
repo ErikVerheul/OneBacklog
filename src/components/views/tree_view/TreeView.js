@@ -234,6 +234,28 @@ const computed = {
 }
 
 const methods = {
+	getNodeStateText(node) {
+		const idx = node.data.state
+		if (node.level < LEVEL.TASK) {
+			if (idx < 0 || idx >= store.state.configData.itemState.length) {
+				return 'Error: unknown state'
+			}
+			return store.state.configData.itemState[idx]
+		} else {
+			if (idx < 0 || idx >= store.state.configData.taskState.length) {
+				return 'Error: unknown state'
+			}
+			return store.state.configData.taskState[idx]
+		}
+	},
+
+	getTaskStateText(idx) {
+		if (idx < 0 || idx >= store.state.configData.taskState.length) {
+			return 'Error: unknown state'
+		}
+		return store.state.configData.taskState[idx]
+	},
+
 	goMessaging() {
 		initMessaging(store)
 	},
@@ -628,7 +650,27 @@ const methods = {
 	},
 
 	nodeDropped(nodes, cursorPosition) {
-		this.movePreflightData = this.checkMove(nodes, cursorPosition)
+		function checkMove(nodes, cursorPosition) {
+			const sourceLevel = nodes[0].level
+			const targetNode = cursorPosition.nodeModel
+			let targetLevel
+			if (cursorPosition.placement === 'inside') {
+				targetLevel = targetNode.level + 1
+			} else {
+				targetLevel = targetNode.level
+			}
+
+			const levelShift = targetLevel - sourceLevel
+			return {
+				nodes,
+				cursorPosition,
+				sourceLevel,
+				targetLevel,
+				levelShift,
+			}
+		}
+
+		this.movePreflightData = checkMove(nodes, cursorPosition)
 		if (store.state.userData.myOptions.levelShiftWarning === 'do_warn' && this.movePreflightData.levelShift !== 0) {
 			// move to another level; let the user decide to continue or cancel
 			this.warnForMoveToOtherLevel = true
@@ -747,8 +789,36 @@ const methods = {
 	/* event handling */
 	onNodesSelected() {
 		const onSuccessCallback = () => {
+			function itemTitleTrunc(length, title) {
+				if (title.length <= length) return title
+				return title.substring(0, length - 4) + '...'
+			}
+			// get the roles for the selected product
+			function printRoles(roles) {
+				if (roles.length === 0) return 'roles for this product are not set by your administrator'
+				if (roles.length === 1) return `role for this product is ${roles[0]}.`
+				if (roles.length === 2) return `roles for this product are ${roles[0]} and ${roles[1]}.`
+				if (roles.length === 3) return `roles for this product are ${roles[0]}, ${roles[1]} and ${roles[2]}.`
+				if (roles.length === 4) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]} and ${roles[3]}.`
+				if (roles.length === 5) return `roles for this product are ${roles[0]}, ${roles[1]}, ${roles[2]}, ${roles[3]} and ${roles[4]}.`
+				return `roles cannot have more than 5 values!`
+			}
 			if (this.getSelectedNode._id !== MISC.AREA_PRODUCTID) {
-				this.showSelectionEvent(store.state.selectedNodes)
+				const selNodes = store.state.selectedNodes
+				// update the event message bar
+				let evt = ''
+				const lastSelectedNodeTitle = itemTitleTrunc(60, this.getSelectedNode.title)
+				const itemType = this.getLevelText(this.getSelectedNode.level, this.getSelectedNode.data.subtype)
+				if (selNodes.length === 1) {
+					evt = `${itemType} '${lastSelectedNodeTitle}' is selected.`
+					if (this.getSelectedNode.level === LEVEL.PRODUCT) evt += ` Your assigned ${printRoles(this.getMyProductsRoles[this.getSelectedNode._id])}`
+					if (store.state.userData.myOptions.proUser === 'true' && this.getSelectedNode.data.reqarea)
+						evt += ` This ${itemType} belongs to requirement area '${store.state.reqAreaMapper[this.getSelectedNode.data.reqarea]}'`
+				} else {
+					const multiNodesTitle = `${lastSelectedNodeTitle}' + ${selNodes.length - 1} other item(s)`
+					evt = `${itemType} ${multiNodesTitle} are selected.`
+				}
+				this.showLastEvent(evt, SEV.INFO)
 			} else this.showLastEvent('Create / maintain Requirement Areas here', SEV.INFO)
 		}
 		if (this.getSelectedNode._id !== store.state.lastLoadedDocId) {
