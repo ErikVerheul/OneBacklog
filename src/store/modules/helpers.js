@@ -27,7 +27,7 @@ const actions = {
 				return rootState.configData.subtype[idx]
 			},
 
-			/* Return the description of the give level, or the subtype description if the level equals the user story level */
+			/* Return the description of the given level, or the subtype description if the level equals the user story level */
 			getLevelText(level, subtype = 0) {
 				if (level < 0 || level > LEVEL.TASK) {
 					return 'Error: Level not supported'
