@@ -64,6 +64,41 @@
   border-radius: 0.25rem;
 }
 
+/* Override Bootstrap's default modal OK button */
+.modal-footer .btn-primary {
+  background-color: #408fae; /* Custom seablue background */
+  border-color: #408fae; /* Match border color */
+  color: white; /* Text color */
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #0e5874; /* Darker seablue on hover */
+  border-color: #0e5874; /* Match border color on hover */
+  color: white; /* Keep text color white */
+}
+
+/* Override styles for the disabled state */
+.modal-footer .btn-primary:disabled {
+  background-color: #6c757d; /* Custom gray background for disabled */
+  border-color: #6c757d; /* Match border color */
+  color: white; /* Text color */
+  opacity: 1; /* Ensure opacity is 1 to maintain visibility */
+  cursor: not-allowed; /* Change cursor to indicate it's disabled */
+}
+
+/* Override Bootstrap's default modal Cancel button */
+.modal-footer .btn-secondary {
+  background-color: #408fae; /* Custom seablue background */
+  border-color: #408fae; /* Match border color */
+  color: white; /* Text color */
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #0e5874; /* Darker seablue on hover */
+  border-color: #0e5874; /* Match border color on hover */
+  color: white; /* Keep text color white */
+}
+
 /* other generic styles */
 .colorBlue {
   color: #0099ff;
