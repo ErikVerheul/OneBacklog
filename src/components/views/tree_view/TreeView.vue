@@ -17,7 +17,7 @@
 							placeholder="Select on (short) Id">
 						</BFormInput>
 						<template #append>
-							<BButton @click="resetFindId" variant="primary" type="reset">x</BButton>
+							<BButton @click="resetFindId" variant="seablue" type="reset">x</BButton>
 						</template>
 					</BInputGroup>
 					<div class="divider" />
@@ -25,7 +25,7 @@
 						<BFormInput id="searchInput" v-model="store.state.filterSelectSearch.keyword" @keydown.enter="doSeachOnTitle" placeholder="Search in titles">
 						</BFormInput>
 						<template #append>
-							<BButton @click="resetSearchTitles" variant="primary" type="reset">x</BButton>
+							<BButton @click="resetSearchTitles" variant="seablue" type="reset">x</BButton>
 						</template>
 					</BInputGroup>
 				</BNavForm>
@@ -102,7 +102,7 @@
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
 				<h6>{{ welcomeMessage }}</h6>
-				<BButton block class="last-event" v-b-popover.hover.bottom="'Click to see the event history'" @click="showMoreMessages"
+				<BButton block variant="seablue" class="last-event" v-b-popover.hover.bottom="'Click to see the event history'" @click="showMoreMessages"
 					:style="{ 'background-color': getLastEventBGColor, 'color': getLastEventTextColor }">
 					{{ getLastEventTxt }} </BButton>
 				<span class="messSquare" :style="{ 'background-color': store.state.messSquareColor }" @click="goMessaging">mess</span>
@@ -179,7 +179,7 @@
 								<p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
 							</template>
 							<p v-else-if="isAPO && store.state.colorMapper && node.level > LEVEL.PRODUCT">
-								<BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" class="btn-seablue-dynamic"
+								<BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" variant="seablue-dynamic"
 									:style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" size="sm">Change
 								</BButton>
 								<BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
@@ -203,7 +203,7 @@
 								@update:model-value="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
 							<div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
 							<div class="d-table-cell tar">
-								<BButton variant="primary" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
+								<BButton variant="seablue" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
 							</div>
 						</div>
 					</div>
@@ -257,10 +257,11 @@
 					<div class="pane" :style="{ height: '75px', top: '5px' }">
 						<div class="d-table w-100">
 							<div class="d-table-cell tal">
-								<BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="primary"
+								<BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="seablue"
 									@click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
-								<BButton v-else-if="!isHistoryFilterActive" variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-								<BButton v-else variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
+								<BButton v-else-if="!isHistoryFilterActive" variant="seablue" @click="startFiltering = true">Filter {{ store.state.selectedForView }}
+								</BButton>
+								<BButton v-else variant="seablue" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
 							</div>
 							<div class="d-table-cell tac">
 								<label>Select to see</label>
@@ -269,11 +270,12 @@
 							<div class="d-table-cell tar">
 								<BButton
 									v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive"
-									variant="primary" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-								<BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="primary" @click="stopFiltering">Clear {{ store.state.selectedForView
+									variant="seablue" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
+								<BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="seablue" @click="stopFiltering">Clear {{
+									store.state.selectedForView
 								}}
 									filter</BButton>
-								<BButton v-else @click="doAddition = true" variant="primary">Add attachments</BButton>
+								<BButton v-else @click="doAddition = true" variant="seablue">Add attachments</BButton>
 							</div>
 						</div>
 					</div>

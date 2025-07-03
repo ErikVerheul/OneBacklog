@@ -89,7 +89,7 @@
 				<BFormRadioGroup v-model="headerMyDatabase" :options="headerDatabaseOptions" name="headerDatabaseOptions" />
 			</BFormGroup>
 			<hr>
-			<BButton class="m-1 float-end" @click="doChangeDatabase" variant="primary">Select and restart</BButton>
+			<BButton class="m-1 float-end" @click="doChangeDatabase" variant="seablue">Select and restart</BButton>
 			<BButton class="m-1 float-end" @click="showChangeDatabase = false">Cancel</BButton>
 		</BContainer>
 	</BModal>
@@ -129,7 +129,7 @@
 			<BFormSelect size="sm" v-model="selectedProducts" :options="store.state.myProductOptions" multiple :select-size="store.state.myProductOptions.length">
 			</BFormSelect>
 			<hr>
-			<BButton class="m-1 float-end" @click="doSelectProducts" variant="primary">{{ getSelectButtonText() }}</BButton>
+			<BButton class="m-1 float-end" @click="doSelectProducts" variant="seablue">{{ getSelectButtonText() }}</BButton>
 			<BButton class="m-1 float-end" @click="showSelectProducts = false">Cancel</BButton>
 		</BContainer>
 	</BModal>
@@ -255,7 +255,7 @@
 			Show the [On hold] status column on the planning board
 		</BFormCheckbox>
 		<hr>
-		<BButton class="m-1 float-end" @click="saveMyOptions()" variant="primary">Save my settings</BButton>
+		<BButton class="m-1 float-end" @click="saveMyOptions()" variant="seablue">Save my settings</BButton>
 		<BButton class="m-1 float-end" @click="showOptionsModal = false" variant="dark">Cancel</BButton>
 	</BModal>
 

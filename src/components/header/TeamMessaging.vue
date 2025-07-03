@@ -5,7 +5,7 @@
 			<BFormInput id="newMsgId" v-model="store.state.newMsgTitle" placeholder="Your message must have a title" />
 			<p class="mt-3 mb-0">Your message</p>
 			<QEditor v-model=store.state.myNewMessage />
-			<BButton :disabled="canNotSave" class="mt-3" variant="primary" @click="saveMessage">{{ getSaveButtonText() }}</BButton>
+			<BButton :disabled="canNotSave" class="mt-3" variant="seablue" @click="saveMessage">{{ getSaveButtonText() }}</BButton>
 		</BCard>
 		<h2 class="mt-3">Your team messages</h2>
 		<Listings :selectedForView="'messages'"></Listings>
