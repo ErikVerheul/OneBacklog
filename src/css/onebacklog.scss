@@ -1,4 +1,66 @@
-// override the 'blue' color used by Bootstrap
-$blue: #408fae;
 // Bootstrap and its default variables
-@import '../../node_modules/bootstrap/scss/bootstrap';
+@use '../../node_modules/bootstrap/scss/bootstrap';
+
+/* button variant styles in seablue color */
+.btn-seablue {
+  background-color: #408fae;
+  color: white;
+}
+
+.btn-seablue-dynamic {
+  width: 71px;
+  height: 28px;
+  color: rgb(128, 64, 0);
+  border: 1px solid #408fae;
+}
+
+.btn-seablueLight {
+  width: 71px;
+  height: 28px;
+  color: rgb(179, 179, 179);
+  border: 1px solid #408fae;
+}
+
+.btn-seablueInverted {
+  background-color: rgb(220, 223, 217);
+  color: #408fae;
+}
+
+.btn.btn-secondary.dropdown-toggle {
+  background-color: #408fae;
+  color: white;
+  border-radius: 0.25rem;
+}
+
+/* other generic styles */
+.colorBlue {
+  color: #0099ff;
+}
+
+.colorGreen {
+  color: #00ffcc;
+}
+
+.colorOrange {
+  color: #ff9900;
+}
+
+.colorRed {
+  color: red;
+}
+
+.colorSeaBlue {
+  color: #408fae;
+}
+
+.colorWhite {
+  color: #ffffff;
+}
+
+.colorYellow {
+  color: #ffff00;
+}
+
+.text-center {
+  text-align: center;
+}
