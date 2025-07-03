@@ -19,68 +19,68 @@
 </template>
 
 <script>
-import { LEVEL } from '../../../constants.js'
-import { createId } from '../../../common_functions.js'
-import { authorization, utilities } from '../../mixins/GenericMixin.js'
-import { VueDraggableNext } from 'vue-draggable-next'
-import TaskItem from './TaskItem.vue'
-import store from '../../../store/store.js'
+  import { LEVEL } from '../../../constants.js'
+  import { createId } from '../../../common_functions.js'
+  import { authorization, utilities } from '../../mixins/GenericMixin.js'
+  import { VueDraggableNext } from 'vue-draggable-next'
+  import TaskItem from './TaskItem.vue'
+  import store from '../../../store/store.js'
 
-export default {
-  mixins: [authorization, utilities],
-  name: 'TaskColumn',
-  props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'taskState', 'idx'],
-  components: {
-    taskitem: TaskItem,
-    draggable: VueDraggableNext
-  },
-
-  data() {
-    return {
-      showModal: false,
-      taskTitle: ''
-    }
-  },
-
-  computed: {
-    draggables: {
-      get() {
-        return this.tasks
-      },
-      set(tasks) {
-        if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
-          store.dispatch('updateTasks', {
-            tasks,
-            taskState: this.taskState,
-            idx: this.idx
-          })
-        } else store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
-      }
-    }
-  },
-
-  methods: {
-    procSelected() {
-      store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
+  export default {
+    mixins: [authorization, utilities],
+    name: 'TaskColumn',
+    props: ['productId', 'storyId', 'storyTitle', 'tasks', 'title', 'taskState', 'idx'],
+    components: {
+      taskitem: TaskItem,
+      draggable: VueDraggableNext
     },
 
-    doCancel() {
-      this.taskTitle = ''
+    data() {
+      return {
+        showModal: false,
+        taskTitle: ''
+      }
+    },
+
+    computed: {
+      draggables: {
+        get() {
+          return this.tasks
+        },
+        set(tasks) {
+          if (this.haveWritePermission(this.productId, LEVEL.TASK)) {
+            store.dispatch('updateTasks', {
+              tasks,
+              taskState: this.taskState,
+              idx: this.idx
+            })
+          } else store.state.warningText = `Sorry, your assigned role(s) [${this.getMyProductsRoles[this.productId].concat(this.getMyGenericRoles)}] for this product disallow you to execute this action`
+        }
+      }
+    },
+
+    methods: {
+      procSelected() {
+        store.dispatch('boardAddTask', { storyId: this.storyId, taskState: this.taskState, taskId: createId(), taskTitle: this.taskTitle })
+      },
+
+      doCancel() {
+        this.taskTitle = ''
+      }
     }
   }
-}
 </script>
 
-<style scoped>
-.b-cards-margin {
-  margin-left: 5px;
-}
+<style lang="scss" scoped>
+  .b-cards-margin {
+    margin-left: 5px;
+  }
 
-.BCardBody>* {
-  min-height: 50px;
-}
+  .BCardBody>* {
+    min-height: 50px;
+  }
 
-.b-card:last-child {
-  margin-bottom: 5px;
-}
+  .b-card:last-child {
+    margin-bottom: 5px;
+  }
 </style>

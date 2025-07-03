@@ -350,14 +350,15 @@
 
 <script src="./AssistAdmin.js"></script>
 
-<style scoped>
-h4,
-h5 {
-  margin-top: 20px;
-}
+<style lang="scss" scoped>
 
-.margin-colorRed {
-  margin-top: 20px;
-  color: red;
-}
+  h4,
+  h5 {
+    margin-top: 20px;
+  }
+
+  .margin-colorRed {
+    margin-top: 20px;
+    color: red;
+  }
 </style>

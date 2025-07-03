@@ -1388,7 +1388,7 @@
 	</BContainer>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 	.left-column {
 		text-align: left;
 		background-color: #408fae;

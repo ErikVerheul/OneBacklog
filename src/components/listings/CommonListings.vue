@@ -154,7 +154,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.space3px {
 		margin: 3px;
 	}

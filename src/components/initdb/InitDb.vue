@@ -36,7 +36,7 @@
       </div>
       <div v-else>
         <h5>Success! Apart from being a CouchDb 'server admin' you have the 'admin' role.</h5>
-        <h5>Exit and sign-in again. Open the drop down menu under 'Select your view' in the header. 
+        <h5>Exit and sign-in again. Open the drop down menu under 'Select your view' in the header.
           Select the 'Admin' view to create the first users and set their roles. Assign one or
           more admins to take over your admin task. You may also create a custom sprint calendar.</h5>
         <BButton class="m-1" @click="signOut" variant="outline-primary">Exit</BButton>
@@ -58,58 +58,59 @@
 </template>
 
 <script>
-import AppHeader from '../header/AppHeader.vue'
-import store from '../../store/store.js'
+  import AppHeader from '../header/AppHeader.vue'
+  import store from '../../store/store.js'
 
-export default {
-  mounted() {
-    store.state.backendMessages = []
-  },
-
-  data() {
-    return {
-      dbName: '',
-      email: ''
-    }
-  },
-
-  computed: {
-    state() {
-      const mask = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      return mask.test(this.email)
+  export default {
+    mounted() {
+      store.state.backendMessages = []
     },
 
-    invalidEmail() {
-      return 'Please enter a valid e-mail address'
-    }
-
-  },
-
-  methods: {
-    doCreateDatabase() {
-      const payload = {
-        dbName: this.dbName,
-        email: this.email,
-        createUser: true
+    data() {
+      return {
+        dbName: '',
+        email: ''
       }
-      store.dispatch('initCouchDb')
-      store.dispatch('createDatabase', payload)
     },
 
-    signOut() {
-      store.commit('endSession', 'initdb')
-    }
-  },
+    computed: {
+      state() {
+        const mask = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        return mask.test(this.email)
+      },
 
-  components: {
-    'app-header': AppHeader
+      invalidEmail() {
+        return 'Please enter a valid e-mail address'
+      }
+
+    },
+
+    methods: {
+      doCreateDatabase() {
+        const payload = {
+          dbName: this.dbName,
+          email: this.email,
+          createUser: true
+        }
+        store.dispatch('initCouchDb')
+        store.dispatch('createDatabase', payload)
+      },
+
+      signOut() {
+        store.commit('endSession', 'initdb')
+      }
+    },
+
+    components: {
+      'app-header': AppHeader
+    }
   }
-}
 </script>
 
-<style scoped>
-h4,
-h5 {
-  margin-top: 20px;
-}
+<style lang="scss" scoped>
+
+  h4,
+  h5 {
+    margin-top: 20px;
+  }
 </style>

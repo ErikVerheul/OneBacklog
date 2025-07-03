@@ -121,7 +121,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.small-text {
 		font-size: small;
 	}

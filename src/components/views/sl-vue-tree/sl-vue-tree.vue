@@ -67,7 +67,7 @@
 
 <script src="./sl-vue-tree.js"></script>
 
-<style scoped>
+<style lang="scss" scoped>
   .sl-vue-tree {
     position: relative;
     cursor: default;

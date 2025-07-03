@@ -173,7 +173,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.title_block {
 		margin-top: 20px;
 	}

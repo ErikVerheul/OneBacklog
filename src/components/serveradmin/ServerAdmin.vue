@@ -213,251 +213,251 @@
 </template>
 
 <script>
-import { SEV, MISC } from '../../constants.js'
-import AppHeader from '../header/AppHeader.vue'
-import store from '../../store/store.js'
+  import { SEV, MISC } from '../../constants.js'
+  import AppHeader from '../header/AppHeader.vue'
+  import store from '../../store/store.js'
 
-export default {
-  data() {
-    return {
-      optionSelected: 'Select a task',
-      canCancel: true,
-      localMessage: '',
-      fauxtonStarted: false,
-      dbToOverwrite: '',
-      newDbName: '',
-      productName: '',
-      removeAge: 365,
-      showLogModal: false,
-      selectedLogLevels: [0, 1, 2, 3],
-      options: [
-        { item: SEV.DEBUG, name: 'DEBUG' },
-        { item: SEV.INFO, name: 'INFO' },
-        { item: SEV.WARNING, name: 'WARNING' },
-        { item: SEV.ERROR, name: 'ERROR' },
-        { item: SEV.CRITICAL, name: 'CRITICAL', notEnabled: true },
-      ]
-    }
-  },
-
-  mounted() {
-    store.state.backendMessages = []
-  },
-
-  computed: {
-    dbToReplace() {
-      return store.state.selectedDatabaseName.slice(0, store.state.selectedDatabaseName.indexOf('-backup-'))
-    }
-  },
-
-  methods: {
-    logModalTitle() {
-      return 'Log of database ' + store.state.selectedDatabaseName
-    },
-
-    createLogKey(timestamp, sessionId, sessionSeq) {
-      return timestamp + sessionId + sessionSeq
-    },
-
-    isCurrentDbSelected() {
-      if (this.dbToReplace === store.state.userData.currentDb) {
-        // will be set to false when automatically signed-out after database change
-        store.state.stopListeningForChanges = true
-        // also stop the watchdog
-        clearInterval(store.state.watchdog.runningWatchdogId)
-        return true
+  export default {
+    data() {
+      return {
+        optionSelected: 'Select a task',
+        canCancel: true,
+        localMessage: '',
+        fauxtonStarted: false,
+        dbToOverwrite: '',
+        newDbName: '',
+        productName: '',
+        removeAge: 365,
+        showLogModal: false,
+        selectedLogLevels: [0, 1, 2, 3],
+        options: [
+          { item: SEV.DEBUG, name: 'DEBUG' },
+          { item: SEV.INFO, name: 'INFO' },
+          { item: SEV.WARNING, name: 'WARNING' },
+          { item: SEV.ERROR, name: 'ERROR' },
+          { item: SEV.CRITICAL, name: 'CRITICAL', notEnabled: true },
+        ]
       }
-      return false
     },
 
-    severity(level) {
-      let severity = ''
-      switch (level) {
-        case SEV.DEBUG:
-          severity = 'DEBUG'
-          break
-        case SEV.INFO:
-          severity = 'INFO'
-          break
-        case SEV.WARNING:
-          severity = 'WARNING'
-          break
-        case SEV.ERROR:
-          severity = 'ERROR'
-          break
-        case SEV.CRITICAL:
-          severity = 'CRITICAL'
-      }
-      return severity
-    },
-
-    filtered(logEntries) {
-      return logEntries.filter(e => this.selectedLogLevels.includes(e.level))
-    },
-
-    viewLog() {
-      this.optionSelected = 'View the log'
-      this.canCancel = true
-      this.localMessage = ''
-      this.showLogModal = false
-      store.state.isLogLoaded = false
-      // get all non sytem & non backup databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doViewLog() {
-      store.state.isLogLoaded = false
-      store.dispatch('loadLog', { dbName: store.state.selectedDatabaseName, onSuccessCallback: () => this.showLogModal = true })
-    },
-
-    createBackup() {
-      this.optionSelected = 'Create a database backup'
-      store.state.utils.copyBusy = false
-      this.canCancel = true
-      this.localMessage = ''
-      // get all non sytem & non backup databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doCreateBackup() {
-      function createBackupName(dbName) {
-        const now = new Date()
-        const yyyy = now.getFullYear().toString()
-        let mm = (now.getMonth() + 1).toString()
-        if (mm.length < 2) mm = '0'.concat(mm)
-        let dd = now.getDate().toString()
-        if (dd.length < 2) dd = '0'.concat(dd)
-        let hh = now.getHours().toString()
-        if (hh.length < 2) hh = '0'.concat(hh)
-        let min = now.getMinutes().toString()
-        if (min.length < 2) min = '0'.concat(min)
-        return dbName.concat('-backup-').concat(yyyy).concat(mm).concat(dd).concat('_').concat(hh).concat('_').concat(min)
-      }
-      this.canCancel = false
-      const payload = {
-        dbSourceName: store.state.selectedDatabaseName,
-        dbTargetName: createBackupName(store.state.selectedDatabaseName)
-      }
-      store.dispatch('copyDB', payload)
-    },
-
-    restoreBackup() {
-      this.optionSelected = 'Restore a database from backup'
-      store.state.isRestoreReady = false
-      store.state.selectedDatabaseName = 'not selected yet'
-      this.newDbName = ''
-      this.localMessage = ''
-      store.dispatch('getDatabaseOptions', MISC.BACKUPSONLY)
-    },
-
-    doRestoreBackup() {
-      const payload = {
-        dbSourceName: store.state.selectedDatabaseName,
-        dbTargetName: this.dbToReplace,
-        autoSignOut: this.isCurrentDbSelected(),
-        reportRestoreSuccess: true
-      }
-      store.dispatch('replaceDB', payload)
-    },
-
-    createNewDb() {
-      this.optionSelected = 'Create a new database'
-      this.canCancel = true
-      this.localMessage = ''
-      this.newDbName = ''
-      store.state.isDatabaseCreated = false
-    },
-
-    doCreateDatabase() {
-      const payload = {
-        dbName: this.newDbName,
-        email: store.state.userData.email,
-        createUser: false
-      }
-      store.dispatch('createDatabase', payload)
-    },
-
-    changeMyDb() {
-      this.optionSelected = 'Change my default database to any available database'
-      this.localMessage = ''
-      store.state.isCurrentDbChanged = false
-      // get all non sytem & non backup databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doChangeMyDb() {
-      const autoSignOut = false
-      store.dispatch('changeCurrentDb', { dbName: store.state.selectedDatabaseName, autoSignOut })
-    },
-
-    purgeDb() {
-      this.optionSelected = 'Purge removed documents and compact the database'
-      this.localMessage = ''
-      store.state.isPurgeReady = false
-      // get all non sytem but the _users database & non backup databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
-    },
-
-    doPurgeDb() {
-      store.dispatch('collectRemoved', store.state.selectedDatabaseName)
-    },
-
-    removeOldComments() {
-      this.optionSelected = 'Remove old comments on age'
-      this.localMessage = ''
-      store.state.isCommentsReset = false
-      // get all non sytem & non backup databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
-    },
-
-    doRemoveOldComments() {
-      store.dispatch('removeOldCommentsAsync', { dbName: store.state.selectedDatabaseName, age: this.removeAge })
-    },
-
-    deleteDb() {
-      this.optionSelected = 'Delete a database'
-      this.localMessage = ''
-      store.state.selectedDatabaseName = ''
-      store.state.isDbDeleted = false
-      // get all non sytem databases
-      store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEM)
-    },
-
-    doDeleteDb() {
-      if (store.state.userData.currentDb !== store.state.selectedDatabaseName) {
-        store.dispatch('deleteDb', store.state.selectedDatabaseName)
-      } else this.localMessage = 'Cannot delete your current database'
-    },
-
-    fauxton() {
-      this.fauxtonStarted = false
-      this.optionSelected = 'All FAUXTON tasks'
-    },
-
-    doFauxton() {
-      window.open(import.meta.env.VITE_API_URL + '/_utils/#/documentation', '_blank')
-      this.fauxtonStarted = true
-    },
-
-    cancel() {
-      this.localMessage = ''
+    mounted() {
       store.state.backendMessages = []
-      this.optionSelected = 'Select a task'
     },
 
-    signOut() {
-      store.commit('endSession', 'serveradmin')
-    }
-  },
+    computed: {
+      dbToReplace() {
+        return store.state.selectedDatabaseName.slice(0, store.state.selectedDatabaseName.indexOf('-backup-'))
+      }
+    },
 
-  components: {
-    'app-header': AppHeader
+    methods: {
+      logModalTitle() {
+        return 'Log of database ' + store.state.selectedDatabaseName
+      },
+
+      createLogKey(timestamp, sessionId, sessionSeq) {
+        return timestamp + sessionId + sessionSeq
+      },
+
+      isCurrentDbSelected() {
+        if (this.dbToReplace === store.state.userData.currentDb) {
+          // will be set to false when automatically signed-out after database change
+          store.state.stopListeningForChanges = true
+          // also stop the watchdog
+          clearInterval(store.state.watchdog.runningWatchdogId)
+          return true
+        }
+        return false
+      },
+
+      severity(level) {
+        let severity = ''
+        switch (level) {
+          case SEV.DEBUG:
+            severity = 'DEBUG'
+            break
+          case SEV.INFO:
+            severity = 'INFO'
+            break
+          case SEV.WARNING:
+            severity = 'WARNING'
+            break
+          case SEV.ERROR:
+            severity = 'ERROR'
+            break
+          case SEV.CRITICAL:
+            severity = 'CRITICAL'
+        }
+        return severity
+      },
+
+      filtered(logEntries) {
+        return logEntries.filter(e => this.selectedLogLevels.includes(e.level))
+      },
+
+      viewLog() {
+        this.optionSelected = 'View the log'
+        this.canCancel = true
+        this.localMessage = ''
+        this.showLogModal = false
+        store.state.isLogLoaded = false
+        // get all non sytem & non backup databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+      },
+
+      doViewLog() {
+        store.state.isLogLoaded = false
+        store.dispatch('loadLog', { dbName: store.state.selectedDatabaseName, onSuccessCallback: () => this.showLogModal = true })
+      },
+
+      createBackup() {
+        this.optionSelected = 'Create a database backup'
+        store.state.utils.copyBusy = false
+        this.canCancel = true
+        this.localMessage = ''
+        // get all non sytem & non backup databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+      },
+
+      doCreateBackup() {
+        function createBackupName(dbName) {
+          const now = new Date()
+          const yyyy = now.getFullYear().toString()
+          let mm = (now.getMonth() + 1).toString()
+          if (mm.length < 2) mm = '0'.concat(mm)
+          let dd = now.getDate().toString()
+          if (dd.length < 2) dd = '0'.concat(dd)
+          let hh = now.getHours().toString()
+          if (hh.length < 2) hh = '0'.concat(hh)
+          let min = now.getMinutes().toString()
+          if (min.length < 2) min = '0'.concat(min)
+          return dbName.concat('-backup-').concat(yyyy).concat(mm).concat(dd).concat('_').concat(hh).concat('_').concat(min)
+        }
+        this.canCancel = false
+        const payload = {
+          dbSourceName: store.state.selectedDatabaseName,
+          dbTargetName: createBackupName(store.state.selectedDatabaseName)
+        }
+        store.dispatch('copyDB', payload)
+      },
+
+      restoreBackup() {
+        this.optionSelected = 'Restore a database from backup'
+        store.state.isRestoreReady = false
+        store.state.selectedDatabaseName = 'not selected yet'
+        this.newDbName = ''
+        this.localMessage = ''
+        store.dispatch('getDatabaseOptions', MISC.BACKUPSONLY)
+      },
+
+      doRestoreBackup() {
+        const payload = {
+          dbSourceName: store.state.selectedDatabaseName,
+          dbTargetName: this.dbToReplace,
+          autoSignOut: this.isCurrentDbSelected(),
+          reportRestoreSuccess: true
+        }
+        store.dispatch('replaceDB', payload)
+      },
+
+      createNewDb() {
+        this.optionSelected = 'Create a new database'
+        this.canCancel = true
+        this.localMessage = ''
+        this.newDbName = ''
+        store.state.isDatabaseCreated = false
+      },
+
+      doCreateDatabase() {
+        const payload = {
+          dbName: this.newDbName,
+          email: store.state.userData.email,
+          createUser: false
+        }
+        store.dispatch('createDatabase', payload)
+      },
+
+      changeMyDb() {
+        this.optionSelected = 'Change my default database to any available database'
+        this.localMessage = ''
+        store.state.isCurrentDbChanged = false
+        // get all non sytem & non backup databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+      },
+
+      doChangeMyDb() {
+        const autoSignOut = false
+        store.dispatch('changeCurrentDb', { dbName: store.state.selectedDatabaseName, autoSignOut })
+      },
+
+      purgeDb() {
+        this.optionSelected = 'Purge removed documents and compact the database'
+        this.localMessage = ''
+        store.state.isPurgeReady = false
+        // get all non sytem but the _users database & non backup databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPSEXCEPTUSERS)
+      },
+
+      doPurgeDb() {
+        store.dispatch('collectRemoved', store.state.selectedDatabaseName)
+      },
+
+      removeOldComments() {
+        this.optionSelected = 'Remove old comments on age'
+        this.localMessage = ''
+        store.state.isCommentsReset = false
+        // get all non sytem & non backup databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEMANDBACKUPS)
+      },
+
+      doRemoveOldComments() {
+        store.dispatch('removeOldCommentsAsync', { dbName: store.state.selectedDatabaseName, age: this.removeAge })
+      },
+
+      deleteDb() {
+        this.optionSelected = 'Delete a database'
+        this.localMessage = ''
+        store.state.selectedDatabaseName = ''
+        store.state.isDbDeleted = false
+        // get all non sytem databases
+        store.dispatch('getDatabaseOptions', MISC.ALLBUTSYSTEM)
+      },
+
+      doDeleteDb() {
+        if (store.state.userData.currentDb !== store.state.selectedDatabaseName) {
+          store.dispatch('deleteDb', store.state.selectedDatabaseName)
+        } else this.localMessage = 'Cannot delete your current database'
+      },
+
+      fauxton() {
+        this.fauxtonStarted = false
+        this.optionSelected = 'All FAUXTON tasks'
+      },
+
+      doFauxton() {
+        window.open(import.meta.env.VITE_API_URL + '/_utils/#/documentation', '_blank')
+        this.fauxtonStarted = true
+      },
+
+      cancel() {
+        this.localMessage = ''
+        store.state.backendMessages = []
+        this.optionSelected = 'Select a task'
+      },
+
+      signOut() {
+        store.commit('endSession', 'serveradmin')
+      }
+    },
+
+    components: {
+      'app-header': AppHeader
+    }
   }
-}
 </script>
 
-<style scoped>
-h4 {
-  margin-top: 20px;
-}
+<style lang="scss" scoped>
+  h4 {
+    margin-top: 20px;
+  }
 </style>

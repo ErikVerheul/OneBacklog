@@ -71,7 +71,7 @@
 
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.signin-form {
 		width: 250px;
 		margin: 30px auto;

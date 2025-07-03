@@ -265,7 +265,7 @@
 
 <script src="./AppHeader.js"></script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.cog-item {
 		color: #408fae;
 	}

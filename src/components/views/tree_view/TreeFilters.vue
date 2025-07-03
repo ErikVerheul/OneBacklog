@@ -106,226 +106,226 @@
   </div>
 </template>
 
-<style scoped>
-.indent20 {
-  padding-left: 20px;
-}
+<style lang="scss" scoped>
+  .indent20 {
+    padding-left: 20px;
+  }
 </style>
 
 <script>
-import { LEVEL, SEV } from '../../../constants.js'
-import { collapseNode, expandNode, hideNode, isInPath } from '../../../common_functions.js'
-import { utilities } from '../../mixins/GenericMixin.js'
-import store from '../../../store/store.js'
+  import { LEVEL, SEV } from '../../../constants.js'
+  import { collapseNode, expandNode, hideNode, isInPath } from '../../../common_functions.js'
+  import { utilities } from '../../mixins/GenericMixin.js'
+  import store from '../../../store/store.js'
 
-function mounted() {
-  // init the filter settings
-  const myFilterSettings = store.state.userData.myFilterSettings
-  if (myFilterSettings) {
-    this.filterOnDependencies = myFilterSettings.filterOnDependencies || false
-    this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
-    this.selectedReqAreas = myFilterSettings.selectedReqAreas
-    this.filterOnTeams = myFilterSettings.filterOnTeams
-    this.selectedTeams = myFilterSettings.selectedTeams
-    this.filterTreeDepth = myFilterSettings.filterTreeDepth
-    this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
-    this.filterOnState = myFilterSettings.filterOnState
-    this.selectedStates = myFilterSettings.selectedStates
-    this.filterOnTime = myFilterSettings.filterOnTime
-    this.fromDate = myFilterSettings.fromDate
-    this.toDate = myFilterSettings.toDate
-    this.selectedTime = myFilterSettings.selectedTime
-  }
-  // expose instance to the global namespace
-  window.myFilters = this.$refs.myFiltersRef
-  // set the available team options
-  this.teamOptions = []
-  for (const team of Object.keys(store.state.allTeams)) {
-    this.teamOptions.push(team)
-  }
-  // remove non existing teams
-  const clearedSelectedTeams = []
-  for (const team of this.selectedTeams) {
-    if (this.teamOptions.includes(team)) {
-      clearedSelectedTeams.push(team)
+  function mounted() {
+    // init the filter settings
+    const myFilterSettings = store.state.userData.myFilterSettings
+    if (myFilterSettings) {
+      this.filterOnDependencies = myFilterSettings.filterOnDependencies || false
+      this.filterOnReqAreas = myFilterSettings.filterOnReqAreas
+      this.selectedReqAreas = myFilterSettings.selectedReqAreas
+      this.filterOnTeams = myFilterSettings.filterOnTeams
+      this.selectedTeams = myFilterSettings.selectedTeams
+      this.filterTreeDepth = myFilterSettings.filterTreeDepth
+      this.selectedTreeDepth = myFilterSettings.selectedTreeDepth
+      this.filterOnState = myFilterSettings.filterOnState
+      this.selectedStates = myFilterSettings.selectedStates
+      this.filterOnTime = myFilterSettings.filterOnTime
+      this.fromDate = myFilterSettings.fromDate
+      this.toDate = myFilterSettings.toDate
+      this.selectedTime = myFilterSettings.selectedTime
     }
-  }
-  this.selectedTeams = clearedSelectedTeams
-  // set the available state options; 0 is not in use
-  let i = 0
-  this.stateOptions = []
-  for (const state of store.state.configData.itemState) {
-    if (i > 0) this.stateOptions.push({ text: state, value: i })
-    i++
-  }
-}
-
-function data() {
-  // these values are used if no filter settings were saved
-  return {
-    filterOnDependencies: false,
-    filterOnReqAreas: false,
-    selectedReqAreas: [],
-    filterOnTeams: false,
-    teamOptions: [],
-    selectedTeams: [],
-    filterTreeDepth: false,
-    selectedTreeDepth: LEVEL.EPIC,
-    filterOnState: false,
-    stateOptions: [],
-    selectedStates: [],
-    filterOnTime: false,
-    fromDate: undefined,
-    toDate: undefined,
-    selectedTime: '1440',
-  }
-}
-
-const methods = {
-  onSaveFilters() {
-    const myFilterSettings = {
-      filterOnDependencies: this.filterOnDependencies,
-      filterOnReqAreas: this.filterOnReqAreas,
-      selectedReqAreas: this.selectedReqAreas,
-      filterOnTeams: this.filterOnTeams,
-      selectedTeams: this.selectedTeams,
-      filterTreeDepth: this.filterTreeDepth,
-      selectedTreeDepth: this.selectedTreeDepth,
-      filterOnState: this.filterOnState,
-      selectedStates: this.selectedStates,
-      filterOnTime: this.filterOnTime,
-      fromDate: this.fromDate,
-      toDate: this.toDate,
-      selectedTime: this.selectedTime,
+    // expose instance to the global namespace
+    window.myFilters = this.$refs.myFiltersRef
+    // set the available team options
+    this.teamOptions = []
+    for (const team of Object.keys(store.state.allTeams)) {
+      this.teamOptions.push(team)
     }
-    store.dispatch('saveMyFilterSettingsAction', myFilterSettings)
-    this.showLastEvent('Saving the filter settings', SEV.INFO)
-  },
-
-  doFilterOnDependencies(nm) {
-    return (nm.dependencies && nm.dependencies.length > 0) || (nm.conditionalFor && nm.conditionalFor.length > 0)
-  },
-
-  doFilterOnReqAreas(nm) {
-    return this.selectedReqAreas.includes(nm.data.reqarea)
-  },
-
-  doFilterOnTeams(nm) {
-    return this.selectedTeams.includes(nm.data.team)
-  },
-
-  doFilterOnState(nm) {
-    return this.selectedStates.includes(nm.data.state)
-  },
-
-  doFilterOnTime(nm) {
-    function lastAnyChange(nm) {
-      const allChanges = [
-        nm.data.lastPositionChange,
-        nm.data.lastStateChange,
-        nm.data.lastContentChange,
-        nm.data.lastCommentAddition,
-        nm.data.lastAttachmentAddition,
-        nm.data.lastAttachmentRemoval,
-        nm.data.lastOtherChange,
-      ]
-      // sort descending
-      const sortedChanges = allChanges.sort((a, b) => b - a)
-      // element 0 is most recent (highest value)
-      return sortedChanges[0]
-    }
-
-    if (this.selectedTime === '0') {
-      if (this.fromDate && this.toDate) {
-        // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
-        const fromMilis = Date.parse(this.fromDate)
-        const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
-        return lastAnyChange(nm) >= fromMilis && lastAnyChange(nm) < endOfToMilis
+    // remove non existing teams
+    const clearedSelectedTeams = []
+    for (const team of this.selectedTeams) {
+      if (this.teamOptions.includes(team)) {
+        clearedSelectedTeams.push(team)
       }
-    } else {
-      const sinceMilis = parseInt(this.selectedTime) * 60000
-      return Date.now() - lastAnyChange(nm) < sinceMilis
     }
-  },
+    this.selectedTeams = clearedSelectedTeams
+    // set the available state options; 0 is not in use
+    let i = 0
+    this.stateOptions = []
+    for (const state of store.state.configData.itemState) {
+      if (i > 0) this.stateOptions.push({ text: state, value: i })
+      i++
+    }
+  }
 
-  /* Apply the AND logic to the included filters */
-  onApplyMyFilters() {
-    // filter the currently selected product (the product the last selected item belongs to)
-    const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getSelectedNode.productId)
-    // return if a filter is already set or no filter is selected
-    if (store.getters.isResetFilterSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+  function data() {
+    // these values are used if no filter settings were saved
+    return {
+      filterOnDependencies: false,
+      filterOnReqAreas: false,
+      selectedReqAreas: [],
+      filterOnTeams: false,
+      teamOptions: [],
+      selectedTeams: [],
+      filterTreeDepth: false,
+      selectedTreeDepth: LEVEL.EPIC,
+      filterOnState: false,
+      stateOptions: [],
+      selectedStates: [],
+      filterOnTime: false,
+      fromDate: undefined,
+      toDate: undefined,
+      selectedTime: '1440',
+    }
+  }
 
-    // save node display state
-    store.dispatch('saveTreeViewState', { type: 'filter', nodesToScan })
+  const methods = {
+    onSaveFilters() {
+      const myFilterSettings = {
+        filterOnDependencies: this.filterOnDependencies,
+        filterOnReqAreas: this.filterOnReqAreas,
+        selectedReqAreas: this.selectedReqAreas,
+        filterOnTeams: this.filterOnTeams,
+        selectedTeams: this.selectedTeams,
+        filterTreeDepth: this.filterTreeDepth,
+        selectedTreeDepth: this.selectedTreeDepth,
+        filterOnState: this.filterOnState,
+        selectedStates: this.selectedStates,
+        filterOnTime: this.filterOnTime,
+        fromDate: this.fromDate,
+        toDate: this.toDate,
+        selectedTime: this.selectedTime,
+      }
+      store.dispatch('saveMyFilterSettingsAction', myFilterSettings)
+      this.showLastEvent('Saving the filter settings', SEV.INFO)
+    },
 
-    const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
-    let count = 0
-    const unselectedNodes = []
-    // create a callback for the filtering
-    const cb = (nm) => {
-      if (onlyFilterOnDepth) {
-        if (nm.level < this.selectedTreeDepth) {
-          expandNode(nm)
-        } else collapseNode(nm)
+    doFilterOnDependencies(nm) {
+      return (nm.dependencies && nm.dependencies.length > 0) || (nm.conditionalFor && nm.conditionalFor.length > 0)
+    },
 
-        if (nm.level === this.selectedTreeDepth) return
+    doFilterOnReqAreas(nm) {
+      return this.selectedReqAreas.includes(nm.data.reqarea)
+    },
+
+    doFilterOnTeams(nm) {
+      return this.selectedTeams.includes(nm.data.team)
+    },
+
+    doFilterOnState(nm) {
+      return this.selectedStates.includes(nm.data.state)
+    },
+
+    doFilterOnTime(nm) {
+      function lastAnyChange(nm) {
+        const allChanges = [
+          nm.data.lastPositionChange,
+          nm.data.lastStateChange,
+          nm.data.lastContentChange,
+          nm.data.lastCommentAddition,
+          nm.data.lastAttachmentAddition,
+          nm.data.lastAttachmentRemoval,
+          nm.data.lastOtherChange,
+        ]
+        // sort descending
+        const sortedChanges = allChanges.sort((a, b) => b - a)
+        // element 0 is most recent (highest value)
+        return sortedChanges[0]
+      }
+
+      if (this.selectedTime === '0') {
+        if (this.fromDate && this.toDate) {
+          // process a period from fromDate(inclusive) to toDate(exclusive); date format is yyyy-mm-dd
+          const fromMilis = Date.parse(this.fromDate)
+          const endOfToMilis = Date.parse(this.toDate) + 24 * 60 * 60000
+          return lastAnyChange(nm) >= fromMilis && lastAnyChange(nm) < endOfToMilis
+        }
       } else {
-        // select nodeModels NOT to show; the node is shown if not excluded by any filter
-        let isExcluded = false
-        if (this.filterOnDependencies) {
-          isExcluded = !this.doFilterOnDependencies(nm)
-        }
-        if (!isExcluded && this.filterOnReqAreas) {
-          isExcluded = !this.doFilterOnReqAreas(nm)
-        }
-        if (!isExcluded && this.filterOnTeams) {
-          isExcluded = !this.doFilterOnTeams(nm)
-        }
-        if (!isExcluded && this.filterOnState) {
-          isExcluded = !this.doFilterOnState(nm)
-        }
-        if (!isExcluded && this.filterOnTime) {
-          isExcluded = !this.doFilterOnTime(nm)
-        }
-        if (!isExcluded) {
-          if (this.filterTreeDepth) {
-            if (nm.level <= this.selectedTreeDepth) {
+        const sinceMilis = parseInt(this.selectedTime) * 60000
+        return Date.now() - lastAnyChange(nm) < sinceMilis
+      }
+    },
+
+    /* Apply the AND logic to the included filters */
+    onApplyMyFilters() {
+      // filter the currently selected product (the product the last selected item belongs to)
+      const nodesToScan = store.state.helpersRef.getProductModelInArray(this.getSelectedNode.productId)
+      // return if a filter is already set or no filter is selected
+      if (store.getters.isResetFilterSet || !this.filterOnDependencies && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterTreeDepth && !this.filterOnState && !this.filterOnTime) return
+
+      // save node display state
+      store.dispatch('saveTreeViewState', { type: 'filter', nodesToScan })
+
+      const onlyFilterOnDepth = this.filterTreeDepth && !this.filterOnReqAreas && !this.filterOnTeams && !this.filterOnState && !this.filterOnTime
+      let count = 0
+      const unselectedNodes = []
+      // create a callback for the filtering
+      const cb = (nm) => {
+        if (onlyFilterOnDepth) {
+          if (nm.level < this.selectedTreeDepth) {
+            expandNode(nm)
+          } else collapseNode(nm)
+
+          if (nm.level === this.selectedTreeDepth) return
+        } else {
+          // select nodeModels NOT to show; the node is shown if not excluded by any filter
+          let isExcluded = false
+          if (this.filterOnDependencies) {
+            isExcluded = !this.doFilterOnDependencies(nm)
+          }
+          if (!isExcluded && this.filterOnReqAreas) {
+            isExcluded = !this.doFilterOnReqAreas(nm)
+          }
+          if (!isExcluded && this.filterOnTeams) {
+            isExcluded = !this.doFilterOnTeams(nm)
+          }
+          if (!isExcluded && this.filterOnState) {
+            isExcluded = !this.doFilterOnState(nm)
+          }
+          if (!isExcluded && this.filterOnTime) {
+            isExcluded = !this.doFilterOnTime(nm)
+          }
+          if (!isExcluded) {
+            if (this.filterTreeDepth) {
+              if (nm.level <= this.selectedTreeDepth) {
+                store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
+                count++
+              } else return
+            } else {
               store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
               count++
-            } else return
+            }
           } else {
-            store.state.helpersRef.showPathToNode(nm, { doHighLight_1: true })
-            count++
+            unselectedNodes.push(nm)
           }
-        } else {
-          unselectedNodes.push(nm)
         }
       }
-    }
-    // execute the callback for the current product
-    store.state.helpersRef.traverseModels(cb, nodesToScan)
+      // execute the callback for the current product
+      store.state.helpersRef.traverseModels(cb, nodesToScan)
 
-    if (!onlyFilterOnDepth) {
-      // hide unselected nodes with no selected descendants; do not hide the currently selected node
-      for (const nm of unselectedNodes) {
-        if (!isInPath(nm.path, this.getSelectedNode.path) && !store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
+      if (!onlyFilterOnDepth) {
+        // hide unselected nodes with no selected descendants; do not hide the currently selected node
+        for (const nm of unselectedNodes) {
+          if (!isInPath(nm.path, this.getSelectedNode.path) && !store.state.helpersRef.checkForFilteredDescendants(nm)) hideNode(nm)
+        }
+        this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${store.state.currentProductTitle}'`, SEV.INFO)
+      } else {
+        this.showLastEvent(`The tree is displayed up to the ${this.getLevelText(this.selectedTreeDepth)} level in product '${store.state.currentProductTitle}'`, SEV.INFO)
       }
-      this.showLastEvent(`${count} item ${count === 1 ? 'title matches' : 'titles match'} your filter in product '${store.state.currentProductTitle}'`, SEV.INFO)
-    } else {
-      this.showLastEvent(`The tree is displayed up to the ${this.getLevelText(this.selectedTreeDepth)} level in product '${store.state.currentProductTitle}'`, SEV.INFO)
-    }
-    // create reset object
-    store.state.filterSelectSearch.resetFilter = {
-      nodesTouched: nodesToScan
+      // create reset object
+      store.state.filterSelectSearch.resetFilter = {
+        nodesTouched: nodesToScan
+      }
     }
   }
-}
 
-export default {
-  mounted,
-  data,
-  mixins: [utilities],
-  methods
-}
+  export default {
+    mounted,
+    data,
+    mixins: [utilities],
+    methods
+  }
 
 </script>

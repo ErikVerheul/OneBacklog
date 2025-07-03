@@ -48,7 +48,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 	.cta {
 		width: 250px;
 		margin: auto;
