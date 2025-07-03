@@ -32,7 +32,7 @@ import watchdog from './modules/watchdog'
 const MAX_EVENTLIST_SIZE = 100
 
 function createEventToDisplay(payload) {
-	let backgroundColor = '#408FAE'
+	let backgroundColor = '#408fae'
 	let textColor = 'white'
 	let severityStr = 'INFO'
 	switch (payload.severity) {
@@ -43,7 +43,7 @@ function createEventToDisplay(payload) {
 			break
 		case SEV.INFO:
 			severityStr = 'INFO'
-			backgroundColor = '#408FAE'
+			backgroundColor = '#408fae'
 			textColor = 'white'
 			break
 		case SEV.WARNING:
