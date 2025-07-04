@@ -1,6 +1,5 @@
 <template>
-	<!-- ToDo: ok-class property as documented in https://bootstrap-vue-next.github.io/bootstrap-vue-next/docs/components/modal.html#comp-reference-bmodal-properties fails -->
-	<BModal ref="contextMenuRef" ok-class="ok-color" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" :title="contextNodeTitle">
+	<BModal ref="contextMenuRef" :ok-disabled="disableOkButton" @ok="procSelected" @cancel="doCancel" :title="contextNodeTitle">
 		<template v-if="contextOptionSelected === SHOWDEPENDENCIES || contextOptionSelected === SHOWCONDITIONS">
 			<template v-if="contextOptionSelected === SHOWDEPENDENCIES">
 				<p v-if="dependenciesObjects.length === 1">This {{ contextNodeType }} is conditional for this backlog item:</p>
@@ -122,11 +121,6 @@
 		margin: 10px;
 		padding: 10px;
 		color: rgb(255, 115, 0);
-	}
-
-	.ok-color {
-		background-color: #408fae;
-		color: white;
 	}
 
 </style>
