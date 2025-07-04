@@ -911,6 +911,9 @@ const methods = {
 	},
 
 	setUserColor(newColor) {
+		// undo the radio input to prevent a color preset
+		this.selReqAreaColor = undefined
+		// update the backlog items
 		store.dispatch('updateColorDb', { node: this.getSelectedNode, newColor })
 	},
 
