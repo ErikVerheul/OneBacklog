@@ -759,6 +759,25 @@ const methods = {
 		return false
 	},
 
+	isReqAreaSet(reqArea) {
+		return reqArea && store.state.colorMapper && store.state.colorMapper[reqArea]
+	},
+
+	/* Return a color for max contrast with the background color */
+	getColor(reqArea) {
+		const bgColor = store.state.colorMapper[reqArea].reqAreaItemColor
+		if (bgColor === '#FF0000') return '#FFFFFF' // bg = red --> white
+		if (bgColor === '#FFFF00') return '#000000' // bg = yellow --> black
+		if (bgColor === '#008000') return '#FFFFFF' // bg = green --> white
+		if (bgColor === '#0000ff') return '#FFFFFF' // bg = blue --> white
+		return '#000000' // other bg --> black
+	},
+
+	/* Return the background color for this requirement area */
+	getBGColor(reqArea) {
+		return store.state.colorMapper[reqArea].reqAreaItemColor
+	},
+
 	/* Get the requirement area colors not in use already */
 	getRemainingColorOptions() {
 		const availableOptions = []

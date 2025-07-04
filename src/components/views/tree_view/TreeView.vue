@@ -175,18 +175,20 @@
 						</template>
 
 						<template v-slot:sidebar="{ node }">
-							<template v-if="node.productId === MISC.AREA_PRODUCTID">
-								<p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
-							</template>
-							<p v-else-if="isAPO && store.state.colorMapper && node.level > LEVEL.PRODUCT">
-								<BButton v-if="node.data.reqarea && store.state.colorMapper[node.data.reqarea]" variant="seablue-dynamic"
-									:style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }" @click="setReqArea(node)" size="sm">Change
-								</BButton>
-								<BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
-							</p>
-							<template
-								v-if="store.state.userData.myOptions.proUser === 'true' && !isAPO && store.state.colorMapper && store.state.colorMapper[node.data.reqarea] && node.level > LEVEL.PRODUCT && node.data.reqarea">
-								<p class="rectangle" :style="{ 'background-color': store.state.colorMapper[node.data.reqarea].reqAreaItemColor }"></p>
+							<template v-if="node.level > LEVEL.PRODUCT">
+								<template v-if="node.productId === MISC.AREA_PRODUCTID">
+									<p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
+								</template>
+								<p v-else-if="isAPO">
+									<BButton v-if=isReqAreaSet(node.data.reqarea) variant="seablue-dynamic"
+										:style="{ 'color': getColor(node.data.reqarea), 'background-color': getBGColor(node.data.reqarea) }" @click="setReqArea(node)" size="sm">
+										Change
+									</BButton>
+									<BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
+								</p>
+								<template v-else-if="store.state.userData.myOptions.proUser === 'true' && isReqAreaSet(node.data.reqarea)">
+									<p class="rectangle" :style="{ 'background-color': getBGColor(node.data.reqarea) }"></p>
+								</template>
 							</template>
 						</template>
 					</sl-vue-tree>
