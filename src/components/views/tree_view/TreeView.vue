@@ -215,11 +215,9 @@
 								<p v-if="isAPO && isReqAreaTopLevel">As Areas Product Owner (APO) you can create and remove requirement areas here</p>
 								<p v-if="!isAPO && isReqAreaTopLevel">Note: The requirement areas are managed by the Areas Product Owner (APO). Not you.</p>
 								<span v-if="isAPO && !isReqAreaTopLevel">
-									<BFormGroup>
-										Select a display color for this requirement area:
-										<BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
-											:options="getRemainingColorOptions()" />
-									</BFormGroup>
+									Select a display color for this requirement area:
+									<BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
+										:options="getRemainingColorOptions()" />
 								</span>
 							</template>
 							<template v-else>
