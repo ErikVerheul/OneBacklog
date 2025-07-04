@@ -4,9 +4,9 @@
  */
 
 /* The "Unicode Problem" See https://developer.mozilla.org/en-US/docs/Glossary/Base64#the_unicode_problem
-Since btoa interprets the code points of its input string as byte values, 
-calling btoa on a string will cause a "Character Out Of Range" exception if a character's code point exceeds 0xff. 
-For use cases where you need to encode arbitrary Unicode text, 
+Since btoa interprets the code points of its input string as byte values,
+calling btoa on a string will cause a "Character Out Of Range" exception if a character's code point exceeds 0xff.
+For use cases where you need to encode arbitrary Unicode text,
 it is necessary to first convert the string to its constituent bytes in UTF-8, and then encode the bytes.*/
 
 import { LEVEL, MISC } from './constants.js'
@@ -74,6 +74,8 @@ export function decodeHtml(str, encoding, caller) {
 			return html.replace(/<pre data-language="plain">/g, '<pre style="background-color: black; color: white; padding: 10px; border-radius: 5px;">')
 		} else return html.replace(/&nbsp;/g, ' ')
 	}
+
+	if (!str) return ''
 
 	if (encoding === 'escaped') {
 		return modifyHtml(unescapeHTML(str))
