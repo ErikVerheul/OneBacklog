@@ -184,10 +184,7 @@ const actions = {
 					}
 					const msg = 'updateMovedItemsBulk: These items cannot be updated: ' + errorStr
 					dispatch('doLog', { event: msg, level: SEV.ERROR })
-					commit('addToEventList', {
-						txt: 'The move failed due to update errors. Try again after signing-in again or contact your administrator',
-						severity: SEV.WARNING,
-					})
+					alert(`The move failed due to update errors. Try again after signing-in again or contact your administrator.`)
 					commit('endSession', `updateMovedItemsBulk, error = ${errorStr}`)
 				} else {
 					if (!payload.isUndoAction) {
