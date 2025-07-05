@@ -5,7 +5,8 @@
 				<BImg hight="250" width="250" :src="logo" placement="center" alt="OneBacklog logo" />
 			</BCol>
 			<BCol cols="12" id="signin">
-				<div class="signin-form">
+				<!-- Wrap the sign-in fields in a form element -->
+				<form class="signin-form" @submit.prevent="onSubmit">
 					<div class="input">
 						<label for="name">Name</label>
 						<BFormInput type="text" id="name" autocomplete="username" v-model="state.name" />
@@ -16,13 +17,14 @@
 					</div>
 					<div class="submit">
 						<template v-if="credentialsEntered">
-							<BButton @click.ctrl="state.resetLastSessionData = true" @click="onSubmit">Submit</BButton>
+							<!-- Use type="submit" for form submission -->
+							<BButton type="submit" variant="seablue" @click.ctrl="state.resetLastSessionData = true">Submit</BButton>
 						</template>
 						<template v-else>
-							<BButton disabled>Submit</BButton>
+							<BButton type="submit" variant="seablue" disabled>Submit</BButton>
 						</template>
 					</div>
-				</div>
+				</form>
 				<div class="text-center">
 					<p class="mb-1">No account yet?<br>Ask your SM or PO to create one</p>
 					<p v-if="state.isDemo">or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
@@ -32,7 +34,7 @@
 						MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE</p>
 
 					<div class="demo-user" v-if="state.name === 'demoUser'">
-						<h4>You're welcome to give this app</h4>
+						<h4>You're welcome to give this app a try</h4>
 						<p>Demo users share a database with some predefined products. Your changes can be overridden by others or by a database restore. Please leave your
 							findings in <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu
 							and select 'My authorizations' to see the roles that are assigned to this account.</p>
@@ -82,7 +84,7 @@
 
 	.demo-user {
 		margin: 30px auto;
-		border: 1px solid green;
+		border: 1px solid #408fae;
 		padding: 10px;
 		box-shadow: 0 2px 3px #ccc;
 	}
@@ -103,23 +105,6 @@
 		padding: 6px 12px;
 		box-sizing: border-box;
 		border: 1px solid #ccc;
-	}
-
-	.submit button {
-		border: 1px solid #521751;
-		color: #521751;
-		background-color: #408fae;
-		padding: 10px 20px;
-		font: inherit;
-		cursor: pointer;
-	}
-
-	.submit button[disabled],
-	.submit button[disabled]:active {
-		border: 1px solid #ccc;
-		background-color: transparent;
-		color: #ccc;
-		cursor: not-allowed;
 	}
 
 	.smallerFont {
