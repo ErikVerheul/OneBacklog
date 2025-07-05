@@ -138,18 +138,26 @@
 		<BContainer align-v="true">
 			<BRow class="my-1">
 				<BCard bg-variant="light">
-					<BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0"
-						class="mb-0">
-						<BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right">
-							<BFormInput v-model="oldPassword" type="password"></BFormInput>
+					<!-- Add a hidden username field for accessibility -->
+					<form @submit.prevent="doChangeMyPassWord">
+						<input type="text" autocomplete="username" :aria-label="'Username'" :value="store.state.userData.user"
+							style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;border:0;padding:0;margin:0;" tabindex="-1" readonly />
+						<BFormGroup label-cols-lg="5" label="The new password must have 8 or more characters" label-size="lg" label-class="font-weight-bold pt-0"
+							class="mb-0">
+							<BFormGroup label-cols-sm="5" label="Current password:" label-align-sm="right">
+								<!-- Prevent browser autocomplete for current password -->
+								<BFormInput v-model="oldPassword" type="password" autocomplete="new-password"></BFormInput>
+							</BFormGroup>
+							<BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right">
+								<BFormInput v-model="newPassword1" type="password" autocomplete="new-password"></BFormInput>
+							</BFormGroup>
+							<BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right">
+								<BFormInput v-model="newPassword2" type="password" autocomplete="new-password"></BFormInput>
+							</BFormGroup>
 						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="New password:" label-align-sm="right">
-							<BFormInput v-model="newPassword1" type="password"></BFormInput>
-						</BFormGroup>
-						<BFormGroup label-cols-sm="5" label="Retype new password:" label-align-sm="right">
-							<BFormInput v-model="newPassword2" type="password"></BFormInput>
-						</BFormGroup>
-					</BFormGroup>
+						<!-- Optionally, you can add a submit button here if you want to allow pressing Enter to submit -->
+						<button type="submit" style="display:none"></button>
+					</form>
 				</BCard>
 				<p>You will be forced to sign-in again</p>
 			</BRow>
