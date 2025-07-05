@@ -864,7 +864,7 @@ const actions = {
 					return
 				}
 				if (error.response && error.response.status === 404) {
-					// database not found; cannot log; possible cause is that the server admin is restoring the current database
+					alert(`Database not found; cannot log; possible cause is that the server admin is restoring the current database.`)
 					commit('endSession', 'listenForChanges: catch:error.response.status === 404')
 					return
 				}
