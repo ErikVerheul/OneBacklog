@@ -65,29 +65,29 @@
 		margin: 100px;
 		text-decoration: none;
 		display: inline-block;
-		border: 1px solid #521751;
+		border: 1px solid #408fae;
 		border-radius: 3px;
 		width: 100px;
 		padding: 10px;
 		box-sizing: border-box;
-		color: #521751;
+		color: black;
 	}
 
 	.ctb a {
 		margin: 50px;
 		text-decoration: none;
 		display: inline-block;
-		border: 1px solid #521751;
+		border: 1px solid #408fae;
 		border-radius: 3px;
 		width: 100px;
 		padding: 10px;
 		box-sizing: border-box;
-		color: #521751;
+		color: #408fae;
 	}
 
 	.cta a:hover,
 	.cta a:active {
-		background-color: #521751;
+		background-color: #408fae;
 		color: white;
 	}
 
