@@ -84,6 +84,7 @@ const store = createStore({
 	state() {
 		return {
 			appVersion: '3.3.0',
+			preventExit: true, // prevent the browser from leaving the page without confirmation
 			// generic helper functions
 			helpersRef: null,
 			// console log settings
@@ -765,7 +766,9 @@ const store = createStore({
 			state.selectedNodes = [state.helpersRef.getNodeById(state.lastSessionData.lastSelectedNodeId)]
 		},
 
-		endSession(state) {
+		endSession(state, caller) {
+			if (state.debug) console.log(`store.endSession called by ${caller}`)
+			state.preventExit = false
 			// stop the timers
 			if (state.authentication) clearInterval(state.authentication.runningCookieRefreshId)
 			if (state.watchdog) clearInterval(state.watchdog.runningWatchdogId)

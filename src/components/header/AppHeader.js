@@ -9,7 +9,7 @@ const MINPASSWORDLENGTH = 8
 
 // show browser dependent message 'Changes you made may not be saved. Stay on page / Leave page' when exiting the app irregularly
 const beforeUnloadHandler = (event) => {
-	event.preventDefault()
+	if (store.state.preventExit) event.preventDefault()
 }
 window.addEventListener('beforeunload', beforeUnloadHandler)
 
@@ -56,6 +56,10 @@ const computed = {
 }
 
 const methods = {
+	unhook() {
+		preventExit = false
+	},
+
 	saveMyOptions() {
 		// refreshPlanningboard to (un)show the OnHold column
 		this.refreshPlanningboard()
