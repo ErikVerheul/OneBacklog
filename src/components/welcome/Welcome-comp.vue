@@ -49,20 +49,17 @@
 </script>
 
 <style lang="scss" scoped>
-	.cta {
-		width: 250px;
-		margin: auto;
-		text-align: center;
-	}
 
+	.cta,
 	.ctb {
 		width: 250px;
 		margin: auto;
 		text-align: center;
 	}
 
-	.cta a {
-		margin: 100px;
+	.cta a,
+	.ctb a {
+		margin: 50px; // Adjusted to a common value for consistency
 		text-decoration: none;
 		display: inline-block;
 		border: 1px solid #408fae;
@@ -70,25 +67,20 @@
 		width: 100px;
 		padding: 10px;
 		box-sizing: border-box;
+	}
+
+	.cta a {
 		color: black;
+
+		&:hover,
+		&:active {
+			background-color: #408fae;
+			color: white;
+		}
 	}
 
 	.ctb a {
-		margin: 50px;
-		text-decoration: none;
-		display: inline-block;
-		border: 1px solid #408fae;
-		border-radius: 3px;
-		width: 100px;
-		padding: 10px;
-		box-sizing: border-box;
 		color: #408fae;
-	}
-
-	.cta a:hover,
-	.cta a:active {
-		background-color: #408fae;
-		color: white;
 	}
 
 	.smallerFont {

@@ -1,27 +1,24 @@
 // Bootstrap and its default variables
 @use '../../node_modules/bootstrap/scss/bootstrap';
 
-/* button variant styles in seablue color */
+/* Button variant styles in seablue color */
 .btn-seablue {
   background-color: #408fae;
   color: white;
-}
 
-.btn-seablue:hover {
-  background-color: #0e5874;
-  color: white;
+  &:hover {
+    background-color: #0e5874;
+  }
 }
 
 .btn-seablue-dynamic {
   width: 71px;
   height: 28px;
   border: 1px solid #408fae;
-}
 
-.btn-seablue-dynamic:hover {
-  width: 71px;
-  height: 28px;
-  border-left: 4px solid #fcfdfd;
+  &:hover {
+    border-left: 4px solid #fcfdfd;
+  }
 }
 
 .btn-seablueLight {
@@ -29,37 +26,31 @@
   height: 28px;
   color: rgb(179, 179, 179);
   border: 1px solid #408fae;
-}
 
-.btn-seablueLight:hover {
-  width: 71px;
-  height: 28px;
-  color: rgb(179, 179, 179);
-  border: 1px solid #408fae;
-  border-left: 4px solid #fcfdfd;
+  &:hover {
+    border-left: 4px solid #fcfdfd;
+  }
 }
 
 .btn-seablueInverted {
   background-color: rgb(220, 223, 217);
   color: #408fae;
-}
 
-.btn-seablueInverted:hover {
-  background-color: rgb(220, 223, 217);
-  color: #408fae;
-  border: 2px solid #000000;
+  &:hover {
+    background-color: rgb(220, 223, 217);
+    color: #408fae;
+    border: 2px solid #000000;
+  }
 }
 
 .btn.btn-secondary.dropdown-toggle {
   background-color: #408fae;
   color: white;
   border-radius: 0.25rem;
-}
 
-.btn.btn-secondary.dropdown-toggle:hover {
-  background-color: #0e5874;
-  color: white;
-  border-radius: 0.25rem;
+  &:hover {
+    background-color: #0e5874;
+  }
 }
 
 /* Override Bootstrap's default modal OK button */
@@ -67,21 +58,19 @@
   background-color: #408fae; /* Custom seablue background */
   border-color: #408fae; /* Match border color */
   color: white; /* Text color */
-}
 
-.modal-footer .btn-primary:hover {
-  background-color: #0e5874; /* Darker seablue on hover */
-  border-color: #0e5874; /* Match border color on hover */
-  color: white; /* Keep text color white */
-}
+  &:hover {
+    background-color: #0e5874; /* Darker seablue on hover */
+    border-color: #0e5874; /* Match border color on hover */
+  }
 
-/* Override styles for the disabled state */
-.modal-footer .btn-primary:disabled {
-  background-color: #6c757d; /* Custom gray background for disabled */
-  border-color: #6c757d; /* Match border color */
-  color: white; /* Text color */
-  opacity: 1; /* Ensure opacity is 1 to maintain visibility */
-  cursor: not-allowed; /* Change cursor to indicate it's disabled */
+  &:disabled {
+    background-color: #6c757d; /* Custom gray background for disabled */
+    border-color: #6c757d; /* Match border color */
+    color: white; /* Text color */
+    opacity: 1; /* Ensure opacity is 1 to maintain visibility */
+    cursor: not-allowed; /* Change cursor to indicate it's disabled */
+  }
 }
 
 /* Override Bootstrap's default modal Cancel button */
@@ -89,39 +78,31 @@
   background-color: #408fae; /* Custom seablue background */
   border-color: #408fae; /* Match border color */
   color: white; /* Text color */
+
+  &:hover {
+    background-color: #0e5874; /* Darker seablue on hover */
+  }
 }
 
-.modal-footer .btn-secondary:hover {
-  background-color: #0e5874; /* Darker seablue on hover */
-  border-color: #0e5874; /* Match border color on hover */
-  color: white; /* Keep text color white */
-}
-
-/* other generic styles */
+/* Other generic styles */
 .colorBlue {
   color: #0099ff;
 }
-
 .colorGreen {
   color: #00ffcc;
 }
-
 .colorOrange {
   color: #ff9900;
 }
-
 .colorRed {
   color: red;
 }
-
 .colorSeaBlue {
   color: #408fae;
 }
-
 .colorWhite {
   color: #ffffff;
 }
-
 .colorYellow {
   color: #ffff00;
 }

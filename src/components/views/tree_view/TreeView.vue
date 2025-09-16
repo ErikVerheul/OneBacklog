@@ -358,66 +358,67 @@
 
 <style lang="scss" scoped>
 
-	/* horizontal panes */
+	/* Horizontal Panes */
 	.horizontal-panes {
 		width: 100%;
 		border: 1px solid #ccc;
-	}
 
-	.horizontal-panes>.pane {
-		text-align: left;
-		padding: 5px;
-		overflow: hidden;
-		background: white;
-	}
+		>.pane {
+			text-align: left;
+			padding: 5px;
+			overflow: hidden;
+			background: white;
 
-	.horizontal-panes>.pane~.pane {
-		border-top: 1px solid #ccc;
-	}
-
-	/* vertical panes */
-	.custom-resizer {
-		width: 100%;
-		height: 100%;
-	}
-
-	.custom-resizer>.pane {
-		text-align: left;
-		padding: 2px;
-		overflow: hidden;
-		background: #eee;
-		border: 1px solid #ccc;
-	}
-
-	.custom-resizer>.MultipaneResizer {
-		margin: 0;
-		left: 0;
-		position: relative;
-
-		&:before {
-			display: block;
-			content: "";
-			width: 3px;
-			height: 40px;
-			position: absolute;
-			top: 400px;
-			left: 50%;
-			margin-top: -20px;
-			margin-left: -1.5px;
-			border-left: 1px solid #408fae;
-			border-right: 1px solid #408fae;
-		}
-
-		&:hover {
-			&:before {
-				border-color: #999;
+			~.pane {
+				border-top: 1px solid #ccc;
 			}
 		}
 	}
 
-	/* other stuff */
+	/* Vertical Panes */
+	.custom-resizer {
+		width: 100%;
+		height: 100%;
+
+		>.pane {
+			text-align: left;
+			padding: 2px;
+			overflow: hidden;
+			background: #eee;
+			border: 1px solid #ccc;
+		}
+
+		>.MultipaneResizer {
+			margin: 0;
+			left: 0;
+			position: relative;
+
+			&:before {
+				display: block;
+				content: "";
+				width: 3px;
+				height: 40px;
+				position: absolute;
+				top: 400px;
+				left: 50%;
+				margin-top: -20px;
+				margin-left: -1.5px;
+				border-left: 1px solid #408fae;
+				border-right: 1px solid #408fae;
+			}
+
+			&:hover {
+				&:before {
+					border-color: #999;
+				}
+			}
+		}
+	}
+
+	/* Other Styles */
 	h3 {
 		font-size: 1.4em;
+		height: 45px; // Combined height property for h3
 	}
 
 	label {
@@ -430,14 +431,17 @@
 		max-width: 100%;
 	}
 
+	.filter-button,
+	.id-sizing {
+		height: 45px;
+	}
+
 	.filter-button {
 		width: 15em;
-		height: 45px;
 	}
 
 	.id-sizing {
 		width: 25em;
-		height: 45px;
 	}
 
 	.group-height {
@@ -451,10 +455,10 @@
 	.d-table-cell {
 		display: table-cell;
 		vertical-align: middle;
-	}
 
-	.d-table-cell.bold {
-		font-weight: bold;
+		.bold {
+			font-weight: bold;
+		}
 	}
 
 	.w-100 {
@@ -479,7 +483,7 @@
 		border-radius: 2px;
 	}
 
-	/* tree stuff */
+	/* Tree Styles */
 	.last-event {
 		width: 100%;
 		text-align: left;
@@ -500,28 +504,25 @@
 		height: 100%;
 	}
 
-	/* my stuff */
-	h3 {
-		height: 45px;
-	}
-
+	/* Custom Styles */
 	.note {
 		background: #eee;
 	}
 
-	.messSquare {
+	.messSquare,
+	.syncOLSquare {
 		position: absolute;
-		right: 50px;
 		padding: 5px;
 		margin: 5px;
 	}
 
+	.messSquare {
+		right: 50px;
+	}
+
 	.syncOLSquare {
-		position: absolute;
 		width: 42px;
 		right: 3px;
-		padding: 5px;
-		margin: 5px;
 	}
 
 	.rectangle {

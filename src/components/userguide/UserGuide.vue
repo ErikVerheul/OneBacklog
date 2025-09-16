@@ -386,7 +386,7 @@
 	}
 
 	.pro-user {
-		color: gold
+		color: gold;
 	}
 
 	.indent20 {

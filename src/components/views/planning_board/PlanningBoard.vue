@@ -290,25 +290,22 @@
 		display: inline-block;
 	}
 
+	.title-bar,
+	.warning-bar {
+		padding-top: 4px;
+	}
+
 	.title-bar {
 		background-color: #408fae;
-		padding-top: 4px;
 	}
 
 	.warning-bar {
 		background-color: orange;
-		padding-top: 4px;
 		padding-bottom: 4px;
 	}
 
-	.messSquareSmall {
-		margin-left: 10px;
-	}
-
-	.short-date {
-		margin-left: 10px;
-	}
-
+	.messSquareSmall,
+	.short-date,
 	.syncOLSquareSmall {
 		margin-left: 10px;
 	}

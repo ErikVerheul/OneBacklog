@@ -287,14 +287,17 @@
 		margin: 0 16px;
 	}
 
+	.have-role,
+	.not-have-role {
+		margin-bottom: 1em;
+	}
+
 	.have-role {
 		color: green;
-		margin-bottom: 1em;
 	}
 
 	.not-have-role {
 		color: red;
-		margin-bottom: 1em;
 	}
 
 	.spacer {

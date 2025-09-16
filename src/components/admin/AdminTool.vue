@@ -446,12 +446,12 @@
 <style lang="scss" scoped>
 
 	h4,
-	h5 {
+	h5,
+	.margin-colorRed {
 		margin-top: 20px;
 	}
 
 	.margin-colorRed {
-		margin-top: 20px;
 		color: red;
 	}
 </style>

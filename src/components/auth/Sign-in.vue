@@ -91,20 +91,20 @@
 
 	.input {
 		margin: 10px auto;
-	}
 
-	.input label {
-		display: block;
-		color: #4e4e4e;
-		margin-bottom: 6px;
-	}
+		label {
+			display: block;
+			color: #4e4e4e;
+			margin-bottom: 6px;
+		}
 
-	.input input {
-		font: inherit;
-		width: 100%;
-		padding: 6px 12px;
-		box-sizing: border-box;
-		border: 1px solid #ccc;
+		input {
+			font: inherit;
+			width: 100%;
+			padding: 6px 12px;
+			box-sizing: border-box;
+			border: 1px solid #ccc;
+		}
 	}
 
 	.smallerFont {
