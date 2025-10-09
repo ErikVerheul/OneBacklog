@@ -1,7 +1,7 @@
 {
   "type": "module",
   "name": "onebacklog",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "private": true,
   "scripts": {
     "dev": "vite",

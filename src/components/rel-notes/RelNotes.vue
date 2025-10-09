@@ -3,6 +3,17 @@
 		<BRow>
 			<BCol cols="12" class="left-column">
 				<h1>RELEASE NOTES</h1>
+				<h3>v.3.3.1 - 9 October 2025 Dependency updates and refactoring</h3>
+				<p>Dependency updates</p>
+				<ul>
+					<li>Latest vue, and vite versions</li>
+					<li>Updated axios and other dependencies</li>
+				</ul>
+				<p>Refactoring</p>
+				<ul>
+					<li>Improve code structure and readability</li>
+					<li>Sass-embedded fixed on current version due to compatibility issues</li>
+				</ul>
 				<h3>v.3.3.0 - 4 May 2025 Planning board on mobile devices</h3>
 				<p>New feature</p>
 				<ul>

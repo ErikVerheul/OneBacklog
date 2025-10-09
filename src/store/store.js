@@ -83,7 +83,7 @@ function getCurrentEvt(eventsArray, key) {
 const store = createStore({
 	state() {
 		return {
-			appVersion: '3.3.0',
+			appVersion: '3.3.1',
 			preventExit: true, // prevent the browser from leaving the page without confirmation
 			// generic helper functions
 			helpersRef: null,
