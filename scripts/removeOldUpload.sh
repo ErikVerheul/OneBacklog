@@ -9,7 +9,7 @@ rm favicon.ico
 rm -r assets
 rm -r img
 rm -r mailservice
-echo "The directory should be clean"
+echo "The assets, img and mailservice directories should be removed"
 ls -al
 echo
 echo "Done removing old upload and replacing index.html with maintenance.html"
