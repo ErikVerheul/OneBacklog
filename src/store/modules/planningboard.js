@@ -367,7 +367,7 @@ const actions = {
 					}
 
 					if (payload.onSuccessCallback) {
-						console.log('loadPlanningBoard is calling onSuccessCallback')
+						if (rootState.debug) console.log('loadPlanningBoard is calling onSuccessCallback')
 						payload.onSuccessCallback()
 					}
 
