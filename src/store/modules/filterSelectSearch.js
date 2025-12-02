@@ -180,6 +180,11 @@ const actions = {
 
 	/* Find a full or short id in whithin all product branches */
 	findItemOnId({ rootState, dispatch, commit }, id) {
+		function getProductTitle(productId) {
+			const productNode = rootState.helpersRef.getNodeById(productId)
+			if (productNode) return productNode.title
+			return '*Unknown Product*'
+		}
 		const SHORTKEYLENGTH = 5
 		// scan all items of the current products
 		const isShortId = id.length === SHORTKEYLENGTH
@@ -208,7 +213,7 @@ const actions = {
 					rootState.helpersRef.showPathToNode(nodeFound, { noHighLight: true })
 					commit('renewSelectedNodes', nodeFound)
 					commit('addToEventList', {
-						txt: `The item with full Id ${nodeFound._id} is found and selected in product '${rootState.currentProductTitle}'`,
+						txt: `The item with full Id ${nodeFound._id} is found and selected in product '${getProductTitle(nodeFound.productId)}'`,
 						severity: SEV.INFO,
 					})
 				},
