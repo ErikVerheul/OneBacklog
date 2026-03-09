@@ -34,66 +34,66 @@ const routes = [
 	{
 		path: '/init',
 		component: InitPage,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
 	{
 		path: '/treeView',
 		component: TreeViewPage,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user && store.state.isProductAssigned) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
 	{
 		path: '/board',
 		component: PlanningBoard,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
 	{
 		path: '/admin',
 		component: AdminPage,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
 	{
 		path: '/assistAdmin',
 		component: AssistAdminPage,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
 	{
 		path: '/serveradmin',
 		component: ServerAdminPage,
-		beforeEnter(to, from, next) {
+		beforeEnter(to, from) {
 			if (store.state.userData.user) {
-				next()
+				return true
 			} else {
-				next('/signin')
+				return '/signin'
 			}
 		},
 	},
