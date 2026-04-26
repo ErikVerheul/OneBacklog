@@ -96,7 +96,7 @@ const store = createStore({
 			// authentication
 			mySessionId: null,
 			// startup
-			onLargeScreen: window.innerWidth >= 1400,
+			onLargeScreen: window.innerWidth >= 1400, // can be used in the app to adapt the UI when on smaller screens; updated in real time in the startup module
 			availableProductIds: [],
 			currentProductId: null,
 			currentProductTitle: '',
