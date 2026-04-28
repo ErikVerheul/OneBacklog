@@ -1,7 +1,8 @@
 import { STATE, LEVEL, MISC } from '../../constants.js'
 import { encodeHtml, createId } from '../../common_functions.js'
-import common_admin from './CommonAdmin.js'
 import store from '../../store/store.js'
+
+import common_admin from './CommonAdmin.js'
 
 const methods = {
 	/* For all options the available databases are fetched once at mount */
@@ -26,7 +27,8 @@ const methods = {
 		this.getUserFirst = true
 		this.isUserDbSelected = false
 		this.canRemoveLastProduct = true
-		;(this.canRemoveDatabase = true), (this.localMessage = '')
+		this.canRemoveDatabase = true
+		this.localMessage = ''
 		store.state.backendMessages = []
 		store.state.isUserFound = false
 		store.state.areDatabasesFound = false

@@ -1,6 +1,7 @@
+import globalAxios from 'axios'
+
 import { SEV } from '../../constants.js'
 import { createId } from '../../common_functions.js'
-import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -150,7 +151,6 @@ const actions = {
 			.then((res) => {
 				const doc = res.data
 				if (doc.teamCalendar && doc.teamCalendar.length > 0) {
-					 
 					if (rootState.debug) console.log(`loadTeamCalendarAtStartup: A team document with calendar is loaded; id = ${id}`)
 					// check if the team calendar needs to be extended
 					const lastTeamSprint = doc.teamCalendar.slice(-1)[0]
@@ -162,9 +162,7 @@ const actions = {
 						dispatch('getRoot')
 					}
 				} else {
-					 
-					if (rootState.debug)
-						console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
+					if (rootState.debug) console.log(`loadTeamCalendarAtStartup: No team calendar found in team document with id ${id}, the default sprint calendar will be used`)
 					rootState.myCurrentSprintCalendar = rootState.configData.defaultSprintCalendar
 					dispatch('getRoot')
 				}

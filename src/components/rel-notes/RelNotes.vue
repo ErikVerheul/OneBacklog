@@ -51,8 +51,7 @@
 				<h3>v.3.2.0 - 3 March 2025 Major refactoring</h3>
 				<p>Refactoring</p>
 				<ul>
-					<li>Include the modified Quilly component that handles the editor blur event when clicking outside the editor or in the toolbar but not on a toolbar
-						button</li>
+					<li>Include the modified Quilly component that handles the editor blur event when clicking outside the editor or in the toolbar but not on a toolbar button</li>
 					<li>Style the code-block elements in the history list</li>
 				</ul>
 				<h3>v.3.1.0 - 28 Februari 2025 New feature, bug fixes and refactoring</h3>
@@ -74,8 +73,10 @@
 				<h3>v.3.0.0 - 9 February 2025 Major refactoring</h3>
 				<p>Refactoring</p>
 				<ul>
-					<li>The html of the description, acceptance criteria and comments of new or changed items are now escaped instead of base64 encoded saving database
-						space and improving performance </li>
+					<li>
+						The html of the description, acceptance criteria and comments of new or changed items are now escaped instead of base64 encoded saving database space and improving
+						performance
+					</li>
 				</ul>
 				<h3>v.2.10.0 - 2 February 2025 New features, bug fix and refactoring</h3>
 				<p>New features</p>
@@ -264,7 +265,7 @@
 				</ul>
 				<p>Refactoring</p>
 				<ul>
-					<li>Make the mailing app ES6 module system compatible </li>
+					<li>Make the mailing app ES6 module system compatible</li>
 					<li>Prettier formatter added and applied to all files</li>
 				</ul>
 				<p>Note for the users:</p>
@@ -277,7 +278,7 @@
 				</ul>
 				<p>Refactoring</p>
 				<ul>
-					<li>New sync design filter. 'ignoreEvent' Event type is filtered out. Only events designated for distribution pass the filter. </li>
+					<li>New sync design filter. 'ignoreEvent' Event type is filtered out. Only events designated for distribution pass the filter.</li>
 					<li>Events mechanism refactored; the event content determines if it is to be distributed, emailed or listed in the history overview</li>
 				</ul>
 				<p>Vulnerability fix</p>
@@ -317,8 +318,7 @@
 				<p>Refactoring</p>
 				<ul>
 					<li>Full integration of team change in local and remote detail view and planning board</li>
-					<li>Refactor team change using a new couchDb filter and the messenger document to efficiently trigger updates when syncing with other online users
-					</li>
+					<li>Refactor team change using a new couchDb filter and the messenger document to efficiently trigger updates when syncing with other online users</li>
 					<li>Allow user to search on title when a selection on id is open and vice versa. The open selection/search is undone automatically</li>
 					<li>Make the log list scrollable</li>
 				</ul>
@@ -380,9 +380,10 @@
 					<li>Show number of done user stories in pick list of past sprints</li>
 				</ul>
 				<p>Fix browser support:</p>
-				<p>Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid
-					site breakage. See
-					https://chromestatus.com/feature/5083947249172480</p>
+				<p>
+					Mutation event support will be disabled by default starting in Chrome 127, around July 30, 2024. Code should be migrated before that date to avoid site breakage. See
+					https://chromestatus.com/feature/5083947249172480
+				</p>
 				<p>This is done by overriding the quill dependency version to 2.0.2</p>
 				<p>Bug fixes:</p>
 				<ul>
@@ -485,35 +486,36 @@
 				</ul>
 				<p>New, faster, development environment Vite</p>
 				<ul>
-					<li>Move from Vue-CLI to Vite </li>
-					<li>Installation scripts updated </li>
+					<li>Move from Vue-CLI to Vite</li>
+					<li>Installation scripts updated</li>
 				</ul>
 				<h3>v.1.24 - 14 September 2023 Refactoring</h3>
 				<p>Minor updates:</p>
 				<ul>
 					<li>Improve visibility of resize handlers.</li>
-					<li>Have the watchdog code in its own file. </li>
+					<li>Have the watchdog code in its own file.</li>
 				</ul>
 				<h3>v.1.23 - 12 September 2023 Minor updates</h3>
 				<p>Minor updates:</p>
 				<ul>
 					<li>Prevent the event text to overlap the signal light.</li>
-					<li>The welcome screen now shows the actual screen width when less than 1400, the minimum required. </li>
+					<li>The welcome screen now shows the actual screen width when less than 1400, the minimum required.</li>
 				</ul>
 				<h3>v.1.22 - 11 September 2023 New feature</h3>
 				<p>New feature:</p>
 				<ul>
 					<li>The user can now select a new menu item 'My team' for info about his team and the other teams.</li>
-					<li>The welcome screen now shows the actual screen width when less than 1600, the minimum required. </li>
+					<li>The welcome screen now shows the actual screen width when less than 1600, the minimum required.</li>
 				</ul>
 				<h3>v.1.21 - 5 September 2023 New feature, bug fix</h3>
 				<p>New feature:</p>
 				<ul>
-					<li>Two modes are introduced, the standard mode for starters which is the default and a professional mode with
-						many more features.</li>
-					<li>The user can switch between the modes without the need to sing-in again. </li>
-					<li>The professional mode sports the 'Products overview' for use by the Area Product owner, the option to
-						change database, to move multiple items at once in the tree view and dependency management and alerts.</li>
+					<li>Two modes are introduced, the standard mode for starters which is the default and a professional mode with many more features.</li>
+					<li>The user can switch between the modes without the need to sing-in again.</li>
+					<li>
+						The professional mode sports the 'Products overview' for use by the Area Product owner, the option to change database, to move multiple items at once in the tree view
+						and dependency management and alerts.
+					</li>
 					<li>As a result the standard mode is less intimidating. Eg. the context menu has 4 options instead of 8.</li>
 				</ul>
 				<p>Bug fix:</p>
@@ -524,8 +526,7 @@
 				<p>Changes:</p>
 				<ul>
 					<li>Disallow signing in on devices with a width smaller than 1600 px</li>
-					<li>Revert to http://localhost:8080 instead of https://localhost:8080 in development mode. Creating a local CA
-						certificate to much a hassle.</li>
+					<li>Revert to http://localhost:8080 instead of https://localhost:8080 in development mode. Creating a local CA certificate to much a hassle.</li>
 				</ul>
 				<h3>v.1.19 - 8 August 2023 Bug fix</h3>
 				<p>Bug fixes:</p>
@@ -541,23 +542,19 @@
 				</ul>
 				<p>Security:</p>
 				<ul>
-					<li>Security issues in development dependencies fixed after upgrading to Node v18.12.1 and version updates
-					</li>
+					<li>Security issues in development dependencies fixed after upgrading to Node v18.12.1 and version updates</li>
 				</ul>
 				<h3>v.1.17 - 28 Febuari 2022 New features, bug fixes, refactoring</h3>
 				<p>New features:</p>
 				<ul>
-					<li>Save and restore node highlighting when using searches (on top of) a filter; show state inconsistency on
-						the fly</li>
+					<li>Save and restore node highlighting when using searches (on top of) a filter; show state inconsistency on the fly</li>
 					<li>When no product is assigned to an admin or server admin show a warning and route to the admin page</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
 					<li>Hidden error when resetting search in titles without previous search, fixed</li>
-					<li>When removing an item in the products overview with dependencies or conditions on its descendants, these
-						are not recovered on the undo, fixed</li>
-					<li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually
-						removed</li>
+					<li>When removing an item in the products overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
+					<li>Fix false mesage 'The last undo has not finished. Please try later' when the dependency is manually removed</li>
 					<li>Fix regression error when adding a dependency</li>
 				</ul>
 				<p>Refactoring:</p>
@@ -571,10 +568,8 @@
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
-					<li>Description changes of requirement area items are not synchronized with other users having the same item
-						selected, fixed</li>
-					<li>When removing an item in the products overview with dependencies or conditions on its descendants, these
-						are not recovered on the undo, fixed</li>
+					<li>Description changes of requirement area items are not synchronized with other users having the same item selected, fixed</li>
+					<li>When removing an item in the products overview with dependencies or conditions on its descendants, these are not recovered on the undo, fixed</li>
 				</ul>
 				<p>Refactoring:</p>
 				<ul>
@@ -626,9 +621,10 @@
 				<p>Bug fixes:</p>
 				<ul>
 					<li>When clicking the reload function of the browser the sign-in page appears. Fixed with a warning.</li>
-					<li>When changing the text of an item's description the text of the same item on display of other users is
-						shown as base-64 encoded. The sync function is not working as expected. Fixed for both the item's
-						description and acceptance criteria.</li>
+					<li>
+						When changing the text of an item's description the text of the same item on display of other users is shown as base-64 encoded. The sync function is not working as
+						expected. Fixed for both the item's description and acceptance criteria.
+					</li>
 				</ul>
 				<p>Dependency updates:</p>
 				<ul>
@@ -657,11 +653,11 @@
 				<h3>v.1.10 - 6 April 2021 Feature update and bug and security fixes</h3>
 				<p>New features:</p>
 				<ul>
-					<li>Context menu for story items on planningboard including options to remove the story and its tasks from the
-						sprint and to copy the story short id to the clipboard</li>
-					<li>Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar
-						extended. (Happens when the user session is extended over the end date of the
-						current sprint and no next sprint is available)</li>
+					<li>Context menu for story items on planningboard including options to remove the story and its tasks from the sprint and to copy the story short id to the clipboard</li>
+					<li>
+						Sign-out when no current or next sprint is available. Need to sign-in again to have the sprint calendar extended. (Happens when the user session is extended over the
+						end date of the current sprint and no next sprint is available)
+					</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
@@ -680,8 +676,7 @@
 				<p>New features:</p>
 				<ul>
 					<li>Optional warning when promoting/demoting an item to another level implemented</li>
-					<li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database
-					</li>
+					<li>Automatically create a basic default sprint calendar when an admin signs in to a newly created database</li>
 					<li>Show in List teams if a team has its own team sprint calendar</li>
 				</ul>
 				<p>Bug fixes:</p>
@@ -753,10 +748,8 @@
 				</ul>
 				<p>User stories done:</p>
 				<ul>
-					<li>Do not show a node selection event when selecting the context menu to prevent overwriting a warning
-						message from the context menu</li>
-					<li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions
-						..." is selected</li>
+					<li>Do not show a node selection event when selecting the context menu to prevent overwriting a warning message from the context menu</li>
+					<li>Show dependencies/conditions in the tree view when context menu item "Show/remove dependencies/conditions ..." is selected</li>
 					<li>Show dependency violations in a special sidebar (and remove indicator from the item title)</li>
 				</ul>
 				<p>Security</p>
@@ -837,8 +830,8 @@
 				<p>New features:</p>
 				<ul>
 					<li>Scripts added to update the app version in production</li>
-					<li>Introduction of environment variables for the CouchDb location in development and production </li>
-					<li>Introduction of environment variables for the certificate files for development using https </li>
+					<li>Introduction of environment variables for the CouchDb location in development and production</li>
+					<li>Introduction of environment variables for the certificate files for development using https</li>
 				</ul>
 				<p>Security fixes:</p>
 				<ul>
@@ -890,15 +883,16 @@
 				<ul>
 					<li>Fix bug when deleting items from the Products overview (no more orphans left)</li>
 					<li>Fix bug when deleting/(undoing this delete) of items with dependencies to items not deleted</li>
-					<li>re-render the planning board after a deletion, of items in another user's session, is completed
-						successfully</li>
+					<li>re-render the planning board after a deletion, of items in another user's session, is completed successfully</li>
 				</ul>
 				<p>Design changes:</p>
 				<ul>
 					<li>Generic overhaul of access rights</li>
 					<li>'Removed' is not a status anymore. Use On-hold instead, or delete the item</li>
-					<li>Always update the database first before re-rendering the tree view or the planning board,<br />
-						with the exception of tree view drag &amp; drop where immediate response is paramount</li>
+					<li>
+						Always update the database first before re-rendering the tree view or the planning board,<br />
+						with the exception of tree view drag &amp; drop where immediate response is paramount
+					</li>
 				</ul>
 				<hr />
 				<h3>v.0.9.9 - 12 June 2020 Feature update and bug fixes</h3>
@@ -914,8 +908,7 @@
 				</ul>
 				<p>Design changes:</p>
 				<ul>
-					<li>Introduction of a document with the sole purpose to sync a planning board re-render [NOT downwards
-						compatible]</li>
+					<li>Introduction of a document with the sole purpose to sync a planning board re-render [NOT downwards compatible]</li>
 					<li>Descendants of moved nodes are synced individually (not via the parent)</li>
 				</ul>
 				<hr />
@@ -926,10 +919,8 @@
 					<li>Context menu item 'Copy short id to clipboard' implemented for planning board</li>
 					<li>Context menu items 'Add a new task' and 'Remove this task' implemented for planning board</li>
 					<li>Context menu items 'Change task title' and 'Change task owner' implemented for planning board</li>
-					<li>Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints
-						unattached</li>
-					<li>Allow the PO to open the contextmenu of items of another team to reassign the items to his current team
-					</li>
+					<li>Remove the sprintId only if equal to sprintId specified, leaving items assigned to other sprints unattached</li>
+					<li>Allow the PO to open the contextmenu of items of another team to reassign the items to his current team</li>
 					<li>Include team membership in all authorization checks</li>
 					<li>Sign-out automatically when changing database</li>
 				</ul>
@@ -1032,8 +1023,7 @@
 				<h3>v.0.9.1 - 5 March 2020 Feature update and bug fixes</h3>
 				<p>Feature update:</p>
 				<ul>
-					<li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed
-						to a less agressive highlight color</li>
+					<li>The filters in the tree view now only highlight the filtered items, not the path to these items. Changed to a less agressive highlight color</li>
 				</ul>
 				<p>Bug fixes:</p>
 				<ul>
@@ -1048,15 +1038,16 @@
 				</ul>
 				<p>Design changes:</p>
 				<ul>
-					<li>When switching between products and requirement areas view, current tree nodes are disposed and loaded new
-						from the database. In the products view only the selected products are loaded
-						up to the user story level. In the requirement area view all products are loaded up to the feature level.</li>
-					<li>When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg.
-						the description and acceptance criteria are not transferred. Also only the
-						recent history is retrieved.</li>
+					<li>
+						When switching between products and requirement areas view, current tree nodes are disposed and loaded new from the database. In the products view only the selected
+						products are loaded up to the user story level. In the requirement area view all products are loaded up to the feature level.
+					</li>
+					<li>
+						When loading the tree nodes only the needed document fields are transferred as values in the GET call. Eg. the description and acceptance criteria are not transferred.
+						Also only the recent history is retrieved.
+					</li>
 				</ul>
-				<p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user
-					selects an item the full ducument is loaded.</p>
+				<p>By not transferring the full documents at load time loading is faster and memory usage limited. When the user selects an item the full ducument is loaded.</p>
 				<hr />
 				<h3>v.0.8.5.1 - 14 February 2020 Regression fix</h3>
 				<p>Bug fixes:</p>
@@ -1095,14 +1086,12 @@
 				<h3>v.0.8.4 - 27 January 2020 Feature update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>Users who subscribed to change notices now receive an email if a change event occurred on these items.
-					</li>
+					<li>Users who subscribed to change notices now receive an email if a change event occurred on these items.</li>
 				</ul>
 				<p>Design changes:</p>
 				<ul>
 					<li>A Node.js server side application serves the email dispatch.</li>
-					<li>The synchronization changes listener is now event driven to allow fine grained responses to the changes.
-					</li>
+					<li>The synchronization changes listener is now event driven to allow fine grained responses to the changes.</li>
 				</ul>
 				<hr />
 				<h3>v.0.8.3.1 - 29 December 2019 Bug fix</h3>
@@ -1114,8 +1103,7 @@
 				<hr />
 				<h3>v.0.8.3 - 27 December 2019 Feature update and bug fix</h3>
 				<ul>
-					<li>The context menu in the products view is extended with 'Make a copy option' for epics, features and user story
-						items.</li>
+					<li>The context menu in the products view is extended with 'Make a copy option' for epics, features and user story items.</li>
 					<li>The break in upwards compatibility introduced in version 0.8.0 is lifted.</li>
 				</ul>
 				<p>Bug fixes:</p>
@@ -1138,59 +1126,63 @@
 				<hr />
 				<h3>v.0.8.1 - 17 December 2019 Feature update</h3>
 				<ul>
-					<li>Changes to the item size, state, title, description, acceptance criteria, added item, moved items and
-						deleted items can be undone in a last change first sequence. A move to another
-						product cannot be undone automatically.</li>
-					<li>The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and
-						reset the find/search. The buttons for 'Filter comments' and 'Filter History' now
-						change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons
-						to clear the filter.</li>
+					<li>
+						Changes to the item size, state, title, description, acceptance criteria, added item, moved items and deleted items can be undone in a last change first sequence. A
+						move to another product cannot be undone automatically.
+					</li>
+					<li>
+						The input fields for 'Find on id' and 'Search in titles' now have a tiny button to clear the field and reset the find/search. The buttons for 'Filter comments' and
+						'Filter History' now change to 'Clear filter comments' and 'Clear filter history' when the filter is executed. Use these buttons to clear the filter.
+					</li>
 				</ul>
 				<hr />
 				<h3>v.0.8.0 - 5 December 2019 Major update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>When changing the state of an item the new state is checked against its descendants. A warning is issued
-						if that state is incompatible. Eg. you can only set a feature to done if all
-						descendants are done.</li>
+					<li>
+						When changing the state of an item the new state is checked against its descendants. A warning is issued if that state is incompatible. Eg. you can only set a feature
+						to done if all descendants are done.
+					</li>
 					<li>The dependency epic is implemented.</li>
 				</ul>
 				<hr />
 				<h3>v.0.7.1 - 16 November 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved
-						for use in the next session</li>
+					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
 					<li>Product backlog items are now owned by a team</li>
 					<li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-					<li>Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect
-						to a different team than the team of the parent feature</li>
+					<li>
+						Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect to a different team than the team of the parent feature
+					</li>
 				</ul>
 				<hr />
 				<h3>v.0.7.2 - 26 November 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has
-						changed. This feature is most valuable when another user updates the backlog
-						sumultaneous with you</li>
+					<li>
+						[USER REQUEST Id = 4i0jz] The product view now shows up to 3 extra badges indicating that an item has changed. This feature is most valuable when another user updates
+						the backlog sumultaneous with you
+					</li>
 					<li>[Id = 781cc] Uploading and removal of attachments is implemented</li>
 				</ul>
 				<hr />
 				<h3>v.0.7.1 - 16 November 2019 Feature update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved
-						for use in the next session</li>
+					<li>The product view now has a combined filter on teams, tree depth, state and over time which can be saved for use in the next session</li>
 					<li>Product backlog items are now owned by a team</li>
 					<li>An authenticated user can assign a backlog item and its descendants to the users team</li>
-					<li>Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect
-						to a different team than the team of the parent feature</li>
+					<li>
+						Feature teams are encouraged. A warning is shown when a user tries to assign a user story, spike or defect to a different team than the team of the parent feature
+					</li>
 				</ul>
 				<hr />
 				<h3>v.0.7.0 - 23 October 2019 Major update</h3>
-				<h5>Note that this release is not backwards compatible with previous releases. The format of the user profile in
-					the _users database now includes database information. An upgrade can be
-					fixed using Fauxton.</h5>
+				<h5>
+					Note that this release is not backwards compatible with previous releases. The format of the user profile in the _users database now includes database information. An
+					upgrade can be fixed using Fauxton.
+				</h5>
 				<p>New features:</p>
 				<ul>
 					<li>The 'superPO' role now applies to all products in all databases</li>
@@ -1245,8 +1237,7 @@
 				<ul>
 					<li>Change to 5 characters alphanumeric short id for more resolution</li>
 					<li>Integrate the ISlTreeNodeModel with the ISlTreeNode to one model</li>
-					<li>Use mixin for displaying an event in components; create a mutation for this functionality for use in the
-						VUEX store</li>
+					<li>Use mixin for displaying an event in components; create a mutation for this functionality for use in the VUEX store</li>
 				</ul>
 				<p>Performance improvements:</p>
 				<ul>
@@ -1323,8 +1314,7 @@
 				</ul>
 				<p>Performance improvements:</p>
 				<ul>
-					<li>Optimized getDraggable when moving the mouse for a better user experience on selecting the drop target
-					</li>
+					<li>Optimized getDraggable when moving the mouse for a better user experience on selecting the drop target</li>
 					<li>Prevent unnecessary update of documents</li>
 					<li>Limit tree traversals to current product when possible</li>
 				</ul>
@@ -1376,8 +1366,7 @@
 				<h3>v.0.4.6 - 15 May 2019 - Minor update</h3>
 				<p>New features:</p>
 				<ul>
-					<li>The search function in the header now selects all items in a product which have the entered key word in
-						the title</li>
+					<li>The search function in the header now selects all items in a product which have the entered key word in the title</li>
 					<li>Show the state of each item in the tree</li>
 					<li>Scripts for semi-automatic deployment</li>
 				</ul>
@@ -1400,21 +1389,20 @@
 </template>
 
 <style lang="scss" scoped>
-	.left-column {
-		text-align: left;
-		background-color: #408fae;
-		color: white;
-		border: 1px solid black;
-	}
+.left-column {
+	text-align: left;
+	background-color: #408fae;
+	color: white;
+	border: 1px solid black;
+}
 
-	p,
-	li {
-		color: black;
-	}
+p,
+li {
+	color: black;
+}
 
-	a {
-		color: black;
-		text-decoration: underline;
-	}
-
+a {
+	color: black;
+	text-decoration: underline;
+}
 </style>

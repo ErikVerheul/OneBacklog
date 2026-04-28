@@ -66,9 +66,7 @@ const computed = {
 		const changeNr = parseInt(this.changedNumberStr)
 		const lastDefinedNr = store.state.loadedCalendar.length - 1
 		const accepted = changeNr >= this.currentSprintNr && changeNr <= lastDefinedNr
-		this.acceptSprintNrMsg = accepted
-			? ``
-			: `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
+		this.acceptSprintNrMsg = accepted ? `` : `Select a sprint number >= the current sprint ${this.currentSprintNr} and smaller than the last defined sprint ${lastDefinedNr}`
 		return accepted
 	},
 

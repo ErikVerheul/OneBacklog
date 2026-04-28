@@ -26,18 +26,22 @@
 					</div>
 				</form>
 				<div class="text-center">
-					<p class="mb-1">No account yet?<br>Ask your SM or PO to create one</p>
+					<p class="mb-1">No account yet?<br />Ask your SM or PO to create one</p>
 					<p v-if="state.isDemo">or Signin with <b>demoUser</b> and password <b>demoUser</b></p>
 					<p v-if="state.onLargeScreen" class="mb-4">Tip: right-click in the Name field to change the browser spelling check settings for this session</p>
 					<p v-else class="mb-4">Tip: Enable landscape mode on our device for best experience</p>
-					<p class="smallerFont"> This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
-						MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE</p>
+					<p class="smallerFont">
+						This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+						PARTICULAR PURPOSE
+					</p>
 
 					<div class="demo-user" v-if="state.name === 'demoUser'">
 						<h4>You're welcome to give this app a try</h4>
-						<p>Demo users share a database with some predefined products. Your changes can be overridden by others or by a database restore. Please leave your
-							findings in <a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu
-							and select 'My authorizations' to see the roles that are assigned to this account.</p>
+						<p>
+							Demo users share a database with some predefined products. Your changes can be overridden by others or by a database restore. Please leave your findings in
+							<a href="https://github.com/ErikVerheul/OneBacklog/issues">Github.</a> When signed-in click on the <em>User</em>&#11206; dropdown menu and select 'My authorizations'
+							to see the roles that are assigned to this account.
+						</p>
 					</div>
 				</div>
 			</BCol>
@@ -46,68 +50,67 @@
 </template>
 
 <script setup>
-	import { computed, reactive } from 'vue'
-	import { useStore } from 'vuex'
-	import logo from '../../assets/logo.png'
-	const store = useStore()
-	const state = reactive({
-		onLargeScreen: store.state.onLargeScreen,
-		isDemo: import.meta.env.VITE_IS_DEMO === 'true',
-		logo: logo,
-		name: '',
-		password: '',
-		resetLastSessionData: false
-	})
+import { computed, reactive } from 'vue'
+import { useStore } from 'vuex'
+import logo from '../../assets/logo.png'
+const store = useStore()
+const state = reactive({
+	onLargeScreen: store.state.onLargeScreen,
+	isDemo: import.meta.env.VITE_IS_DEMO === 'true',
+	logo: logo,
+	name: '',
+	password: '',
+	resetLastSessionData: false,
+})
 
-	const credentialsEntered = computed(() => {
-		return state.name.length > 0 && state.password.length >= 4
-	})
+const credentialsEntered = computed(() => {
+	return state.name.length > 0 && state.password.length >= 4
+})
 
-	function onSubmit() {
-		const credentials = {
-			name: state.name,
-			password: state.password
-		}
-		store.dispatch('signin', { credentials, resetLastSessionData: state.resetLastSessionData })
+function onSubmit() {
+	const credentials = {
+		name: state.name,
+		password: state.password,
 	}
-
+	store.dispatch('signin', { credentials, resetLastSessionData: state.resetLastSessionData })
+}
 </script>
 
 <style lang="scss" scoped>
-	.signin-form {
-		width: 250px;
-		margin: 30px auto;
-		border: 1px solid #eee;
-		padding: 20px;
-		box-shadow: 0 2px 3px #ccc;
+.signin-form {
+	width: 250px;
+	margin: 30px auto;
+	border: 1px solid #eee;
+	padding: 20px;
+	box-shadow: 0 2px 3px #ccc;
+}
+
+.demo-user {
+	margin: 30px auto;
+	border: 1px solid #408fae;
+	padding: 10px;
+	box-shadow: 0 2px 3px #ccc;
+}
+
+.input {
+	margin: 10px auto;
+
+	label {
+		display: block;
+		color: #4e4e4e;
+		margin-bottom: 6px;
 	}
 
-	.demo-user {
-		margin: 30px auto;
-		border: 1px solid #408fae;
-		padding: 10px;
-		box-shadow: 0 2px 3px #ccc;
+	input {
+		font: inherit;
+		width: 100%;
+		padding: 6px 12px;
+		box-sizing: border-box;
+		border: 1px solid #ccc;
 	}
+}
 
-	.input {
-		margin: 10px auto;
-
-		label {
-			display: block;
-			color: #4e4e4e;
-			margin-bottom: 6px;
-		}
-
-		input {
-			font: inherit;
-			width: 100%;
-			padding: 6px 12px;
-			box-sizing: border-box;
-			border: 1px solid #ccc;
-		}
-	}
-
-	.smallerFont {
-		font-size: small;
-	}
+.smallerFont {
+	font-size: small;
+}
 </style>

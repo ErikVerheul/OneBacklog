@@ -1,5 +1,6 @@
-import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
 import { mapGetters } from 'vuex'
+
+import { SEV, LEVEL, STATE, MISC } from '../../constants.js'
 import store from '../../store/store.js'
 
 const constants = {

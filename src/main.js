@@ -1,12 +1,13 @@
 import { createApp } from 'vue'
-import OneBacklog from './OneBacklog.vue'
 import axios from 'axios'
+import mitt from 'mitt'
+import { createBootstrap } from 'bootstrap-vue-next'
+
+import OneBacklog from './OneBacklog.vue'
 import router from './router'
 import store from './store/store'
-import mitt from 'mitt'
 import FontAwesomeIcon from './fa.config'
 import QEditor from './components/editor/QEditor.vue'
-import { createBootstrap } from 'bootstrap-vue-next'
 
 axios.defaults.baseURL = import.meta.env.VITE_API_URL
 axios.defaults.withCredentials = true

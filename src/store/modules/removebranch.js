@@ -1,6 +1,7 @@
+import globalAxios from 'axios'
+
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { createId } from '../../common_functions.js'
-import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -271,8 +272,7 @@ const actions = {
 						}
 					}
 					// remove reqarea assignments when removing a requirement area
-					const toDispatch =
-						payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedDoc: payload }]
+					const toDispatch = payload.node.productId === MISC.AREA_PRODUCTID ? [{ removeReqAreaAssignments: payload.node._id }] : [{ addHistToRemovedDoc: payload }]
 					dispatch('updateBulk', {
 						dbName: rootState.userData.currentDb,
 						docs,
@@ -347,14 +347,7 @@ const actions = {
 			.then((res) => {
 				const updatedDoc = res.data
 				const newHist = {
-					removedWithDescendantsEvent: [
-						removed_doc_id,
-						removedDocsCount,
-						extDepsRemovedFromIds.length,
-						extCondsRemovedFromIds.length,
-						sprintsAffected,
-						payload.delmark,
-					],
+					removedWithDescendantsEvent: [removed_doc_id, removedDocsCount, extDepsRemovedFromIds.length, extCondsRemovedFromIds.length, sprintsAffected, payload.delmark],
 					by: rootState.userData.user,
 					email: rootState.userData.email,
 					doNotMessageMyself: rootState.userData.myOptions.doNotMessageMyself === 'true',

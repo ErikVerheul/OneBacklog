@@ -1,5 +1,6 @@
-import common_admin from './CommonAdmin'
 import store from '../../store/store.js'
+
+import common_admin from './CommonAdmin'
 
 const methods = {
 	/* For all options only the databases assigned to the assistAdmin are available for selection */

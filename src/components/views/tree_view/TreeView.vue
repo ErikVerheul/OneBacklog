@@ -13,17 +13,19 @@
 					<BButton class="filter-button" v-show="!isRootSelected" @click="onSetMyFilters()">{{ getFilterButtonText() }}</BButton>
 					<div class="divider" />
 					<BInputGroup class="id-sizing">
-						<BFormInput id="findItemOnId" v-model="store.state.filterSelectSearch.itemId" @keydown.enter="doFindItemOnId(store.state.filterSelectSearch.itemId)"
-							placeholder="Select on (short) Id">
-						</BFormInput>
+						<BFormInput
+							id="findItemOnId"
+							v-model="store.state.filterSelectSearch.itemId"
+							@keydown.enter="doFindItemOnId(store.state.filterSelectSearch.itemId)"
+							placeholder="Select on (short) Id"
+						/>
 						<template #append>
 							<BButton @click="resetFindId" variant="seablue" type="reset">x</BButton>
 						</template>
 					</BInputGroup>
 					<div class="divider" />
 					<BInputGroup class="group-height">
-						<BFormInput id="searchInput" v-model="store.state.filterSelectSearch.keyword" @keydown.enter="doSeachOnTitle" placeholder="Search in titles">
-						</BFormInput>
+						<BFormInput id="searchInput" v-model="store.state.filterSelectSearch.keyword" @keydown.enter="doSeachOnTitle" placeholder="Search in titles" />
 						<template #append>
 							<BButton @click="resetSearchTitles" variant="seablue" type="reset">x</BButton>
 						</template>
@@ -39,57 +41,58 @@
 							<label for="tShirtSizeId">T-Shirt size</label>
 						</BCol>
 						<BCol cols="1">
-							<BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)"
-								@blur="updateTsSize()" />
+							<BFormInput id="tShirtSizeId" :modelValue="getCurrentItemTsSize" @update:model-value="prepUpdate(store.state.currentDoc)" @blur="updateTsSize()" />
 						</BCol>
-						<BCol cols="2"></BCol>
+						<BCol cols="2" />
 					</template>
 					<template v-else-if="getCurrentItemLevel === LEVEL.FEATURE || (getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype !== spikeSubtype)">
 						<BCol cols="1">
 							<label for="storyPointsId">Story points</label>
 						</BCol>
 						<BCol cols="1">
-							<BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @update:model-value="prepUpdate(store.state.currentDoc)"
-								@blur="updateStoryPoints()" />
+							<BFormInput id="storyPointsId" :modelValue="store.state.currentDoc.spsize" @update:model-value="prepUpdate(store.state.currentDoc)" @blur="updateStoryPoints()" />
 						</BCol>
-						<BCol cols="2"></BCol>
+						<BCol cols="2" />
 					</template>
 					<template v-else-if="getCurrentItemLevel === LEVEL.US && store.state.currentDoc.subtype === spikeSubtype">
 						<BCol cols="1">
 							<label for="personHoursId">Person hrs</label>
 						</BCol>
 						<BCol cols="1">
-							<BFormInput id="personHoursId" :modelValue="store.state.currentDoc.spikepersonhours" @update:model-value="prepUpdate(store.state.currentDoc)"
-								@blur="updatePersonHours()" />
+							<BFormInput
+								id="personHoursId"
+								:modelValue="store.state.currentDoc.spikepersonhours"
+								@update:model-value="prepUpdate(store.state.currentDoc)"
+								@blur="updatePersonHours()"
+							/>
 						</BCol>
-						<BCol cols="2"></BCol>
+						<BCol cols="2" />
 					</template>
-					<BCol v-if="getCurrentItemLevel === LEVEL.TASK" cols="4"></BCol>
+					<BCol v-if="getCurrentItemLevel === LEVEL.TASK" cols="4" />
 					<BCol cols="4" class="text-center">
 						<h3>{{ store.state.currentProductTitle }}</h3>
 					</BCol>
-					<template
-						v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
-						<BCol cols="1"></BCol>
+					<template v-if="store.state.currentDoc._id !== 'root' && store.state.currentDoc._id !== MISC.AREA_PRODUCTID && store.state.currentDoc.parentId !== MISC.AREA_PRODUCTID">
+						<BCol cols="1" />
 						<BCol cols="1">
 							<h3 align="right">State:</h3>
 						</BCol>
 						<BCol cols="2">
 							<h3 align="right">
-								<BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right :text=getItemStateText(store.state.currentDoc.state)>
+								<BDropdown v-if="store.state.currentDoc.level < LEVEL.TASK" right :text="getItemStateText(store.state.currentDoc.state)">
 									<BDropdownItem @click="onStateChange(STATE.NEW)">{{ getItemStateText(STATE.NEW) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.READY)">{{ getItemStateText(STATE.READY) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getItemStateText(STATE.INPROGRESS) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.DONE)">{{ getItemStateText(STATE.DONE) }}</BDropdownItem>
-									<BDropdownDivider></BDropdownDivider>
+									<BDropdownDivider />
 									<BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getItemStateText(STATE.ON_HOLD) }}</BDropdownItem>
 								</BDropdown>
-								<BDropdown v-else right :text=getTaskStateText(store.state.currentDoc.state)>
+								<BDropdown v-else right :text="getTaskStateText(store.state.currentDoc.state)">
 									<BDropdownItem @click="onStateChange(STATE.TODO)">{{ getTaskStateText(STATE.TODO) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.INPROGRESS)">{{ getTaskStateText(STATE.INPROGRESS) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.TESTREVIEW)">{{ getTaskStateText(STATE.TESTREVIEW) }}</BDropdownItem>
 									<BDropdownItem @click="onStateChange(STATE.DONE)">{{ getTaskStateText(STATE.DONE) }}</BDropdownItem>
-									<BDropdownDivider></BDropdownDivider>
+									<BDropdownDivider />
 									<BDropdownItem @click="onStateChange(STATE.ON_HOLD)">{{ getTaskStateText(STATE.ON_HOLD) }}</BDropdownItem>
 								</BDropdown>
 							</h3>
@@ -102,15 +105,20 @@
 		<multipane class="custom-resizer" layout="vertical">
 			<div class="pane" :style="{ minWidth: '30%', width: '50%', minHeight: '100%' }">
 				<h6>{{ welcomeMessage }}</h6>
-				<BButton block class="last-event" v-b-popover.hover.bottom="'Click to see the event history'" @click="showMoreMessages"
-					:style="{ 'background-color': getLastEventBGColor, 'color': getLastEventTextColor }">
-					{{ getLastEventTxt }} </BButton>
+				<BButton
+					block
+					class="last-event"
+					v-b-popover.hover.bottom="'Click to see the event history'"
+					@click="showMoreMessages"
+					:style="{ 'background-color': getLastEventBGColor, color: getLastEventTextColor }"
+				>
+					{{ getLastEventTxt }}
+				</BButton>
 				<span class="messSquare" :style="{ 'background-color': store.state.messSquareColor }" @click="goMessaging">mess</span>
 				<span class="syncOLSquare" :style="{ 'background-color': getSquareColor }">{{ getSquareText }}</span>
 
 				<div class="tree-container">
-					<sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped"
-						@drop="nodeDropped">
+					<sl-vue-tree tabindex="0" :modelValue="store.state.treeNodes" @nodes-are-selected="onNodesSelected" @beforedrop="beforeNodeDropped" @drop="nodeDropped">
 						<template v-slot:title="{ node }">
 							<span class="item-icon">
 								<i class="colorSeaBlue" v-if="node.level === LEVEL.DATABASE">
@@ -177,17 +185,22 @@
 						<template v-slot:sidebar="{ node }">
 							<template v-if="node.level > LEVEL.PRODUCT">
 								<template v-if="node.productId === MISC.AREA_PRODUCTID">
-									<p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }"></p>
+									<p v-if="node._id !== MISC.AREA_PRODUCTID" class="rectangle" :style="{ 'background-color': node.data.reqAreaItemColor }" />
 								</template>
 								<p v-else-if="isAPO">
-									<BButton v-if=isReqAreaSet(node.data.reqarea) variant="seablue-dynamic"
-										:style="{ 'color': getColor(node.data.reqarea), 'background-color': getBGColor(node.data.reqarea) }" @click="setReqArea(node)" size="sm">
+									<BButton
+										v-if="isReqAreaSet(node.data.reqarea)"
+										variant="seablue-dynamic"
+										:style="{ color: getColor(node.data.reqarea), 'background-color': getBGColor(node.data.reqarea) }"
+										@click="setReqArea(node)"
+										size="sm"
+									>
 										Change
 									</BButton>
 									<BButton v-else @click="setReqArea(node)" variant="seablueLight" size="sm">Set</BButton>
 								</p>
 								<template v-else-if="store.state.userData.myOptions.proUser === 'true' && isReqAreaSet(node.data.reqarea)">
-									<p class="rectangle" :style="{ 'background-color': getBGColor(node.data.reqarea) }"></p>
+									<p class="rectangle" :style="{ 'background-color': getBGColor(node.data.reqarea) }" />
 								</template>
 							</template>
 						</template>
@@ -201,8 +214,13 @@
 				<multipane class="horizontal-panes" layout="horizontal">
 					<div class="pane" :style="{ minHeight: '60px', height: '60px', maxHeight: '60px' }">
 						<div class="d-table w-100">
-							<BFormInput class="d-table-cell bold" id="titleField" :modelValue="store.state.currentDoc.title"
-								@update:model-value="prepUpdate(store.state.currentDoc)" @blur="updateTitle()"></BFormInput>
+							<BFormInput
+								class="d-table-cell bold"
+								id="titleField"
+								:modelValue="store.state.currentDoc.title"
+								@update:model-value="prepUpdate(store.state.currentDoc)"
+								@blur="updateTitle()"
+							/>
 							<div class="d-table-cell tac">Short Id = {{ store.state.currentDoc._id.slice(-5) }}</div>
 							<div class="d-table-cell tar">
 								<BButton variant="seablue" @click="subscribeClicked">{{ getSubscribeButtonTxt }}</BButton>
@@ -216,12 +234,17 @@
 								<p v-if="!isAPO && isReqAreaTopLevel">Note: The requirement areas are managed by the Areas Product Owner (APO). Not you.</p>
 								<span v-if="isAPO && !isReqAreaTopLevel">
 									Select a display color for this requirement area:
-									<BFormRadioGroup v-model="selReqAreaColor" @change="updateColor(selReqAreaColor)" value-field="hexCode" text-field="color"
-										:options="getRemainingColorOptions()" />
+									<BFormRadioGroup
+										v-model="selReqAreaColor"
+										@change="updateColor(selReqAreaColor)"
+										value-field="hexCode"
+										text-field="color"
+										:options="getRemainingColorOptions()"
+									/>
 								</span>
 							</template>
 							<template v-else>
-								<div> {{ getItemInfo() }}</div>
+								<div>{{ getItemInfo() }}</div>
 								<div v-if="getCurrentItemLevel === LEVEL.US" class="d-table-cell tar">
 									<BFormGroup>
 										<BFormRadioGroup v-model="selectedUsType" :options="getUsOptions()" name="usOptions" />
@@ -234,8 +257,7 @@
 						<div class="d-table w-100">
 							<h5>Description</h5>
 							<div v-if="store.state.currentDoc.history[0]" class="d-table-cell tar">
-								<p> Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new
-									Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
+								<p>Last update by {{ store.state.currentDoc.history[0].by }} @ {{ new Date(store.state.currentDoc.history[0].timestamp).toString().substring(0, 33) }}</p>
 							</div>
 						</div>
 					</div>
@@ -257,10 +279,10 @@
 					<div class="pane" :style="{ height: '75px', top: '5px' }">
 						<div class="d-table w-100">
 							<div class="d-table-cell tal">
-								<BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="seablue"
-									@click="doAddition = true">Add {{ store.state.selectedForView }}</BButton>
-								<BButton v-else-if="!isHistoryFilterActive" variant="seablue" @click="startFiltering = true">Filter {{ store.state.selectedForView }}
-								</BButton>
+								<BButton v-if="store.state.selectedForView === 'comments' || store.state.selectedForView === 'attachments'" variant="seablue" @click="doAddition = true"
+									>Add {{ store.state.selectedForView }}</BButton
+								>
+								<BButton v-else-if="!isHistoryFilterActive" variant="seablue" @click="startFiltering = true">Filter {{ store.state.selectedForView }} </BButton>
 								<BButton v-else variant="seablue" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
 							</div>
 							<div class="d-table-cell tac">
@@ -269,37 +291,35 @@
 							</div>
 							<div class="d-table-cell tar">
 								<BButton
-									v-if="store.state.selectedForView === 'comments' && !isCommentsFilterActive || store.state.selectedForView === 'history' && !isHistoryFilterActive"
-									variant="seablue" @click="startFiltering = true">Filter {{ store.state.selectedForView }}</BButton>
-								<BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="seablue" @click="stopFiltering">Clear {{
-									store.state.selectedForView
-								}}
-									filter</BButton>
+									v-if="(store.state.selectedForView === 'comments' && !isCommentsFilterActive) || (store.state.selectedForView === 'history' && !isHistoryFilterActive)"
+									variant="seablue"
+									@click="startFiltering = true"
+									>Filter {{ store.state.selectedForView }}</BButton
+								>
+								<BButton v-else-if="store.state.selectedForView !== 'attachments'" variant="seablue" @click="stopFiltering">Clear {{ store.state.selectedForView }} filter</BButton>
 								<BButton v-else @click="doAddition = true" variant="seablue">Add attachments</BButton>
 							</div>
 						</div>
 					</div>
 					<div class="pane" :style="{ flexGrow: 1 }">
 						<!-- comments, attachments, history listings -->
-						<listings :selectedForView="store.state.selectedForView"></listings>
+						<listings :selectedForView="store.state.selectedForView" />
 					</div>
 				</multipane>
 			</div>
 		</multipane>
 
-		<filters></filters>
+		<filters />
 		<!-- ToSprint modal -->
-		<toSprint></toSprint>
+		<toSprint />
 		<!-- Context modal -->
-		<ContextMenu></ContextMenu>
+		<ContextMenu />
 
 		<BModal v-model="warnForMoveToOtherLevel" @ok="continueMove" header-bg-variant="warning" title="Move to another level?">
 			<p v-if="movePreflightData.targetLevel < movePreflightData.sourceLevel">
 				You are about to promote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
 			</p>
-			<p v-else>
-				You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}
-			</p>
+			<p v-else>You are about to demote this {{ getLevelText(movePreflightData.sourceLevel) }} to a {{ getLevelText(movePreflightData.targetLevel) }}</p>
 			<p>Press OK to continue</p>
 			<p class="note">Note: Change your options settings to prevent this warning</p>
 		</BModal>
@@ -307,7 +327,7 @@
 		<!-- color select -->
 		<BModal size="lg" v-model="colorSelectShow" @ok="setUserColor(userReqAreaItemcolor)" title="Select a color">
 			<h4>Enter a color in hex format eg. #567cd6</h4>
-			<BFormInput v-model="userReqAreaItemcolor" :state="colorState"></BFormInput>
+			<BFormInput v-model="userReqAreaItemcolor" :state="colorState" />
 		</BModal>
 		<!-- set req area -->
 		<BModal size="lg" v-model="setReqAreaShow" @ok="doSetReqArea">
@@ -320,222 +340,218 @@
 		</BModal>
 
 		<BModal size="lg" ref="commentsEditorRef" @ok="insertComment" title="Compose a comment">
-			<QEditor v-model=newComment />
+			<QEditor v-model="newComment" />
 		</BModal>
 
 		<BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
-			<BFormInput v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></BFormInput>
+			<BFormInput v-model="filterForHistoryPrep" placeholder="Enter a text to filter on" />
 		</BModal>
 
 		<BModal size="lg" ref="commentsFilterRef" @ok="filterComments" title="Filter comments">
-			<BFormInput v-model="filterForCommentPrep" placeholder="Enter a text to filter on"></BFormInput>
+			<BFormInput v-model="filterForCommentPrep" placeholder="Enter a text to filter on" />
 		</BModal>
 
 		<BModal size="lg" ref="uploadRef" :ok-disabled="uploadTooLarge || invalidFileName" @ok="uploadAttachment" title="Upload an attachment">
-			<BFormFile v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..."></BFormFile>
+			<BFormFile v-model="fileInfo" :state="Boolean(fileInfo)" placeholder="Choose a file..." />
 			<div v-if="fileInfo !== null" class="mt-3">File type: {{ fileInfo.type }}, size: {{ fileInfo.size }} bytes</div>
 			<div v-if="uploadTooLarge" class="mt-3 colorRed">Cannot upload files this size</div>
 		</BModal>
 
 		<BModal size="lg" ref="historyFilterRef" @ok="filterHistory" title="Filter history">
-			<BFormInput v-model="filterForHistoryPrep" placeholder="Enter a text to filter on"></BFormInput>
+			<BFormInput v-model="filterForHistoryPrep" placeholder="Enter a text to filter on" />
 		</BModal>
 
 		<BModal size="lg" ref="historyEventRef" title="Event history" ok-only>
 			<div v-if="store.state.eventList.length > 0">
 				<div v-for="item in store.state.eventList" :key="item.eventKey">
-					<p class="event-list" :style="{ 'background-color': item.backgroundColor, 'color': item.textColor }">{{ item.time }} {{ item.severity }}: {{ item.txt
-					}}
-					</p>
+					<p class="event-list" :style="{ 'background-color': item.backgroundColor, color: item.textColor }">{{ item.time }} {{ item.severity }}: {{ item.txt }}</p>
 				</div>
 			</div>
 		</BModal>
-
 	</div>
 </template>
 
 <script src="./TreeView.js"></script>
 
 <style lang="scss" scoped>
+/* Horizontal Panes */
+.horizontal-panes {
+	width: 100%;
+	border: 1px solid #ccc;
 
-	/* Horizontal Panes */
-	.horizontal-panes {
-		width: 100%;
-		border: 1px solid #ccc;
-
-		>.pane {
-			text-align: left;
-			padding: 5px;
-			overflow: hidden;
-			background: white;
-
-			~.pane {
-				border-top: 1px solid #ccc;
-			}
-		}
-	}
-
-	/* Vertical Panes */
-	.custom-resizer {
-		width: 100%;
-		height: 100%;
-
-		>.pane {
-			text-align: left;
-			padding: 2px;
-			overflow: hidden;
-			background: #eee;
-			border: 1px solid #ccc;
-		}
-
-		>.MultipaneResizer {
-			margin: 0;
-			left: 0;
-			position: relative;
-
-			&:before {
-				display: block;
-				content: "";
-				width: 3px;
-				height: 40px;
-				position: absolute;
-				top: 400px;
-				left: 50%;
-				margin-top: -20px;
-				margin-left: -1.5px;
-				border-left: 1px solid #408fae;
-				border-right: 1px solid #408fae;
-			}
-
-			&:hover {
-				&:before {
-					border-color: #999;
-				}
-			}
-		}
-	}
-
-	/* Other Styles */
-	h3 {
-		font-size: 1.4em;
-		height: 45px; // Combined height property for h3
-	}
-
-	label {
-		font-size: 1.4em;
-		font-weight: bolder;
-	}
-
-	.top-row {
-		margin-top: 10px;
-		max-width: 100%;
-	}
-
-	.filter-button,
-	.id-sizing {
-		height: 45px;
-	}
-
-	.filter-button {
-		width: 15em;
-	}
-
-	.id-sizing {
-		width: 25em;
-	}
-
-	.group-height {
-		height: 45px;
-	}
-
-	.d-table {
-		display: table;
-	}
-
-	.d-table-cell {
-		display: table-cell;
-		vertical-align: middle;
-
-		.bold {
-			font-weight: bold;
-		}
-	}
-
-	.w-100 {
-		width: 100%;
-	}
-
-	.tar {
-		text-align: right;
-	}
-
-	.tac {
-		text-align: center;
-	}
-
-	.tal {
+	> .pane {
 		text-align: left;
-	}
-
-	.event-list {
-		color: white;
-		padding: 10px;
-		border-radius: 2px;
-	}
-
-	/* Tree Styles */
-	.last-event {
-		width: 100%;
-		text-align: left;
-		padding: 9px;
-		padding-right: 100px;
-		border-radius: 2px;
-	}
-
-	.item-icon {
-		display: inline-block;
-		text-align: left;
-		width: 20px;
-		color: skyblue;
-	}
-
-	.tree-container {
-		flex-grow: 1;
-		height: 100%;
-	}
-
-	/* Custom Styles */
-	.note {
-		background: #eee;
-	}
-
-	.messSquare,
-	.syncOLSquare {
-		position: absolute;
 		padding: 5px;
-		margin: 5px;
+		overflow: hidden;
+		background: white;
+
+		~ .pane {
+			border-top: 1px solid #ccc;
+		}
+	}
+}
+
+/* Vertical Panes */
+.custom-resizer {
+	width: 100%;
+	height: 100%;
+
+	> .pane {
+		text-align: left;
+		padding: 2px;
+		overflow: hidden;
+		background: #eee;
+		border: 1px solid #ccc;
 	}
 
-	.messSquare {
-		right: 50px;
-	}
+	> .MultipaneResizer {
+		margin: 0;
+		left: 0;
+		position: relative;
 
-	.syncOLSquare {
-		width: 42px;
-		right: 3px;
-	}
+		&:before {
+			display: block;
+			content: '';
+			width: 3px;
+			height: 40px;
+			position: absolute;
+			top: 400px;
+			left: 50%;
+			margin-top: -20px;
+			margin-left: -1.5px;
+			border-left: 1px solid #408fae;
+			border-right: 1px solid #408fae;
+		}
 
-	.rectangle {
-		width: 25px;
-		height: 25px;
+		&:hover {
+			&:before {
+				border-color: #999;
+			}
+		}
 	}
+}
 
-	.violation-column {
-		display: inline-block;
-		width: 40px;
-	}
+/* Other Styles */
+h3 {
+	font-size: 1.4em;
+	height: 45px; // Combined height property for h3
+}
 
-	.divider {
-		width: 15px;
+label {
+	font-size: 1.4em;
+	font-weight: bolder;
+}
+
+.top-row {
+	margin-top: 10px;
+	max-width: 100%;
+}
+
+.filter-button,
+.id-sizing {
+	height: 45px;
+}
+
+.filter-button {
+	width: 15em;
+}
+
+.id-sizing {
+	width: 25em;
+}
+
+.group-height {
+	height: 45px;
+}
+
+.d-table {
+	display: table;
+}
+
+.d-table-cell {
+	display: table-cell;
+	vertical-align: middle;
+
+	.bold {
+		font-weight: bold;
 	}
+}
+
+.w-100 {
+	width: 100%;
+}
+
+.tar {
+	text-align: right;
+}
+
+.tac {
+	text-align: center;
+}
+
+.tal {
+	text-align: left;
+}
+
+.event-list {
+	color: white;
+	padding: 10px;
+	border-radius: 2px;
+}
+
+/* Tree Styles */
+.last-event {
+	width: 100%;
+	text-align: left;
+	padding: 9px;
+	padding-right: 100px;
+	border-radius: 2px;
+}
+
+.item-icon {
+	display: inline-block;
+	text-align: left;
+	width: 20px;
+	color: skyblue;
+}
+
+.tree-container {
+	flex-grow: 1;
+	height: 100%;
+}
+
+/* Custom Styles */
+.note {
+	background: #eee;
+}
+
+.messSquare,
+.syncOLSquare {
+	position: absolute;
+	padding: 5px;
+	margin: 5px;
+}
+
+.messSquare {
+	right: 50px;
+}
+
+.syncOLSquare {
+	width: 42px;
+	right: 3px;
+}
+
+.rectangle {
+	width: 25px;
+	height: 25px;
+}
+
+.violation-column {
+	display: inline-block;
+	width: 40px;
+}
+
+.divider {
+	width: 15px;
+}
 </style>

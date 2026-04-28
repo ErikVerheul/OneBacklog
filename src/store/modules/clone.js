@@ -1,6 +1,7 @@
+import globalAxios from 'axios'
+
 import { SEV, LEVEL } from '../../constants.js'
 import { getLocationInfo, createId } from '../../common_functions.js'
-import globalAxios from 'axios'
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
 
@@ -269,9 +270,7 @@ const actions = {
 		}
 		rootState.changeHistory.unshift(entry)
 		commit('addToEventList', {
-			txt: `The ${rootState.helpersRef.getLevelText(payload.originalNode.level)} '${payload.originalNode.title}' and ${
-				clonedDocsCount - 1
-			} descendants are cloned`,
+			txt: `The ${rootState.helpersRef.getLevelText(payload.originalNode.level)} '${payload.originalNode.title}' and ${clonedDocsCount - 1} descendants are cloned`,
 			severity: SEV.INFO,
 		})
 		busyCloning = false

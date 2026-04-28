@@ -1,6 +1,7 @@
+import globalAxios from 'axios'
+
 import { SEV, LEVEL, MISC } from '../../constants.js'
 import { getLocationInfo, localTimeAndMilis, pathToJSON, prepareDocForPresentation, startMsgSquareBlink } from '../../common_functions.js'
-import globalAxios from 'axios'
 var lastSeq = undefined
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly  (if omitted the previous event will be processed again)

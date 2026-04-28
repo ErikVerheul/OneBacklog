@@ -252,8 +252,7 @@ const methods = {
 				title: newNode.title,
 				description: encodeHtml(MISC.EMPTYQUILL),
 				descriptionEncoding: 'escaped',
-				acceptanceCriteria:
-					newNode.level < LEVEL.TASK ? encodeHtml('<p>Please do not neglect</p>') : encodeHtml('<p>See the acceptance criteria of the story/spike/defect.</p>'),
+				acceptanceCriteria: newNode.level < LEVEL.TASK ? encodeHtml('<p>Please do not neglect</p>') : encodeHtml('<p>See the acceptance criteria of the story/spike/defect.</p>'),
 				acceptanceEncoding: 'escaped',
 				priority: newNode.data.priority,
 				comments: [],

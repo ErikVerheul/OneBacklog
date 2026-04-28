@@ -1,5 +1,6 @@
-import { SEV } from '../../constants.js'
 import globalAxios from 'axios'
+
+import { SEV } from '../../constants.js'
 
 // IMPORTANT: all updates on the backlogitem documents must add history in order for the changes feed to work properly (if omitted the previous event will be processed again)
 // Save the history, to trigger the distribution to other online users, when all other database updates are done.
@@ -58,7 +59,7 @@ const actions = {
 		function create_UUID() {
 			let dt = Date.now()
 			const uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-				const r = (dt + Math.random() * 16) % 16 | 0
+				const r = ((dt + Math.random() * 16) % 16) | 0
 				dt = Math.floor(dt / 16)
 				return (c == 'x' ? r : (r & 0x3) | 0x8).toString(16)
 			})

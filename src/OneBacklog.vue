@@ -1,21 +1,19 @@
 <template>
-  <div>
-    <router-view />
-  </div>
+	<div>
+		<router-view />
+	</div>
 </template>
 
 <script>
-  export default {
-    name: 'OneBacklog'
-  }
-
+export default {
+	name: 'OneBacklog',
+}
 </script>
 
 <style>
-
-  body,
-  html {
-    padding: 3px;
-    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-  }
+body,
+html {
+	padding: 3px;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
 </style>

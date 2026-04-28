@@ -1,9 +1,10 @@
 import router from '../../router'
-import Licence from './AppLicence.vue'
 import { isValidEmail } from '../../common_functions.js'
 import { authorization, utilities } from '../mixins/GenericMixin.js'
 import logo from '../../assets/logo.png'
 import store from '../../store/store.js'
+
+import Licence from './AppLicence.vue'
 
 const MINPASSWORDLENGTH = 8
 
