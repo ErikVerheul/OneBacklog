@@ -1,15 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import store from './store/store'
 
+import store from './store/store'
 import WelcomePage from './components/welcome/Welcome-comp.vue'
 import RelNotesPage from './components/rel-notes/RelNotes.vue'
 import UserGuidePage from './components/userguide/UserGuide.vue'
 import InitPage from './components/initdb/InitDb.vue'
 import SigninPage from './components/auth/Sign-in.vue'
 import TreeViewPage from './components/views/tree_view/TreeView.vue'
-
 import PlanningBoard from './components/views/planning_board/PlanningBoard.vue'
-
 import AssistAdminPage from './components/admin/AssistAdmin.vue'
 import AdminPage from './components/admin/AdminTool.vue'
 import ServerAdminPage from './components/serveradmin/ServerAdmin.vue'
@@ -34,7 +32,7 @@ const routes = [
 	{
 		path: '/init',
 		component: InitPage,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user) {
 				return true
 			} else {
@@ -45,7 +43,7 @@ const routes = [
 	{
 		path: '/treeView',
 		component: TreeViewPage,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user && store.state.isProductAssigned) {
 				return true
 			} else {
@@ -56,7 +54,7 @@ const routes = [
 	{
 		path: '/board',
 		component: PlanningBoard,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user) {
 				return true
 			} else {
@@ -67,7 +65,7 @@ const routes = [
 	{
 		path: '/admin',
 		component: AdminPage,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user) {
 				return true
 			} else {
@@ -78,7 +76,7 @@ const routes = [
 	{
 		path: '/assistAdmin',
 		component: AssistAdminPage,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user) {
 				return true
 			} else {
@@ -89,7 +87,7 @@ const routes = [
 	{
 		path: '/serveradmin',
 		component: ServerAdminPage,
-		beforeEnter(to, from) {
+		beforeEnter() {
 			if (store.state.userData.user) {
 				return true
 			} else {
