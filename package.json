@@ -2,6 +2,10 @@
   "type": "module",
   "name": "onebacklog",
   "version": "3.3.1",
+  "_comments": {
+    "eslint": "version 10.2.1 is not compatible with the latest eslint-plugin-import 2.32.0.",
+    "sass-embedded": "version 1.89.2 is required to avoid build issues with Vite and the latest Sass features with bootstrap."
+  },
   "private": true,
   "scripts": {
     "dev": "vite",
@@ -36,29 +40,21 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.59.1",
+    "@typescript-eslint/parser": "^8.59.1",
     "@vitejs/plugin-vue": "^6.0.6",
+    "eslint": "^9.34.4",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
     "eslint-plugin-vue": "^10.9.0",
-    "globals": "^17.5.0",
-    "prettier": "3.8.3",
+    "prettier": "^3.8.3",
     "sass-embedded": "~1.89.2",
     "typescript": "^6.0.3",
     "unplugin-vue-components": "^32.0.0",
     "vite": "^8.0.10",
+    "vue-eslint-parser": "^10.4.0",
     "vue-tsc": "^3.2.7"
-  },
-  "eslintConfig": {
-    "root": true,
-    "env": {
-      "es2022": true,
-      "node": true
-    },
-    "rules": {
-      "no-console": 2,
-      "semi": [
-        2,
-        "never"
-      ]
-    }
   },
   "browserslist": [
     "> 1%",
