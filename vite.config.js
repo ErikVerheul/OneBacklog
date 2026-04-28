@@ -34,5 +34,8 @@ export default defineConfig(({ mode }) => {
 			}),
 		],
 		server: { port: env.VITE_LOCAL_PORT || 3000 },
+		build: {
+			chunkSizeWarningLimit: 1600, // Set the limit to 1600 kB
+		},
 	}
 })
